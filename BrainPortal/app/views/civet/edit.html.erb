@@ -1,0 +1,147 @@
+
+<%
+
+#
+# CBRAIN Project
+#
+# Original author: Pierre Rioux
+#
+# $Id: index.html.erb 38 2008-10-31 17:13:03Z prioux $
+#
+
+-%>
+
+<% title 'CIVET Parameters' %>
+
+<h1>New CIVET task</h1>
+
+Selected T1 file: <%= h(Userfile.find(@civet_params[:mincfile_id]).name) %><BR>
+
+<%
+     form_tag( '/civet/create' ) do 
+-%>
+
+<% if @civet_params[:t2_id] || @civet_params[:pd_id] || @civet_params[:mk_id] %>
+
+<HR>
+
+<%   if @civet_params[:t2_id] %>
+Found T2 file: <%= h(Userfile.find(@civet_params[:t2_id]).name) %><BR>
+<%   end %>
+<%   if @civet_params[:pd_id] %>
+Found PD file: <%= h(Userfile.find(@civet_params[:pd_id]).name) %><BR>
+<%   end %>
+<%   if @civet_params[:mk_id] %>
+Found Mask file: <%= h(Userfile.find(@civet_params[:mk_id]).name) %><BR>
+<%   end %>
+
+Multispectral:
+  <%= check_box_tag( 'civet_params[multispectral]', '1', @civet_params[:multispectral] ) %>
+Spectral Mask:
+  <%= check_box_tag( 'civet_params[spectral_mask]', '1', @civet_params[:spectral_mask] ) %> <BR>
+
+<% end %>
+
+<%= hidden_field_tag 'civet_params[mincfile_id]', @civet_params[:mincfile_id] %>
+<%= hidden_field_tag 'civet_params[t2_id]',       @civet_params[:t2_id] %>
+<%= hidden_field_tag 'civet_params[pd_id]',       @civet_params[:pd_id] %>
+<%= hidden_field_tag 'civet_params[mk_id]',       @civet_params[:mk_id] %>
+
+<HR>
+
+Prefix:
+  <%= text_field_tag 'civet_params[prefix]', @civet_params[:prefix] %>
+<BR>
+
+Subject ID:
+  <%= text_field_tag 'civet_params[dsid]',   @civet_params[:dsid]   %>
+<BR>
+
+<HR>
+
+Make graph:
+  <%= check_box_tag( 'civet_params[make_graph]', '1', @civet_params[:make_graph] ) %>
+<BR>
+
+Make filename graph:
+  <%= check_box_tag( 'civet_params[make_filename_graph]', '1', @civet_params[:make_filename_graph] ) %>
+<BR>
+
+Print status report:
+  <%= check_box_tag( 'civet_params[print_status_report]', '1', @civet_params[:print_status_report] ) %>
+<BR>
+
+<HR>
+
+Template:
+  <select name="civet_params[template]">
+  <%= options_for_select(
+    [ "0.50", "0.75", "1.00", "1.50", "2.00", "3.00", "4.00", "6.00" ],
+    @civet_params[:template])
+  %>
+  </select>
+<BR>
+
+Model:
+  <select name="civet_params[model]">
+  <%= options_for_select(
+    [ "icbm152lin", "icbm152nl" ],
+    @civet_params[:model])
+  %>
+  </select>
+<BR>
+
+Correct PVE:
+  <%= check_box_tag( 'civet_params[correct_pve]', '1', @civet_params[:correct_pve] ) %>
+<BR>
+
+Interpolation:
+  <select name="civet_params[interp]">
+  <%= options_for_select(
+    [ "trilinear", "tricubic", "sinc" ],
+    @civet_params[:interp])
+  %>
+  </select>
+<BR>
+
+N3 distance:
+  <%= text_field_tag 'civet_params[N3_distance]', @civet_params[:N3_distance]   %>
+<BR>
+
+Number of parameters transformation for linear registration:
+  <select name="civet_params[lsq]">
+  <%= options_for_select(
+    [ "6", "9", "12" ],
+    @civet_params[:lsq])
+  %>
+  </select>
+<BR>
+
+Do NOT build surfaces:
+  <%= check_box_tag( 'civet_params[no_surfaces]', '1', @civet_params[:no_surfaces] ) %>
+<BR>
+
+Thickness method and kernel size:
+  <select name="civet_params[thickness_method]">
+  <%= options_for_select(
+    [ "tnormal", "tlink", "tlaplace", "tnear" ],
+    @civet_params[:thickness_method])
+  %>
+  </select>
+  <%= text_field_tag 'civet_params[thickness_kernel]', @civet_params[:thickness_kernel]   %>
+<BR>
+
+Resample surfaces:
+  <%= check_box_tag( 'civet_params[resample_surfaces]', '1', @civet_params[:resample_surfaces] ) %>
+<BR>
+
+Combine surfaces:
+  <%= check_box_tag( 'civet_params[combine_surfaces]', '1', @civet_params[:combine_surfaces] ) %>
+<BR>
+
+<HR>
+
+<%= submit_tag 'Start CIVET' %>
+
+<% end %>
+
