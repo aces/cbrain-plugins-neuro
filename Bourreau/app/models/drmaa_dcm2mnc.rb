@@ -40,7 +40,7 @@ class DrmaaDcm2mnc < DrmaaTask
     params       = self.params
     [
       "source #{CBRAIN::Quarantine_dir}/init.sh",
-      "dcm2mnc dicom results",
+      "dcm2mnc dicom_col results",
     ]
   end
 

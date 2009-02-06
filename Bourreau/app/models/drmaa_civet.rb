@@ -143,7 +143,7 @@ class DrmaaCivet < DrmaaTask
     # Note: tar file will be cleaned up at the same time the workdir is erased
 
     # TODO: speed up .read() ?
-    civetresult = Userfile.new(
+    civetresult = SingleFile.new(
       :user_id   => user_id,
       :name      => civet_tarresult,
       :content   => File.read(civet_tarresult)
