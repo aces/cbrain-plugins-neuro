@@ -37,7 +37,7 @@ class DrmaaDcm2mnc < DrmaaTask
   def drmaa_commands
     params       = self.params
     [
-      "export PATH=\"/usr/local/bic/bin:\"$PATH",
+      "source #{CBRAIN::Quarantine_dir}/init.sh",
       "dcm2mnc dicom results",
     ]
   end

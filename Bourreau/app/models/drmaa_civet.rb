@@ -36,6 +36,8 @@ class DrmaaCivet < DrmaaTask
       return false
     end
 
+    pre_synchronize_userfile(mincfile)
+
     Dir.mkdir("mincfiles",0700)
 
     vaultname    = mincfile.vaultname
@@ -43,18 +45,24 @@ class DrmaaCivet < DrmaaTask
 
     if params[:multispectral] || params[:spectral_mask]
       if (t2_id)
-        t2vaultname = Userfile.find(t2_id).vaultname
+        t2vaultfile = Userfile.find(t2_id)
+        t2vaultname = t2vaultfile.vaultname
         File.symlink(t2vaultname,"mincfiles/#{prefix}_#{dsid}_t2.mnc")
+        pre_synchronize_userfile(t2vaultfile)
       end
 
       if (pd_id)
-        pdvaultname = Userfile.find(pd_id).vaultname
+        pdvaultfile = Userfile.find(pd_id)
+        pdvaultname = pdvaultfile.vaultname
         File.symlink(pdvaultname,"mincfiles/#{prefix}_#{dsid}_pd.mnc")
+        pre_synchronize_userfile(pdvaultfile)
       end
 
       if (mk_id)
-        mkvaultname = Userfile.find(mk_id).vaultname
+        mkvaultfile = Userfile.find(mk_id)
+        mkvaultname = mkvaultfile.vaultname
         File.symlink(mkvaultname,"mincfiles/#{prefix}_#{dsid}_mask.mnc")
+        pre_synchronize_userfile(mkvaultfile)
       end
     end
 
@@ -110,8 +118,8 @@ class DrmaaCivet < DrmaaTask
     self.addlog("Full CIVET command:\n  #{civet_command.gsub(/ -/, "\n  -")}")
 
     return [
-      "source /usr/local/bic/init.sh",
-      "export PATH=\"/usr/local/bic/CIVET:$PATH\"",
+      "source #{CBRAIN::Quarantine_dir}/init.sh",
+      "export PATH=\"#{CBRAIN::CIVET_dir}:$PATH\"",
       "echo \"\";echo Showing ENVIRONMENT",
       "env | sort",
       "echo \"\";echo Starting CIVET",
@@ -144,6 +152,7 @@ class DrmaaCivet < DrmaaTask
     if civetresult.save
       civetresult.move_to_child_of(mincfile)
       self.addlog("Saved new civet result file #{civetresult.name}.")
+      post_synchronize_userfile(civetresult)
       return true
     else
       self.addlog("Could not save back result file '#{civetresult.name}'.")
