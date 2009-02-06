@@ -14,22 +14,24 @@ class DrmaaDcm2mnc < DrmaaTask
   Revision_info="$Id: drmaa_minc2jiv.rb 96 2008-12-18 18:02:02Z prioux $"
 
   def setup
-    params        = self.params
-    dicom_ids     = params[:dicom_ids].split(",")  # array of IDs
+    params      = self.params
+    dicom_colid = params[:dicom_colid]  # the ID of a FileCollection
+    dicom_col   = Userfile.find(dicom_colid)
 
-    Dir.mkdir("dicom",0700)
-    Dir.mkdir("results",0700)
-
-    dicom_ids.each do |id|
-      dicomfile  = Userfile.find(id)
-      unless dicomfile
-        self.addlog("Could not find active record entry for userfile #{id}")
-        return false
-      end
-      vaultname = dicomfile.vaultname
-      basename  = File.basename(dicomfile.name)
-      File.symlink(vaultname,"dicom/#{basename}")
+    unless dicom_col
+      self.addlog("Could not find active record entry for file collection #{dicom_colid}")
+      return false
     end
+
+    unless dicom_col.class.to_s == "FileCollection"
+      self.addlog("Error: ActiveRecord entry #{dicom_colid} is not a file collection.")
+      return false
+    end
+
+    vaultname = dicom_col.vaultname
+    File.symlink(vaultname,"dicom_col")
+    Dir.mkdir("results",0700)
+    pre_synchronize_userfile(dicom_col)
 
     true
   end
@@ -43,8 +45,10 @@ class DrmaaDcm2mnc < DrmaaTask
   end
 
   def save_results
-    params       = self.params
-    user_id      = self.user_id
+    params      = self.params
+    dicom_colid = params[:dicom_colid]  # the ID of a FileCollection
+    dicom_col   = Userfile.find(dicom_colid)
+    user_id     = self.user_id
 
     io = IO.popen("find results -type f -name \"*.mnc\" -print")
 
@@ -54,12 +58,14 @@ class DrmaaDcm2mnc < DrmaaTask
       next unless file.match(/\.mnc\s*$/)
       file = file.sub(/\n$/,"")
       basename = File.basename(file)
-      mincfile = Userfile.new(
+      mincfile = SingleFile.new(
         :user_id   => user_id,
         :name      => basename,
         :content   => File.read(file)
       )
       if mincfile.save
+        mincfile.move_to_child_of(dicom_col)
+        post_synchronize_userfile(mincfile)
         self.addlog("Saved new MINC file #{basename}")
       else
         numfail += 1
