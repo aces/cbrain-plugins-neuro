@@ -6,12 +6,12 @@
 #
 # Original author: Pierre Rioux
 #
-# $Id: drmaa_minc2jiv.rb 87 2008-12-10 21:06:03Z prioux $
+# $Id$
 #
 
 class DrmaaCivet < DrmaaTask
 
-  Revision_info="$Id: drmaa_minc2jiv.rb 87 2008-12-10 21:06:03Z prioux $"
+  Revision_info="$Id$"
 
 #    /usr/local/bic/CIVET/CIVET_Processing_Pipeline -prefix demo -source /home/mero/CIVET/mincfiles -target /home/mero/CIVET -lsq12 -spawn -run rioux_pierre
 #

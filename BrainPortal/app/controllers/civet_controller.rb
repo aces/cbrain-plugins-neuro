@@ -6,12 +6,12 @@
 #
 # Original author: Pierre Rioux
 #
-# $Id: tasks_controller.rb 96 2008-12-18 18:02:02Z prioux $
+# $Id$
 #
 
 class CivetController < ApplicationController
 
-  Revision_info="$Id: tasks_controller.rb 96 2008-12-18 18:02:02Z prioux $"
+  Revision_info="$Id$"
 
   before_filter :login_required
 

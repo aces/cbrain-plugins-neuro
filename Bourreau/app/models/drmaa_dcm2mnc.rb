@@ -6,12 +6,12 @@
 #
 # Original author: Pierre Rioux
 #
-# $Id: drmaa_minc2jiv.rb 96 2008-12-18 18:02:02Z prioux $
+# $Id$
 #
 
 class DrmaaDcm2mnc < DrmaaTask
 
-  Revision_info="$Id: drmaa_minc2jiv.rb 96 2008-12-18 18:02:02Z prioux $"
+  Revision_info="$Id$"
 
   def setup
     params      = self.params
