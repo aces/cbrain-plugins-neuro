@@ -15,7 +15,7 @@
 
 <h1>New CIVET task</h1>
 
-Selected T1 file: <%= h(Userfile.find(@civet_params[:mincfile_id]).name) %><BR>
+<big>Selected T1 file: <strong><%= h(Userfile.find(@civet_params[:mincfile_id]).name) %></strong></big><BR>
 
 <%
      form_tag( '/civet/create' ) do 
@@ -47,32 +47,42 @@ Spectral Mask:
 <%= hidden_field_tag 'civet_params[pd_id]',       @civet_params[:pd_id] %>
 <%= hidden_field_tag 'civet_params[mk_id]',       @civet_params[:mk_id] %>
 
-<HR>
+<table class="userfiles">
+<tr>
+   <th>File Options</th>
+   <th>Pipeline Control Options</th>
+<tr>
+<tr class="list-even">
+<td>
+   Prefix:
+     <%= text_field_tag 'civet_params[prefix]', @civet_params[:prefix] %>
+   <BR>
 
-Prefix:
-  <%= text_field_tag 'civet_params[prefix]', @civet_params[:prefix] %>
-<BR>
+   Subject ID:
+     <%= text_field_tag 'civet_params[dsid]',   @civet_params[:dsid]   %>
+</td>
 
-Subject ID:
-  <%= text_field_tag 'civet_params[dsid]',   @civet_params[:dsid]   %>
-<BR>
+<td>
+   Make graph:
+     <%= check_box_tag( 'civet_params[make_graph]', '1', @civet_params[:make_graph] ) %>
+   <BR>
 
-<HR>
+   Make filename graph:
+     <%= check_box_tag( 'civet_params[make_filename_graph]', '1', @civet_params[:make_filename_graph] ) %>
+   <BR>
 
-Make graph:
-  <%= check_box_tag( 'civet_params[make_graph]', '1', @civet_params[:make_graph] ) %>
-<BR>
+   Print status report:
+     <%= check_box_tag( 'civet_params[print_status_report]', '1', @civet_params[:print_status_report] ) %>   
+</td>
 
-Make filename graph:
-  <%= check_box_tag( 'civet_params[make_filename_graph]', '1', @civet_params[:make_filename_graph] ) %>
-<BR>
+</tr>
 
-Print status report:
-  <%= check_box_tag( 'civet_params[print_status_report]', '1', @civet_params[:print_status_report] ) %>
-<BR>
-
-<HR>
-
+<tr>
+   <th>Pipeline Options</th>
+   <th>Civet Options</th>
+</tr>
+<tr class="list-even">
+<td>
 Template:
   <select name="civet_params[template]">
   <%= options_for_select(
@@ -89,8 +99,8 @@ Model:
     @civet_params[:model])
   %>
   </select>
-<BR>
-
+</td>
+<td>
 Correct PVE:
   <%= check_box_tag( 'civet_params[correct_pve]', '1', @civet_params[:correct_pve] ) %>
 <BR>
@@ -137,9 +147,10 @@ Resample surfaces:
 
 Combine surfaces:
   <%= check_box_tag( 'civet_params[combine_surfaces]', '1', @civet_params[:combine_surfaces] ) %>
-<BR>
+</td>
+</tr>
 
-<HR>
+</table>
 
 <%= submit_tag 'Start CIVET' %>
 
