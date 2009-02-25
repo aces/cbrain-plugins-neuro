@@ -54,25 +54,53 @@ Spectral Mask:
 <tr>
 <tr class="list-even">
 <td>
-   Prefix:
-     <%= text_field_tag 'civet_params[prefix]', @civet_params[:prefix] %>
-   <BR>
-
-   Subject ID:
-     <%= text_field_tag 'civet_params[dsid]',   @civet_params[:dsid]   %>
+   <table border="0" class="userfiles">
+      <tr>
+         <td>
+            Prefix:
+         </td>
+         <td>
+         <%= text_field_tag 'civet_params[prefix]', @civet_params[:prefix] %>   
+         </td>
+      </tr>
+      <tr>
+         <td>
+            Subject ID:
+         </td>
+         <td>
+         <%= text_field_tag 'civet_params[dsid]',   @civet_params[:dsid]   %>
+         </td>
+      </tr>
+    </table>
 </td>
 
 <td>
-   Make graph:
-     <%= check_box_tag( 'civet_params[make_graph]', '1', @civet_params[:make_graph] ) %>
-   <BR>
-
-   Make filename graph:
-     <%= check_box_tag( 'civet_params[make_filename_graph]', '1', @civet_params[:make_filename_graph] ) %>
-   <BR>
-
-   Print status report:
-     <%= check_box_tag( 'civet_params[print_status_report]', '1', @civet_params[:print_status_report] ) %>   
+   <table border="0" class="userfiles">
+   <tr>
+      <td>
+         Make graph:
+      </td>
+      <td>
+        <%= check_box_tag( 'civet_params[make_graph]', '1', @civet_params[:make_graph]) %>     
+      </td>
+   </tr>
+   <tr>
+      <td>
+          Make filename graph:  
+      </td>
+      <td>
+          <%= check_box_tag( 'civet_params[make_filename_graph]', '1', @civet_params[:make_filename_graph] ) %>    
+      </td>
+   </tr>
+   <tr>
+      <td>
+          Print status report:
+      </td>
+      <td>
+          <%= check_box_tag( 'civet_params[print_status_report]', '1', @civet_params[:print_status_report] ) %>    
+      </td>
+   </tr>
+   </table>      
 </td>
 
 </tr>
@@ -83,70 +111,118 @@ Spectral Mask:
 </tr>
 <tr class="list-even">
 <td>
-Template:
-  <select name="civet_params[template]">
-  <%= options_for_select(
-    [ "0.50", "0.75", "1.00", "1.50", "2.00", "3.00", "4.00", "6.00" ],
-    @civet_params[:template])
-  %>
-  </select>
-<BR>
-
-Model:
-  <select name="civet_params[model]">
-  <%= options_for_select(
-    [ "icbm152lin", "icbm152nl" ],
-    @civet_params[:model])
-  %>
-  </select>
+   <table border="0" class="userfiles">
+      <tr>
+         <td>
+            Template:
+         </td>
+         <td>
+            <select name="civet_params[template]">
+              <%= options_for_select(
+                [ "0.50", "0.75", "1.00", "1.50", "2.00", "3.00", "4.00", "6.00" ],
+                @civet_params[:template])
+              %>
+              </select>
+         </td>
+      </tr>
+      <tr>
+         <td>
+            Model:
+         </td>
+         <td>
+            <select name="civet_params[model]">
+              <%= options_for_select(
+                [ "icbm152lin", "icbm152nl" ],
+                @civet_params[:model])
+              %>
+              </select>
+         </td>
+      </tr>
+    </table>
 </td>
 <td>
-Correct PVE:
-  <%= check_box_tag( 'civet_params[correct_pve]', '1', @civet_params[:correct_pve] ) %>
-<BR>
-
-Interpolation:
-  <select name="civet_params[interp]">
-  <%= options_for_select(
-    [ "trilinear", "tricubic", "sinc" ],
-    @civet_params[:interp])
-  %>
-  </select>
-<BR>
-
-N3 distance:
-  <%= text_field_tag 'civet_params[N3_distance]', @civet_params[:N3_distance]   %>
-<BR>
-
-Number of parameters transformation for linear registration:
-  <select name="civet_params[lsq]">
-  <%= options_for_select(
-    [ "6", "9", "12" ],
-    @civet_params[:lsq])
-  %>
-  </select>
-<BR>
-
-Do NOT build surfaces:
-  <%= check_box_tag( 'civet_params[no_surfaces]', '1', @civet_params[:no_surfaces] ) %>
-<BR>
-
-Thickness method and kernel size:
-  <select name="civet_params[thickness_method]">
-  <%= options_for_select(
-    [ "tnormal", "tlink", "tlaplace", "tnear" ],
-    @civet_params[:thickness_method])
-  %>
-  </select>
-  <%= text_field_tag 'civet_params[thickness_kernel]', @civet_params[:thickness_kernel]   %>
-<BR>
-
-Resample surfaces:
-  <%= check_box_tag( 'civet_params[resample_surfaces]', '1', @civet_params[:resample_surfaces] ) %>
-<BR>
-
-Combine surfaces:
-  <%= check_box_tag( 'civet_params[combine_surfaces]', '1', @civet_params[:combine_surfaces] ) %>
+   <table border="0" class="userfiles">
+      <tr>
+         <td>
+            Correct PVE:
+         </td>
+         <td>
+            <%= check_box_tag( 'civet_params[correct_pve]', '1', @civet_params[:correct_pve] ) %>
+         </td>
+      </tr>
+      <tr>
+         <td>
+            Interpolation:
+         </td>
+         <td>
+            <select name="civet_params[interp]">
+              <%= options_for_select(
+                [ "trilinear", "tricubic", "sinc" ],
+                @civet_params[:interp])
+              %>
+              </select>
+         </td>
+      </tr>
+      <tr>
+         <td>
+            N3 distance:
+         </td>
+         <td>
+            <%= text_field_tag 'civet_params[N3_distance]', @civet_params[:N3_distance]   %>
+         </td>
+      </tr>
+      <tr>
+         <td>
+            Number of parameters transformation for linear registration:
+         </td>
+         <td>
+            <select name="civet_params[lsq]">
+              <%= options_for_select(
+                [ "6", "9", "12" ],
+                @civet_params[:lsq])
+              %>
+              </select>
+         </td>
+      </tr>
+      <tr>
+         <td>
+            Do NOT build surfaces:
+         </td>
+         <td>
+             <%= check_box_tag( 'civet_params[no_surfaces]', '1', @civet_params[:no_surfaces] ) %>
+         </td>
+      </tr>
+      <tr>
+         <td>
+            Thickness method and kernel size:       
+         </td>
+         <td>
+            <select name="civet_params[thickness_method]">
+              <%= options_for_select(
+                [ "tnormal", "tlink", "tlaplace", "tnear" ],
+                @civet_params[:thickness_method])
+              %>
+              </select>
+              <%= text_field_tag 'civet_params[thickness_kernel]', @civet_params[:thickness_kernel]   %>
+         </td>
+      </tr>
+      <tr>
+         <td>
+            Resample surfaces:
+         </td>
+         <td>
+            <%= check_box_tag( 'civet_params[resample_surfaces]', '1', @civet_params[:resample_surfaces] ) %>
+         </td>
+      </tr>
+      <tr>
+         <td>
+            Combine surfaces:
+         </td>
+         <td>
+            <%= check_box_tag( 'civet_params[combine_surfaces]', '1', @civet_params[:combine_surfaces] ) %>
+         </td>
+      </tr>
+    </table>
 </td>
 </tr>
 
