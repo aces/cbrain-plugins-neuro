@@ -15,65 +15,20 @@
 
 <h1>New CIVET task</h1>
 
-<big>Selected T1 file: <strong><%= h(Userfile.find(@civet_params[:mincfile_id]).name) %></strong></big><BR>
-
 <%
      form_tag( '/civet/create' ) do 
 -%>
 
-<% if @civet_params[:t2_id] || @civet_params[:pd_id] || @civet_params[:mk_id] %>
-
-<HR>
-
-<%   if @civet_params[:t2_id] %>
-Found T2 file: <%= h(Userfile.find(@civet_params[:t2_id]).name) %><BR>
-<%   end %>
-<%   if @civet_params[:pd_id] %>
-Found PD file: <%= h(Userfile.find(@civet_params[:pd_id]).name) %><BR>
-<%   end %>
-<%   if @civet_params[:mk_id] %>
-Found Mask file: <%= h(Userfile.find(@civet_params[:mk_id]).name) %><BR>
-<%   end %>
-
-Multispectral:
-  <%= check_box_tag( 'civet_params[multispectral]', '1', @civet_params[:multispectral] ) %>
-Spectral Mask:
-  <%= check_box_tag( 'civet_params[spectral_mask]', '1', @civet_params[:spectral_mask] ) %> <BR>
-
+<% for file in @file_params %>
+   <%= render :partial => 'civet_file', :locals  => {:file  => file} %>
 <% end %>
-
-<%= hidden_field_tag 'civet_params[mincfile_id]', @civet_params[:mincfile_id] %>
-<%= hidden_field_tag 'civet_params[t2_id]',       @civet_params[:t2_id] %>
-<%= hidden_field_tag 'civet_params[pd_id]',       @civet_params[:pd_id] %>
-<%= hidden_field_tag 'civet_params[mk_id]',       @civet_params[:mk_id] %>
 
 <table class="userfiles">
 <tr>
-   <th>File Options</th>
    <th>Pipeline Control Options</th>
+   <th>Civet Options</th>
 <tr>
 <tr class="list-even">
-<td>
-   <table border="0" class="userfiles">
-      <tr>
-         <td>
-            Prefix:
-         </td>
-         <td>
-         <%= text_field_tag 'civet_params[prefix]', @civet_params[:prefix] %>   
-         </td>
-      </tr>
-      <tr>
-         <td>
-            Subject ID:
-         </td>
-         <td>
-         <%= text_field_tag 'civet_params[dsid]',   @civet_params[:dsid]   %>
-         </td>
-      </tr>
-    </table>
-</td>
-
 <td>
    <table border="0" class="userfiles">
    <tr>
@@ -102,45 +57,7 @@ Spectral Mask:
    </tr>
    </table>      
 </td>
-
-</tr>
-
-<tr>
-   <th>Pipeline Options</th>
-   <th>Civet Options</th>
-</tr>
-<tr class="list-even">
-<td>
-   <table border="0" class="userfiles">
-      <tr>
-         <td>
-            Template:
-         </td>
-         <td>
-            <select name="civet_params[template]">
-              <%= options_for_select(
-                [ "0.50", "0.75", "1.00", "1.50", "2.00", "3.00", "4.00", "6.00" ],
-                @civet_params[:template])
-              %>
-              </select>
-         </td>
-      </tr>
-      <tr>
-         <td>
-            Model:
-         </td>
-         <td>
-            <select name="civet_params[model]">
-              <%= options_for_select(
-                [ "icbm152lin", "icbm152nl" ],
-                @civet_params[:model])
-              %>
-              </select>
-         </td>
-      </tr>
-    </table>
-</td>
-<td>
+<td rowspan="3">
    <table border="0" class="userfiles">
       <tr>
          <td>
@@ -220,6 +137,42 @@ Spectral Mask:
          </td>
          <td>
             <%= check_box_tag( 'civet_params[combine_surfaces]', '1', @civet_params[:combine_surfaces] ) %>
+         </td>
+      </tr>
+    </table>
+</td>
+</tr>
+
+<tr>
+   <th>Pipeline Options</th>
+</tr>
+<tr class="list-even">
+<td>
+   <table border="0" class="userfiles">
+      <tr>
+         <td>
+            Template:
+         </td>
+         <td>
+            <select name="civet_params[template]">
+              <%= options_for_select(
+                [ "0.50", "0.75", "1.00", "1.50", "2.00", "3.00", "4.00", "6.00" ],
+                @civet_params[:template])
+              %>
+              </select>
+         </td>
+      </tr>
+      <tr>
+         <td>
+            Model:
+         </td>
+         <td>
+            <select name="civet_params[model]">
+              <%= options_for_select(
+                [ "icbm152lin", "icbm152nl" ],
+                @civet_params[:model])
+              %>
+              </select>
          </td>
       </tr>
     </table>

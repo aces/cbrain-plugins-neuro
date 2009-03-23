@@ -1,0 +1,45 @@
+<big>Selected T1 file: <strong><%= h(Userfile.find(file[:mincfile_id]).name) %></strong></big><BR>
+   <table border="0" class="userfiles">
+      <tr>
+         <td>
+            Prefix:
+         </td>
+         <td>
+         <%= text_field_tag 'file_params[][prefix]', file[:prefix] %>   
+         </td>
+      </tr>
+      <tr>
+         <td>
+            Subject ID:
+         </td>
+         <td>
+         <%= text_field_tag 'file_params[][dsid]',   file[:dsid]   %>
+         </td>
+      </tr>
+    </table>
+
+<% if file[:t2_id] || file[:pd_id] || file[:mk_id] %>
+
+<HR>
+
+<%   if file[:t2_id] %>
+Found T2 file: <%= h(Userfile.find(file[:t2_id]).name) %><BR>
+<%   end %>
+<%   if file[:pd_id] %>
+Found PD file: <%= h(Userfile.find(file[:pd_id]).name) %><BR>
+<%   end %>
+<%   if file[:mk_id] %>
+Found Mask file: <%= h(Userfile.find(file[:mk_id]).name) %><BR>
+<%   end %>
+
+Multispectral:
+  <%= check_box_tag( 'file_params[][multispectral]', '1', file[:multispectral] ) %>
+Spectral Mask:
+  <%= check_box_tag( 'file_params[][spectral_mask]', '1', file[:spectral_mask] ) %> <BR>
+
+<% end %>
+
+<%= hidden_field_tag 'file_params[][mincfile_id]', file[:mincfile_id] %>
+<%= hidden_field_tag 'file_params[][t2_id]',       file[:t2_id] %>
+<%= hidden_field_tag 'file_params[][pd_id]',       file[:pd_id] %>
+<%= hidden_field_tag 'file_params[][mk_id]',       file[:mk_id] %>

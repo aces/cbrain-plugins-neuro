@@ -18,30 +18,34 @@ class CivetController < ApplicationController
   # GET  /civet/edit/id             # initially
   # POST /civet/edit                # all subsequent edit sessions
   def edit
-
+    
+    @file_params ||= []
     @civet_params = params[:civet_params]    # can be nil at first
 
-    mincfile_id   = params[:id]  # provided first time we enter the edit page
 
-    # This block of code is executed only once in an edit
-    # session, when we first enter the page
-    if mincfile_id
-      mincfile      = Userfile.find(mincfile_id)
-      basename      = mincfile.name
-      if basename.match(/([^\/]+)_(\w+)_t1(_\w+)?\.mnc(\.gz|.Z)?$/)
-        prefix = Regexp.last_match[1]
-        dsid   = Regexp.last_match[2]
-      else
-        prefix = "prefix"
-        dsid   = "dsid"
+    #TODO: complete multifile runs
+    mincfiles   = params[:ids]  # provided first time we enter the edit page
+    
+    mincfiles.each do |mincfile_id|
+      # This block of code is executed only once in an edit
+      # session, when we first enter the page
+      if mincfile_id
+        mincfile      = Userfile.find(mincfile_id)
+        basename      = mincfile.name
+        if basename.match(/([^\/]+)_(\w+)_t1(_\w+)?\.mnc(\.gz|.Z)?$/)
+          prefix = Regexp.last_match[1]
+          dsid   = Regexp.last_match[2]
+        else
+          prefix = "prefix"
+          dsid   = "dsid"
+        end
+
+        # These three Userfile IDs are for (the optional) t2, pd and mask files
+        # associated with the main t1 file.
+        (t2_id,pd_id,mk_id) = find_t2_pd_mask(basename)
       end
-
-      # These three Userfile IDs are for (the optional) t2, pd and mask files
-      # associated with the main t1 file.
-      (t2_id,pd_id,mk_id) = find_t2_pd_mask(basename)
-    end
-
-    @civet_params ||= {
+    
+      @file_params << {
         :mincfile_id         => mincfile_id,
         :t2_id               => t2_id,
         :pd_id               => pd_id,
@@ -49,16 +53,23 @@ class CivetController < ApplicationController
 
         :prefix              => prefix,      # -prefix
         :dsid                => dsid,        #
+        
+        :multispectral       => false,       # -multispectral for true
+        :spectral_mask       => false,       # -spectral-mask for true
+      }  
+    end
+    
 
+    @civet_params ||= {
         :make_graph          => false,       # -make-graph for true
         :make_filename_graph => false,       # -make-filename-graph for true
         :print_status_report => false,       # -print-status-report for true
 
         :template            => '1.00',      # -template
         :model               => 'icbm152nl', # -model
-        :multispectral       => false,       # -multispectral for true
+        
         :correct_pve         => false,       # -[no-]correct-pve
-        :spectral_mask       => false,       # -spectral-mask for true
+        
         :interp              => 'trilinear', # -interp
         :N3_distance         => 200,         # -N3-distance
         :lsq                 => '9',         # -lsq6, -lsq9, -lsq12
@@ -90,20 +101,24 @@ class CivetController < ApplicationController
 
   def create
     @civet_params = params[:civet_params]
+    @file_params = params[:file_params]
+    
+    @file_params.each do |file|
+      mincfile_id   = file[:mincfile_id]
+      mincfile = Userfile.find(mincfile_id)
 
-    mincfile_id   = @civet_params[:mincfile_id]
-    mincfile = Userfile.find(mincfile_id)
+      #flash[:error] = "This is a fake error."
+      #render :action => 'edit'
 
-    #flash[:error] = "This is a fake error."
-    #render :action => 'edit'
+      mj = DrmaaCivet.new
+      mj.user_id = current_user.id
+      mj.params = @civet_params.merge(file)
+      mj.save
 
-    mj = DrmaaCivet.new
-    mj.user_id = current_user.id
-    mj.params = @civet_params
-    mj.save
-
-    flash[:notice] ||= ""
-    flash[:notice] += "Started Civet on file '#{mincfile.name}'.\n"
+      flash[:notice] ||= ""
+      flash[:notice] += "Started Civet on file '#{mincfile.name}'.\n"  
+    end
+    
     redirect_to :controller => :tasks, :action => :index
 
   end
