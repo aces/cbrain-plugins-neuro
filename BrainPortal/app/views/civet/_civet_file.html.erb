@@ -1,4 +1,4 @@
-<big>Selected T1 file: <strong><%= h(Userfile.find(file[:mincfile_id]).name) %></strong></big><BR>
+<big>File options for T1 file: <strong><%= h(Userfile.find(file[:mincfile_id]).name) %></strong></big><BR>
    <table border="0" class="userfiles">
       <tr>
          <td>
@@ -19,8 +19,6 @@
     </table>
 
 <% if file[:t2_id] || file[:pd_id] || file[:mk_id] %>
-
-<HR>
 
 <%   if file[:t2_id] %>
 Found T2 file: <%= h(Userfile.find(file[:t2_id]).name) %><BR>
@@ -43,3 +41,5 @@ Spectral Mask:
 <%= hidden_field_tag 'file_params[][t2_id]',       file[:t2_id] %>
 <%= hidden_field_tag 'file_params[][pd_id]',       file[:pd_id] %>
 <%= hidden_field_tag 'file_params[][mk_id]',       file[:mk_id] %>
+
+<HR>
