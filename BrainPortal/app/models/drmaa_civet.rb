@@ -13,14 +13,14 @@ class DrmaaCivet < DrmaaTask
 
   Revision_info="$Id$"
 
-  def self.has_params?
+  def self.has_args?
     true
   end
   
-  def self.get_default_params(params = {})
-    file_ids = params[:ids]
-    file_params = []
-    civet_params = nil
+  def self.get_default_args(params = {})
+    file_ids = params[:file_ids]
+    file_args = []
+    civet_args = nil
     
     file_ids.each do |mincfile_id|
       # This block of code is executed only once in an edit
@@ -39,7 +39,7 @@ class DrmaaCivet < DrmaaTask
         # associated with the main t1 file.
         (t2_id,pd_id,mk_id) = find_t2_pd_mask(basename)
     
-      file_params << {
+      file_args << {
         :mincfile_id         => mincfile_id,
         :t2_id               => t2_id,
         :pd_id               => pd_id,
@@ -53,7 +53,7 @@ class DrmaaCivet < DrmaaTask
       }  
     end
     
-    civet_params = {
+    civet_args = {
         :make_graph          => false,       # -make-graph for true
         :make_filename_graph => false,       # -make-filename-graph for true
         :print_status_report => false,       # -print-status-report for true
@@ -85,15 +85,15 @@ class DrmaaCivet < DrmaaTask
 
     }
     
-    {:file_params  => file_params, :civet_params  => civet_params}
+    {:file_args  => file_args, :civet_args  => civet_args}
   end
   
   def self.launch(params)
-    civet_params = params[:civet_params]
-    file_params = params[:file_params]
+    civet_args = params[:civet_args]
+    file_args = params[:file_args]
     flash = ""
     
-    file_params.each do |file|
+    file_args.each do |file|
       mincfile_id   = file[:mincfile_id]
       mincfile = Userfile.find(mincfile_id, :include  => :user)
 
@@ -102,7 +102,7 @@ class DrmaaCivet < DrmaaTask
 
       mj = DrmaaCivet.new
       mj.user_id = mincfile.user.id
-      mj.params = civet_params.merge(file)
+      mj.params = civet_args.merge(file)
       mj.save
 
       flash += "Started Civet on file '#{mincfile.name}'.\n"  
