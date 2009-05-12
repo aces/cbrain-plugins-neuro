@@ -19,7 +19,9 @@
      form_tag( '/civet/create' ) do 
 -%>
 
-<% for file in @file_params %>
+<%= hidden_field_tag :type, 'DrmaaCivet' %>
+
+<% for file in @params[:file_params] %>
    <%= render :partial => 'civet_file', :locals  => {:file  => file} %>
 <% end %>
 
@@ -38,7 +40,7 @@
          Make graph:
       </td>
       <td>
-        <%= check_box_tag( 'civet_params[make_graph]', '1', @civet_params[:make_graph]) %>     
+        <%= check_box_tag( 'civet_params[make_graph]', '1', @params[:civet_params][:make_graph]) %>     
       </td>
    </tr>
    <tr>
@@ -46,7 +48,7 @@
           Make filename graph:  
       </td>
       <td>
-          <%= check_box_tag( 'civet_params[make_filename_graph]', '1', @civet_params[:make_filename_graph] ) %>    
+          <%= check_box_tag( 'civet_params[make_filename_graph]', '1', @params[:civet_params][:make_filename_graph] ) %>    
       </td>
    </tr>
    <tr>
@@ -54,7 +56,7 @@
           Print status report:
       </td>
       <td>
-          <%= check_box_tag( 'civet_params[print_status_report]', '1', @civet_params[:print_status_report] ) %>    
+          <%= check_box_tag( 'civet_params[print_status_report]', '1', @params[:civet_params][:print_status_report] ) %>    
       </td>
    </tr>
    </table>      
@@ -66,7 +68,7 @@
             Correct PVE:
          </td>
          <td>
-            <%= check_box_tag( 'civet_params[correct_pve]', '1', @civet_params[:correct_pve] ) %>
+            <%= check_box_tag( 'civet_params[correct_pve]', '1', @params[:civet_params][:correct_pve] ) %>
          </td>
       </tr>
       <tr>
@@ -77,7 +79,7 @@
             <select name="civet_params[interp]">
               <%= options_for_select(
                 [ "trilinear", "tricubic", "sinc" ],
-                @civet_params[:interp])
+                @params[:civet_params][:interp])
               %>
               </select>
          </td>
@@ -87,7 +89,7 @@
             N3 distance:
          </td>
          <td>
-            <%= text_field_tag 'civet_params[N3_distance]', @civet_params[:N3_distance]   %>
+            <%= text_field_tag 'civet_params[N3_distance]', @params[:civet_params][:N3_distance]   %>
          </td>
       </tr>
       <tr>
@@ -98,7 +100,7 @@
             <select name="civet_params[lsq]">
               <%= options_for_select(
                 [ "6", "9", "12" ],
-                @civet_params[:lsq])
+                @params[:civet_params][:lsq])
               %>
               </select>
          </td>
@@ -108,7 +110,7 @@
             Do NOT build surfaces:
          </td>
          <td>
-             <%= check_box_tag( 'civet_params[no_surfaces]', '1', @civet_params[:no_surfaces] ) %>
+             <%= check_box_tag( 'civet_params[no_surfaces]', '1', @params[:civet_params][:no_surfaces] ) %>
          </td>
       </tr>
       <tr>
@@ -119,10 +121,10 @@
             <select name="civet_params[thickness_method]">
               <%= options_for_select(
                 [ "tnormal", "tlink", "tlaplace", "tnear" ],
-                @civet_params[:thickness_method])
+                @params[:civet_params][:thickness_method])
               %>
               </select>
-              <%= text_field_tag 'civet_params[thickness_kernel]', @civet_params[:thickness_kernel]   %>
+              <%= text_field_tag 'civet_params[thickness_kernel]', @params[:civet_params][:thickness_kernel]   %>
          </td>
       </tr>
       <tr>
@@ -130,7 +132,7 @@
             Resample surfaces:
          </td>
          <td>
-            <%= check_box_tag( 'civet_params[resample_surfaces]', '1', @civet_params[:resample_surfaces] ) %>
+            <%= check_box_tag( 'civet_params[resample_surfaces]', '1', @params[:civet_params][:resample_surfaces] ) %>
          </td>
       </tr>
       <tr>
@@ -138,7 +140,7 @@
             Combine surfaces:
          </td>
          <td>
-            <%= check_box_tag( 'civet_params[combine_surfaces]', '1', @civet_params[:combine_surfaces] ) %>
+            <%= check_box_tag( 'civet_params[combine_surfaces]', '1', @params[:civet_params][:combine_surfaces] ) %>
          </td>
       </tr>
     </table>
@@ -159,7 +161,7 @@
             <select name="civet_params[template]">
               <%= options_for_select(
                 [ "0.50", "0.75", "1.00", "1.50", "2.00", "3.00", "4.00", "6.00" ],
-                @civet_params[:template])
+                @params[:civet_params][:template])
               %>
               </select>
          </td>
@@ -172,7 +174,7 @@
             <select name="civet_params[model]">
               <%= options_for_select(
                 [ "icbm152lin", "icbm152nl" ],
-                @civet_params[:model])
+                @params[:civet_params][:model])
               %>
               </select>
          </td>
