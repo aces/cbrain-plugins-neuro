@@ -95,13 +95,13 @@ class DrmaaCivet < DrmaaTask
     
     file_params.each do |file|
       mincfile_id   = file[:mincfile_id]
-      mincfile = Userfile.find(mincfile_id)
+      mincfile = Userfile.find(mincfile_id, :include  => :user)
 
       #flash[:error] = "This is a fake error."
       #render :action => 'edit'
 
       mj = DrmaaCivet.new
-      mj.user_id = current_user.id
+      mj.user_id = mincfile.user.id
       mj.params = civet_params.merge(file)
       mj.save
 

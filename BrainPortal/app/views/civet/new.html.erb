@@ -19,7 +19,7 @@
      form_tag( '/civet/create' ) do 
 -%>
 
-<%= hidden_field_tag :type, 'DrmaaCivet' %>
+<%= hidden_field_tag :task, 'DrmaaCivet' %>
 
 <% for file in @params[:file_params] %>
    <%= render :partial => 'civet_file', :locals  => {:file  => file} %>
