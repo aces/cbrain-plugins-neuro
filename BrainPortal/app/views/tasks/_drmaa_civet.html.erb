@@ -1,3 +1,13 @@
+<% title 'Civet Parameters' %>
+
+<h1>New Civet task</h1>
+
+<%
+     form_tag( '/tasks/create' ) do 
+-%>
+
+<%= hidden_field_tag :task, 'DrmaaCivet' %>
+
 
 <% for file in default_args[:file_args] %>
    <%= render :partial => 'civet_file', :locals  => {:file  => file} %>
@@ -164,3 +174,5 @@
 </table>
 
 <%= submit_tag 'Start CIVET' %>
+
+<% end %>
