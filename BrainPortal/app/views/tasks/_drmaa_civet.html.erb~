@@ -1,4 +1,4 @@
- <% title 'Civet Parameters' %>
+<% title 'Civet Parameters' %>
 
 <h1>New Civet task</h1>
 
@@ -8,12 +8,10 @@
 
 <%= hidden_field_tag :task, 'DrmaaCivet' %>
 
-<table>
+
 <% for file in default_args[:file_args] %>
    <%= render :partial => 'civet_file', :locals  => {:file  => file} %>
 <% end %>
-<tr></tr>
-</table>
 
 <big>Command options:</big><BR>
 
