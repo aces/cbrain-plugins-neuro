@@ -61,7 +61,9 @@ class DrmaaDcm2mnc < DrmaaTask
       mincfile = SingleFile.new(
         :user_id   => user_id,
         :name      => basename,
-        :content   => File.read(file)
+        :content   => File.read(file),
+	:task      => "Dcm2mnc"
+
       )
       if mincfile.save
         mincfile.move_to_child_of(dicom_col)

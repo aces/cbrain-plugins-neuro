@@ -146,7 +146,8 @@ class DrmaaCivet < DrmaaTask
     civetresult = SingleFile.new(
       :user_id   => user_id,
       :name      => civet_tarresult,
-      :content   => File.read(civet_tarresult)
+      :content   => File.read(civet_tarresult),
+      :task      => "Civet"
     )
 
     if civetresult.save
