@@ -1,3 +1,4 @@
+
 #
 # CBRAIN Project
 #
@@ -58,8 +59,9 @@ class CivetCollection < FileCollection
   
   
   def get_list(directory)
-    Dir.chdir(self.user.vault_dir + self.name) do
+    Dir.chdir(self.cache_full_path) do
       `find #{directory} -type f`.split("\n").map{ |name| name.sub(/^#{directory}\//, "") }
     end
   end
+
 end
