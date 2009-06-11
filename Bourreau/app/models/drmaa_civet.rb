@@ -40,29 +40,29 @@ class DrmaaCivet < DrmaaTask
 
     Dir.mkdir("mincfiles",0700)
 
-    vaultname    = mincfile.vaultname
+    vaultname    = mincfile.cache_full_path.to_s
     File.symlink(vaultname,"mincfiles/#{prefix}_#{dsid}_t1.mnc")
 
     if params[:multispectral] || params[:spectral_mask]
       if (t2_id)
         t2vaultfile = Userfile.find(t2_id)
-        t2vaultname = t2vaultfile.vaultname
-        File.symlink(t2vaultname,"mincfiles/#{prefix}_#{dsid}_t2.mnc")
         pre_synchronize_userfile(t2vaultfile)
+        t2vaultname = t2vaultfile.cache_full_path.to_s
+        File.symlink(t2vaultname,"mincfiles/#{prefix}_#{dsid}_t2.mnc")
       end
 
       if (pd_id)
         pdvaultfile = Userfile.find(pd_id)
-        pdvaultname = pdvaultfile.vaultname
-        File.symlink(pdvaultname,"mincfiles/#{prefix}_#{dsid}_pd.mnc")
         pre_synchronize_userfile(pdvaultfile)
+        pdvaultname = pdvaultfile.cache_full_path.to_s
+        File.symlink(pdvaultname,"mincfiles/#{prefix}_#{dsid}_pd.mnc")
       end
 
       if (mk_id)
         mkvaultfile = Userfile.find(mk_id)
-        mkvaultname = mkvaultfile.vaultname
-        File.symlink(mkvaultname,"mincfiles/#{prefix}_#{dsid}_mask.mnc")
         pre_synchronize_userfile(mkvaultfile)
+        mkvaultname = mkvaultfile.cache_full_path.to_s
+        File.symlink(mkvaultname,"mincfiles/#{prefix}_#{dsid}_mask.mnc")
       end
     end
 

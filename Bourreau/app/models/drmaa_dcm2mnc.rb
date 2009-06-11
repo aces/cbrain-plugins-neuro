@@ -28,10 +28,10 @@ class DrmaaDcm2mnc < DrmaaTask
       return false
     end
 
-    vaultname = dicom_col.vaultname
+    pre_synchronize_userfile(dicom_col)
+    vaultname = dicom_col.cache_full_path.to_s
     File.symlink(vaultname,"dicom_col")
     Dir.mkdir("results",0700)
-    pre_synchronize_userfile(dicom_col)
 
     true
   end
