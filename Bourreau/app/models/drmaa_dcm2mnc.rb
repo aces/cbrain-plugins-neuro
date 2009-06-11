@@ -23,10 +23,12 @@ class DrmaaDcm2mnc < DrmaaTask
       return false
     end
 
-    unless dicom_col.class.to_s == "FileCollection"
+    unless dicom_col.is_a?(FileCollection)
       self.addlog("Error: ActiveRecord entry #{dicom_colid} is not a file collection.")
       return false
     end
+
+    params[:data_provider_id] ||= dicom_col.data_provider.id
 
     pre_synchronize_userfile(dicom_col)
     vaultname = dicom_col.cache_full_path.to_s
@@ -59,11 +61,11 @@ class DrmaaDcm2mnc < DrmaaTask
       file = file.sub(/\n$/,"")
       basename = File.basename(file)
       mincfile = SingleFile.new(
-        :user_id   => user_id,
-        :name      => basename,
-        :content   => File.read(file),
-	:task      => "Dcm2mnc"
-
+        :user_id          => user_id,
+        :name             => basename,
+        :content          => File.read(file),
+	:task             => "Dcm2mnc",
+        :data_provider_id => params[:data_provider_id]
       )
       if mincfile.save
         mincfile.move_to_child_of(dicom_col)

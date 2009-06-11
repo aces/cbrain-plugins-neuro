@@ -37,8 +37,9 @@ class DrmaaCivet < DrmaaTask
     end
 
     pre_synchronize_userfile(mincfile)
-
     Dir.mkdir("mincfiles",0700)
+
+    params[:data_provider_id] ||= mincfile.data_provider.id
 
     vaultname    = mincfile.cache_full_path.to_s
     File.symlink(vaultname,"mincfiles/#{prefix}_#{dsid}_t1.mnc")
@@ -133,6 +134,8 @@ class DrmaaCivet < DrmaaTask
     params       = self.params
     user_id      = self.user_id
 
+    data_provider_id = params[:data_provider_id]
+
     mincfile_id  = params[:mincfile_id]
     mincfile     = Userfile.find(mincfile_id)
 
@@ -144,10 +147,11 @@ class DrmaaCivet < DrmaaTask
 
     # TODO: speed up .read() ?
     civetresult = SingleFile.new(
-      :user_id   => user_id,
-      :name      => civet_tarresult,
-      :content   => File.read(civet_tarresult),
-      :task      => "Civet"
+      :user_id          => user_id,
+      :name             => civet_tarresult,
+      :content          => File.read(civet_tarresult),
+      :task             => "Civet",
+      :data_provider_id => data_provider_id
     )
 
     if civetresult.save
