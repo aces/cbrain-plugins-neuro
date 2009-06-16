@@ -7,7 +7,7 @@ class DrmaaCivet < DrmaaTask
     true
   end
   
-  def self.get_default_args(params = {})
+  def self.get_default_args(params = {}, saved_args = nil)
     file_ids = params[:file_ids]
     file_args = []
     civet_args = nil
@@ -42,38 +42,43 @@ class DrmaaCivet < DrmaaTask
         :spectral_mask       => false,       # -spectral-mask for true
       }  
     end
+        
+    if saved_args
+      civet_args = saved_args
+    else
+      civet_args = {
+          :make_graph          => false,       # -make-graph for true
+          :make_filename_graph => false,       # -make-filename-graph for true
+          :print_status_report => false,       # -print-status-report for true
+
+          :template            => '1.00',      # -template
+          :model               => 'icbm152nl', # -model
+        
+          :correct_pve         => false,       # -[no-]correct-pve
+        
+          :interp              => 'trilinear', # -interp
+          :N3_distance         => 200,         # -N3-distance
+          :lsq                 => '9',         # -lsq6, -lsq9, -lsq12
+          :no_surfaces         => false,       # -no-surfaces
+          :thickness_method    => 'tlink',     # -thickness method kernel
+          :thickness_kernel    => 20,          #             "
+          :resample_surfaces   => false,       # -[no-]resample-surfaces
+          :combine_surfaces    => false,       # -[no-]combine-surfaces
+
+          # Not yet implemented in interface
+          :VBM                 => false,       # -[no-]VBM
+          :VBM_fwhm            => 8,           # -VBM-fwhm
+          :VBM_symmetry        => false,       # -[no-]VBM-symmetry
+          :VBM_cerebellum      => true,        # -[no-]VBM-cerebellum
+
+          # Not yet implemented in interface
+          :animal              => false,       # -[no-]animal
+          :atlas               => 'lobe'       # -symmetric-atlas or -lobe-atlas
+          # TODO animal-atlas-dir
+
+      }  
+    end
     
-    civet_args = {
-        :make_graph          => false,       # -make-graph for true
-        :make_filename_graph => false,       # -make-filename-graph for true
-        :print_status_report => false,       # -print-status-report for true
-
-        :template            => '1.00',      # -template
-        :model               => 'icbm152nl', # -model
-        
-        :correct_pve         => false,       # -[no-]correct-pve
-        
-        :interp              => 'trilinear', # -interp
-        :N3_distance         => 200,         # -N3-distance
-        :lsq                 => '9',         # -lsq6, -lsq9, -lsq12
-        :no_surfaces         => false,       # -no-surfaces
-        :thickness_method    => 'tlink',     # -thickness method kernel
-        :thickness_kernel    => 20,          #             "
-        :resample_surfaces   => false,       # -[no-]resample-surfaces
-        :combine_surfaces    => false,       # -[no-]combine-surfaces
-
-        # Not yet implemented in interface
-        :VBM                 => false,       # -[no-]VBM
-        :VBM_fwhm            => 8,           # -VBM-fwhm
-        :VBM_symmetry        => false,       # -[no-]VBM-symmetry
-        :VBM_cerebellum      => true,        # -[no-]VBM-cerebellum
-
-        # Not yet implemented in interface
-        :animal              => false,       # -[no-]animal
-        :atlas               => 'lobe'       # -symmetric-atlas or -lobe-atlas
-        # TODO animal-atlas-dir
-
-    }
     
     {:file_args  => file_args, :civet_args  => civet_args}
   end
@@ -89,7 +94,7 @@ class DrmaaCivet < DrmaaTask
 
       #flash[:error] = "This is a fake error."
       #render :action => 'edit'
-
+  
       mj = DrmaaCivet.new
       mj.user_id = mincfile.user.id
       mj.params = civet_args.merge(file)
@@ -99,6 +104,10 @@ class DrmaaCivet < DrmaaTask
     end
     
     flash
+  end
+  
+  def self.save_options(params)
+    params[:civet_args]
   end
   
   def self.find_t2_pd_mask(t1name)
