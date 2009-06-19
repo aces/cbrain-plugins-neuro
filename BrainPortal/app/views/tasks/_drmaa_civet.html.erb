@@ -1,6 +1,9 @@
  <% title 'Civet Parameters' %>
+<div class = "generalcontent">
 
-<h1>New Civet task</h1>
+<h2>New Civet task</h2>
+<div class = "generalbox">
+
 
 <%
      form_tag( '/tasks/create' ) do 
@@ -183,3 +186,5 @@ Save selections as defaults: <%= check_box_tag( :save_as_defaults, '1') %><br><b
 <%= submit_tag 'Start CIVET' %>
 
 <% end %>
+</div>
+</div>
