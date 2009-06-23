@@ -30,9 +30,9 @@ class DrmaaDcm2mnc < DrmaaTask
 
     params[:data_provider_id] ||= dicom_col.data_provider.id
 
-    pre_synchronize_userfile(dicom_col)
-    vaultname = dicom_col.cache_full_path.to_s
-    File.symlink(vaultname,"dicom_col")
+    dicom_col.sync_to_cache
+    cachename = dicom_col.cache_full_path.to_s
+    File.symlink(cachename,"dicom_col")
     Dir.mkdir("results",0700)
 
     true
@@ -52,7 +52,7 @@ class DrmaaDcm2mnc < DrmaaTask
     dicom_col   = Userfile.find(dicom_colid)
     user_id     = self.user_id
 
-    io = IO.popen("find results -type f -name \"*.mnc\" -print")
+    io = IO.popen("find results -type f -name \"*.mnc\" -print","r")
 
     numfail = 0
 
@@ -61,15 +61,14 @@ class DrmaaDcm2mnc < DrmaaTask
       file = file.sub(/\n$/,"")
       basename = File.basename(file)
       mincfile = SingleFile.new(
-        :user_id          => user_id,
         :name             => basename,
-        :content          => File.read(file),
-	:task             => "Dcm2mnc",
-        :data_provider_id => params[:data_provider_id]
+        :user_id          => user_id,
+        :data_provider_id => params[:data_provider_id],
+	:task             => "Dcm2mnc"
       )
+      mincfile.cache_copy_from_local_file(file)
       if mincfile.save
         mincfile.move_to_child_of(dicom_col)
-        post_synchronize_userfile(mincfile)
         self.addlog("Saved new MINC file #{basename}")
       else
         numfail += 1

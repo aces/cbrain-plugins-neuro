@@ -13,13 +13,6 @@ class DrmaaCivet < DrmaaTask
 
   Revision_info="$Id$"
 
-#    /usr/local/bic/CIVET/CIVET_Processing_Pipeline -prefix demo -source /home/mero/CIVET/mincfiles -target /home/mero/CIVET -lsq12 -spawn -run rioux_pierre
-#
-#    NOTE: for SGE, replace '-spawn' by '-sge -granular' ( multiple CIVET jobs run in parallel, a single job would run faster, ma
-#    ny would run slower ) or '-sge -nogranular' ( CIVET jobs run to completion, one at the time, so first come first serve ).
-#
-
-
   def setup
     params       = self.params
     prefix       = params[:prefix] || "unkpref1"
@@ -36,34 +29,34 @@ class DrmaaCivet < DrmaaTask
       return false
     end
 
-    pre_synchronize_userfile(mincfile)
+    mincfile.sync_to_cache
     Dir.mkdir("mincfiles",0700)
 
     params[:data_provider_id] ||= mincfile.data_provider.id
 
-    vaultname    = mincfile.cache_full_path.to_s
-    File.symlink(vaultname,"mincfiles/#{prefix}_#{dsid}_t1.mnc")
+    cachename    = mincfile.cache_full_path.to_s
+    File.symlink(cachename,"mincfiles/#{prefix}_#{dsid}_t1.mnc")
 
     if params[:multispectral] || params[:spectral_mask]
       if (t2_id)
-        t2vaultfile = Userfile.find(t2_id)
-        pre_synchronize_userfile(t2vaultfile)
-        t2vaultname = t2vaultfile.cache_full_path.to_s
-        File.symlink(t2vaultname,"mincfiles/#{prefix}_#{dsid}_t2.mnc")
+        t2cachefile = Userfile.find(t2_id)
+        t2cachefile.sync_to_cache
+        t2cachename = t2cachefile.cache_full_path.to_s
+        File.symlink(t2cachename,"mincfiles/#{prefix}_#{dsid}_t2.mnc")
       end
 
       if (pd_id)
-        pdvaultfile = Userfile.find(pd_id)
-        pre_synchronize_userfile(pdvaultfile)
-        pdvaultname = pdvaultfile.cache_full_path.to_s
-        File.symlink(pdvaultname,"mincfiles/#{prefix}_#{dsid}_pd.mnc")
+        pdcachefile = Userfile.find(pd_id)
+        pdcachefile.sync_to_cache
+        pdcachename = pdcachefile.cache_full_path.to_s
+        File.symlink(pdcachename,"mincfiles/#{prefix}_#{dsid}_pd.mnc")
       end
 
       if (mk_id)
-        mkvaultfile = Userfile.find(mk_id)
-        pre_synchronize_userfile(mkvaultfile)
-        mkvaultname = mkvaultfile.cache_full_path.to_s
-        File.symlink(mkvaultname,"mincfiles/#{prefix}_#{dsid}_mask.mnc")
+        mkcachefile = Userfile.find(mk_id)
+        mkcachefile.sync_to_cache
+        mkcachename = mkcachefile.cache_full_path.to_s
+        File.symlink(mkcachename,"mincfiles/#{prefix}_#{dsid}_mask.mnc")
       end
     end
 
@@ -145,19 +138,17 @@ class DrmaaCivet < DrmaaTask
     system("tar -cpf #{civet_tarresult} civet_out")
     # Note: tar file will be cleaned up at the same time the workdir is erased
 
-    # TODO: speed up .read() ?
     civetresult = SingleFile.new(
-      :user_id          => user_id,
       :name             => civet_tarresult,
-      :content          => File.read(civet_tarresult),
-      :task             => "Civet",
-      :data_provider_id => data_provider_id
+      :user_id          => user_id,
+      :data_provider_id => data_provider_id,
+      :task             => "Civet"
     )
+    civetresult.cache_copy_from_local_file(civet_tarresult)
 
     if civetresult.save
       civetresult.move_to_child_of(mincfile)
       self.addlog("Saved new civet result file #{civetresult.name}.")
-      post_synchronize_userfile(civetresult)
       return true
     else
       self.addlog("Could not save back result file '#{civetresult.name}'.")

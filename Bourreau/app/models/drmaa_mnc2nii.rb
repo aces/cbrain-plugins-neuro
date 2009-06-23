@@ -1,3 +1,4 @@
+
 #
 # CBRAIN Project
 #
@@ -5,14 +6,14 @@
 #
 # Original author: Mathieu Desrosiers
 #
-# $Id: drmaa_dcm2mnc.rb 216 2009-05-22 20:34:44Z angela $
+# $Id$
 #
 
 #save pour les fichiers de sortie autre que .nii 
 
 class DrmaaMnc2nii < DrmaaTask
 
-  Revision_info="$Id: drmaa_dcm2mnc.rb 216 2009-05-22 20:34:44Z angela $"
+  Revision_info="$Id$"
 
   def setup
     params      = self.params
@@ -24,15 +25,11 @@ class DrmaaMnc2nii < DrmaaTask
       return false
     end
 
-
-#    unless minc_col.class.to_s == "FileCollection"
-#      self.addlog("Error: ActiveRecord entry #{minc_colid} is not a file collection.")
-#      return false
-#    end
-
-    vaultname = minc_col.vaultname
-    File.symlink(vaultname,"minc_col.mnc")
-    pre_synchronize_userfile(minc_col)
+    minc_col.sync_to_cache
+    cachename = minc_col.cache_full_path
+    File.symlink(cachename,"minc_col.mnc")
+    minc_col.sync_to_cache
+    params[:data_provider_id] ||= mincfile.data_provider.id
 
     true
   end
@@ -61,19 +58,21 @@ class DrmaaMnc2nii < DrmaaTask
     minc_colid = params[:mincfile_id]
     minc_col   = Userfile.find(minc_colid)
         
-    user_id     = self.user_id
+    user_id          = self.user_id
+    data_provider.id = params[:data_provider_id]
 
     out_files = Dir.glob("*.{img,hdr,nii,nia}")
     out_files.each do |file|
       self.addlog(file)
       niifile = SingleFile.new(
-        :user_id   => user_id,
-        :name      => File.basename(minc_col.vaultname,".mnc")+File.extname(file),
-        :content   => File.read(file),
-	:task      => "Mnc2nii" )
+        :name             => File.basename(minc_col.cache_full_path,".mnc")+File.extname(file),
+        :user_id          => user_id,
+        :data_provider_id => data_provider_id,
+	:task             => "Mnc2nii"
+      )
+      niifile.cache_copy_from_local_file(file)
       if niifile.save
         niifile.move_to_child_of(minc_col)
-        post_synchronize_userfile(niifile)
         self.addlog("Saved new Nifti file ")
       else
         self.addlog("Could not save back result file .")
