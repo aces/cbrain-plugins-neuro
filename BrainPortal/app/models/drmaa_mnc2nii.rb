@@ -6,12 +6,12 @@
 #
 # Original author: 
 #
-# $Id: model.rb 211 2009-05-20 18:52:02Z tsherif $
+# $Id$
 #
 
 class DrmaaMnc2nii < DrmaaTask
 
-  Revision_info="$Id: model.rb 211 2009-05-20 18:52:02Z tsherif $"
+  Revision_info="$Id$"
 
   #########################################################################
   #This method should indicate whether or not mnc2nii requires 
