@@ -127,24 +127,22 @@ class DrmaaCivet < DrmaaTask
     params       = self.params
     user_id      = self.user_id
 
+    prefix = params[:prefix] || "unkpref2"
+    dsid   = params[:dsid]   || "unkdsid2"
+
     data_provider_id = params[:data_provider_id]
 
     mincfile_id  = params[:mincfile_id]
     mincfile     = Userfile.find(mincfile_id)
 
-    civet_tarresult = "civet#{self.object_id}.tar"
-
-    # TODO: speed up tar? Create in /tmp?
-    system("tar -cpf #{civet_tarresult} civet_out")
-    # Note: tar file will be cleaned up at the same time the workdir is erased
-
-    civetresult = SingleFile.new(
-      :name             => civet_tarresult,
+    civetresult = CivetCollection.new(
+      :name             => dsid + "-" + self.id.to_s,
       :user_id          => user_id,
       :data_provider_id => data_provider_id,
       :task             => "Civet"
     )
-    civetresult.cache_copy_from_local_file(civet_tarresult)
+    File.rename("civet_out/References.txt","civet_out/#{dsid}/References.txt") rescue true
+    civetresult.cache_copy_from_local_file("civet_out/#{dsid}")
 
     if civetresult.save
       civetresult.move_to_child_of(mincfile)
