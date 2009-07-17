@@ -1,12 +1,15 @@
 
+#A subclass of DrmaaTask to launch civet.
 class DrmaaCivet < DrmaaTask
 
   Revision_info="$Id$"
 
+  #See DrmaaTask.
   def self.has_args?
     true
   end
   
+  #See DrmaaTask.
   def self.get_default_args(params = {}, saved_args = nil)
     file_ids = params[:file_ids]
     file_args = []
@@ -83,6 +86,7 @@ class DrmaaCivet < DrmaaTask
     {:file_args  => file_args, :civet_args  => civet_args}
   end
   
+  #See DrmaaTask.
   def self.launch(params)
     civet_args = params[:civet_args]
     file_args = params[:file_args]
@@ -106,11 +110,12 @@ class DrmaaCivet < DrmaaTask
     flash
   end
   
+  #See DrmaaTask.
   def self.save_options(params)
     params[:civet_args]
   end
   
-  def self.find_t2_pd_mask(t1name)
+  def self.find_t2_pd_mask(t1name) #:nodoc:
       if ! t1name.match(/_t1/)
           return [nil,nil,nil]
       end

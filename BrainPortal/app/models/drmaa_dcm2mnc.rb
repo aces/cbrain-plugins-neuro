@@ -9,15 +9,18 @@
 # $Id$
 #
 
+#A subclass of DrmaaTask to launch dcm2mnc.
 class DrmaaDcm2mnc < DrmaaTask
 
   Revision_info="$Id$"
   
+  #See DrmaaTask.
   def self.has_args?
     false
   end
   
-  def self.launch(params = {})
+  #See DrmaaTask.
+  def self.launch(params = {}) 
     file_ids = params[:file_ids]
     
     dm = DrmaaDcm2mnc.new

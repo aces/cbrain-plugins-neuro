@@ -9,6 +9,7 @@
 # $Id$
 #
 
+#A subclass of DrmaaTask to launch mnc2nii.
 class DrmaaMnc2nii < DrmaaTask
 
   Revision_info="$Id$"
@@ -18,7 +19,9 @@ class DrmaaMnc2nii < DrmaaTask
   # arguments in order to run. If so the tasks/new view will be rendered
   # before the mnc2nii job is sent to the cluster.
   #########################################################################
-  def self.has_args?
+  
+  #See DrmaaTask.
+  def self.has_args? 
     true
   end
   
@@ -28,7 +31,9 @@ class DrmaaMnc2nii < DrmaaTask
   #If an exception is raised here it will cause a redirect to the 
   # userfiles index page where the exception message will be displayed.
   #########################################################################
-  def self.get_default_args(params = {})
+  
+  #See DrmaaTask.
+  def self.get_default_args(params = {}) 
     {}
   end
 
@@ -39,7 +44,9 @@ class DrmaaMnc2nii < DrmaaTask
   # tasks/new page for mnc2nii where the exception message will be 
   # displayed.
   #########################################################################
-  def self.launch(params)
+  
+  #See DrmaaTask.
+  def self.launch(params) 
     flash = "Flash[:notice] message."
     file_ids = params[:file_ids]
     data_type =  params[:data_type]
