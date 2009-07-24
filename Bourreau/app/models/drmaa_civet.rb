@@ -134,10 +134,12 @@ class DrmaaCivet < DrmaaTask
 
     mincfile_id  = params[:mincfile_id]
     mincfile     = Userfile.find(mincfile_id)
+    group_id     = mincfile.group_id 
 
     civetresult = CivetCollection.new(
       :name             => dsid + "-" + self.id.to_s,
       :user_id          => user_id,
+      :group_id         => group_id,
       :data_provider_id => data_provider_id,
       :task             => "Civet"
     )

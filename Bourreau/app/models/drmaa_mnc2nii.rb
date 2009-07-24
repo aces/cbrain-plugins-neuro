@@ -57,6 +57,7 @@ class DrmaaMnc2nii < DrmaaTask
     params      = self.params
     minc_colid = params[:mincfile_id]
     minc_col   = Userfile.find(minc_colid)
+    group_id   = minc_col.group_id
         
     user_id          = self.user_id
     data_provider.id = params[:data_provider_id]
@@ -67,6 +68,7 @@ class DrmaaMnc2nii < DrmaaTask
       niifile = SingleFile.new(
         :name             => File.basename(minc_col.cache_full_path,".mnc")+File.extname(file),
         :user_id          => user_id,
+        :group_id         => group_id,
         :data_provider_id => data_provider_id,
 	:task             => "Mnc2nii"
       )
