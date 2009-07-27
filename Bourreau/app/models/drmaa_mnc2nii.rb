@@ -11,10 +11,12 @@
 
 #save pour les fichiers de sortie autre que .nii 
 
+#A subclass of DrmaaTask to run mnc2nii.
 class DrmaaMnc2nii < DrmaaTask
 
   Revision_info="$Id$"
 
+  #See DrmaaTask.
   def setup
     params      = self.params
     minc_colid = params[:mincfile_id]  # the ID of a FileCollection
@@ -34,6 +36,7 @@ class DrmaaMnc2nii < DrmaaTask
     true
   end
 
+  #See DrmaaTask.
   def drmaa_commands
     params       = self.params
     data_type = params[:data_type]
@@ -53,6 +56,7 @@ class DrmaaMnc2nii < DrmaaTask
     ]
   end
   
+  #See DrmaaTask.
   def save_results
     params      = self.params
     minc_colid = params[:mincfile_id]
@@ -70,7 +74,7 @@ class DrmaaMnc2nii < DrmaaTask
         :user_id          => user_id,
         :group_id         => group_id,
         :data_provider_id => data_provider_id,
-	:task             => "Mnc2nii"
+	      :task             => "Mnc2nii"
       )
       niifile.cache_copy_from_local_file(file)
       if niifile.save

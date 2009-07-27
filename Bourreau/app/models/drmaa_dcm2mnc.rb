@@ -9,10 +9,12 @@
 # $Id$
 #
 
+#A subclass of DrmaaTask to run dcm2mnc.
 class DrmaaDcm2mnc < DrmaaTask
 
   Revision_info="$Id$"
 
+  #See DrmaaTask.
   def setup
     params      = self.params
     dicom_colid = params[:dicom_colid]  # the ID of a FileCollection
@@ -38,6 +40,7 @@ class DrmaaDcm2mnc < DrmaaTask
     true
   end
 
+  #See DrmaaTask.
   def drmaa_commands
     params       = self.params
     [
@@ -46,6 +49,7 @@ class DrmaaDcm2mnc < DrmaaTask
     ]
   end
 
+  #See DrmaaTask.
   def save_results
     params      = self.params
     dicom_colid = params[:dicom_colid]  # the ID of a FileCollection

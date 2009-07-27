@@ -9,10 +9,12 @@
 # $Id$
 #
 
+#A subclass of DrmaaTask to run civet.
 class DrmaaCivet < DrmaaTask
 
   Revision_info="$Id$"
 
+  #See DrmaaTask.
   def setup
     params       = self.params
     prefix       = params[:prefix] || "unkpref1"
@@ -65,6 +67,7 @@ class DrmaaCivet < DrmaaTask
     true
   end
 
+  #See DrmaaTask.
   def drmaa_commands
     params = self.params
 
@@ -123,6 +126,7 @@ class DrmaaCivet < DrmaaTask
 
   end
 
+  #See DrmaaTask.
   def save_results
     params       = self.params
     user_id      = self.user_id
