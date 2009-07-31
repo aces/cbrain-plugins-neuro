@@ -100,7 +100,7 @@ class DrmaaCivet < DrmaaTask
       #render :action => 'edit'
   
       mj = DrmaaCivet.new
-      mj.user_id = mincfile.user.id
+      mj.user_id = params[:user_id]
       mj.params = civet_args.merge(file)
       mj.save
 

@@ -55,7 +55,7 @@ class DrmaaMnc2nii < DrmaaTask
      file_ids.each do |id|
        userfile = Userfile.find(id, :include  => :user)
        task = DrmaaMnc2nii.new
-       task.user_id = userfile.user.id
+       task.user_id = params[:user_id]
        task.params = { :mincfile_id => id, :data_type => data_type, :file_format => file_format }
        task.save
        flash += "Started DrmaaMnc2nii on file '#{userfile.name}'.\n"

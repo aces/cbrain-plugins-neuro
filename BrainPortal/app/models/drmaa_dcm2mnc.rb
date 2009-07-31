@@ -24,7 +24,7 @@ class DrmaaDcm2mnc < DrmaaTask
     file_ids = params[:file_ids]
     
     dm = DrmaaDcm2mnc.new
-    dm.user_id = Userfile.find(file_ids[0], :include  => :user).user.id
+    dm.user_id = params[:user_id]
     # TODO what to do when more than one collection selected ?
     # TODO check that the ID is really a collection right away ?
     dm.params = { :dicom_colid => file_ids[0] }
