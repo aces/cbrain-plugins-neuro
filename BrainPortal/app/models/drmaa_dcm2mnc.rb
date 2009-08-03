@@ -22,6 +22,9 @@ class DrmaaDcm2mnc < DrmaaTask
   #See DrmaaTask.
   def self.launch(params = {}) 
     file_ids = params[:file_ids]
+    col_id   = file_ids[0]
+    col      = Userfile.find(col_id)
+    return "Error: no collection found for id '#{col_id}'" unless col && col.is_a?(FileCollection)
     
     dm = DrmaaDcm2mnc.new
     dm.user_id = params[:user_id]
@@ -29,6 +32,7 @@ class DrmaaDcm2mnc < DrmaaTask
     # TODO check that the ID is really a collection right away ?
     dm.params = { :dicom_colid => file_ids[0] }
     dm.save
+    col.addlog "Started Dcm2Mnc, task #{dm.bname_tid}"
     
     "Started Dcm2Mnc on your files.\n" #flash message
   end

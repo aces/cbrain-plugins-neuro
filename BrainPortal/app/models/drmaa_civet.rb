@@ -103,6 +103,7 @@ class DrmaaCivet < DrmaaTask
       mj.user_id = params[:user_id]
       mj.params = civet_args.merge(file)
       mj.save
+      mincfile.addlog "Sent to Civet, task #{mj.bname_tid}"
 
       flash += "Started Civet on file '#{mincfile.name}'.\n"  
     end
