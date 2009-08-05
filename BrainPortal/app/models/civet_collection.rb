@@ -72,6 +72,11 @@ class CivetCollection < FileCollection
     @verify_list ||= get_list('verify')
   end
   
+  # Returns a simple keyword identifying the type of
+  # the userfile; used mostly by the index view.
+  def pretty_type
+    "(Civet)"
+  end
 
   private
 
