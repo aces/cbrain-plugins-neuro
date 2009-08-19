@@ -9,7 +9,7 @@
 # $Id$
 #
 
-#save pour les fichiers de sortie autre que .nii 
+#save pour les fichiers de sortie autre que .nii
 
 #A subclass of DrmaaTask to run mnc2nii.
 class DrmaaMnc2nii < DrmaaTask
@@ -21,7 +21,7 @@ class DrmaaMnc2nii < DrmaaTask
     params      = self.params
     minc_colid = params[:mincfile_id]  # the ID of a FileCollection
     minc_col   = Userfile.find(minc_colid)
-    
+
     unless minc_col
       self.addlog("Could not find active record entry for file #{minc_colid}")
       return false
@@ -47,7 +47,7 @@ class DrmaaMnc2nii < DrmaaTask
       data_type = "-#{data_type}"
     end
 
-    file_format = params[:file_format] 
+    file_format = params[:file_format]
     file_format = "-#{file_format}"
 
     [
@@ -55,14 +55,14 @@ class DrmaaMnc2nii < DrmaaTask
       "mnc2nii #{data_type} #{file_format} minc_col.mnc"
     ]
   end
-  
+
   #See DrmaaTask.
   def save_results
     params      = self.params
     minc_colid = params[:mincfile_id]
     minc_col   = Userfile.find(minc_colid)
     group_id   = minc_col.group_id
-        
+
     user_id          = self.user_id
     data_provider.id = params[:data_provider_id]
 
@@ -74,7 +74,7 @@ class DrmaaMnc2nii < DrmaaTask
         :user_id          => user_id,
         :group_id         => group_id,
         :data_provider_id => data_provider_id,
-	      :task             => "Mnc2nii"
+        :task             => "Mnc2nii"
       )
       niifile.cache_copy_from_local_file(file)
       if niifile.save
@@ -85,4 +85,5 @@ class DrmaaMnc2nii < DrmaaTask
       end
     end
   end
+
 end

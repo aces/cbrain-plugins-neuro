@@ -67,9 +67,9 @@ class DrmaaDcm2mnc < DrmaaTask
       mincfile = SingleFile.new(
         :name             => basename,
         :user_id          => user_id,
-        :group_id         => dicom_col.group_id, 
+        :group_id         => dicom_col.group_id,
         :data_provider_id => params[:data_provider_id],
-	      :task             => "Dcm2mnc"
+        :task             => "Dcm2mnc"
       )
       mincfile.cache_copy_from_local_file(file)
       if mincfile.save
