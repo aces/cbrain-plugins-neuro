@@ -37,28 +37,32 @@ class DrmaaCivet < DrmaaTask
     params[:data_provider_id] ||= mincfile.data_provider.id
 
     cachename    = mincfile.cache_full_path.to_s
-    File.symlink(cachename,"mincfiles/#{prefix}_#{dsid}_t1.mnc")
+    ext          = cachename.match(/.gz$/i) ? ".gz" : ""
+    File.symlink(cachename,"mincfiles/#{prefix}_#{dsid}_t1.mnc#{ext}")
 
     if params[:multispectral] || params[:spectral_mask]
       if (t2_id)
         t2cachefile = Userfile.find(t2_id)
         t2cachefile.sync_to_cache
         t2cachename = t2cachefile.cache_full_path.to_s
-        File.symlink(t2cachename,"mincfiles/#{prefix}_#{dsid}_t2.mnc")
+        t2ext = t2cachename.match(/.gz$/i) ? ".gz" : ""
+        File.symlink(t2cachename,"mincfiles/#{prefix}_#{dsid}_t2.mnc#{t2ext}")
       end
 
       if (pd_id)
         pdcachefile = Userfile.find(pd_id)
         pdcachefile.sync_to_cache
         pdcachename = pdcachefile.cache_full_path.to_s
-        File.symlink(pdcachename,"mincfiles/#{prefix}_#{dsid}_pd.mnc")
+        pdext = pdcachename.match(/.gz$/i) ? ".gz" : ""
+        File.symlink(pdcachename,"mincfiles/#{prefix}_#{dsid}_pd.mnc#{pdext}")
       end
 
       if (mk_id)
         mkcachefile = Userfile.find(mk_id)
         mkcachefile.sync_to_cache
         mkcachename = mkcachefile.cache_full_path.to_s
-        File.symlink(mkcachename,"mincfiles/#{prefix}_#{dsid}_mask.mnc")
+        mkext = mkcachename.match(/.gz$/i) ? ".gz" : ""
+        File.symlink(mkcachename,"mincfiles/#{prefix}_#{dsid}_mask.mnc#{mkext}")
       end
     end
 
