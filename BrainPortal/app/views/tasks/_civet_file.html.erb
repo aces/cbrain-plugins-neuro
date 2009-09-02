@@ -10,41 +10,41 @@
 -%>
 
 <big>File options for T1 file: <strong><%= h(Userfile.find(file[:mincfile_id]).name) %></strong></big><BR>
-   <table border="0" class="userfiles">
-      <tr>
-         <td>
-            Prefix:
-         </td>
-         <td>
-         <%= text_field_tag 'file_args[][prefix]', file[:prefix] %>   
-         </td>
-      </tr>
-      <tr>
-         <td>
-            Subject ID:
-         </td>
-         <td>
-         <%= text_field_tag 'file_args[][dsid]',   file[:dsid]   %>
-         </td>
-      </tr>
-    </table>
+<table border="0" class="userfiles">
+   <tr>
+      <td>
+         Prefix:
+      </td>
+      <td>
+      <%= text_field_tag 'file_args[][prefix]', file[:prefix] %>   
+      </td>
+   </tr>
+   <tr>
+      <td>
+         Subject ID:
+      </td>
+      <td>
+      <%= text_field_tag 'file_args[][dsid]',   file[:dsid]   %>
+      </td>
+   </tr>
+</table>
 
 <% if file[:t2_id] || file[:pd_id] || file[:mk_id] %>
 
-<%   if file[:t2_id] %>
-Found T2 file: <%= h(Userfile.find(file[:t2_id]).name) %><BR>
-<%   end %>
-<%   if file[:pd_id] %>
-Found PD file: <%= h(Userfile.find(file[:pd_id]).name) %><BR>
-<%   end %>
-<%   if file[:mk_id] %>
-Found Mask file: <%= h(Userfile.find(file[:mk_id]).name) %><BR>
-<%   end %>
+   <%   if file[:t2_id] %>
+      Found T2 file: <%= h(Userfile.find(file[:t2_id]).name) %><BR>
+   <%   end %>
+   <%   if file[:pd_id] %>
+      Found PD file: <%= h(Userfile.find(file[:pd_id]).name) %><BR>
+   <%   end %>
+   <%   if file[:mk_id] %>
+      Found Mask file: <%= h(Userfile.find(file[:mk_id]).name) %><BR>
+   <%   end %>
 
-Multispectral:
-  <%= check_box_tag( 'file_args[][multispectral]', '1', file[:multispectral] ) %>
-Spectral Mask:
-  <%= check_box_tag( 'file_args[][spectral_mask]', '1', file[:spectral_mask] ) %> <BR>
+   Multispectral:
+     <%= check_box_tag( 'file_args[][multispectral]', '1', file[:multispectral] ) %>
+   Spectral Mask:
+     <%= check_box_tag( 'file_args[][spectral_mask]', '1', file[:spectral_mask] ) %> <BR>
 
 <% end %>
 
