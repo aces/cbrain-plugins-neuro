@@ -19,6 +19,8 @@
       <% form_tag( '/tasks/create' ) do -%>
 
          <%= hidden_field_tag :task, 'DrmaaCivet' %>
+         <%= hidden_field_tag 'bourreau_id', params[:bourreau_id] %>
+         
 
          <table>
             <% for file in default_args[:file_args] %>
