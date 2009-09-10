@@ -33,7 +33,7 @@ class DrmaaMnc2nii < DrmaaTask
   #########################################################################
   
   #See DrmaaTask.
-  def self.get_default_args(params = {}) 
+  def self.get_default_args(params = {}, saved_args = nil) 
     {}
   end
 
