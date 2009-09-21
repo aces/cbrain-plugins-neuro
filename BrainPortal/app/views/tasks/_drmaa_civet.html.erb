@@ -9,24 +9,24 @@
 
 -%>
 
- <% title 'Civet Parameters' %>
+<% title 'Civet Parameters' %>
 <div class = "generalcontent">
 
-   <h2>New Civet task</h2>
+   <h2>Launch CIVET tasks on a FileCollection</h2>
    <div class = "generalbox">
 
 
       <% form_tag( '/tasks/create' ) do -%>
 
          <%= hidden_field_tag :task, 'DrmaaCivet' %>
-         <%= hidden_field_tag 'bourreau_id', params[:bourreau_id] %>
-         
+         <%= hidden_field_tag 'bourreau_id',      default_args[:bourreau_id] %>
+         <%= hidden_field_tag 'collection_id',    default_args[:collection_id] %>
+         <%= hidden_field_tag 'file_ids[]',       default_args[:collection_id] %>
 
          <table>
             <% for file in default_args[:file_args] %>
                <%= render :partial => 'civet_file', :locals  => {:file  => file} %>
             <% end %>
-            <tr></tr>
          </table>
 
          <big>Command options:</big><BR>

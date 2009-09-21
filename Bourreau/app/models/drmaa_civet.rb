@@ -17,56 +17,112 @@ class DrmaaCivet < DrmaaTask
   #See DrmaaTask.
   def setup
     params       = self.params
+
     prefix       = params[:prefix] || "unkpref1"
     dsid         = params[:dsid]   || "unkdsid1"
-    mincfile_id  = params[:mincfile_id]
 
-    t2_id        = params[:t2_id]
-    pd_id        = params[:pd_id]
-    mk_id        = params[:mk_id]
-
-    mincfile     = Userfile.find(mincfile_id)
-    unless mincfile
-      self.addlog("Could not find active record entry for userfile '#{mincfile_id}'.")
-      return false
-    end
-
-    mincfile.sync_to_cache
+    # Main location of symlinks for all input files
     Dir.mkdir("mincfiles",0700)
 
-    params[:data_provider_id] ||= mincfile.data_provider.id
+    # Main location for output files
+    Dir.mkdir("civet_out",0700)
 
-    cachename    = mincfile.cache_full_path.to_s
-    ext          = cachename.match(/.gz$/i) ? ".gz" : ""
-    File.symlink(cachename,"mincfiles/#{prefix}_#{dsid}_t1.mnc#{ext}")
+    # We have two modes:
+    # (A) We process a T1 (and T2?, PD?, and MK?) file(s) stored inside a FileCollection
+    # (B) We process a T1 (and T2?, PD?, and MK?) stored as individual SingleFiles.
+    # - We detect (A) when we have a collection_id, and then the
+    #   files are specified with :t1_name, :t2_name, etc.
+    # - We detect (B) when we have do NOT have a collection ID, and then the
+    #   files are specified with :t1_id, :t2_id, etc.
 
-    if params[:multispectral] || params[:spectral_mask]
-      if (t2_id)
-        t2cachefile = Userfile.find(t2_id)
-        t2cachefile.sync_to_cache
-        t2cachename = t2cachefile.cache_full_path.to_s
-        t2ext = t2cachename.match(/.gz$/i) ? ".gz" : ""
-        File.symlink(t2cachename,"mincfiles/#{prefix}_#{dsid}_t2.mnc#{t2ext}")
+    collection_id = params[:collection_id]
+    collection_id = nil if collection_id.blank?
+    collection    = nil # the variable we use to detect modes
+    if collection_id
+      collection = Userfile.find(collection_id)
+      unless collection
+        self.addlog("Could not find active record entry for FileCollection '#{collection_id}'.")
+        return false
       end
-
-      if (pd_id)
-        pdcachefile = Userfile.find(pd_id)
-        pdcachefile.sync_to_cache
-        pdcachename = pdcachefile.cache_full_path.to_s
-        pdext = pdcachename.match(/.gz$/i) ? ".gz" : ""
-        File.symlink(pdcachename,"mincfiles/#{prefix}_#{dsid}_pd.mnc#{pdext}")
+      collection.sync_to_cache
+      t1_name = params[:t1_name]  # cannot be nil
+      t2_name = params[:t2_name]  # can be nil
+      pd_name = params[:pd_name]  # can be nil
+      mk_name = params[:mk_name]  # can be nil
+    else
+      t1_id  = params[:t1_id]  # cannot be nil
+      t1 = Userfile.find(t1_id)
+      unless t1
+        self.addlog("Could not find active record entry for singlefile '#{t1_id}'.")
+        return false
       end
-
-      if (mk_id)
-        mkcachefile = Userfile.find(mk_id)
-        mkcachefile.sync_to_cache
-        mkcachename = mkcachefile.cache_full_path.to_s
-        mkext = mkcachename.match(/.gz$/i) ? ".gz" : ""
-        File.symlink(mkcachename,"mincfiles/#{prefix}_#{dsid}_mask.mnc#{mkext}")
-      end
+      t2_id  = params[:t2_id]  # can be nil
+      pd_id  = params[:pd_id]  # can be nil
+      mk_id  = params[:mk_id]  # can be nil
     end
 
-    Dir.mkdir("civet_out",0700)
+    # Setting the data_provider_id here means it persists
+    # in the ActiveRecord params structure for later use.
+    if params[:data_provider_id].blank?
+       params[:data_provider_id] = collection.data_provider.id if collection
+       params[:data_provider_id] = t1.data_provider.id if ! collection
+    end
+
+    # MODE A (collection) symlinks
+    if collection
+      colpath = collection.cache_full_path.to_s
+
+      t1ext   = t1_name.match(/.gz$/i) ? ".gz" : ""
+      File.symlink("#{colpath}/#{t1_name}","mincfiles/#{prefix}_#{dsid}_t1.mnc#{t1ext}")
+
+      if params[:multispectral] || params[:spectral_mask]
+        if t2_name
+          t2ext = t2_name.match(/.gz$/i) ? ".gz" : ""
+          File.symlink("#{colpath}/#{t2_name}","mincfiles/#{prefix}_#{dsid}_t2.mnc#{t2ext}")
+        end
+        if pd_name
+          pdext = pd_name.match(/.gz$/i) ? ".gz" : ""
+          File.symlink("#{colpath}/#{pd_name}","mincfiles/#{prefix}_#{dsid}_pd.mnc#{pdext}")
+        end
+        if mk_name
+          mkext = mk_name.match(/.gz$/i) ? ".gz" : ""
+          File.symlink("#{colpath}/#{mk_name}","mincfiles/#{prefix}_#{dsid}_mask.mnc#{mkext}")
+        end
+      end
+
+    else   # MODE B (singlefiles) symlinks
+
+      t1_name     = t1.name
+      t1cachename = t1.cache_full_path.to_s
+      t1ext       = t1_name.match(/.gz$/i) ? ".gz" : ""
+      File.symlink(t1cachename,"mincfiles/#{prefix}_#{dsid}_t1.mnc#{t1ext}")
+
+      if params[:multispectral] || params[:spectral_mask]
+        if t2_id
+          t2cachefile = Userfile.find(t2_id)
+          t2cachefile.sync_to_cache
+          t2cachename = t2cachefile.cache_full_path.to_s
+          t2ext = t2cachename.match(/.gz$/i) ? ".gz" : ""
+          File.symlink(t2cachename,"mincfiles/#{prefix}_#{dsid}_t2.mnc#{t2ext}")
+        end
+
+        if pd_id
+          pdcachefile = Userfile.find(pd_id)
+          pdcachefile.sync_to_cache
+          pdcachename = pdcachefile.cache_full_path.to_s
+          pdext = pdcachename.match(/.gz$/i) ? ".gz" : ""
+          File.symlink(pdcachename,"mincfiles/#{prefix}_#{dsid}_pd.mnc#{pdext}")
+        end
+
+        if mk_id
+          mkcachefile = Userfile.find(mk_id)
+          mkcachefile.sync_to_cache
+          mkcachename = mkcachefile.cache_full_path.to_s
+          mkext = mkcachename.match(/.gz$/i) ? ".gz" : ""
+          File.symlink(mkcachename,"mincfiles/#{prefix}_#{dsid}_mask.mnc#{mkext}")
+        end
+      end # if multispectral or spectral_mask
+    end # mode B
 
     true
   end

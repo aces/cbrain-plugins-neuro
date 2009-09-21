@@ -9,7 +9,7 @@
 
 -%>
 
-<big>File options for T1 file: <strong><%= h(Userfile.find(file[:mincfile_id]).name) %></strong></big><BR>
+<big>File options for T1 file: <strong><%= h(file[:t1_name]) %></strong></big><BR>
 <table border="0" class="userfiles">
    <tr>
       <td>
@@ -29,16 +29,16 @@
    </tr>
 </table>
 
-<% if file[:t2_id] || file[:pd_id] || file[:mk_id] %>
+<% if file[:t2_name] || file[:pd_name] || file[:mk_name] %>
 
-   <%   if file[:t2_id] %>
-      Found T2 file: <%= h(Userfile.find(file[:t2_id]).name) %><BR>
+   <%   if file[:t2_name] %>
+      Found T2 file: <%= h(file[:t2_name]) %><BR>
    <%   end %>
-   <%   if file[:pd_id] %>
-      Found PD file: <%= h(Userfile.find(file[:pd_id]).name) %><BR>
+   <%   if file[:pd_name] %>
+      Found PD file: <%= h(file[:pd_name]) %><BR>
    <%   end %>
-   <%   if file[:mk_id] %>
-      Found Mask file: <%= h(Userfile.find(file[:mk_id]).name) %><BR>
+   <%   if file[:mk_name] %>
+      Found Mask file: <%= h(file[:mk_name]) %><BR>
    <%   end %>
 
    Multispectral:
@@ -48,10 +48,9 @@
 
 <% end %>
 
-<%= hidden_field_tag 'file_args[][mincfile_id]', file[:mincfile_id] %>
-<%= hidden_field_tag 'file_ids[]',               file[:mincfile_id] %>
-<%= hidden_field_tag 'file_args[][t2_id]',       file[:t2_id] %>
-<%= hidden_field_tag 'file_args[][pd_id]',       file[:pd_id] %>
-<%= hidden_field_tag 'file_args[][mk_id]',       file[:mk_id] %>
+<%= hidden_field_tag 'file_args[][t1_name]', file[:t1_name] %>
+<%= hidden_field_tag 'file_args[][t2_name]', file[:t2_name] %>
+<%= hidden_field_tag 'file_args[][pd_name]', file[:pd_name] %>
+<%= hidden_field_tag 'file_args[][mk_name]', file[:mk_name] %>
 
 <HR>
