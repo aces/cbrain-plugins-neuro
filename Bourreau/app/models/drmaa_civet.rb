@@ -38,7 +38,7 @@ class DrmaaCivet < DrmaaTask
     collection_id = params[:collection_id]
     collection_id = nil if collection_id.blank?
     collection    = nil # the variable we use to detect modes
-    if collection_id
+    if collection_id # MODE A: collection
       collection = Userfile.find(collection_id)
       unless collection
         self.addlog("Could not find active record entry for FileCollection '#{collection_id}'.")
@@ -49,7 +49,7 @@ class DrmaaCivet < DrmaaTask
       t2_name = params[:t2_name]  # can be nil
       pd_name = params[:pd_name]  # can be nil
       mk_name = params[:mk_name]  # can be nil
-    else
+    else # MODE B: singlefiles
       t1_id  = params[:t1_id]  # cannot be nil
       t1 = Userfile.find(t1_id)
       unless t1
@@ -122,7 +122,7 @@ class DrmaaCivet < DrmaaTask
           File.symlink(mkcachename,"mincfiles/#{prefix}_#{dsid}_mask.mnc#{mkext}")
         end
       end # if multispectral or spectral_mask
-    end # mode B
+    end # MODE B
 
     true
   end
@@ -191,14 +191,23 @@ class DrmaaCivet < DrmaaTask
     params       = self.params
     user_id      = self.user_id
 
-    prefix = params[:prefix] || "unkpref2"
-    dsid   = params[:dsid]   || "unkdsid2"
-
+    prefix           = params[:prefix] || "unkpref2"
+    dsid             = params[:dsid]   || "unkdsid2"
     data_provider_id = params[:data_provider_id]
 
-    mincfile_id  = params[:mincfile_id]
-    mincfile     = Userfile.find(mincfile_id)
-    group_id     = mincfile.group_id 
+    collection_id = params[:collection_id]
+    collection_id = nil if collection_id.blank?
+
+    source_userfile = nil # the variable we use to detect modes
+
+    if collection_id  # MODE A FileCollection
+      source_userfile = FileCollection.find(collection_id)
+    else              # MODE B SingleFile
+      t1_id           = params[:t1_id]
+      source_userfile = SingleFile.find(t1_id)
+    end
+
+    group_id = source_userfile.group_id 
 
     civetresult = CivetCollection.new(
       :name             => dsid + "-" + self.id.to_s,
@@ -211,7 +220,7 @@ class DrmaaCivet < DrmaaTask
     civetresult.cache_copy_from_local_file("civet_out/#{dsid}")
 
     if civetresult.save
-      civetresult.move_to_child_of(mincfile)
+      civetresult.move_to_child_of(source_userfile)
       self.addlog("Saved new civet result file #{civetresult.name}.")
       return true
     else
