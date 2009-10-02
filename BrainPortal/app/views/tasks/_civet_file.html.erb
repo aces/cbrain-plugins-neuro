@@ -9,48 +9,45 @@
 
 -%>
 
-<big>File options for T1 file: <strong><%= h(file[:t1_name]) %></strong></big><BR>
-<table border="0" class="userfiles">
-   <tr>
-      <td>
-         Prefix:
-      </td>
-      <td>
-      <%= text_field_tag 'file_args[][prefix]', file[:prefix] %>   
-      </td>
-   </tr>
-   <tr>
-      <td>
-         Subject ID:
-      </td>
-      <td>
-      <%= text_field_tag 'file_args[][dsid]',   file[:dsid]   %>
-      </td>
-   </tr>
-</table>
+<tr>
 
-<% if file[:t2_name] || file[:pd_name] || file[:mk_name] %>
+<td>
+  <%= h(file[:t1_name]) %>
+  <%= hidden_field_tag 'file_args[][t1_name]', file[:t1_name] %>
+  <%= hidden_field_tag 'file_args[][t2_name]', file[:t2_name] %>
+  <%= hidden_field_tag 'file_args[][pd_name]', file[:pd_name] %>
+  <%= hidden_field_tag 'file_args[][mk_name]', file[:mk_name] %>
+</td>
 
-   <%   if file[:t2_name] %>
-      Found T2 file: <%= h(file[:t2_name]) %><BR>
-   <%   end %>
-   <%   if file[:pd_name] %>
-      Found PD file: <%= h(file[:pd_name]) %><BR>
-   <%   end %>
-   <%   if file[:mk_name] %>
-      Found Mask file: <%= h(file[:mk_name]) %><BR>
-   <%   end %>
+<td><%= text_field_tag 'file_args[][prefix]', file[:prefix] %></td>
+<td><%= text_field_tag 'file_args[][dsid]',   file[:dsid]   %></td>
 
-   Multispectral:
-     <%= check_box_tag( 'file_args[][multispectral]', '1', file[:multispectral] ) %>
-   Spectral Mask:
-     <%= check_box_tag( 'file_args[][spectral_mask]', '1', file[:spectral_mask] ) %> <BR>
-
+<% if file[:t2_name] %>
+  <td><FONT COLOR="green">&#10004;</FONT></td>
+<% else %>
+  <td><FONT COLOR="red">&times;</FONT></td>
 <% end %>
 
-<%= hidden_field_tag 'file_args[][t1_name]', file[:t1_name] %>
-<%= hidden_field_tag 'file_args[][t2_name]', file[:t2_name] %>
-<%= hidden_field_tag 'file_args[][pd_name]', file[:pd_name] %>
-<%= hidden_field_tag 'file_args[][mk_name]', file[:mk_name] %>
+<% if file[:pd_name] %>
+  <td><FONT COLOR="green">&#10004;</FONT></td>
+<% else %>
+  <td><FONT COLOR="red">&times;</FONT></td>
+<% end %>
 
-<HR>
+<% if file[:mk_name] %>
+  <td><FONT COLOR="green">&#10004;</FONT></td>
+<% else %>
+  <td><FONT COLOR="red">&times;</FONT></td>
+<% end %>
+
+<% if file[:t2_name] || file[:pd_name] %>
+  <td><%= check_box_tag( 'file_args[][multispectral]', '1', file[:multispectral] ) %></td>
+<% else %>
+  <td></td>
+<% end %>
+
+<% if file[:mk_name] %>
+  <td><%= check_box_tag( 'file_args[][spectral_mask]', '1', file[:spectral_mask] ) %></td>
+<% else %>
+  <td></td>
+<% end %>

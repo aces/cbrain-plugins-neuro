@@ -23,12 +23,6 @@
          <%= hidden_field_tag 'collection_id',    default_args[:collection_id] %>
          <%= hidden_field_tag 'file_ids[]',       default_args[:collection_id] %>
 
-         <table>
-            <% for file in default_args[:file_args] %>
-               <%= render :partial => 'civet_file', :locals  => {:file  => file} %>
-            <% end %>
-         </table>
-
          <big>Command options:</big><BR>
 
          <table class="userfiles">
@@ -193,6 +187,26 @@
          <%= select_tag "data_provider_id", options_for_select([["Data provider of input files", nil]] + data_providers.collect{ |p| [ p.name, p.id ] }, current_user.user_preference.data_provider_id) %><br><br>
 
          Save selections as defaults: <%= check_box_tag( :save_as_defaults, '1') %><br><br>
+
+         <%= submit_tag 'Start CIVET' %>
+
+         <hr>
+         <br><big>MINC file input list for collection <em><%= Userfile.find(default_args[:collection_id]).name %></em></big><br>
+         <table>
+            <tr>
+              <th>T1 name</th>
+              <th>Prefix</th>
+              <th>Subject ID</th>
+              <th>T2 found?</th>
+              <th>PD found?</th>
+              <th>Mask found?</th>
+              <th>Use multispectral?</th>
+              <th>Use mask?</th>
+            </tr>
+            <% for file in default_args[:file_args] %>
+               <%= render :partial => 'civet_file', :locals  => {:file  => file} %>
+            <% end %>
+         </table>
 
          <%= submit_tag 'Start CIVET' %>
 
