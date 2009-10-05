@@ -22,7 +22,12 @@ class DrmaaCivet < DrmaaTask
 
     collection_id = file_ids[0]
     collection    = Userfile.find(collection_id)
-    collection.sync_to_cache  # TODO costly!
+
+    # TODO: Provide the link directly in the CIVET args page?
+    state = collection.local_sync_status
+    raise "Error: in order to process this collection, it must first have been synchronized.\n" +
+          "In the file manager, click on the collection then on the 'synchronize' link." if
+          ! state || state.status != "InSync"
 
     # Get the list of all files inside the collection; we only
     # look one level deep inside the directory.
