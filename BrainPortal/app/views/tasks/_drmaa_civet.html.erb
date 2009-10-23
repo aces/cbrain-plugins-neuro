@@ -12,7 +12,7 @@
 <% title 'Civet Parameters' %>
 <div class = "generalcontent">
 
-   <h2>Launch CIVET tasks on a FileCollection</h2>
+   <h2>Launch CIVET tasks</h2>
    <div class = "generalbox">
 
 
@@ -20,8 +20,8 @@
 
          <%= hidden_field_tag :task, 'DrmaaCivet' %>
          <%= hidden_field_tag 'bourreau_id',      default_args[:bourreau_id] %>
-         <%= hidden_field_tag 'collection_id',    default_args[:collection_id] %>
-         <%= hidden_field_tag 'file_ids[]',       default_args[:collection_id] %>
+         <%= hidden_field_tag 'collection_id',    default_args[:collection_id] %> <!-- can be nil -->
+         <%= hidden_field_tag 'file_ids[]',       default_args[:collection_id] %> <!-- can be nil -->
 
          <big>Command options:</big><BR>
 
@@ -191,7 +191,13 @@
          <%= submit_tag 'Start CIVET' %>
 
          <hr>
-         <br><big>MINC file input list for collection <em><%= Userfile.find(default_args[:collection_id]).name %></em></big><br>
+         <br>
+         <% if default_args[:collection_id] %>
+           <big>MINC file input list for collection <em><%= Userfile.find(default_args[:collection_id]).name %></em></big>
+         <% else %>
+           <big>MINC file input list</big>
+         <% end %>
+         <br>
          <table>
             <tr>
               <th>T1 name</th>
@@ -204,7 +210,11 @@
               <th>Use mask?</th>
             </tr>
             <% for file in default_args[:file_args] %>
-               <%= render :partial => 'civet_file', :locals  => {:file  => file} %>
+               <% if default_args[:collection_id] %>
+                 <%= render :partial => 'civet_file_from_col',  :locals  => {:file  => file} %>
+               <% else %>
+                 <%= render :partial => 'civet_file_from_list', :locals  => {:file  => file} %>
+               <% end %>
             <% end %>
          </table>
 

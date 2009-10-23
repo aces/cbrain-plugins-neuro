@@ -1,0 +1,54 @@
+
+<%
+
+#
+# CBRAIN Project
+#
+# $Id$
+#
+
+-%>
+
+<tr>
+
+<td>
+  <%= h(file[:t1_name]) %>
+  <%= hidden_field_tag 'file_args[][t1_name]', file[:t1_name] %>
+  <%= hidden_field_tag 'file_args[][t1_id]', file[:t1_id] %>
+  <%= hidden_field_tag 'file_args[][t2_id]', file[:t2_id] %>
+  <%= hidden_field_tag 'file_args[][pd_id]', file[:pd_id] %>
+  <%= hidden_field_tag 'file_args[][mk_id]', file[:mk_id] %>
+</td>
+
+<td><%= text_field_tag 'file_args[][prefix]', file[:prefix] %></td>
+<td><%= text_field_tag 'file_args[][dsid]',   file[:dsid]   %></td>
+
+<% if file[:t2_id] %>
+  <td><FONT COLOR="green">&#10004;</FONT></td>
+<% else %>
+  <td><FONT COLOR="red">&times;</FONT></td>
+<% end %>
+
+<% if file[:pd_id] %>
+  <td><FONT COLOR="green">&#10004;</FONT></td>
+<% else %>
+  <td><FONT COLOR="red">&times;</FONT></td>
+<% end %>
+
+<% if file[:mk_id] %>
+  <td><FONT COLOR="green">&#10004;</FONT></td>
+<% else %>
+  <td><FONT COLOR="red">&times;</FONT></td>
+<% end %>
+
+<% if file[:t2_id] || file[:pd_id] %>
+  <td><%= check_box_tag( 'file_args[][multispectral]', '1', file[:multispectral] ) %></td>
+<% else %>
+  <td></td>
+<% end %>
+
+<% if file[:mk_id] %>
+  <td><%= check_box_tag( 'file_args[][spectral_mask]', '1', file[:spectral_mask] ) %></td>
+<% else %>
+  <td></td>
+<% end %>

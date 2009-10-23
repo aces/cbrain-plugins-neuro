@@ -13,19 +13,86 @@ class DrmaaCivet < DrmaaTask
   def self.get_default_args(params = {}, saved_args = nil)
     file_ids         = params[:file_ids]
 
+    userfiles = []
+    file_ids.each do |id|
+      userfiles << Userfile.find(id)
+    end
+
+    # MODE A, we have a single FileCollection in argument
+    if userfiles.size == 1 && userfiles[0].is_a?(FileCollection)
+      return get_default_args_for_collection(params,userfiles[0], saved_args)
+    end
+
+    # MODE B, we have one or many T1s in argument
+    if userfiles.detect { |u| ! u.is_a?(SingleFile) }
+      cb_error "Error: CIVET can only be launched on one FileCollection\n" +
+               "or a set of T1 Minc files\n"
+    end
+    return get_default_args_for_t1list(params, userfiles, saved_args)
+
+  end
+
+  def self.get_default_args_for_t1list(params, userfiles, saved_args)
+
     user_id          = params[:user_id]
     bourreau_id      = params[:bourreau_id]
     data_provider_id = params[:data_provider_id]
 
-    raise "Error: CIVET can only be launched on one FileCollection." if
-      file_ids.size != 1
+    file_args = []
 
-    collection_id = file_ids[0]
-    collection    = Userfile.find(collection_id)
+    all_files_I_can_access = Userfile.find_all_accessible_by_user(User.find(user_id))
+    index_of_my_files      = all_files_I_can_access.index_by(&:name)
+
+    userfiles.each do |t1|
+
+      t1_name = t1.name
+      t1_id   = t1.id
+      (t2_id, pd_id, mk_id) = find_t2_pd_mask(t1_name,index_of_my_files)
+
+      if t1_name.match(/(\w+)_(\w+)_t1\b/i)
+        prefix = Regexp.last_match[1]
+        dsid   = Regexp.last_match[2]
+      else
+        prefix = "prefix"
+        dsid   = "dsid"
+      end
+
+      file_args << {
+        :t1_name             => t1_name,
+
+        :t1_id               => t1_id,
+        :t2_id               => t2_id,
+        :pd_id               => pd_id,
+        :mk_id               => mk_id,
+
+        :prefix              => prefix,      # -prefix
+        :dsid                => dsid,        #
+        
+        :multispectral       => false,       # -multispectral for true
+        :spectral_mask       => false,       # -spectral-mask for true
+      }
+    end
+
+    {  :file_args        => file_args,
+       :civet_args       => get_common_civet_args(saved_args),
+
+       :collection_id    => nil,
+       :data_provider_id => data_provider_id,
+       :bourreau_id      => bourreau_id,
+    }
+  end
+
+  def self.get_default_args_for_collection(params, collection, saved_args)
+
+    user_id          = params[:user_id]
+    bourreau_id      = params[:bourreau_id]
+    data_provider_id = params[:data_provider_id]
+
+    collection_id = collection.id
 
     # TODO: Provide the link directly in the CIVET args page?
     state = collection.local_sync_status
-    raise "Error: in order to process this collection, it must first have been synchronized.\n" +
+    cb_error "Error: in order to process this collection, it must first have been synchronized.\n" +
           "In the file manager, click on the collection then on the 'synchronize' link." if
           ! state || state.status != "InSync"
 
@@ -41,7 +108,7 @@ class DrmaaCivet < DrmaaTask
       minc_files << basename if basename.match(/\.mnc(\.gz|\.Z)?$/i)
     end
 
-    raise "There are no MINC files in this FileCollection!" unless minc_files.size > 0
+    cb_error "There are no MINC files in this FileCollection!" unless minc_files.size > 0
 
     # From the list of minc files, try to identify files
     # that are clearly 't1' files, based on the filename.
@@ -104,45 +171,49 @@ class DrmaaCivet < DrmaaTask
 
     end
 
-    civet_args = saved_args || {
-          :make_graph          => false,       # -make-graph for true
-          :make_filename_graph => false,       # -make-filename-graph for true
-          :print_status_report => false,       # -print-status-report for true
-
-          :template            => '1.00',      # -template
-          :model               => 'icbm152nl', # -model
-        
-          :correct_pve         => false,       # -[no-]correct-pve
-        
-          :interp              => 'trilinear', # -interp
-          :N3_distance         => 200,         # -N3-distance
-          :lsq                 => '9',         # -lsq6, -lsq9, -lsq12
-          :no_surfaces         => false,       # -no-surfaces
-          :thickness_method    => 'tlink',     # -thickness method kernel
-          :thickness_kernel    => 20,          #             "
-          :resample_surfaces   => false,       # -[no-]resample-surfaces
-          :combine_surfaces    => false,       # -[no-]combine-surfaces
-
-          # Not yet implemented in interface
-          :VBM                 => false,       # -[no-]VBM
-          :VBM_fwhm            => 8,           # -VBM-fwhm
-          :VBM_symmetry        => false,       # -[no-]VBM-symmetry
-          :VBM_cerebellum      => true,        # -[no-]VBM-cerebellum
-
-          # Not yet implemented in interface
-          :animal              => false,       # -[no-]animal
-          :atlas               => 'lobe'       # -symmetric-atlas or -lobe-atlas
-          # TODO animal-atlas-dir
-
-      }
-
     {  :file_args        => file_args,
-       :civet_args       => civet_args,
+       :civet_args       => get_common_civet_args(saved_args),
 
        :collection_id    => collection_id,
        :data_provider_id => data_provider_id,
        :bourreau_id      => bourreau_id,
     }
+  end
+
+  # Returns the sceintific parameters common to all the CIVET
+  # jobs we're about to launch
+  def self.get_common_civet_args(saved_args)
+    civet_args = saved_args || {
+      :make_graph          => false,       # -make-graph for true
+      :make_filename_graph => false,       # -make-filename-graph for true
+      :print_status_report => false,       # -print-status-report for true
+
+      :template            => '1.00',      # -template
+      :model               => 'icbm152nl', # -model
+        
+      :correct_pve         => false,       # -[no-]correct-pve
+        
+      :interp              => 'trilinear', # -interp
+      :N3_distance         => 200,         # -N3-distance
+      :lsq                 => '9',         # -lsq6, -lsq9, -lsq12
+      :no_surfaces         => false,       # -no-surfaces
+      :thickness_method    => 'tlink',     # -thickness method kernel
+      :thickness_kernel    => 20,          #             "
+      :resample_surfaces   => false,       # -[no-]resample-surfaces
+      :combine_surfaces    => false,       # -[no-]combine-surfaces
+
+      # Not yet implemented in interface
+      :VBM                 => false,       # -[no-]VBM
+      :VBM_fwhm            => 8,           # -VBM-fwhm
+      :VBM_symmetry        => false,       # -[no-]VBM-symmetry
+      :VBM_cerebellum      => true,        # -[no-]VBM-cerebellum
+
+      # Not yet implemented in interface
+      :animal              => false,       # -[no-]animal
+      :atlas               => 'lobe'       # -symmetric-atlas or -lobe-atlas
+      # TODO animal-atlas-dir
+    }
+    civet_args
   end
   
   #See DrmaaTask.
@@ -153,7 +224,8 @@ class DrmaaCivet < DrmaaTask
     flash = ""
 
     if file_args.size > 3
-      self.spawn do
+      user = User.find(params[:user_id])
+      CBRAIN.spawn_with_active_records(user,"CIVET launcher") do
         file_args.each do |file|
           self.launch_one(params,file,civet_args)
         end
@@ -171,12 +243,12 @@ class DrmaaCivet < DrmaaTask
 
   def self.launch_one(params,one_file_args,civet_args)
     user_id          = params[:user_id]
-    collection_id    = params[:collection_id]
+    collection_id    = params[:collection_id] # can be nil
     bourreau_id      = params[:bourreau_id]
     data_provider_id = params[:data_provider_id]
 
-    collection      = FileCollection.find(collection_id)
-    t1_name         = one_file_args[:t1_name]
+    collection_id   = nil if collection_id.blank?
+    collection      = collection_id ? FileCollection.find(collection_id) : nil
 
     extended_args = civet_args.dup
     extended_args[:data_provider_id] = data_provider_id
@@ -186,10 +258,15 @@ class DrmaaCivet < DrmaaTask
     civ = DrmaaCivet.new  # a blank ActiveResource object
     civ.user_id      = user_id
     civ.bourreau_id  = bourreau_id unless bourreau_id.blank?
-    civ.params  = extended_args.merge(one_file_args)
+    civ.params       = extended_args.merge(one_file_args)
     civ.save
 
-    collection.addlog_context(self,"Sent '#{t1_name}' to CIVET, task #{civ.bname_tid}")
+    if collection
+      t1_name = one_file_args[:t1_name]
+      collection.addlog_context(self,"Sent '#{t1_name}' to CIVET, task #{civ.bname_tid}")
+    else
+      Userfile.find(one_file_args[:t1_id]).addlog_context(self,"Sent to CIVET, task #{civ.bname_tid}")
+    end
   end
   
   #See DrmaaTask.
@@ -197,50 +274,22 @@ class DrmaaCivet < DrmaaTask
     params[:civet_args]
   end
   
-  # TODO need ability to find these files even when they don't
-  # belong to the user but are still 'accessible' by the user's groups
-  #
-  # DISABLED: NOT USED ANYMORE
-  def self.disabled_find_t2_pd_mask(t1name,user_id) #:nodoc:
-      if ! t1name.match(/_t1/)
+  private
+
+  def self.find_t2_pd_mask(t1_name,userfileindex) #:nodoc:
+      if ! t1_name.match(/_t1\b/)
           return [nil,nil,nil]
       end
-      t2 = Userfile.find(:first, :conditions => { :name => t1name.sub(/_t1/,"_t2"), :user_id => user_id } )
+      t2 = userfileindex[t1_name.sub(/_t1/,"_t2")]
       t2_id = t2 ? t2.id : nil
 
-      pd = Userfile.find(:first, :conditions => { :name => t1name.sub(/_t1/,"_pd"), :user_id => user_id } )
+      pd = userfileindex[t1_name.sub(/_t1/,"_pd")]
       pd_id = pd ? pd.id : nil
 
-      mk = Userfile.find(:first, :conditions => { :name => t1name.sub(/_t1/,"_mask"), :user_id => user_id } )
+      mk = userfileindex[t1_name.sub(/_t1/,"_mask")]
       mk_id = mk ? mk.id : nil
 
       [t2_id,pd_id,mk_id]
-  end
-
-  private
-
-  # Run the associated block as a background process to avoid
-  # blocking.
-  #
-  # Most of the code in this method comes from a blog entry
-  # by {Scott Persinger}[http://geekblog.vodpod.com/?p=26].
-  def self.spawn #:nodoc:
-    dbconfig = ActiveRecord::Base.remove_connection
-    pid = Kernel.fork do
-      require 'mongrel'
-      Mongrel::HttpServer.cbrain_force_close_server_socket
-      begin
-        # Monkey-patch Mongrel to not remove its pid file in the child
-        Mongrel::Configurator.class_eval("def remove_pid_file; puts 'child no-op'; end")
-        ActiveRecord::Base.establish_connection(dbconfig)
-        yield
-      ensure
-        ActiveRecord::Base.remove_connection
-      end
-      Kernel.exit!
-    end
-    Process.detach(pid)
-    ActiveRecord::Base.establish_connection(dbconfig)
   end
 
   def self.extract_t2_pd_mask(t1,minclist)  #:nodoc:

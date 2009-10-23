@@ -210,7 +210,7 @@ class DrmaaCivet < DrmaaTask
     group_id = source_userfile.group_id 
 
     civetresult = CivetCollection.new(
-      :name             => dsid + "-" + self.id.to_s,
+      :name             => dsid + "-" + self.bourreau.name + "-" + self.id.to_s,
       :user_id          => user_id,
       :group_id         => group_id,
       :data_provider_id => data_provider_id,
@@ -220,6 +220,7 @@ class DrmaaCivet < DrmaaTask
     civetresult.cache_copy_from_local_file("civet_out/#{dsid}")
 
     if civetresult.save
+      civetresult.addlog_context(self,"Created by task '#{self.bname_tid}' from '#{source_userfile.name}'")
       civetresult.move_to_child_of(source_userfile)
       self.addlog("Saved new civet result file #{civetresult.name}.")
       return true
