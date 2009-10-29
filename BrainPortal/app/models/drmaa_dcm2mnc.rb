@@ -28,6 +28,7 @@ class DrmaaDcm2mnc < DrmaaTask
     
     dm = DrmaaDcm2mnc.new
     dm.user_id = params[:user_id]
+    dm.description  = params[:description]
     # TODO what to do when more than one collection selected ?
     # TODO check that the ID is really a collection right away ?
     dm.params = { :dicom_colid => file_ids[0] }

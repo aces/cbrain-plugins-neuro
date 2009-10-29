@@ -56,6 +56,7 @@ class DrmaaMnc2nii < DrmaaTask
        userfile = Userfile.find(id, :include  => :user)
        task = DrmaaMnc2nii.new
        task.user_id = params[:user_id]
+       task.description  = params[:description]
        task.params = { :mincfile_id => id, :data_type => data_type, :file_format => file_format }
        task.save
        userfile.addlog "Started Mnc2nii, task #{task.bname_tid}"

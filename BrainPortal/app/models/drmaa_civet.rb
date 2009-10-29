@@ -246,6 +246,7 @@ class DrmaaCivet < DrmaaTask
     collection_id    = params[:collection_id] # can be nil
     bourreau_id      = params[:bourreau_id]
     data_provider_id = params[:data_provider_id]
+    description      = params[:description]
 
     collection_id   = nil if collection_id.blank?
     collection      = collection_id ? FileCollection.find(collection_id) : nil
@@ -258,6 +259,7 @@ class DrmaaCivet < DrmaaTask
     civ = DrmaaCivet.new  # a blank ActiveResource object
     civ.user_id      = user_id
     civ.bourreau_id  = bourreau_id unless bourreau_id.blank?
+    civ.description  = description
     civ.params       = extended_args.merge(one_file_args)
     civ.save
 

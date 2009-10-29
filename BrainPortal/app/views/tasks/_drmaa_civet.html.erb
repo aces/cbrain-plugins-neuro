@@ -22,6 +22,9 @@
          <%= hidden_field_tag 'bourreau_id',      default_args[:bourreau_id] %>
          <%= hidden_field_tag 'collection_id',    default_args[:collection_id] %> <!-- can be nil -->
          <%= hidden_field_tag 'file_ids[]',       default_args[:collection_id] %> <!-- can be nil -->
+         
+         <big>Description (optional)</big><BR>
+         <%=  text_area_tag :description, nil, :cols  => 40 %><br><br>
 
          <big>Command options:</big><BR>
 
