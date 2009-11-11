@@ -1,0 +1,30 @@
+<!-- 
+   Partial to be rendered for DrmaaDcm2nii
+-->
+<% title 'Dcm2nii Parameters' %>
+
+<h1>New Dcm2nii task</h1>
+
+<%
+     form_tag( '/tasks/create' ) do 
+-%>
+
+<%= hidden_field_tag :task, 'DrmaaDcm2nii' %>
+<% params[:file_ids].each do |id| %>
+<%= hidden_field_tag 'file_ids[]',  id %>
+<% end %>
+
+<!-- 
+   Render form fields here.
+   Default arguments returned by DrmaaDcm2nii.get_default_args()
+     are stored in the hash: default_args
+-->
+
+Save results to:
+<%= select_tag "data_provider_id", options_for_select([["Data provider of input files", nil]] + data_providers.collect{ |p| [ p.name, p.id ] }, current_user.user_preference.data_provider_id) %><br><br>
+
+Save selections as defaults: <%= check_box_tag( :save_as_defaults, '1') %><br><br>
+
+<%= submit_tag 'Start Dcm2nii' %>
+
+<% end %>

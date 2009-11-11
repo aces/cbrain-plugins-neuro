@@ -4,7 +4,7 @@
 #
 # DrmaaMnc2nii model as ActiveResource
 #
-# Original author: 
+# Original author:Mathieu Desrosiers 
 #
 # $Id$
 #
