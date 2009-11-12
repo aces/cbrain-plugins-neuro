@@ -9,8 +9,6 @@
 # $Id$
 #
 
-#save pour les fichiers de sortie autre que .nii
-
 #A subclass of DrmaaTask to run mnc2nii.
 class DrmaaMnc2nii < DrmaaTask
 
@@ -33,6 +31,23 @@ class DrmaaMnc2nii < DrmaaTask
     minc_col.sync_to_cache
     params[:data_provider_id] ||= mincfile.data_provider.id
 
+<<<<<<< .mine
+#    unless minc_col.class.to_s == "FileCollection"
+#      self.addlog("Error: ActiveRecord entry #{minc_colid} is not a file collection.")
+#      return false
+#    end
+
+
+
+
+    vaultname = minc_col.vaultname
+    File.symlink(vaultname,"minc_col.mnc")
+    pre_synchronize_userfile(minc_col)
+
+=======
+>>>>>>> .r298
+    params[:data_provider_id] ||= mincfile.data_provider.id
+
     true
   end
 
@@ -41,7 +56,7 @@ class DrmaaMnc2nii < DrmaaTask
     params       = self.params
     data_type = params[:data_type]
 
-    if data_type = "default"
+    if data_type == "default"
       data_type = ""
     else
       data_type = "-#{data_type}"
