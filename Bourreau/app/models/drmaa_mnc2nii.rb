@@ -31,7 +31,6 @@ class DrmaaMnc2nii < DrmaaTask
     minc_col.sync_to_cache
     params[:data_provider_id] ||= mincfile.data_provider.id
 
-<<<<<<< .mine
 #    unless minc_col.class.to_s == "FileCollection"
 #      self.addlog("Error: ActiveRecord entry #{minc_colid} is not a file collection.")
 #      return false
@@ -44,8 +43,6 @@ class DrmaaMnc2nii < DrmaaTask
     File.symlink(vaultname,"minc_col.mnc")
     pre_synchronize_userfile(minc_col)
 
-=======
->>>>>>> .r298
     params[:data_provider_id] ||= mincfile.data_provider.id
 
     true
