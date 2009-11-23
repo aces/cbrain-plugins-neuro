@@ -6,13 +6,13 @@
 #
 # Original author: 
 #
-# $Id: model.rb 342 2009-07-17 22:07:21Z tsherif $
+# $Id$
 #
 
 #A subclass of DrmaaTask to launch dcm2nii.
 class DrmaaDcm2nii < DrmaaTask
 
-  Revision_info="$Id: model.rb 342 2009-07-17 22:07:21Z tsherif $"
+  Revision_info="$Id$"
 
   #########################################################################
   #This method should indicate whether or not dcm2nii requires 
