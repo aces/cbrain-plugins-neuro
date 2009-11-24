@@ -24,7 +24,7 @@ class DrmaaDcm2mnc < DrmaaTask
     file_ids = params[:file_ids]
     col_id   = file_ids[0]
     col      = Userfile.find(col_id)
-    return "Error: no collection found for id '#{col_id}'" unless col && col.is_a?(FileCollection)
+    cb_error "Error: no collection found for id '#{col_id}'" unless col && col.is_a?(FileCollection)
     
     dm = DrmaaDcm2mnc.new
     dm.user_id = params[:user_id]

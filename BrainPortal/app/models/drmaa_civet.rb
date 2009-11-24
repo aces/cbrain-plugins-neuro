@@ -28,8 +28,8 @@ class DrmaaCivet < DrmaaTask
       cb_error "Error: CIVET can only be launched on one FileCollection\n" +
                "or a set of T1 Minc files\n"
     end
+    
     return get_default_args_for_t1list(params, userfiles, saved_args)
-
   end
 
   def self.get_default_args_for_t1list(params, userfiles, saved_args)
