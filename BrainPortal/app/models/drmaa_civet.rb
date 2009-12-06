@@ -248,7 +248,12 @@ class DrmaaCivet < DrmaaTask
 
     extended_args = civet_args.dup
     extended_args[:data_provider_id] = data_provider_id
-    extended_args[:collection_id]    = collection_id
+    extended_args[:collection_id]    = collection_id # can be nil
+
+    # For logging
+    t1_object = collection || Userfile.find(one_file_args[:t1_id])
+    t1_name   = collection ? one_file_args[:t1_name] : t1_object.name
+    description = t1_name if description.blank?
 
     # Create the object, send it to Bourreau
     civ = DrmaaCivet.new  # a blank ActiveResource object
@@ -258,12 +263,13 @@ class DrmaaCivet < DrmaaTask
     civ.params       = extended_args.merge(one_file_args)
     civ.save
 
+    # Log the task info in the source object
     if collection
-      t1_name = one_file_args[:t1_name]
-      collection.addlog_context(self,"Sent '#{t1_name}' to CIVET, task #{civ.bname_tid}")
+      t1_object.addlog_context(self,"Sent '#{t1_name}' to CIVET, task #{civ.bname_tid}")
     else
-      Userfile.find(one_file_args[:t1_id]).addlog_context(self,"Sent to CIVET, task #{civ.bname_tid}")
+      t1_object.addlog_context(self,"Sent to CIVET, task #{civ.bname_tid}")
     end
+
   end
   
   #See DrmaaTask.
