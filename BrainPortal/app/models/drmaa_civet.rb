@@ -228,8 +228,8 @@ class DrmaaCivet < DrmaaTask
     CBRAIN.spawn_with_active_records_if(spawn_this,user,"CIVET launcher") do
       file_args.each do |file|
         self.launch_one(params,file,civet_args)
+        flash += "Started CIVET on file '#{file[:t1_name]}'.\n" unless spawn_this
       end
-      flash += "Started CIVET on file '#{file[:t1_name]}'.\n" unless spawn_this
     end
     flash += "Started CIVET on #{file_args.size} files.\n" if spawn_this
     
