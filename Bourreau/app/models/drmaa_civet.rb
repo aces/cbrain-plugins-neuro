@@ -56,6 +56,7 @@ class DrmaaCivet < DrmaaTask
         self.addlog("Could not find active record entry for singlefile '#{t1_id}'.")
         return false
       end
+      t1.sync_to_cache
       t2_id  = params[:t2_id]  # can be nil
       pd_id  = params[:pd_id]  # can be nil
       mk_id  = params[:mk_id]  # can be nil
