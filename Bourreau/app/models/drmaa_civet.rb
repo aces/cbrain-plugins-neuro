@@ -211,13 +211,19 @@ class DrmaaCivet < DrmaaTask
     group_id = source_userfile.group_id 
 
     civetresult = CivetCollection.new(
-      :name             => dsid + "-" + self.bourreau.name + "-" + self.id.to_s,
+      :name             => dsid + "-" + self.bname_tid_dashed,
       :user_id          => user_id,
       :group_id         => group_id,
       :data_provider_id => data_provider_id,
       :task             => "Civet"
     )
-    File.rename("civet_out/References.txt","civet_out/#{dsid}/References.txt") rescue true
+
+    # Move or copy some useful files into the collection before creating it.
+    File.rename("civet_out/References.txt", "civet_out/#{dsid}/References.txt") rescue true
+    FileUtils.cp(self.stdoutDRMAAfilename,  "civet_out/#{dsid}/logs/CBRAIN_#{self.bname_tid_dashed}.stdout.txt") rescue true
+    FileUtils.cp(self.stderrDRMAAfilename,  "civet_out/#{dsid}/logs/CBRAIN_#{self.bname_tid_dashed}.stderr.txt") rescue true
+
+    # Copy the CIVET result's content to the DataProvider's cache (and provider too)
     civetresult.cache_copy_from_local_file("civet_out/#{dsid}")
 
     if civetresult.save
