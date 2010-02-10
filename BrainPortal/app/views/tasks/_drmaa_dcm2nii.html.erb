@@ -3,7 +3,11 @@
 -->
 <% title 'Dcm2nii Parameters' %>
 
-<h1>New Dcm2nii task</h1>
+<div class="generalcontent">
+
+<h2>New Dcm2nii task</h2>
+
+<div class="generalbox">
 
 <%
      form_tag( '/tasks/create' ) do 
@@ -28,3 +32,5 @@ Save selections as defaults: <%= check_box_tag( :save_as_defaults, '1') %><br><b
 <%= submit_tag 'Start Dcm2nii' %>
 
 <% end %>
+</div> <!-- generalbox -->
+</div> <!-- generalcontent -->

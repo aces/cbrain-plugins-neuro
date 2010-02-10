@@ -2,10 +2,11 @@
    Partial to be rendered for DrmaaCivetCombiner
 -->
 <% title 'CivetCombiner Parameters' %>
+<div class = "generalcontent">
 
+
+<h2>New CivetCombiner task</h2>
 <div class = "generalbox">
-
-<h1>New CivetCombiner task</h1>
 
 <%
      form_tag( '/tasks/create' ) do 
@@ -57,3 +58,4 @@ the CivetCollections used? <%= check_box_tag( :destroy_sources, 'YeS') %>
 <% end %>
 
 </div> <!-- generalbox -->
+</div> <!-- generalcontent -->
