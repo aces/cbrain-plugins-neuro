@@ -98,7 +98,7 @@ class DrmaaCivet < DrmaaTask
 
     # Get the list of all files inside the collection; we only
     # look one level deep inside the directory.
-    files_inside  = collection.list_files.select { |f| f !~ /\/\.*\// }
+    files_inside  = collection.list_files.map(&:name).select { |f| f !~ /\/\.*\// }
     files_inside  = files_inside.map { |f| f.sub(/^.*\//,"") }
 
     # Parse the list of all files and extract the MINC files.

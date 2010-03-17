@@ -81,9 +81,11 @@ class CivetCollection < FileCollection
   private
 
   def get_list(directory)  #:nodoc:
-    Dir.chdir(self.cache_full_path) do
-      `find #{directory} -type f`.split("\n").map{ |name| name.sub(/^#{directory}\//, "") }
-    end
+    full_dir = Pathname.new(self.name) + directory
+    self.list_files.select{ |file_entry| file_entry.name =~ /^#{full_dir}\//}.each{ |file_entry| file_entry.name.sub!(/^#{full_dir}\//, "")  }
+    # Dir.chdir(self.cache_full_path) do
+    #   `find #{directory} -type f`.split("\n").map{ |name| name.sub(/^#{directory}\//, "") }
+    # end
   end
 
 end

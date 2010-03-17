@@ -16,13 +16,13 @@
    </tr>
    <tr class="list-odd">
       <td>
-         <%= @userfile.list_final.map{ |file|  check_box_tag('filelist[]', "#{@userfile.name}/final/" + file) + file}.join('<br>') %>
+         <%= @userfile.list_final.map{ |file|  check_box_tag('filelist[]', "#{@userfile.name}/final/" + file.name) + file.name}.join('<br>') %>
       </td>
       <td>
-         <%= @userfile.list_native.map{ |file|  check_box_tag('filelist[]', "#{@userfile.name}/native/" + file) + file}.join('<br>') %>
+         <%= @userfile.list_native.map{ |file|  check_box_tag('filelist[]', "#{@userfile.name}/native/" + file.name) + file.name}.join('<br>') %>
       </td>
       <td>
-         <%= @userfile.list_surfaces.map{ |file|  check_box_tag('filelist[]', "#{@userfile.name}/surfaces/" + file) + file}.join('<br>') %>
+         <%= @userfile.list_surfaces.map{ |file|  check_box_tag('filelist[]', "#{@userfile.name}/surfaces/" + file.name) + file.name}.join('<br>') %>
       </td>
    </tr>
    <tr>
@@ -32,13 +32,13 @@
    </tr>
    <tr class="list-odd">
       <td>
-         <%= @userfile.list_classify.map{ |file|  check_box_tag('filelist[]', "#{@userfile.name}/classify/" + file) + file}.join('<br>') %>
+         <%= @userfile.list_classify.map{ |file|  check_box_tag('filelist[]', "#{@userfile.name}/classify/" + file.name) + file.name}.join('<br>') %>
       </td>
       <td>
-         <%= @userfile.list_thickness.map{ |file|  check_box_tag('filelist[]', "#{@userfile.name}/thickness/" + file) + file}.join('<br>') %>
+         <%= @userfile.list_thickness.map{ |file|  check_box_tag('filelist[]', "#{@userfile.name}/thickness/" + file.name) + file.name}.join('<br>') %>
       </td>
       <td>
-         <%= @userfile.list_verify.map{ |file|  check_box_tag('filelist[]', "#{@userfile.name}/verify/" + file) + file}.join('<br>') %>
+         <%= @userfile.list_verify.map{ |file|  check_box_tag('filelist[]', "#{@userfile.name}/verify/" + file.name) + file.name}.join('<br>') %>
       </td>
    </tr>
    <tr>
@@ -48,13 +48,13 @@
    </tr>
    <tr class="list-odd">
       <td>
-         <%= @userfile.list_linear_transforms.map{ |file|  check_box_tag('filelist[]', "#{@userfile.name}/transforms/linear/" + file) + file}.join('<br>') %>
+         <%= @userfile.list_linear_transforms.map{ |file|  check_box_tag('filelist[]', "#{@userfile.name}/transforms/linear/" + file.name) + file.name}.join('<br>') %>
       </td>
       <td>
-         <%= @userfile.list_non_linear_transforms.map{ |file|  check_box_tag('filelist[]', "#{@userfile.name}/transforms/nonlinear/" + file) + file}.join('<br>') %>
+         <%= @userfile.list_non_linear_transforms.map{ |file|  check_box_tag('filelist[]', "#{@userfile.name}/transforms/nonlinear/" + file.name) + file.name}.join('<br>') %>
       </td>
       <td>
-         <%= @userfile.list_surfreg_transforms.map{ |file|  check_box_tag('filelist[]', "#{@userfile.name}/transforms/surfreg/" + file) + file}.join('<br>') %>
+         <%= @userfile.list_surfreg_transforms.map{ |file|  check_box_tag('filelist[]', "#{@userfile.name}/transforms/surfreg/" + file.name) + file.name}.join('<br>') %>
       </td>
    </tr>
 </table>
