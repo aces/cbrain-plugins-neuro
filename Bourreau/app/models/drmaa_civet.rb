@@ -144,31 +144,23 @@ class DrmaaCivet < DrmaaTask
     args += "-model #{params[:model]} "             if params[:model]
     args += "-interp #{params[:interp]} "           if params[:interp]
     args += "-N3-distance #{params[:N3_distance]} " if params[:N3_distance]
-    args += "-lsq#{params[:lsq]} "                  if params[:lsq] && params[:lsq].to_i != 9
+    args += "-lsq#{params[:lsq]} "                  if params[:lsq] && params[:lsq].to_i != 9 # there is NO -lsq9 option!
     args += "-no-surfaces "                         if params[:no_surfaces]
     args += "-multispectral "                       if params[:multispectral]
     args += "-spectral_mask "                       if params[:spectral_mask]
-
-    if params[:correct_pve]
-        args += "-correct-pve "
-    else
-        # args += "-no-correct-pve "      # default
-    end
+    args += "-correct-pve "                         if params[:correct_pve]
+    args += "-resample-surfaces "                   if params[:resample_surfaces]
+    args += "-combine-surfaces "                    if params[:combine_surfaces]
 
     if params[:thickness_method] && params[:thickness_kernel]
         args += "-thickness #{params[:thickness_method]} #{params[:thickness_kernel]} "
     end
 
-    if params[:resample_surfaces]
-        args += "-resample-surfaces "
-    else
-        # args += "-no-resample-surfaces "      # default
-    end
-
-    if params[:combine_surfaces]
-        args += "-combine-surfaces "
-    else
-        # args += "-no-combine-surfaces "      # default
+    if params[:VBM]
+        args += "-VBM "
+        args += "-VBM-symmetry "                    if params[:VBM_symmetry]
+        args += "-VBM-cerebellum "                  if params[:VBM_cerebellum]
+        args += "-VBM-fwhm #{params[:VBM_fwhm]} "   if params[:VBM_fwhm]
     end
 
     civet_command = "CIVET_Processing_Pipeline -prefix #{prefix} -source mincfiles -target civet_out -spawn #{args} -run #{dsid}"

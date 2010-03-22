@@ -202,9 +202,9 @@ class DrmaaCivet < DrmaaTask
       :resample_surfaces   => false,       # -[no-]resample-surfaces
       :combine_surfaces    => false,       # -[no-]combine-surfaces
 
-      # Not yet implemented in interface
+      # VBM options
       :VBM                 => false,       # -[no-]VBM
-      :VBM_fwhm            => 8,           # -VBM-fwhm
+      :VBM_fwhm            => '8',         # -VBM-fwhm
       :VBM_symmetry        => false,       # -[no-]VBM-symmetry
       :VBM_cerebellum      => true,        # -[no-]VBM-cerebellum
 

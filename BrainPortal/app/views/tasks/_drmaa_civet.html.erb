@@ -186,6 +186,52 @@
             </td>
             </tr>
 
+
+            <tr>
+               <th COLSPAN="1">VBM Options</th>
+               <th>(this space for rent)</th>
+            </tr>
+
+            <tr class="list-even">
+            <td COLSPAN="1">
+               <table border="0" class="userfiles">
+                  <tr>
+                     <td>
+                        Process VBM files:
+                     </td>
+                     <td>
+                        <%= check_box_tag( 'civet_args[VBM]', '1', default_args[:civet_args][:VBM] ) %>
+                     </td>
+                  </tr>
+                  <tr>
+                     <td>
+                        Blurring kernel size in mm for volume:
+                     </td>
+                     <td>
+                        <%= text_field_tag 'civet_args[VBM_fwhm]', default_args[:civet_args][:VBM_fwhm], :size => 4 %>
+                     </td>
+                  </tr>
+                  <tr>
+                     <td>
+                        Run symmetry tools:
+                     </td>
+                     <td>
+                        <%= check_box_tag( 'civet_args[VBM_symmetry]', '1', default_args[:civet_args][:VBM_symmetry] ) %>
+                     </td>
+                  </tr>
+                  <tr>
+                     <td>
+                        Keep cerebellum in VBM maps:
+                     </td>
+                     <td>
+                        <%= check_box_tag( 'civet_args[VBM_cerebellum]', '1', default_args[:civet_args][:VBM_cerebellum] ) %>
+                     </td>
+                  </tr>
+               </table>
+            </td>
+            <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(See your ad here!)</td>
+            </tr>
+
          </table>
 
          Save results to:
