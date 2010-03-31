@@ -188,6 +188,9 @@ class DrmaaCivet < DrmaaTask
     dsid             = params[:dsid]   || "unkdsid2"
     data_provider_id = params[:data_provider_id]
 
+    # Unique identifier for this run
+    uniq_run = self.bname_tid_dashed + "-" + self.run_number.to_s
+
     collection_id = params[:collection_id]
     collection_id = nil if collection_id.blank?
 
@@ -210,13 +213,26 @@ class DrmaaCivet < DrmaaTask
       :task             => "Civet"
     )
 
+    # Where we find this subject's results
+    out_dsid = "civet_out/#{dsid}"
+
     # Move or copy some useful files into the collection before creating it.
-    File.rename("civet_out/References.txt", "civet_out/#{dsid}/References.txt") rescue true
-    FileUtils.cp(self.stdoutDRMAAfilename,  "civet_out/#{dsid}/logs/CBRAIN_#{self.bname_tid_dashed}.stdout.txt") rescue true
-    FileUtils.cp(self.stderrDRMAAfilename,  "civet_out/#{dsid}/logs/CBRAIN_#{self.bname_tid_dashed}.stderr.txt") rescue true
+    File.rename("civet_out/References.txt", "#{out_dsid}/References.txt")                     rescue true
+    FileUtils.cp(self.stdoutDRMAAfilename,  "#{out_dsid}/logs/CBRAIN_#{uniq_run}.stdout.txt") rescue true
+    FileUtils.cp(self.stderrDRMAAfilename,  "#{out_dsid}/logs/CBRAIN_#{uniq_run}.stderr.txt") rescue true
+
+    # Dump a serialized file with the contents of the params used to generate
+    # this result set.
+    run_params_file = "#{out_dsid}/CBRAIN_#{uniq_run}.params.yml"
+    params_link     = "#{out_dsid}/CBRAIN.params.yml"
+    File.open(run_params_file,"w") do |fh|
+      fh.write(params.to_yaml)
+    end
+    File.unlink(params_link) rescue true
+    File.symlink(run_params_file.sub(/.*\//,""),params_link) rescue true
 
     # Copy the CIVET result's content to the DataProvider's cache (and provider too)
-    civetresult.cache_copy_from_local_file("civet_out/#{dsid}")
+    civetresult.cache_copy_from_local_file(out_dsid)
 
     if civetresult.save
       civetresult.addlog_context(self,"Created by task '#{self.bname_tid}' from '#{source_userfile.name}'")
