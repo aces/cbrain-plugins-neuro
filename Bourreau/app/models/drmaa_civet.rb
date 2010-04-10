@@ -221,6 +221,17 @@ class DrmaaCivet < DrmaaTask
     FileUtils.cp(self.stdoutDRMAAfilename,  "#{out_dsid}/logs/CBRAIN_#{uniq_run}.stdout.txt") rescue true
     FileUtils.cp(self.stderrDRMAAfilename,  "#{out_dsid}/logs/CBRAIN_#{uniq_run}.stderr.txt") rescue true
 
+    # Transform symbolic links in 'native/' into real files.
+    Dir.chdir("#{out_dsid}/native") do
+      Dir.foreach(".") do |file|
+        next unless File.symlink?(file)
+        realsource = File.readlink(file)  # this might itself be a symlink, that's ok.
+        File.rename(file,"#{file}.tmp")
+        FileUtils.cp(realsource,file)
+        File.unlink("#{file}.tmp")
+      end
+    end
+
     # Dump a serialized file with the contents of the params used to generate
     # this result set.
     run_params_file = "#{out_dsid}/CBRAIN_#{uniq_run}.params.yml"
