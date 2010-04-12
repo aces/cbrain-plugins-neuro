@@ -135,6 +135,17 @@ class DrmaaCivet < DrmaaTask
     prefix = params[:prefix] || "unkpref2"
     dsid   = params[:dsid]   || "unkdsid2"
 
+    # Cheating mode (for debugging/development)
+    fake_id = params[:fake_run_civetcollection_id]
+    unless fake_id.blank?
+      self.addlog("Triggering fake run with pre-saved collection ID '#{fake_id}'.")
+      ccol = CivetCollection.find(fake_id)
+      ccol.sync_to_cache
+      ccol_path = ccol.cache_full_path
+      FileUtils.cp_r(ccol_path,"civet_out/#{dsid}")
+      return nil # no shell commands run.
+    end
+
     args = ""
 
     args += "-make-graph "                          if params[:make_graph]
@@ -205,6 +216,19 @@ class DrmaaCivet < DrmaaTask
 
     group_id = source_userfile.group_id 
 
+    # Where we find this subject's results
+    out_dsid = "civet_out/#{dsid}"
+
+    # Let's make sure it ran OK.
+    logfiles = Dir.entries("#{out_dsid}/logs")
+    badnews  = logfiles.select { |lf| lf =~ /\.(fail(ed)?|running|lock)$/i }
+    unless badnews.empty?
+      self.addlog("Error: this CIVET run did not complete successfully.")
+      self.addlog("We found these files in 'logs' : #{badnews.sort.join(', ')}")
+      return false
+    end
+
+    # Create new CivetCollection
     civetresult = CivetCollection.new(
       :name             => dsid + "-" + self.bname_tid_dashed,
       :user_id          => user_id,
@@ -212,9 +236,13 @@ class DrmaaCivet < DrmaaTask
       :data_provider_id => data_provider_id,
       :task             => "Civet"
     )
+    unless civetresult.save
+      self.addlog("Could not save back result file '#{civetresult.name}'.")
+      return false
+    end
 
-    # Where we find this subject's results
-    out_dsid = "civet_out/#{dsid}"
+    # Record collection's ID in task's params
+    params[:output_civetcollection_id] = civetresult.id
 
     # Move or copy some useful files into the collection before creating it.
     File.rename("civet_out/References.txt", "#{out_dsid}/References.txt")                     rescue true
@@ -227,7 +255,7 @@ class DrmaaCivet < DrmaaTask
         next unless File.symlink?(file)
         realsource = File.readlink(file)  # this might itself be a symlink, that's ok.
         File.rename(file,"#{file}.tmp")
-        FileUtils.cp(realsource,file)
+        FileUtils.cp_r(realsource,file)
         File.unlink("#{file}.tmp")
       end
     end
@@ -245,15 +273,11 @@ class DrmaaCivet < DrmaaTask
     # Copy the CIVET result's content to the DataProvider's cache (and provider too)
     civetresult.cache_copy_from_local_file(out_dsid)
 
-    if civetresult.save
-      civetresult.addlog_context(self,"Created by task '#{self.bname_tid}' from '#{source_userfile.name}'")
-      civetresult.move_to_child_of(source_userfile)
-      self.addlog("Saved new civet result file #{civetresult.name}.")
-      return true
-    else
-      self.addlog("Could not save back result file '#{civetresult.name}'.")
-      return false
-    end
+    # Log information
+    civetresult.addlog_context(self,"Created by task '#{self.bname_tid}' from '#{source_userfile.name}'")
+    civetresult.move_to_child_of(source_userfile)
+    self.addlog("Saved new CIVET result file #{civetresult.name}.")
+    true
 
   end
 

@@ -58,6 +58,8 @@ class DrmaaCivet < DrmaaTask
       end
 
       file_args << {
+        :launch              => true,
+
         :t1_name             => t1_name,
 
         :t1_id               => t1_id,
@@ -157,6 +159,8 @@ class DrmaaCivet < DrmaaTask
       end
 
       file_args << {
+        :launch              => true,
+
         :t1_name             => t1_name,
         :t2_name             => t2_name,
         :pd_name             => pd_name,
@@ -219,16 +223,40 @@ class DrmaaCivet < DrmaaTask
   #See DrmaaTask.
   def self.launch(params)
     civet_args = params[:civet_args]
-    file_args  = params[:file_args]
+    file_args  = params[:file_args] || {}
 
-    flash = ""
+    # file_args is not the same struct as above in default_args, so
+    # transform it back into an array of records (in the values)
+    file_args  = file_args.values
+    params[:file_args] = file_args
+
+    file_args  = file_args.select { |f| f[:launch] }
+    if file_args.empty?
+      return "No CIVET started, as no T1 file selected for launch!"
+    end
+
+    study_name = params[:study_name] || ""
+    qc_study   = params[:qc_study]   || false
+    if ! study_name.blank? && ! Userfile.is_legal_filename?(study_name)
+      return "Sorry, but the study name provided contains some unacceptable characters."
+    end
+
+    flash = "" # message accumulator
     user = User.find(params[:user_id])
 
     spawn_this = file_args.size > 3
+
     CBRAIN.spawn_with_active_records_if(spawn_this,user,"CIVET launcher") do
+      tids = []
       file_args.each do |file|
-        self.launch_one(params,file,civet_args)
+        tids << self.launch_one(params,file,civet_args)
         flash += "Started CIVET on file '#{file[:t1_name]}'.\n" unless spawn_this
+      end
+      unless study_name.blank?
+        cid,cmess = launch_combiner(params,study_name,tids)
+        qid,qmess = launch_qc(params,cid) unless qc_study.blank?
+        flash += cmess if cmess
+        flash += qmess if qmess
       end
     end
     flash += "Started CIVET on #{file_args.size} files.\n" if spawn_this
@@ -242,6 +270,7 @@ class DrmaaCivet < DrmaaTask
     bourreau_id      = params[:bourreau_id]
     data_provider_id = params[:data_provider_id]
     description      = params[:description]
+    fake_colid       = params[:fake_run_civetcollection_id]
 
     collection_id   = nil if collection_id.blank?
     collection      = collection_id ? FileCollection.find(collection_id) : nil
@@ -249,6 +278,7 @@ class DrmaaCivet < DrmaaTask
     extended_args = civet_args.dup
     extended_args[:data_provider_id] = data_provider_id
     extended_args[:collection_id]    = collection_id # can be nil
+    extended_args[:fake_run_civetcollection_id] = fake_colid unless fake_colid.blank?
 
     # For logging
     t1_object = collection || Userfile.find(one_file_args[:t1_id])
@@ -269,6 +299,8 @@ class DrmaaCivet < DrmaaTask
     else
       t1_object.addlog_context(self,"Sent to CIVET, task #{civ.bname_tid}")
     end
+
+    return civ.id
 
   end
   
@@ -312,6 +344,42 @@ class DrmaaCivet < DrmaaTask
     minclist = minclist - [ t2_name, pd_name, mk_name ]
 
     [ t2_name, pd_name, mk_name, minclist ]
+  end
+
+  def self.launch_combiner(params,study_name,tids)
+    
+    combiner = DrmaaCivetCombiner.new
+    combiner.user_id          = params[:user_id]
+    combiner.bourreau_id      = params[:bourreau_id] if params[:bourreau_id]
+    combiner.description      = params[:study_name]
+    combiner.params = {
+      :civet_study_name     => study_name,
+      :civet_from_task_ids  => tids.join(","),
+      :destroy_sources      => false  # must be the string 'YeS' to trigger it
+    }
+    combiner.params[:data_provider_id] = params[:data_provider_id] if params[:data_provider_id]
+
+    tids.each do |tid|
+      combiner.add_prerequisites_for_setup(tid)
+    end
+
+    combiner.save
+    return [combiner.id, "Launched CivetCombiner with Prerequisites\n"]
+
+  end
+
+  def self.launch_qc(params,cid)
+
+    qc = DrmaaCivetQc.new
+    qc.user_id     = params[:user_id]
+    qc.description = params[:study_name]
+    qc.params      = { :study_from_task_id => cid }
+    qc.bourreau_id = params[:bourreau_id] if params[:bourreau_id]
+    qc.add_prerequisites_for_setup(cid)
+    qc.save
+
+    return [qc.id, "Launched CivetQc with Prerequisites\n"]
+
   end
 
 end

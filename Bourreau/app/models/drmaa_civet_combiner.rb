@@ -19,8 +19,24 @@ class DrmaaCivetCombiner < DrmaaTask
   def setup
     params       = self.params
 
+    # List of collection IDs directly supplied
     civet_collection_ids = params[:civet_collection_ids] || ""
     civet_ids            = civet_collection_ids.split(/,/)
+
+    # Fetch list of collection IDs indirectly through task list
+    task_list_ids        = params[:civet_from_task_ids] || ""
+    task_ids             = task_list_ids.split(/,/)
+    task_ids.each do |tid|
+      task    = DrmaaTask.find(tid)
+      tparams = task.params
+      cid     = tparams[:output_civetcollection_id]
+      cb_error "Could not found the output CIVET collection ID from task '#{task.bname_tid}'." if cid.blank?
+      civet_ids << cid
+    end
+
+    # Save back full list of all collection IDs into params
+    civet_ids.uniq!
+    params[:civet_collection_ids] = civet_ids.join(",")
 
     # Get each source collection
     cols = []
@@ -46,6 +62,10 @@ class DrmaaCivetCombiner < DrmaaTask
       col.sync_to_cache
     end
     self.addlog("Synchronization finished.")
+
+    # Choose a DP id if none was supplied; we pick the first collections' DP.
+    params[:data_provider_id] ||= cols[0].data_provider_id
+    data_provider_id = params[:data_provider_id]
 
     # Check that all CIVET outputs have
     # 1) the same 'prefix'
@@ -120,7 +140,7 @@ class DrmaaCivetCombiner < DrmaaTask
 
     # Create new CivetStudy object to hold them all
     # and in the darkness bind them
-    newcol = CivetStudy.new(
+    newstudy = CivetStudy.new(
       :name             => newname,
       :user_id          => user_id,
       :data_provider_id => provid,
@@ -128,24 +148,24 @@ class DrmaaCivetCombiner < DrmaaTask
     )
 
     # Save the new CivetStudy object
-    unless newcol.save
-      self.addlog("Cannot create a new CivetStudy named '#{name}'.")
+    unless newstudy.save
+      self.addlog("Cannot create a new CivetStudy named '#{newname}'.")
       return false
     end
 
     # Now let's fill the new CivetStudy with everything in
     # the original collections; if anything fails, we need
-    # to destroy the incomplete newcol object.
+    # to destroy the incomplete newstudy object.
 
     civet_collection_ids = params[:civet_collection_ids] || ""
     civet_ids = civet_collection_ids.split(/,/)
     cols = civet_ids.map { |id| Userfile.find(id) }
 
     self.addlog("Combining collections...")
-    newcol.addlog("Created by task #{self.bname_tid} with prefix '#{prefix}'")
+    newstudy.addlog("Created by task #{self.bname_tid} with prefix '#{prefix}'")
     begin
-      newcol.cache_prepare
-      coldir = newcol.cache_full_path
+      newstudy.cache_prepare
+      coldir = newstudy.cache_full_path
       Dir.mkdir(coldir) unless File.directory?(coldir)
       errfile = self.stderrDRMAAfilename
 
@@ -154,7 +174,7 @@ class DrmaaCivetCombiner < DrmaaTask
         col_id = col.id
         dsid   = tcol_to_dsid["C#{col_id}"]
         self.addlog("Adding #{col.class.to_s} '#{col.name}'")
-        newcol.addlog_context(self,"Adding #{col.class.to_s} '#{col.name}'")
+        newstudy.addlog_context(self,"Adding #{col.class.to_s} '#{col.name}'")
         colpath = col.cache_full_path
         dsid_dir = coldir + dsid
         Dir.mkdir(dsid_dir.to_s) unless File.directory?(dsid_dir.to_s)
@@ -165,9 +185,10 @@ class DrmaaCivetCombiner < DrmaaTask
           cb_error "Error running rsync; rsync returned '#{rsyncout}'"
         end
       end
-      newcol.sync_to_provider
-      newcol.set_size
-      newcol.save
+      newstudy.sync_to_provider
+      newstudy.set_size
+      newstudy.save
+      params[:output_civetstudy_id] = newstudy.id
 
       # Option: destroy the original sources
       if params[:destroy_sources] && params[:destroy_sources].to_s == 'YeS'
@@ -178,7 +199,7 @@ class DrmaaCivetCombiner < DrmaaTask
       end
 
     rescue => itswrong
-      newcol.destroy
+      newstudy.destroy
       raise itswrong
     end
 

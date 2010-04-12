@@ -19,7 +19,16 @@ class DrmaaCivetQc < DrmaaTask
     params       = self.params
     user_id      = self.user_id
 
+    # Get the ID of the study; it can be given directly
+    # in the params, or indirecly through another task ID
     study_id = params[:study_id]
+    if study_id.blank?
+      task_id = params[:study_from_task_id]
+      task = DrmaaTask.find(task_id)
+      tparams = task.params
+      study_id = tparams[:output_civetstudy_id]
+      params[:study_id] = study_id # save back
+    end
     study = CivetStudy.find(study_id)
     study.sync_to_cache
 
