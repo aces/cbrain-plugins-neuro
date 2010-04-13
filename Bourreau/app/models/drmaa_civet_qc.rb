@@ -128,13 +128,25 @@ class DrmaaCivetQc < DrmaaTask
     dsid_names = params[:dsid_names] # hash, keys are meaningless
     dsids      = dsid_names.values.sort.join(" ")
 
-    self.addlog("Syncing study with QC reports back to data provider.")
+    # Find study object and mark it as changed.
     study_id = params[:study_id]
     study = CivetStudy.find(study_id)
-    study.addlog_context(self,"QC pipeline performed with prefix '#{prefix}' and subjects '#{dsids}'")
     study.cache_is_newer
+
+    # Check for some common error conditions.
+    stderr = File.read(self.stderrDRMAAfilename) rescue ""
+    if stderr =~ /gnuplot.*command not found/i
+      self.addlog("Error: it seems 'gnuplot' is not installed on this cluster. QC report incomplete.")
+      return false
+    elsif stderr =~ /command not found/i
+      self.addlog("Error: it seems some command is not installed on this cluster. QC report incomplete.")
+      return false
+    end
+
+    # Save back study with QC report in it.
+    self.addlog("Syncing study with QC reports back to data provider.")
+    study.addlog_context(self,"QC pipeline performed with prefix '#{prefix}' and subjects '#{dsids}'")
     study.sync_to_provider
-    self.addlog("Done.")
 
   end
 
