@@ -16,13 +16,16 @@
    </tr>
    <tr class="list-odd">
       <td class="no_wrap">
-         <%= @userfile.list_final.map{ |file|  string_if(@userfile.is_locally_synced?, check_box_tag('filelist[]', "#{@userfile.name}/final/" + file.name)) + file.name + " (#{pretty_size(file.size).strip})"}.join('<br>') %>
+         <%= subject.select{ |file| file.name =~ /^.+\/final\// }.map{ |file|  string_if(@userfile.is_locally_synced?, check_box_tag('filelist[]', file.name)) + file.name.sub(/^.+\/final\//, "") +
+                                                                                                                                          "(#{pretty_size(file.size).strip})"}.join('<br>') %>
       </td>
       <td class="no_wrap">
-         <%= @userfile.list_native.map{ |file|  string_if(@userfile.is_locally_synced?, check_box_tag('filelist[]', "#{@userfile.name}/native/" + file.name)) + file.name + " (#{pretty_size(file.size).strip})"}.join('<br>') %>
+         <%= subject.select{ |file| file.name =~ /^.+\/native\// }.map{ |file|  string_if(@userfile.is_locally_synced?, check_box_tag('filelist[]', file.name)) + file.name.sub(/^.+\/native\//, "") +
+                                                                                                                                          "(#{pretty_size(file.size).strip})"}.join('<br>') %>
       </td>
       <td class="no_wrap">
-         <%= @userfile.list_surfaces.map{ |file|  string_if(@userfile.is_locally_synced?, check_box_tag('filelist[]', "#{@userfile.name}/surfaces/" + file.name)) + file.name + " (#{pretty_size(file.size).strip})"}.join('<br>') %>
+         <%= subject.select{ |file| file.name =~ /^.+\/surfaces\// }.map{ |file|  string_if(@userfile.is_locally_synced?, check_box_tag('filelist[]', file.name)) + file.name.sub(/^.+\/surfaces\//, "") +
+                                                                                                                                          "(#{pretty_size(file.size).strip})"}.join('<br>') %>
       </td>
    </tr>
    <tr>
@@ -32,13 +35,16 @@
    </tr>
    <tr class="list-odd">
       <td class="no_wrap">
-         <%= @userfile.list_classify.map{ |file|  string_if(@userfile.is_locally_synced?, check_box_tag('filelist[]', "#{@userfile.name}/classify/" + file.name)) + file.name + " (#{pretty_size(file.size).strip})"}.join('<br>') %>
+         <%= subject.select{ |file| file.name =~ /^.+\/classify\// }.map{ |file|  string_if(@userfile.is_locally_synced?, check_box_tag('filelist[]', file.name)) + file.name.sub(/^.+\/classify\//, "") +
+                                                                                                                                          "(#{pretty_size(file.size).strip})"}.join('<br>') %>
       </td>
       <td class="no_wrap">
-         <%= @userfile.list_thickness.map{ |file|  string_if(@userfile.is_locally_synced?, check_box_tag('filelist[]', "#{@userfile.name}/thickness/" + file.name)) + file.name + " (#{pretty_size(file.size).strip})"}.join('<br>') %>
+        <%= subject.select{ |file| file.name =~ /^.+\/thickness\// }.map{ |file|  string_if(@userfile.is_locally_synced?, check_box_tag('filelist[]', file.name)) + file.name.sub(/^.+\/thickness\//, "") +
+                                                                                                                                          "(#{pretty_size(file.size).strip})"}.join('<br>') %>
       </td>
       <td class="no_wrap">
-         <%= @userfile.list_verify.map{ |file|  string_if(@userfile.is_locally_synced?, check_box_tag('filelist[]', "#{@userfile.name}/verify/" + file.name)) + file.name + " (#{pretty_size(file.size).strip})"}.join('<br>') %>
+         <%= subject.select{ |file| file.name =~ /^.+\/verify\// }.map{ |file|  string_if(@userfile.is_locally_synced?, check_box_tag('filelist[]', file.name)) + file.name.sub(/^.+\/verify\//, "") +
+                                                                                                                                           "(#{pretty_size(file.size).strip})"}.join('<br>') %>
       </td>
    </tr>
    <tr>
@@ -48,13 +54,16 @@
    </tr>
    <tr class="list-odd">
       <td class="no_wrap">
-         <%= @userfile.list_linear_transforms.map{ |file|  string_if(@userfile.is_locally_synced?, check_box_tag('filelist[]', "#{@userfile.name}/transforms/linear/" + file.name)) + file.name + " (#{pretty_size(file.size).strip})"}.join('<br>') %>
+         <%= subject.select{ |file| file.name =~ /^.+\/transforms\/linear\// }.map{ |file|  string_if(@userfile.is_locally_synced?, check_box_tag('filelist[]', file.name)) + file.name.sub(/^.+\/transforms\/linear\//, "") +
+                                                                                                                                           "(#{pretty_size(file.size).strip})"}.join('<br>') %>
       </td>
       <td class="no_wrap">
-         <%= @userfile.list_non_linear_transforms.map{ |file|  string_if(@userfile.is_locally_synced?, check_box_tag('filelist[]', "#{@userfile.name}/transforms/nonlinear/" + file.name)) + file.name + " (#{pretty_size(file.size).strip})"}.join('<br>') %>
+         <%= subject.select{ |file| file.name =~ /^.+\/transforms\/nonlinear\// }.map{ |file|  string_if(@userfile.is_locally_synced?, check_box_tag('filelist[]', file.name)) + file.name.sub(/^.+\/transforms\/nonlinear\//, "") +
+                                                                                                                                            "(#{pretty_size(file.size).strip})"}.join('<br>') %>
       </td>
       <td class="no_wrap">
-         <%= @userfile.list_surfreg_transforms.map{ |file|  string_if(@userfile.is_locally_synced?, check_box_tag('filelist[]', "#{@userfile.name}/transforms/surfreg/" + file.name)) + file.name + " (#{pretty_size(file.size).strip})"}.join('<br>') %>
+         <%= subject.select{ |file| file.name =~ /^.+\/transforms\/surfreg\// }.map{ |file|  string_if(@userfile.is_locally_synced?, check_box_tag('filelist[]', file.name)) + file.name.sub(/^.+\/transforms\/surfreg\//, "") +
+                                                                                                                                             "(#{pretty_size(file.size).strip})"}.join('<br>') %>
       </td>
    </tr>
 </table>

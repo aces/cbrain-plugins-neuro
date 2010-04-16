@@ -19,73 +19,63 @@ class CivetCollection < FileCollection
   
   #List files in the +native+ subdirectory.
   def list_native
-    @native_list ||= get_list('native')
+    @native_list ||= get_full_subdir_listing('native')
   end
   
   #List files in the +classify+ subdirectory.
   def list_classify
-    @classify_list ||= get_list('classify')
+    @classify_list ||= get_full_subdir_listing('classify')
   end
   
   #List files in the +final+ subdirectory.
   def list_final
-    @final_list ||= get_list('final')
+    @final_list ||= get_full_subdir_listing('final')
   end
   
   #List files in the +logs+ subdirectory.
   def list_logs
-    @logs_list ||= get_list('logs')
+    @logs_list ||= get_full_subdir_listing('logs')
   end
   
   #List files in the +surfaces+ subdirectory.
   def list_surfaces
-    @surfaces_list ||= get_list('surfaces')
+    @surfaces_list ||= get_full_subdir_listing('surfaces')
   end
   
   #List files in the +temp+ subdirectory.
   def list_temp
-    @temp_list ||= get_list('temp')
+    @temp_list ||= get_full_subdir_listing('temp')
   end
   
   #List files in the +thickness+ subdirectory.
   def list_thickness
-    @thickness_list ||= get_list('thickness')
+    @thickness_list ||= get_full_subdir_listing('thickness')
   end
   
   #List files in the +transforms+/+linear+ subdirectory.
   def list_linear_transforms
-    @linear_list ||= get_list('transforms/linear')
+    @linear_list ||= get_full_subdir_listing('transforms/linear')
   end
   
   #List files in the +transforms+/+nonlinear+ subdirectory.
   def list_non_linear_transforms
-    @non_linear_list ||= get_list('transforms/nonlinear')
+    @non_linear_list ||= get_full_subdir_listing('transforms/nonlinear')
   end
   
   #List files in the +transforms+/+surfreg+ subdirectory.
   def list_surfreg_transforms
-    @surfreg_list ||= get_list('transforms/surfreg')
+    @surfreg_list ||= get_full_subdir_listing('transforms/surfreg')
   end
   
   #List files in the +verify+ subdirectory.
   def list_verify
-    @verify_list ||= get_list('verify')
+    @verify_list ||= get_full_subdir_listing('verify')
   end
   
   # Returns a simple keyword identifying the type of
   # the userfile; used mostly by the index view.
   def pretty_type
     "(Civet)"
-  end
-
-  private
-
-  def get_list(directory)  #:nodoc:
-    full_dir = Pathname.new(self.name) + directory
-    self.list_files.select{ |file_entry| file_entry.name =~ /^#{full_dir}\//}.each{ |file_entry| file_entry.name.sub!(/^#{full_dir}\//, "")  }
-    # Dir.chdir(self.cache_full_path) do
-    #   `find #{directory} -type f`.split("\n").map{ |name| name.sub(/^#{directory}\//, "") }
-    # end
   end
 
 end

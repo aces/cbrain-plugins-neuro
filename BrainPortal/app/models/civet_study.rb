@@ -23,4 +23,8 @@ class CivetStudy < FileCollection
     "(Study)"
   end
   
+  def subject_ids
+    @subject_id ||= self.list_files(".", :directory).map{ |s| s.name.sub(/^#{self.name}\//, "") }.reject{ |s_id| s_id == "QC" }
+  end
+  
 end
