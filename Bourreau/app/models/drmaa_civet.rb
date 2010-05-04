@@ -22,10 +22,10 @@ class DrmaaCivet < DrmaaTask
     dsid         = params[:dsid]   || "unkdsid1"
 
     # Main location of symlinks for all input files
-    Dir.mkdir("mincfiles",0700)
+    safe_mkdir("mincfiles",0700)
 
     # Main location for output files
-    Dir.mkdir("civet_out",0700)
+    safe_mkdir("civet_out",0700)
 
     # We have two modes:
     # (A) We process a T1 (and T2?, PD?, and MK?) file(s) stored inside a FileCollection
@@ -74,20 +74,20 @@ class DrmaaCivet < DrmaaTask
       colpath = collection.cache_full_path.to_s
 
       t1ext   = t1_name.match(/.gz$/i) ? ".gz" : ""
-      File.symlink("#{colpath}/#{t1_name}","mincfiles/#{prefix}_#{dsid}_t1.mnc#{t1ext}")
+      safe_symlink("#{colpath}/#{t1_name}","mincfiles/#{prefix}_#{dsid}_t1.mnc#{t1ext}")
 
       if params[:multispectral] || params[:spectral_mask]
         if t2_name
           t2ext = t2_name.match(/.gz$/i) ? ".gz" : ""
-          File.symlink("#{colpath}/#{t2_name}","mincfiles/#{prefix}_#{dsid}_t2.mnc#{t2ext}")
+          safe_symlink("#{colpath}/#{t2_name}","mincfiles/#{prefix}_#{dsid}_t2.mnc#{t2ext}")
         end
         if pd_name
           pdext = pd_name.match(/.gz$/i) ? ".gz" : ""
-          File.symlink("#{colpath}/#{pd_name}","mincfiles/#{prefix}_#{dsid}_pd.mnc#{pdext}")
+          safe_symlink("#{colpath}/#{pd_name}","mincfiles/#{prefix}_#{dsid}_pd.mnc#{pdext}")
         end
         if mk_name
           mkext = mk_name.match(/.gz$/i) ? ".gz" : ""
-          File.symlink("#{colpath}/#{mk_name}","mincfiles/#{prefix}_#{dsid}_mask.mnc#{mkext}")
+          safe_symlink("#{colpath}/#{mk_name}","mincfiles/#{prefix}_#{dsid}_mask.mnc#{mkext}")
         end
       end
 
@@ -96,7 +96,7 @@ class DrmaaCivet < DrmaaTask
       t1_name     = t1.name
       t1cachename = t1.cache_full_path.to_s
       t1ext       = t1_name.match(/.gz$/i) ? ".gz" : ""
-      File.symlink(t1cachename,"mincfiles/#{prefix}_#{dsid}_t1.mnc#{t1ext}")
+      safe_symlink(t1cachename,"mincfiles/#{prefix}_#{dsid}_t1.mnc#{t1ext}")
 
       if params[:multispectral] || params[:spectral_mask]
         if t2_id
@@ -104,7 +104,7 @@ class DrmaaCivet < DrmaaTask
           t2cachefile.sync_to_cache
           t2cachename = t2cachefile.cache_full_path.to_s
           t2ext = t2cachename.match(/.gz$/i) ? ".gz" : ""
-          File.symlink(t2cachename,"mincfiles/#{prefix}_#{dsid}_t2.mnc#{t2ext}")
+          safe_symlink(t2cachename,"mincfiles/#{prefix}_#{dsid}_t2.mnc#{t2ext}")
         end
 
         if pd_id
@@ -112,7 +112,7 @@ class DrmaaCivet < DrmaaTask
           pdcachefile.sync_to_cache
           pdcachename = pdcachefile.cache_full_path.to_s
           pdext = pdcachename.match(/.gz$/i) ? ".gz" : ""
-          File.symlink(pdcachename,"mincfiles/#{prefix}_#{dsid}_pd.mnc#{pdext}")
+          safe_symlink(pdcachename,"mincfiles/#{prefix}_#{dsid}_pd.mnc#{pdext}")
         end
 
         if mk_id
@@ -120,7 +120,7 @@ class DrmaaCivet < DrmaaTask
           mkcachefile.sync_to_cache
           mkcachename = mkcachefile.cache_full_path.to_s
           mkext = mkcachename.match(/.gz$/i) ? ".gz" : ""
-          File.symlink(mkcachename,"mincfiles/#{prefix}_#{dsid}_mask.mnc#{mkext}")
+          safe_symlink(mkcachename,"mincfiles/#{prefix}_#{dsid}_mask.mnc#{mkext}")
         end
       end # if multispectral or spectral_mask
     end # MODE B
@@ -142,6 +142,7 @@ class DrmaaCivet < DrmaaTask
       ccol = CivetCollection.find(fake_id)
       ccol.sync_to_cache
       ccol_path = ccol.cache_full_path
+      FileUtils.remove_entry("civet_out/#{dsid}",true)
       FileUtils.cp_r(ccol_path,"civet_out/#{dsid}")
       return nil # no shell commands run.
     end
@@ -229,8 +230,8 @@ class DrmaaCivet < DrmaaTask
     end
 
     # Create new CivetCollection
-    civetresult = CivetCollection.new(
-      :name             => dsid + "-" + self.bname_tid_dashed,
+    civetresult = safe_userfile_find_or_new(CivetCollection,
+      :name             => dsid + "-" + uniq_run,
       :user_id          => user_id,
       :group_id         => group_id,
       :data_provider_id => data_provider_id,
@@ -280,6 +281,31 @@ class DrmaaCivet < DrmaaTask
     true
 
   end
+
+  def recover_from_setup_failure()
+    true
+  end
+
+  def recover_from_cluster_failure()
+    true
+  end
+
+  def recover_from_post_processing_failure()
+    true
+  end
+
+  def restart_at_setup()
+    true
+  end
+
+  def restart_at_cluster()
+    true
+  end
+
+  def restart_at_post_processing()
+    true
+  end
+
 
 end
 
