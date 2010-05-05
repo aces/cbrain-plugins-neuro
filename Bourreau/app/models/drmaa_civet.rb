@@ -2,17 +2,22 @@
 #
 # CBRAIN Project
 #
-# DrmaaTask subclass
+# DrmaaTask subclass; this class runs the CIVET pipeline on
+# one t1 MINC file, producing one CivetCollection result (one
+# subject only).
 #
 # Original author: Pierre Rioux
 #
 # $Id$
 #
 
-#A subclass of DrmaaTask to run civet.
+# A subclass of DrmaaTask to run CIVET.
 class DrmaaCivet < DrmaaTask
 
   Revision_info="$Id$"
+
+  include RestartableTask # This task is naturally restartable
+  include RecoverableTask # This task is naturally recoverable
 
   #See DrmaaTask.
   def setup
@@ -280,31 +285,6 @@ class DrmaaCivet < DrmaaTask
     true
 
   end
-
-  def recover_from_setup_failure()
-    true
-  end
-
-  def recover_from_cluster_failure()
-    true
-  end
-
-  def recover_from_post_processing_failure()
-    true
-  end
-
-  def restart_at_setup()
-    true
-  end
-
-  def restart_at_cluster()
-    true
-  end
-
-  def restart_at_post_processing()
-    true
-  end
-
 
 end
 

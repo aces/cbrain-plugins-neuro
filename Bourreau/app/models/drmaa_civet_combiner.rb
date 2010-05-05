@@ -10,10 +10,13 @@
 # $Id$
 #
 
-#A subclass of DrmaaTask to run civet_combiner.
+# A subclass of DrmaaTask to combine CIVET results.
 class DrmaaCivetCombiner < DrmaaTask
 
   Revision_info="$Id$"
+
+  include RestartableTask # This task is naturally restartable
+  include RecoverableTask # This task is naturally recoverable
 
   #See DrmaaTask.
   def setup
@@ -140,7 +143,7 @@ class DrmaaCivetCombiner < DrmaaTask
 
     # Create new CivetStudy object to hold them all
     # and in the darkness bind them
-    newstudy = CivetStudy.new(
+    newstudy = safe_userfile_find_or_new(CivetStudy,
       :name             => newname,
       :user_id          => user_id,
       :data_provider_id => provid,
@@ -149,8 +152,7 @@ class DrmaaCivetCombiner < DrmaaTask
 
     # Save the new CivetStudy object
     unless newstudy.save
-      self.addlog("Cannot create a new CivetStudy named '#{newname}'.")
-      return false
+      cb_error "Cannot create a new CivetStudy named '#{newname}'."
     end
 
     # Now let's fill the new CivetStudy with everything in

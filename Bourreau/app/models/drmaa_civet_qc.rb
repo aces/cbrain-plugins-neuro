@@ -2,17 +2,20 @@
 #
 # CBRAIN Project
 #
-# DrmaaCivetQc subclass for running civet_qc
+# DrmaaCivetQc subclass for running Claude's CIVET QC PIPELINE
 #
 # Original author: Pierre Rioux
 #
 # $Id$
 #
 
-# A subclass of DrmaaTask to run civet_qc
+# A subclass of DrmaaTask to run Claude's CIVET QC PIPELINE
 class DrmaaCivetQc < DrmaaTask
 
   Revision_info="$Id$"
+
+  include RestartableTask # This task is naturally restartable
+  include RecoverableTask # This task is naturally recoverable
 
   # See DrmaaTask.
   def setup
@@ -71,13 +74,13 @@ class DrmaaCivetQc < DrmaaTask
 
     # Creates a 'input' directory for mincfiles by linking to
     # all the files in all the 'native/' subdirs.
-    Dir.mkdir("mincfiles",0700)
+    safe_mkdir("mincfiles",0700)
     dsid_dirs.each do |dir|
       native = "#{study_path}/#{dir}/native"
       next unless File.exist?(native) && File.directory?(native)
       Dir.foreach(native) do |minc|
         next unless File.file?("#{native}/#{minc}")
-        File.symlink("#{native}/#{minc}","mincfiles/#{minc}") unless File.exist?("mincfiles/#{minc}")
+        safe_symlink("#{native}/#{minc}","mincfiles/#{minc}") unless File.exist?("mincfiles/#{minc}")
       end
     end
 
