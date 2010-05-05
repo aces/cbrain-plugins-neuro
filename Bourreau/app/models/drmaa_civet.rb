@@ -238,8 +238,7 @@ class DrmaaCivet < DrmaaTask
       :task             => "Civet"
     )
     unless civetresult.save
-      self.addlog("Could not save back result file '#{civetresult.name}'.")
-      return false
+      cb_error "Could not save back result file '#{civetresult.name}'."
     end
 
     # Record collection's ID in task's params
