@@ -62,6 +62,7 @@ class DrmaaCivetCombiner < DrmaaTask
     self.addlog("Synchronizing collections to local cache")
     cols.each do |col|
       self.addlog("Synchronizing '#{col.name}'")
+      self.save # so log messages appear as syncs happen
       col.sync_to_cache
     end
     self.addlog("Synchronization finished.")
