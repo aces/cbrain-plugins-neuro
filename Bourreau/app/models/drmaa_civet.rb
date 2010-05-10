@@ -225,14 +225,17 @@ class DrmaaCivet < DrmaaTask
     # Where we find this subject's results
     out_dsid = "civet_out/#{dsid}"
 
+    # Next block commented-out until we find a better
+    # criterion for detecting failed tasks.
+
     # Let's make sure it ran OK.
-    logfiles = Dir.entries("#{out_dsid}/logs")
-    badnews  = logfiles.select { |lf| lf =~ /\.(fail(ed)?|running|lock)$/i }
-    unless badnews.empty?
-      self.addlog("Error: this CIVET run did not complete successfully.")
-      self.addlog("We found these files in 'logs' : #{badnews.sort.join(', ')}")
-      return false
-    end
+    #logfiles = Dir.entries("#{out_dsid}/logs")
+    #badnews  = logfiles.select { |lf| lf =~ /\.(fail(ed)?|running|lock)$/i }
+    #unless badnews.empty?
+    #  self.addlog("Error: this CIVET run did not complete successfully.")
+    #  self.addlog("We found these files in 'logs' : #{badnews.sort.join(', ')}")
+    #  return false
+    #end
 
     # Create new CivetCollection
     civetresult = safe_userfile_find_or_new(CivetCollection,
