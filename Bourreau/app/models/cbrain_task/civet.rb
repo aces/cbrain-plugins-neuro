@@ -2,7 +2,7 @@
 #
 # CBRAIN Project
 #
-# DrmaaTask subclass; this class runs the CIVET pipeline on
+# This class runs the CIVET pipeline on
 # one t1 MINC file, producing one CivetCollection result (one
 # subject only).
 #
@@ -11,16 +11,15 @@
 # $Id$
 #
 
-# A subclass of DrmaaTask to run CIVET.
-class DrmaaCivet < DrmaaTask
+# A subclass of CbrainTask::ClusterTask to run CIVET.
+class CbrainTask::Civet < CbrainTask::ClusterTask
 
   Revision_info="$Id$"
 
   include RestartableTask # This task is naturally restartable
   include RecoverableTask # This task is naturally recoverable
 
-  #See DrmaaTask.
-  def setup
+  def setup #:nodoc:
     params       = self.params
 
     prefix       = params[:prefix] || "unkpref1"
@@ -133,8 +132,7 @@ class DrmaaCivet < DrmaaTask
     true
   end
 
-  #See DrmaaTask.
-  def drmaa_commands
+  def cluster_commands #:nodoc:
     params = self.params
 
     prefix = params[:prefix] || "unkpref2"
@@ -196,8 +194,7 @@ class DrmaaCivet < DrmaaTask
 
   end
 
-  #See DrmaaTask.
-  def save_results
+  def save_results #:nodoc:
     params       = self.params
     user_id      = self.user_id
 
@@ -225,10 +222,17 @@ class DrmaaCivet < DrmaaTask
     # Where we find this subject's results
     out_dsid = "civet_out/#{dsid}"
 
+    # Let's make sure it ran OK, test #1
+    unless File.directory?(out_dsid)
+      self.addlog("Error: this CIVET run did not complete successfully.")
+      self.addlog("We couldn't find the result subdirectory '#{out_dsid}' !")
+      return false
+    end
+
     # Next block commented-out until we find a better
     # criterion for detecting failed tasks.
 
-    # Let's make sure it ran OK.
+    # Let's make sure it ran OK, test #2
     #logfiles = Dir.entries("#{out_dsid}/logs")
     #badnews  = logfiles.select { |lf| lf =~ /\.(fail(ed)?|running|lock)$/i }
     #unless badnews.empty?
@@ -254,8 +258,8 @@ class DrmaaCivet < DrmaaTask
 
     # Move or copy some useful files into the collection before creating it.
     File.rename("civet_out/References.txt", "#{out_dsid}/References.txt")                     rescue true
-    FileUtils.cp(self.stdoutDRMAAfilename,  "#{out_dsid}/logs/CBRAIN_#{uniq_run}.stdout.txt") rescue true
-    FileUtils.cp(self.stderrDRMAAfilename,  "#{out_dsid}/logs/CBRAIN_#{uniq_run}.stderr.txt") rescue true
+    FileUtils.cp(self.stdout_cluster_filename,  "#{out_dsid}/logs/CBRAIN_#{uniq_run}.stdout.txt") rescue true
+    FileUtils.cp(self.stderr_cluster_filename,  "#{out_dsid}/logs/CBRAIN_#{uniq_run}.stderr.txt") rescue true
 
     # Transform symbolic links in 'native/' into real files.
     Dir.chdir("#{out_dsid}/native") do

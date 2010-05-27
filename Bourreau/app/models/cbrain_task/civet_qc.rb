@@ -2,23 +2,22 @@
 #
 # CBRAIN Project
 #
-# DrmaaCivetQc subclass for running Claude's CIVET QC PIPELINE
+# CivetQc subclass for running Claude's CIVET QC PIPELINE
 #
 # Original author: Pierre Rioux
 #
 # $Id$
 #
 
-# A subclass of DrmaaTask to run Claude's CIVET QC PIPELINE
-class DrmaaCivetQc < DrmaaTask
+# A subclass of CbrainTask::ClusterTask to run Claude's CIVET QC PIPELINE
+class CbrainTask::CivetQc < CbrainTask::ClusterTask
 
   Revision_info="$Id$"
 
   include RestartableTask # This task is naturally restartable
   include RecoverableTask # This task is naturally recoverable
 
-  # See DrmaaTask.
-  def setup
+  def setup #:nodoc:
     params       = self.params
     user_id      = self.user_id
 
@@ -27,7 +26,7 @@ class DrmaaCivetQc < DrmaaTask
     study_id = params[:study_id]
     if study_id.blank?
       task_id = params[:study_from_task_id]
-      task = DrmaaTask.find(task_id)
+      task = CbrainTask.find(task_id)
       tparams = task.params
       study_id = tparams[:output_civetstudy_id]
       params[:study_id] = study_id # save back
@@ -93,8 +92,7 @@ class DrmaaCivetQc < DrmaaTask
     true
   end
 
-  # See DrmaaTask.
-  def drmaa_commands
+  def cluster_commands #:nodoc:
     params       = self.params
     user_id      = self.user_id
 
@@ -122,8 +120,7 @@ class DrmaaCivetQc < DrmaaTask
 
   end
   
-  # See DrmaaTask.
-  def save_results
+  def save_results #:nodoc:
     params       = self.params
     user_id      = self.user_id
 
@@ -137,7 +134,7 @@ class DrmaaCivetQc < DrmaaTask
     study.cache_is_newer
 
     # Check for some common error conditions.
-    stderr = File.read(self.stderrDRMAAfilename) rescue ""
+    stderr = File.read(self.stderr_cluster_filename) rescue ""
     if stderr =~ /gnuplot.*command not found/i
       self.addlog("Error: it seems 'gnuplot' is not installed on this cluster. QC report incomplete.")
       return false

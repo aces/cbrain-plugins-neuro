@@ -2,7 +2,7 @@
 #
 # CBRAIN Project
 #
-# DrmaaCivetCombiner subclass for combining a set of partial
+# CbrainTask subclass for combining a set of partial
 # CIVET results into a single larger CIVET result.
 #
 # Original author: Pierre Rioux
@@ -10,16 +10,15 @@
 # $Id$
 #
 
-# A subclass of DrmaaTask to combine CIVET results.
-class DrmaaCivetCombiner < DrmaaTask
+# A subclass of CbrainTask::ClusterTask to combine CIVET results.
+class CbrainTask::CivetCombiner < CbrainTask::ClusterTask
 
   Revision_info="$Id$"
 
   include RestartableTask # This task is naturally restartable
   include RecoverableTask # This task is naturally recoverable
 
-  #See DrmaaTask.
-  def setup
+  def setup #:nodoc:
     params       = self.params
 
     # List of collection IDs directly supplied
@@ -30,7 +29,7 @@ class DrmaaCivetCombiner < DrmaaTask
     task_list_ids        = params[:civet_from_task_ids] || ""
     task_ids             = task_list_ids.split(/,/)
     task_ids.each do |tid|
-      task    = DrmaaTask.find(tid)
+      task    = CbrainTask.find(tid)
       tparams = task.params
       cid     = tparams[:output_civetcollection_id]
       cb_error "Could not found the output CIVET collection ID from task '#{task.bname_tid}'." if cid.blank?
@@ -124,16 +123,14 @@ class DrmaaCivetCombiner < DrmaaTask
 
   end
 
-  #See DrmaaTask.
-  def drmaa_commands
+  def cluster_commands #:nodoc:
     params       = self.params
     user_id      = self.user_id
 
     nil   # Special case: no cluster job.
   end
   
-  #See DrmaaTask.
-  def save_results
+  def save_results #:nodoc:
     params       = self.params
     user_id      = self.user_id
     user         = User.find(user_id)
@@ -170,7 +167,7 @@ class DrmaaCivetCombiner < DrmaaTask
       newstudy.cache_prepare
       coldir = newstudy.cache_full_path
       Dir.mkdir(coldir) unless File.directory?(coldir)
-      errfile = self.stderrDRMAAfilename
+      errfile = self.stderr_cluster_filename
 
       # Issue rsync commands to combine the files
       cols.each do |col|

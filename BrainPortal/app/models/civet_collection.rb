@@ -11,7 +11,7 @@
 #
 
 #This class represents a FileCollection meant specifically to represent the output
-#of a *civet* run (see DrmaaCivet). The instance methods are all meant to 
+#of a *civet* run (see CbrainTask::Civet). The instance methods are all meant to 
 #provide simple access to the contents of particular directories in the
 #directory tree produced by *civet*.
 class CivetCollection < FileCollection

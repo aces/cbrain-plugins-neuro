@@ -2,20 +2,19 @@
 #
 # CBRAIN Project
 #
-# DrmaaTask subclass
+# CbrainTask subclass
 #
 # Original author: Mathieu Desrosiers
 #
 # $Id$
 #
 
-#A subclass of DrmaaTask to run mnc2nii.
-class DrmaaMnc2nii < DrmaaTask
+#A subclass of CbrainTask::ClusterTask to run mnc2nii.
+class CbrainTask::Mnc2nii < CbrainTask::ClusterTask
 
   Revision_info="$Id$"
 
-  #See DrmaaTask.
-  def setup
+  def setup #:nodoc:
     params      = self.params
     minc_colid = params[:mincfile_id]  # the ID of a FileCollection
     minc_col   = Userfile.find(minc_colid)
@@ -48,8 +47,7 @@ class DrmaaMnc2nii < DrmaaTask
     true
   end
 
-  #See DrmaaTask.
-  def drmaa_commands
+  def cluster_commands #:nodoc:
     params       = self.params
     data_type = params[:data_type]
 
@@ -68,8 +66,7 @@ class DrmaaMnc2nii < DrmaaTask
     ]
   end
 
-  #See DrmaaTask.
-  def save_results
+  def save_results #:nodoc:
     params      = self.params
     minc_colid = params[:mincfile_id]
     minc_col   = Userfile.find(minc_colid)

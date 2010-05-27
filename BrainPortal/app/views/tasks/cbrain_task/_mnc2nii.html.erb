@@ -1,0 +1,35 @@
+
+<% title 'Mnc2nii Parameters' %>
+
+      <big>Command options:</big><BR>
+
+      <table border="0" class="userfiles">
+         <tr>
+            <td>
+               Output voxel data type:
+            </td>
+            <td>
+               <select name="<%= :data_type.to_la %>">
+                 <%= options_for_select(
+                   [ "byte", "short", "int", "float", "double", "signed", "unsigned", "default" ],
+                   params[:data_type])
+                 %>
+                 </select>
+            </td>
+         </tr>
+         <tr>
+            <td>
+               Output file format:
+            </td>
+            <td>
+               <select name="<%= :file_format.to_la %>">
+                 <%= options_for_select(
+                   [ "dual", "ASCII", "nii", "analyze"],
+                   params[:file_format])
+                 %>
+                 </select>
+            </td>
+         </tr>
+
+       </table>
+

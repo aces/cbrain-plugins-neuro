@@ -1,0 +1,24 @@
+<% title 'CivetCombiner Parameters' %>
+
+<strong>Name of the combined Study:</strong><BR>
+<%= text_field_tag :civet_study_name.to_la, params[:civet_study_name] %>
+<br>
+
+<table>
+  <tr>
+    <th>CivetCollection Names To Be Merged</th>
+  </tr>
+<% params[:interface_userfile_ids].each do |id| %>
+  <tr>
+    <% u = Userfile.find(id) %>
+    <% if u.is_a?(CivetCollection) || u.is_a?(CivetStudy) %>
+      <td>OK: <%= h(u.class.to_s) %> <%= h(u.name) %> <%= hidden_field_tag 'cbrain_task[params][civet_collection_ids][]', id %></td>
+    <% else %>
+      <td>Error: <%= h(u.name) %> is NOT a Civet Collection or Study.</td>
+    <% end %>
+  </tr>
+<% end %>
+</table>
+
+After the Study is successfully created, <strong>destroy permanently</strong>
+the CivetCollections used? <%= check_box_tag( :destroy_sources.to_la, 'YeS') %>

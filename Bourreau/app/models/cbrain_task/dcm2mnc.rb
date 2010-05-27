@@ -2,20 +2,19 @@
 #
 # CBRAIN Project
 #
-# DrmaaTask subclass
+# CbrainTask subclass
 #
 # Original author: Pierre Rioux
 #
 # $Id$
 #
 
-#A subclass of DrmaaTask to run dcm2mnc.
-class DrmaaDcm2mnc < DrmaaTask
+#A subclass of CbrainTask::ClusterTask to run dcm2mnc.
+class CbrainTask::Dcm2mnc < CbrainTask::ClusterTask
 
   Revision_info="$Id$"
 
-  #See DrmaaTask.
-  def setup
+  def setup #:nodoc:
     params      = self.params
     dicom_colid = params[:dicom_colid]  # the ID of a FileCollection
     dicom_col   = Userfile.find(dicom_colid)
@@ -34,14 +33,13 @@ class DrmaaDcm2mnc < DrmaaTask
 
     dicom_col.sync_to_cache
     cachename = dicom_col.cache_full_path.to_s
-    File.symlink(cachename,"dicom_col")
-    Dir.mkdir("results",0700)
+    safe_symlink(cachename,"dicom_col")
+    safe_mkdir("results",0700)
 
     true
   end
 
-  #See DrmaaTask.
-  def drmaa_commands
+  def cluster_commands #:nodoc:
     params       = self.params
     [
       "source #{CBRAIN::Quarantine_dir}/init.sh",
@@ -49,8 +47,7 @@ class DrmaaDcm2mnc < DrmaaTask
     ]
   end
 
-  #See DrmaaTask.
-  def save_results
+  def save_results #:nodoc:
     params      = self.params
     dicom_colid = params[:dicom_colid]  # the ID of a FileCollection
     dicom_col   = Userfile.find(dicom_colid)
@@ -59,6 +56,7 @@ class DrmaaDcm2mnc < DrmaaTask
     io = IO.popen("find results -type f -name \"*.mnc\" -print","r")
 
     numfail = 0
+    numok   = 0
 
     io.each_line do |file|
       next unless file.match(/\.mnc\s*$/)
@@ -74,6 +72,7 @@ class DrmaaDcm2mnc < DrmaaTask
       mincfile.cache_copy_from_local_file(file)
       if mincfile.save
         mincfile.move_to_child_of(dicom_col)
+        numok += 1
         self.addlog("Saved new MINC file #{basename}")
       else
         numfail += 1
@@ -82,8 +81,8 @@ class DrmaaDcm2mnc < DrmaaTask
     end
 
     io.close
-
-    return(numfail == 0 ? true : false)
+    return true if numok > 0 && numfail == 0
+    false
   end
 
 end

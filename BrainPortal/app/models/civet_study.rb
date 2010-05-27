@@ -11,7 +11,7 @@
 #
 
 # This class represents a CivetCollection (itself a FileCollection) meant specifically
-# to represent the output of several *CIVET* runs (see DrmaaCivet). The overall
+# to represent the output of several *CIVET* runs (see CbrainTask::Civet). The overall
 # structure of a CivetStudy is YET TO BE DETERMINED.
 #
 # API to come later.
