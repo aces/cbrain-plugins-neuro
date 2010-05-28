@@ -11,19 +11,19 @@
 
 <tr>
 
-<td><%= check_box_tag( "cbrain_task[params][file_args][#{idx}][launch]", '1', file[:launch] ) %></td>
+<td><%= check_box_tag( "cbrain_task[params][file_args][#{idx}][launch]", '1', file[:launch], :disabled => disabled ) %></td>
 
 <td>
   <%= h(file[:t1_name]) %>
-  <%= hidden_field_tag "cbrain_task[params][file_args][#{idx}][t1_name]", file[:t1_name] %>
-  <%= hidden_field_tag "cbrain_task[params][file_args][#{idx}][t1_id]", file[:t1_id] %>
-  <%= hidden_field_tag "cbrain_task[params][file_args][#{idx}][t2_id]", file[:t2_id] %>
-  <%= hidden_field_tag "cbrain_task[params][file_args][#{idx}][pd_id]", file[:pd_id] %>
-  <%= hidden_field_tag "cbrain_task[params][file_args][#{idx}][mk_id]", file[:mk_id] %>
+  <%= hidden_field_tag "cbrain_task[params][file_args][#{idx}][t1_name]", file[:t1_name], :disabled => disabled %>
+  <%= hidden_field_tag "cbrain_task[params][file_args][#{idx}][t1_id]", file[:t1_id], :disabled => disabled %>
+  <%= hidden_field_tag "cbrain_task[params][file_args][#{idx}][t2_id]", file[:t2_id], :disabled => disabled %>
+  <%= hidden_field_tag "cbrain_task[params][file_args][#{idx}][pd_id]", file[:pd_id], :disabled => disabled %>
+  <%= hidden_field_tag "cbrain_task[params][file_args][#{idx}][mk_id]", file[:mk_id], :disabled => disabled %>
 </td>
 
-<td><%= text_field_tag "cbrain_task[params][file_args][#{idx}][prefix]", file[:prefix] %></td>
-<td><%= text_field_tag "cbrain_task[params][file_args][#{idx}][dsid]",   file[:dsid]   %></td>
+<td><%= text_field_tag "cbrain_task[params][file_args][#{idx}][prefix]", file[:prefix], :disabled => disabled %></td>
+<td><%= text_field_tag "cbrain_task[params][file_args][#{idx}][dsid]",   file[:dsid], :disabled => disabled   %></td>
 
 <% if file[:t2_id] %>
   <td><FONT COLOR="green">&#10004;</FONT></td>
@@ -44,13 +44,13 @@
 <% end %>
 
 <% if file[:t2_id] || file[:pd_id] %>
-  <td><%= check_box_tag( "cbrain_task[params][file_args][#{idx}][multispectral]", '1', file[:multispectral] ) %></td>
+  <td><%= check_box_tag( "cbrain_task[params][file_args][#{idx}][multispectral]", '1', file[:multispectral], :disabled => disabled ) %></td>
 <% else %>
   <td></td>
 <% end %>
 
 <% if file[:mk_id] %>
-  <td><%= check_box_tag( "cbrain_task[params][file_args][#{idx}][spectral_mask]", '1', file[:spectral_mask] ) %></td>
+  <td><%= check_box_tag( "cbrain_task[params][file_args][#{idx}][spectral_mask]", '1', file[:spectral_mask], :disabled => disabled ) %></td>
 <% else %>
   <td></td>
 <% end %>

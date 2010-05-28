@@ -214,8 +214,6 @@
 
 
 
-         <% if @task.new_record? %>
-
          <hr>
 
          <% if params[:collection_id] %>
@@ -240,12 +238,16 @@
             </tr>
             <% params[:file_args].each_with_index do |file,idx| %>
                <% if params[:collection_id] %>
-                 <%= render :partial => 'tasks/cbrain_task/civet_file_from_col',  :locals  => {:file  => file, :idx => idx } %>
+                 <%= render :partial => 'tasks/cbrain_task/civet_file_from_col',  :locals  => {:file  => file, :idx => idx, :disabled => !@task.new_record? } %>
                <% else %>
-                 <%= render :partial => 'tasks/cbrain_task/civet_file_from_list', :locals  => {:file  => file, :idx => idx } %>
+                 <%= render :partial => 'tasks/cbrain_task/civet_file_from_list', :locals  => {:file  => file, :idx => idx, :disabled => !@task.new_record? } %>
                <% end %>
             <% end %>
          </table>
+
+
+
+         <% if @task.new_record? %>
 
          <hr>
 

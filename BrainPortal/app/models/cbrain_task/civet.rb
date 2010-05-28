@@ -42,8 +42,27 @@ class CbrainTask::Civet < CbrainTask::PortalTask
   def before_form #:nodoc:
     params           = self.params
 
-    # If we're editing a task already existing, nothing to do.
-    return "" unless self.new_record?
+    # If we're editing a task already existing, cheat and recreate
+    # a fake file_args strcuture.
+    if ! self.new_record?
+      params[:file_args] = [ { :launch              => true,
+                               :t1_id               => params[:t1_id], 
+                               :t1_name             => params[:t1_name],
+                               :t2_id               => params[:t2_id],
+                               :t2_name             => params[:t2_name],
+                               :pd_id               => params[:pd_id],
+                               :pd_name             => params[:pd_name],
+                               :mk_id               => params[:mk_id],
+                               :mk_name             => params[:mk_name],
+                               :prefix              => params[:prefix],
+                               :dsid                => params[:dsid],
+                               :multispectral       => params[:multispectral],
+                               :spectral_mask       => params[:spectral_mask]
+                           } ]
+      params.delete(:study_name) # just to be sure
+      params.delete(:qc_study) # just to be sure
+      return ""
+    end
 
     file_ids         = params[:interface_userfile_ids]
 
@@ -76,14 +95,18 @@ class CbrainTask::Civet < CbrainTask::PortalTask
   def after_form #:nodoc:
     params          = self.params
 
-    # Nothing to do if re-launching an existing task.
-    return "" unless self.new_record?
-
     # file_args is returned as a hash, so
     # transform it back into an array of records (in the values)
     file_args_hash  = params[:file_args] || {}
     file_args       = file_args_hash.values
-    file_args  = file_args.select { |f| f[:launch] }
+
+    if ! self.new_record? # Cheat when we're editing a task.
+      file = file_args[0]
+      params.delete(:file_args)
+      params.merge!(file)
+      return ""
+    end
+
     if file_args.empty?
       cb_error "No CIVET started, as no T1 file selected for launch!"
     end
