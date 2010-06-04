@@ -25,6 +25,7 @@ class CbrainTask::CivetCombiner < CbrainTask::PortalTask
 
     civet_collection_ids = params[:civet_collection_ids] || []
     cb_error "No CivetCollection selected." unless civet_collection_ids.size > 0
+    params[:civet_collection_ids] = civet_collection_ids.join(",") # to string TODO change to array
 
     study_name           = params[:civet_study_name]     || "(unset?)"
     unless Userfile.is_legal_filename?(study_name)
