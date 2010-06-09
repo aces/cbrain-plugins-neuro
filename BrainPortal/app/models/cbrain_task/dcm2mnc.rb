@@ -17,19 +17,23 @@ class CbrainTask::Dcm2mnc < CbrainTask::PortalTask
   def before_form #:nodoc:
     params   = self.params
     file_ids = params[:interface_userfile_ids]
-    cb_error "This program can only run on a single FileCollection." if file_ids.size > 1
-    col_id   = file_ids[0]
-    col      = Userfile.find(col_id)
-    cb_error "Error: no collection found for id '#{col_id}'" unless col && col.is_a?(FileCollection)
+    file_ids.each do |col_id|
+      col = Userfile.find(col_id)
+      cb_error "This program can only run on FileCollections." unless col && col.is_a?(FileCollection)
+    end
     ""
   end
     
-  def after_form #:nodoc:
+  def final_task_list #:nodoc:
     params   = self.params
     file_ids = params[:interface_userfile_ids]
-    col_id   = file_ids[0]
-    params[:dicom_colid] = col_id
-    ""
+    task_list = []
+    file_ids.each do |col_id|
+      task = self.clone
+      task.params[:dicom_colid] = col_id
+      task_list << task
+    end
+    task_list
   end
 
 end
