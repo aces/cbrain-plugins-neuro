@@ -17,6 +17,29 @@
 class CivetCollection < FileCollection
   Revision_info="$Id$"
   
+  def content(options) #:nodoc
+    if options[:collection_file]
+      path = self.cache_full_path.parent + options[:collection_file]
+     
+      {:sendfile => path}
+      
+    elsif options[:qc_file]
+      if options[:qc_file] == "base"
+        qc_file = @userfile.list_files("QC", :file).find{ |qc| qc.name =~ /\.html$/ && !@userfile.subject_ids.include?(Pathname.new(qc.name).basename.to_s.sub(/\.html$/, "")) }.name
+      else
+        qc_file = @userfile.name + "/QC/" + options[:qc_file]
+      end
+      doc = Nokogiri::HTML.fragment(File.read(@userfile.cache_full_path.parent + qc_file))
+      doc.search("a").each {|link| link['href'] = "/userfiles/#{@userfile.id}/content?qc_file=#{link['href']}" }
+      doc.search("img").each {|img| img['src'] = "/userfiles/#{@userfile.id}/content?collection_file=#{@userfile.list_files.map(&:name).find{ |file| file =~ /#{img['src'].sub(/^\.+\//, "")}$/ }}" }
+      doc.search("image").each {|img| img['src'] = "/userfiles/#{@userfile.id}/content?collection_file=#{@userfile.list_files.map(&:name).find{ |file| file =~ /#{img['src'].sub(/^\.+\//, "")}$/ }}" }
+      return { :text  => doc.to_html}
+
+    else
+      {:partial => 'file_collection_civet_file_list', :locals  => {:subject  => self.list_files}}
+    end
+  end
+
   #List files in the +native+ subdirectory.
   def list_native
     @native_list ||= get_full_subdir_listing('native')
