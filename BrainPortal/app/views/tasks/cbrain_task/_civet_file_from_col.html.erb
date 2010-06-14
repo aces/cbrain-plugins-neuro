@@ -43,7 +43,7 @@
 <% end %>
 
 <% if file[:t2_name] || file[:pd_name] %>
-  <td><%= check_box_tag( "cbrain_task[params][file_args][#{idx}][multispectral]", '1', file[:multispectral], :disabled => disabled ) %></td>
+  <td><span title="Use T1, T2 and PD native files for tissue classification"><%= check_box_tag( "cbrain_task[params][file_args][#{idx}][multispectral]", '1', file[:multispectral], :disabled => disabled ) %></td>
 <% else %>
   <td></td>
 <% end %>
