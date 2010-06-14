@@ -28,7 +28,7 @@
                      Make graph:
                   </td>
                   <td>
-                    <%= check_box_tag( :make_graph.to_la, '1', params[:make_graph]) %>     
+                    <span title="Create a dot graph file"><%= check_box_tag( :make_graph.to_la, '1', params[:make_graph]) %>     
                   </td>
                </tr>
                <tr>
@@ -36,7 +36,7 @@
                       Make filename graph:  
                   </td>
                   <td>
-                      <%= check_box_tag( :make_filename_graph.to_la, '1', params[:make_filename_graph] ) %>    
+                      <span title="Create dot graph of filenames"><%= check_box_tag( :make_filename_graph.to_la, '1', params[:make_filename_graph] ) %>    
                   </td>
                </tr>
                <tr>
@@ -44,7 +44,7 @@
                       Print status report:
                   </td>
                   <td>
-                      <%= check_box_tag( :print_status_report.to_la, '1', params[:print_status_report] ) %>    
+                      <span title="Print the status of each pipeline"><%= check_box_tag( :print_status_report.to_la, '1', params[:print_status_report] ) %>    
                   </td>
                </tr>
                </table>      
@@ -55,7 +55,9 @@
                      <td>
                         Interpolation:
                      </td>
+                     
                      <td>
+                       <span title="Interpolation method from native to stereotaxic space (trilinear, tricubic, sinc) default trilinear">
                         <select name="<%= :interp.to_la %>">
                           <%= options_for_select(
                             [ "trilinear", "tricubic", "sinc" ],
@@ -68,7 +70,9 @@
                      <td>
                         N3 distance:
                      </td>
+    
                      <td>
+                        <span title="N3 spline distance in mm (suggested values: 200 for 1.5T scan; 25 for 3T scan) default: 200">
                         <%= text_field_tag :N3_distance.to_la, params[:N3_distance]   %>
                      </td>
                   </tr>
@@ -78,7 +82,7 @@
                      </td>
                      <td>
                         <select name="<%= :lsq.to_la %>">
-                          <%= options_for_select(
+                         <%= options_for_select(
                             [ "6", "9", "12" ],
                             params[:lsq])
                           %>
@@ -112,6 +116,7 @@
                         Resample surfaces:
                      </td>
                      <td>
+                    <span title="Resample cortical surfaces">
                         <%= check_box_tag( :resample_surfaces.to_la, '1', params[:resample_surfaces] ) %>
                      </td>
                   </tr>
@@ -120,6 +125,7 @@
                         Combine surfaces:
                      </td>
                      <td>
+                        <span title="Combine left and right cortical surfaces">
                         <%= check_box_tag( :combine_surfaces.to_la, '1', params[:combine_surfaces] ) %>
                      </td>
                   </tr>
@@ -138,6 +144,7 @@
                         Template:
                      </td>
                      <td>
+                        <span title="Define the template for image processing">
                         <select name="<%= :template.to_la %>">
                           <%= options_for_select(
                             [ "0.50", "0.75", "1.00", "1.50", "2.00", "3.00", "4.00", "6.00" ],
@@ -151,6 +158,7 @@
                         Model:
                      </td>
                      <td>
+                        <span title="Define the model for image-processing">
                         <select name="<%= :model.to_la %>">
                           <%= options_for_select(
                             [ "icbm152lin", "icbm152nl" ],
