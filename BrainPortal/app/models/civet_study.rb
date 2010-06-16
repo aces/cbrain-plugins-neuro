@@ -20,10 +20,8 @@ class CivetStudy < FileCollection
   Revision_info="$Id$"
 
   def content(options)
-    if options[:collection_file]
-      path = self.cache_full_path.parent + options[:collection_file]
-      return {:sendfile => path}
-    elsif options[:study_subject]
+
+    if options[:study_subject]
       return {:partial  => "file_collection_civet_file_list", :locals  => { :subject  => self.get_full_subdir_listing(options[:study_subject]) }}
 
     elsif options[:qc_file]
