@@ -13,6 +13,10 @@
 class CbrainTask::Dcm2mnc < CbrainTask::PortalTask
 
   Revision_info="$Id$"
+
+  def self.properties #:nodoc:
+    { :no_presets => true }
+  end
   
   def before_form #:nodoc:
     params   = self.params
@@ -30,10 +34,15 @@ class CbrainTask::Dcm2mnc < CbrainTask::PortalTask
     task_list = []
     file_ids.each do |col_id|
       task = self.clone
-      task.params[:dicom_colid] = col_id
+      task.params[:dicom_colid]            = col_id
+      task.params[:interface_userfile_ids] = [ col_id ]
       task_list << task
     end
     task_list
+  end
+
+  def untouchable_params_attributes #:nodoc:
+    { :dicom_colid => true }
   end
 
 end

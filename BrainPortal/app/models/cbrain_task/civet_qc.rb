@@ -14,13 +14,17 @@ class CbrainTask::CivetQc < CbrainTask::PortalTask
 
   Revision_info="$Id$"
 
+  def self.properties #:nodoc:
+    { :no_presets => true }
+  end
+
   def before_form #:nodoc:
 
     params   = self.params
     file_ids = params[:interface_userfile_ids]
 
     file_ids.each do |id|
-      civetstudy = Userfile.find(id, :include  => :user)
+      civetstudy = Userfile.find(id)
       unless civetstudy.is_a?(CivetStudy)
         cb_error "This program must be launched on one or several CivetStudy only."
       end
@@ -39,11 +43,16 @@ class CbrainTask::CivetQc < CbrainTask::PortalTask
       civetstudy = CivetStudy.find(id)
       task = self.clone
       task.description ||= civetstudy.name
-      task.params.merge!({ :study_id => civetstudy.id })
+      task.params[:study_id]               = civetstudy.id
+      task.params[:interface_userfile_ids] = [ civetstudy.id ]
       task_list << task
     end
 
     task_list
+  end
+
+  def untouchable_params_attributes #:nodoc:
+    { :study_id => true, :dsid_names => true, :prefix => true }
   end
 
 end

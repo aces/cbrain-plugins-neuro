@@ -30,10 +30,15 @@ class CbrainTask::Mnc2nii < CbrainTask::PortalTask
     tasklist = []
     file_ids.each do |id|
       task = self.clone
-      task.params[:mincfile_id] = id
+      task.params[:mincfile_id]            = id
+      task.params[:interface_userfile_ids] = [ id ]
       task_list << task
     end
     task_list
+  end
+
+  def untouchable_params_attributes #:nodoc:
+    { :mincfile_id => true }
   end
 
 end

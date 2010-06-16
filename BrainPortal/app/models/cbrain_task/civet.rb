@@ -8,6 +8,8 @@ class CbrainTask::Civet < CbrainTask::PortalTask
   # jobs we're about to launch
   def self.default_launch_args #:nodoc:
     {
+      :file_args           => {},
+
       :make_graph          => false,       # -make-graph for true
       :make_filename_graph => false,       # -make-filename-graph for true
       :print_status_report => false,       # -print-status-report for true
@@ -42,25 +44,9 @@ class CbrainTask::Civet < CbrainTask::PortalTask
   def before_form #:nodoc:
     params           = self.params
 
-    # If we're editing a task already existing, cheat and recreate
-    # a fake file_args strcuture.
+    # If we're editing a task already existing, nothing to do.
     if ! self.new_record?
-      params[:file_args] = [ { :launch              => true,
-                               :t1_id               => params[:t1_id], 
-                               :t1_name             => params[:t1_name],
-                               :t2_id               => params[:t2_id],
-                               :t2_name             => params[:t2_name],
-                               :pd_id               => params[:pd_id],
-                               :pd_name             => params[:pd_name],
-                               :mk_id               => params[:mk_id],
-                               :mk_name             => params[:mk_name],
-                               :prefix              => params[:prefix],
-                               :dsid                => params[:dsid],
-                               :multispectral       => params[:multispectral],
-                               :spectral_mask       => params[:spectral_mask]
-                           } ]
-      params.delete(:study_name) # just to be sure
-      params.delete(:qc_study) # just to be sure
+      adjust_old_civet_structure # for back compatibility
       return ""
     end
 
@@ -100,10 +86,8 @@ class CbrainTask::Civet < CbrainTask::PortalTask
     file_args_hash  = params[:file_args] || {}
     file_args       = file_args_hash.values
 
-    if ! self.new_record? # Cheat when we're editing a task.
-      file = file_args[0]
-      params.delete(:file_args)
-      params.merge!(file)
+    # Nothing to do when we're editing a task.
+    if ! self.new_record?
       return ""
     end
 
@@ -152,11 +136,11 @@ class CbrainTask::Civet < CbrainTask::PortalTask
     unless study_name.blank?
       tids = task_list.map &:id
       combiner = create_combiner(study_name,tids)
-      combiner.save
+      combiner.save!
       messages += "Started CivetCombiner task '#{combiner.bname_tid}'\n"
       unless qc_study.blank?
         qc = create_qc(combiner.id)
-        qc.save
+        qc.save!
         messages += "Started Civet QC task '#{qc.bname_tid}'\n"
       end
     end
@@ -164,6 +148,9 @@ class CbrainTask::Civet < CbrainTask::PortalTask
     messages
   end
 
+  def untouchable_params_attributes #:nodoc:
+    { :file_args => true, :collection_id => true }
+  end
 
 
   #################################################
@@ -222,7 +209,7 @@ class CbrainTask::Civet < CbrainTask::PortalTask
     end
    
     # OK, build a arg structure for each minc group
-    file_args = []
+    file_args_array = []
     minc_groups.each do |group|
 
       t1_name = group[0]
@@ -238,7 +225,7 @@ class CbrainTask::Civet < CbrainTask::PortalTask
         dsid   = "dsid"
       end
 
-      file_args << {
+      file_args_array << {
         :launch              => true,
 
         :t1_id               => nil, # we will use the collection_id instead
@@ -257,6 +244,8 @@ class CbrainTask::Civet < CbrainTask::PortalTask
 
     end
 
+    file_args = {}
+    file_args_array.each_with_index { |file,i| file_args[i.to_s] = file }
     return file_args
   end
 
@@ -267,7 +256,7 @@ class CbrainTask::Civet < CbrainTask::PortalTask
     all_files_I_can_access = Userfile.find_all_accessible_by_user(user)
     index_of_my_files      = all_files_I_can_access.index_by(&:name)
 
-    file_args = []
+    file_args_array = []
 
     userfiles.each do |t1|
 
@@ -283,7 +272,7 @@ class CbrainTask::Civet < CbrainTask::PortalTask
         dsid   = "dsid"
       end
 
-      file_args << {
+      file_args_array << {
         :launch              => true,
 
         :t1_name             => t1_name,
@@ -301,7 +290,9 @@ class CbrainTask::Civet < CbrainTask::PortalTask
       }
     end
 
-    file_args
+    file_args = {}
+    file_args_array.each_with_index { |file,i| file_args[i.to_s] = file }
+    return file_args
   end
 
   def create_civet_for_one(one_file_args) #:nodoc:
@@ -310,7 +301,7 @@ class CbrainTask::Civet < CbrainTask::PortalTask
     civ             = self.clone
     civparams       = civ.params
 
-    # Non-civet fields not needed so let's not polute the XML output in show()
+    # Non-civet fields not needed so let's not polute the params output in show()
     civparams.delete(:file_args)
     civparams.delete(:study_name)
     civparams.delete(:qc_study)
@@ -323,10 +314,11 @@ class CbrainTask::Civet < CbrainTask::PortalTask
       t1_object       = collection || Userfile.find(one_file_args[:t1_id])
       t1_name         = collection ? one_file_args[:t1_name] : t1_object.name
       civ.description = t1_name
+      civparams[:interface_userfile_ids] = [ t1_object.id ]
     end
 
     # Initialize the new object
-    civ.params      = civparams.merge(one_file_args)
+    civparams[:file_args] = { "0" => one_file_args } # just a single entry named '0'
 
     return civ
   end
@@ -339,6 +331,7 @@ class CbrainTask::Civet < CbrainTask::PortalTask
     combiner.user_id          = self.user_id
     combiner.bourreau_id      = self.bourreau_id
     combiner.description      = study_name
+    combiner.status           = 'New'
     combiner.params = {
       :civet_study_name     => study_name,
       :civet_from_task_ids  => tids.join(","),
@@ -361,6 +354,7 @@ class CbrainTask::Civet < CbrainTask::PortalTask
     qc.user_id     = self.user_id
     qc.bourreau_id = self.bourreau_id
     qc.description = params[:study_name]
+    qc.status      = 'New'
     qc.params      = { :study_from_task_id => cid }
     qc.add_prerequisites_for_setup(cid)
 
@@ -404,6 +398,28 @@ class CbrainTask::Civet < CbrainTask::PortalTask
     [ t2_name, pd_name, mk_name, minclist ]
   end
 
+  def adjust_old_civet_structure #:nodoc:
+    params = self.params
+
+    # This assignment is for back compatibility with old CIVET tasks
+    params[:file_args] ||= { "0" => # note that NEW CIVET tasks SAVE the :file_args["0"]
+                           { :launch              => true,
+                             :t1_id               => params[:t1_id], 
+                             :t1_name             => params[:t1_name],
+                             :t2_id               => params[:t2_id],
+                             :t2_name             => params[:t2_name],
+                             :pd_id               => params[:pd_id],
+                             :pd_name             => params[:pd_name],
+                             :mk_id               => params[:mk_id],
+                             :mk_name             => params[:mk_name],
+                             :prefix              => params[:prefix],
+                             :dsid                => params[:dsid],
+                             :multispectral       => params[:multispectral],
+                             :spectral_mask       => params[:spectral_mask]
+                           } }
+    params.delete(:study_name) # just to be sure
+    params.delete(:qc_study) # just to be sure
+  end
 
 end
 

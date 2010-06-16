@@ -55,25 +55,23 @@
                      <td>
                         Interpolation:
                      </td>
-                     
                      <td>
-                       <span title="Interpolation method from native to stereotaxic space (trilinear, tricubic, sinc) default trilinear">
+                        <span title="Interpolation method from native to stereotaxic space (trilinear, tricubic, sinc) default trilinear">
                         <select name="<%= :interp.to_la %>">
                           <%= options_for_select(
                             [ "trilinear", "tricubic", "sinc" ],
                             params[:interp])
                           %>
-                          </select>
+                        </select>
                      </td>
                   </tr>
                   <tr>
                      <td>
                         N3 distance:
                      </td>
-    
                      <td>
                         <span title="N3 spline distance in mm (suggested values: 200 for 1.5T scan; 25 for 3T scan) default: 200">
-                        <%= text_field_tag :N3_distance.to_la, params[:N3_distance]   %>
+                        <%= text_field_tag :N3_distance.to_la, params[:N3_distance], :size => 4 %>
                      </td>
                   </tr>
                   <tr>
@@ -82,7 +80,7 @@
                      </td>
                      <td>
                         <select name="<%= :lsq.to_la %>">
-                         <%= options_for_select(
+                          <%= options_for_select(
                             [ "6", "9", "12" ],
                             params[:lsq])
                           %>
@@ -108,7 +106,7 @@
                             params[:thickness_method])
                           %>
                           </select>
-                          <%= text_field_tag :thickness_kernel.to_la, params[:thickness_kernel]   %>
+                          <%= text_field_tag :thickness_kernel.to_la, params[:thickness_kernel], :size => 4 %>
                      </td>
                   </tr>
                   <tr>
@@ -116,7 +114,7 @@
                         Resample surfaces:
                      </td>
                      <td>
-                    <span title="Resample cortical surfaces">
+                        <span title="Resample cortical surfaces">
                         <%= check_box_tag( :resample_surfaces.to_la, '1', params[:resample_surfaces] ) %>
                      </td>
                   </tr>
@@ -224,7 +222,7 @@
 
          <hr>
 
-         <% if params[:collection_id] %>
+         <% if ! params[:collection_id].blank? %>
            <big>MINC file input list for collection <em><%= Userfile.find(params[:collection_id]).name %></em></big>
          <% else %>
            <big>MINC file input list</big>
@@ -244,8 +242,8 @@
               <th>Use multispectral?</th>
               <th>Use mask?</th>
             </tr>
-            <% params[:file_args].each_with_index do |file,idx| %>
-               <% if params[:collection_id] %>
+            <% params[:file_args].each do |idx,file| %>
+               <% if ! params[:collection_id].blank? %>
                  <%= render :partial => 'tasks/cbrain_task/civet_file_from_col',  :locals  => {:file  => file, :idx => idx, :disabled => !@task.new_record? } %>
                <% else %>
                  <%= render :partial => 'tasks/cbrain_task/civet_file_from_list', :locals  => {:file  => file, :idx => idx, :disabled => !@task.new_record? } %>
@@ -272,7 +270,7 @@
            <hr>
            <BIG>Fake run:</BIG><P>
            Enter the numeric ID of a pre-existing CivetCollection to use it as 'pretend' output:
-           <%= text_field_tag "fake_run_civetcollection_id" %>
+           <%= text_field_tag :fake_run_civetcollection_id.to_la %>
            <P>
          <% end %>
 
