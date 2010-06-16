@@ -19,6 +19,30 @@ class CivetStudy < FileCollection
 
   Revision_info="$Id$"
 
+  def content(options)
+    if options[:collection_file]
+      path = self.cache_full_path.parent + options[:collection_file]
+      return {:sendfile => path}
+    elsif options[:study_subject]
+      return {:partial  => "file_collection_civet_file_list", :locals  => { :subject  => self.get_full_subdir_listing(options[:study_subject]) }}
+
+    elsif options[:qc_file]
+      if options[:qc_file] == "base"
+        qc_file = self.list_files("QC", :file).find{ |qc| qc.name =~ /\.html$/ && !self.subject_ids.include?(Pathname.new(qc.name).basename.to_s.sub(/\.html$/, "")) }.name
+      else
+        qc_file = self.name + "/QC/" + options[:qc_file]
+      end
+      doc = Nokogiri::HTML.fragment(File.read(self.cache_full_path.parent + qc_file))
+      doc.search("a").each {|link| link['href'] = "/userfiles/#{self.id}/content?qc_file=#{link['href']}" }
+      doc.search("img").each {|img| img['src'] = "/userfiles/#{self.id}/content?collection_file=#{self.list_files.map(&:name).find{ |file| file =~ /#{img['src'].sub(/^\.+\//, "")}$/ }}" }
+      doc.search("image").each {|img| img['src'] = "/userfiles/#{self.id}/content?collection_file=#{self.list_files.map(&:name).find{ |file| file =~ /#{img['src'].sub(/^\.+\//, "")}$/ }}" }
+      return {:text  => doc.to_html}
+    else
+      return super
+    end
+    return nil
+  end
+  
   def pretty_type
     "(Study)"
   end
