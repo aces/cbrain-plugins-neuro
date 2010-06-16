@@ -1,0 +1,83 @@
+<h1>Civet Options</h1>
+<b><center>Not all options listed are provided on CBRAIN</center></b>
+<center>To request additional options, leave feedback.</center>
+<br>
+<br>
+
+<b>Execution control</b>
+<ul>
+    <li><b>spawn:</b> Use the Perl system interface to spawn jobs.</li>
+    <li><b>sge:</b> Use SGE to spawn jobs.</li>
+    <li><b>pbs:</b> Use PBS to spawn jobs.</li>
+    <li><b>queue:</b> Which queue to use. default is all.</li>
+    <li><b>hosts:</b> Colon separated list of hosts.</li>
+    <li><b>no-granular:</b> Granularity level for submission of jobs using queueing system. default</li>
+    <li><b>granular:</b> Opposite of -no-granular</li>
+    <li><b>maxqueued</b> Maximum number of jobs that can be submitted at once. default: 10000</li>
+</ul>
+<b>File options</b>
+<ul>
+    <li><b>sourcedir:</b> Directory containing the source files</li>
+    <li><b>targetdir:</b> Directory where processed data will be placed</li>
+    <li><b>prefix:</b> File prefix to be used in naming output files.</li>
+    <li><b>id-subdir:</b> Indicate that the source directory contains sub-directories for each id.</li>
+    <li><b>id-file:</b> A text file that contains all the subject id's (separated by space, tab, return or comma) that CIVET will run on.</li>
+</ul>
+<b>Pipeline options</b>
+<ul>
+    <li><b>template:</b> Define the template for image processing (0.50, 0.75, 1.00, 1.50, 2.00, 3.00, 4.00, 6.00). default: 1.00</li>
+    <li><b>model:</b> Define the model for image-processing (icbm152nl or icbm152lin). default= icbm152nl</li>
+</ul>
+<b>CIVET options</b>
+<ul>
+    <li><b>multispectral:</b> Use T1, T2 and PD native files for tissue classification.</li>
+    <li><b>correct-pve:</b> Apply correction to the mean and variance oftissue types at pve iterations.</li>
+    <li><b>no-correct-pve:</b> Opposite of -correct-pve. default</li>
+    <li<b>spectral_mask:</b> Use T1, T2 and PD native files for brain masking.</li>
+    <li><b>interp:</b> Interpolation method from native to stereotaxic space ("trilinear", "tricubic", "sinc". default: trilinear</li>
+    <li><b>N3-distance:</b> N3 spline distance in mm (suggested values: 200 for 1.5T scan; 25 for 3T scan). default: 200</li>
+    <li><b>lsq6:</b> Use 6-parameter transformation for linear registration. default -lsq9</li>
+    <li><b>lsq12:</b> Use 12-parameter transformation for linear registration. default -lsq9</li>
+    <li><b>no-surfaces:</b> Don't build surfaces</li>
+    <li><b>thickness:</b> Compute cortical thickness and blur (tlink|tlaplace|tnear|tnormal) (kernel size in mm). default: tlink 20</li>
+    <li><b>resample-surfaces:</b> Resample cortical surfaces</li>
+    <li><b>no-resample-surfaces:</b> Opposite of -resample-surfaces. default</li>
+    <li><b>combine-surfaces:</b> Combine left and right cortical surfaces</li>
+    <li><b>no-combine-surfaces:</b> Opposite of -combine-surfaces. default</li>
+</ul>        
+<b>VBM options</b>
+<ul>
+    <li><b>VBM:</b> Process VBM files for analysis. default -no-VBM</li>
+    <li><b>no-VBM:</b> Don't process VBM files for analysis</li>
+    <li><b>VBM-fwhm:</b> Blurring kernel size in mm for volume. default: 8</li>
+    <li><b>VBM-symmetry:</b> Run symmetry tools. default -no-VBM-symmetry</li>
+    <li><b>no-VBM-symmetry:</b> Don't run symmetry tools</li>
+    <li><b>VBM-cerebellum:</b> Keep cerebellum in VBM maps</li>
+    <li><b>no-VBM-cerebellum:</b> Mask out cerebellum in VBM maps. default -VBM-cerebellum</li>
+</ul>
+<b>ANIMAL options</b>
+<ul>
+    <li><b>animal:</b>run volumetric ANIMAL segmentation and cortical surface lobe parcellation. default -no-animal</li>
+    <li><b>no-animal:</b>Don't run volumetric ANIMAL segmentation and cortical surface lobe parcellation</li>
+    <li><b>symmetric_atlas:</b>Use linear symmetric atlas for ANIMAL segmentation (old way)</li>
+    <li><b>lobe_atlas:</b>Use non-linear lobe atlas for ANIMAL segmentation (new way)</li>
+    <li><b>animal-atlas-dir:</b>Directory containing the segmentation atlas</li>
+</ul>
+<b>Pipeline control</b>
+<ul>
+    <li><b>run:</b> Run the pipeline</li>
+    <li><b>status-from-files:</b> Compute pipeline status from files</li>
+    <li><b>print-stages:</b> Print the pipeline stages</li>
+    <li><b>print-status:</b> Print the status of each pipeline</li>
+    <li><b>make-graph:</b> Create dot graph file</li>
+    <li><b>make-filename-graph:</b> Create dot graph of filenames</li>
+    <li><b>print-status-report:</b> Writes a CSV status report to file in the current working directory (cwd)</li>
+</ul>
+
+<b>Stage control</b>
+<ul>
+    <li><b>reset-all:</b> Start the pipeline from the beginning</li>
+    <li><b>reset-from:</b> Restart from the specified stage</li>
+    <li><b>reset-running:</b> Restart currently running jobs</li>
+    <li><b>no-reset-running:</b> Opposite of -reset-running default</li>
+</ul>
