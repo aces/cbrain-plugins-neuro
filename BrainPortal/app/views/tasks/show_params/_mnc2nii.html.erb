@@ -1,0 +1,18 @@
+
+<STRONG>Input:</STRONG>
+<P>
+MINC inputfile: <%= link_to_userfile_if_accessible params[:mincfile_id] %>
+<P>
+<STRONG>Outputs:</STRONG>
+<P>
+<UL>
+<% if params[:niifile_ids] && params[:niifile_ids].size > 0 %>
+<%   params[:niifile_ids].each do |id| %>
+  <LI>Userfile: <%= link_to_userfile_if_accessible id %></LI>
+<%   end %>
+<% else %>
+  <LI>(No NIFTI files created yet)</LI>
+<% end %>
+</UL>
+See this task's <%= link_to "edit page", "/tasks/edit/#{task.id}" %> for more information.
+

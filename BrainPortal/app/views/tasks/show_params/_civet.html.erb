@@ -1,0 +1,19 @@
+
+<STRONG>Input:</STRONG>
+<P>
+<% if ! params[:collection_id].blank? %>
+Minc collection: <%= link_to_userfile_if_accessible params[:collection_id] %>
+<% else %>
+T1 minc file: <%= if params[:file_args] && params[:file_args]["0"]
+                    link_to_userfile_if_accessible params[:file_args]["0"][:t1_id]
+                  else
+                    link_to_userfile_if_accessible nil
+                  end %>
+<% end %>
+<P>
+<STRONG>Output:</STRONG>
+<P>
+CIVET collection: <%= link_to_userfile_if_accessible params[:output_civetcollection_id] %>
+<P>
+See this task's <%= link_to "edit page", "/tasks/edit/#{task.id}" %> for more information.
+

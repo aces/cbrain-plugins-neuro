@@ -42,7 +42,7 @@ class CbrainTask::Dcm2mnc < CbrainTask::PortalTask
   end
 
   def untouchable_params_attributes #:nodoc:
-    { :dicom_colid => true }
+    { :dicom_colid => true, :created_mincfile_ids => true }
   end
 
 end

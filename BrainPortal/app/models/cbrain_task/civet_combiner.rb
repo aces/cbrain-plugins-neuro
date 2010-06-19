@@ -49,7 +49,7 @@ class CbrainTask::CivetCombiner < CbrainTask::PortalTask
   end
 
   def untouchable_params_attributes #:nodoc:
-    { :civet_collection_ids => true, :prefix => true, :dsids => true } # Some are set on bourreau side
+    { :civet_collection_ids => true, :prefix => true, :dsids => true, :output_civetstudy_id => true } # Some are set on bourreau side
   end
 
   private

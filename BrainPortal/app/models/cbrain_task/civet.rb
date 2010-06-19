@@ -149,7 +149,7 @@ class CbrainTask::Civet < CbrainTask::PortalTask
   end
 
   def untouchable_params_attributes #:nodoc:
-    { :file_args => true, :collection_id => true }
+    { :file_args => true, :collection_id => true, :output_civetcollection_id => true }
   end
 
 

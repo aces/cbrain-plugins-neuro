@@ -1,0 +1,17 @@
+
+<STRONG>Input:</STRONG>
+<P>
+DICOM collection: <%= link_to_userfile_if_accessible params[:dicom_colid] %>
+<P>
+<STRONG>Outputs:</STRONG>
+<P>
+<UL>
+<% if params[:created_mincfile_ids] %>
+<%   params[:created_mincfile_ids].each do |id| %>
+  <LI>Mincfile: <%= link_to_userfile_if_accessible id %></LI>
+<%   end %>
+<% else %>
+  <LI>(No mincfiles created yet)</LI>
+<% end %>
+</UL>
+

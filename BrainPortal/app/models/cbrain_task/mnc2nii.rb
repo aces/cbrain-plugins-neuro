@@ -27,7 +27,7 @@ class CbrainTask::Mnc2nii < CbrainTask::PortalTask
     data_type   = params[:data_type]
     file_format = params[:file_format]
      
-    tasklist = []
+    task_list = []
     file_ids.each do |id|
       task = self.clone
       task.params[:mincfile_id]            = id
@@ -38,7 +38,7 @@ class CbrainTask::Mnc2nii < CbrainTask::PortalTask
   end
 
   def untouchable_params_attributes #:nodoc:
-    { :mincfile_id => true }
+    { :mincfile_id => true, :niifile_ids => true }
   end
 
 end
