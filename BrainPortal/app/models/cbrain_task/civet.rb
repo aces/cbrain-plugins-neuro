@@ -96,10 +96,10 @@ class CbrainTask::Civet < CbrainTask::PortalTask
     end
 
     study_name = params[:study_name] || ""
-    qc_study   = params[:qc_study]   || false
     if ! study_name.blank? && ! Userfile.is_legal_filename?(study_name)
       cb_error "Sorry, but the study name provided contains some unacceptable characters."
     end
+
     return ""
   end
 
@@ -112,7 +112,7 @@ class CbrainTask::Civet < CbrainTask::PortalTask
 
     file_args_hash  = params[:file_args] || {}
     file_args       = file_args_hash.values
-    file_args       = file_args.select { |f| f[:launch] }
+    file_args       = file_args.select { |f| f[:launch].to_s == '1' }
 
     task_list = []
     file_args.each do |file|
@@ -129,8 +129,8 @@ class CbrainTask::Civet < CbrainTask::PortalTask
 
     params = self.params
 
-    study_name = params[:study_name]
-    qc_study   = params[:qc_study]
+    study_name = params[:study_name] || ""
+    qc_study   = params[:qc_study]   || ""
 
     messages = ""
     unless study_name.blank?
@@ -138,7 +138,7 @@ class CbrainTask::Civet < CbrainTask::PortalTask
       combiner = create_combiner(study_name,tids)
       combiner.save!
       messages += "Started CivetCombiner task '#{combiner.bname_tid}'\n"
-      unless qc_study.blank?
+      if qc_study.to_s == '1'
         qc = create_qc(combiner.id)
         qc.save!
         messages += "Started Civet QC task '#{qc.bname_tid}'\n"

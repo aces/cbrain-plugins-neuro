@@ -11,7 +11,7 @@
 
 <% title 'Civet Parameters' %>
 
-<%= hidden_field_tag :collection_id.to_la, params[:collection_id] %> <!-- can be nil -->
+<%= form.params_hidden_field :collection_id %> <!-- can be nil -->
 
  <div class = "help_button_tools">
      <a class = "overlay_link" data-url = "/doc/tasks/civet_options.html">Civet Options</a>
@@ -31,7 +31,7 @@
                      Make graph:
                   </td>
                   <td>
-                    <span title="Create a dot graph file"><%= check_box_tag( :make_graph.to_la, '1', params[:make_graph]) %>     
+                    <span title="Create a dot graph file"><%= form.params_check_box :make_graph %>     
                   </td>
                </tr>
                <tr>
@@ -39,7 +39,7 @@
                       Make filename graph:  
                   </td>
                   <td>
-                      <span title="Create dot graph of filenames"><%= check_box_tag( :make_filename_graph.to_la, '1', params[:make_filename_graph] ) %>    
+                      <span title="Create dot graph of filenames"><%= form.params_check_box :make_filename_graph %>    
                   </td>
                </tr>
                <tr>
@@ -47,7 +47,7 @@
                       Print status report:
                   </td>
                   <td>
-                      <span title="Print the status of each pipeline"><%= check_box_tag( :print_status_report.to_la, '1', params[:print_status_report] ) %>    
+                      <span title="Print the status of each pipeline"><%= form.params_check_box :print_status_report %>    
                   </td>
                </tr>
                </table>      
@@ -74,7 +74,7 @@
                      </td>
                      <td>
                         <span title="N3 spline distance in mm (suggested values: 200 for 1.5T scan; 25 for 3T scan) default: 200">
-                        <%= text_field_tag :N3_distance.to_la, params[:N3_distance], :size => 4 %>
+                        <%= form.params_text_field :N3_distance, :size => 4 %>
                      </td>
                   </tr>
                   <tr>
@@ -95,7 +95,7 @@
                         Do NOT build surfaces:
                      </td>
                      <td>
-                         <%= check_box_tag( :no_surfaces.to_la, '1', params[:no_surfaces] ) %>
+                         <%= form.params_check_box :no_surfaces %>
                      </td>
                   </tr>
                   <tr>
@@ -109,7 +109,7 @@
                             params[:thickness_method])
                           %>
                           </select>
-                          <%= text_field_tag :thickness_kernel.to_la, params[:thickness_kernel], :size => 4 %>
+                          <%= form.params_text_field :thickness_kernel, :size => 4 %>
                      </td>
                   </tr>
                   <tr>
@@ -118,7 +118,7 @@
                      </td>
                      <td>
                         <span title="Resample cortical surfaces">
-                        <%= check_box_tag( :resample_surfaces.to_la, '1', params[:resample_surfaces] ) %>
+                        <%= form.params_check_box :resample_surfaces %>
                      </td>
                   </tr>
                   <tr>
@@ -127,7 +127,7 @@
                      </td>
                      <td>
                         <span title="Combine left and right cortical surfaces">
-                        <%= check_box_tag( :combine_surfaces.to_la, '1', params[:combine_surfaces] ) %>
+                        <%= form.params_check_box :combine_surfaces %>
                      </td>
                   </tr>
                 </table>
@@ -186,7 +186,7 @@
                         Process VBM files:
                      </td>
                      <td>
-                        <%= check_box_tag( :VBM.to_la, '1', params[:VBM] ) %>
+                        <%= form.params_check_box :VBM %>
                      </td>
                   </tr>
                   <tr>
@@ -194,7 +194,7 @@
                         Blurring kernel size in mm for volume:
                      </td>
                      <td>
-                        <%= text_field_tag :VBM_fwhm.to_la, params[:VBM_fwhm], :size => 4 %>
+                        <%= form.params_text_field :VBM_fwhm, :size => 4 %>
                      </td>
                   </tr>
                   <tr>
@@ -202,7 +202,7 @@
                         Run symmetry tools:
                      </td>
                      <td>
-                        <%= check_box_tag( :VBM_symmetry.to_la, '1', params[:VBM_symmetry] ) %>
+                        <%= form.params_check_box :VBM_symmetry %>
                      </td>
                   </tr>
                   <tr>
@@ -210,7 +210,7 @@
                         Keep cerebellum in VBM maps:
                      </td>
                      <td>
-                        <%= check_box_tag( :VBM_cerebellum.to_la, '1', params[:VBM_cerebellum] ) %>
+                        <%= form.params_check_box :VBM_cerebellum %>
                      </td>
                   </tr>
                </table>
@@ -262,7 +262,7 @@
 
          <BIG>Optional post-Civet operations</BIG><P>
 
-         Combine CIVET results into a CivetStudy named: <%= text_field_tag :study_name.to_la %> then <%= check_box_tag :qc_study.to_la, 1 %> launch Claude's QC script on that CivetStudy.<br>
+         Combine CIVET results into a CivetStudy named: <%= form.params_text_field :study_name %> then <%= form.params_check_box :qc_study %> launch Claude's QC script on that CivetStudy.<br>
 
          <% end %>
 
@@ -273,7 +273,7 @@
            <hr>
            <BIG>Fake run:</BIG><P>
            Enter the numeric ID of a pre-existing CivetCollection to use it as 'pretend' output:
-           <%= text_field_tag :fake_run_civetcollection_id.to_la %>
+           <%= form.params_text_field :fake_run_civetcollection_id %>
            <P>
          <% end %>
 
