@@ -18,7 +18,9 @@ class CivetCollection < FileCollection
   Revision_info="$Id$"
   
   def content(options) #:nodoc
-    if options[:collection_file]
+    if options[:thickness] == "list"
+      {:json => self.list_files("thickness").map(&:name).to_json}
+    elsif options[:collection_file]
       path = self.cache_full_path.parent + options[:collection_file]
      
       {:sendfile => path}
@@ -36,7 +38,7 @@ class CivetCollection < FileCollection
       return { :text  => doc.to_html}
 
     else
-      {:partial => 'file_collection_civet_file_list', :locals  => {:subject  => self.list_files}}
+      {:partial => 'file_collection', :locals  => {:subject  => self.list_files}}
     end
   end
 
