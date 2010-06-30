@@ -20,6 +20,8 @@ class CivetCollection < FileCollection
   def content(options) #:nodoc
     if options[:thickness] == "list"
       {:json => self.list_files("thickness").map(&:name).to_json}
+    elsif options[:viewer] == "true"
+      {:partial => "userfiles/content/civet_collection_viewer", :locals => {:userfile => self}}
     elsif options[:collection_file]
       path = self.cache_full_path.parent + options[:collection_file]
      

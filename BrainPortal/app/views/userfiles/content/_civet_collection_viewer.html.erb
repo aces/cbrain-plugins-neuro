@@ -1,0 +1,34 @@
+Thickness File: 
+<select name="thickness" class="thickness">
+  <%= options_for_select   @userfile.list_files("thickness").map(&:name).reject { |n| n =~ /\.dat$/ } %>
+</select>
+<div id="controls">
+    Data Range:
+    <div id="data-range">
+      Min: <input class="range-box" id="data-range-min" type="text" name="range_min" size="5"><br />
+      Max: <input class="range-box" id="data-range-max" type="text" name="range_max" size="5">
+      <a class="button" id="range_change">Change Range</a>
+    </div>
+    <div>
+      <div id="spectrum"></div>
+      <div id="scale">
+	<span id="min_mark" class="mark"></span>
+	<span id="scale_space" class="empty"> </span>
+	<span id="mid_mark" class="mark"> </span>
+	<span id="scale_space" class="empty"> </span>
+	<span id="max_mark" class="mark"> </span>
+      </div>
+    </div>
+    
+    <br />
+    <a class="macacc_button" id="fillmode">Fill Mode</a>
+    <a class="macacc_button" id="screenshot" target="_blank">Screenshot</a>
+    <br />
+
+  </div>
+  
+  <div id="view-window" data-url="true">
+    <div id="o3d" style="width: 100%; height: 90%" ></div>
+    <div id="loading"></div>
+  </div>
+
