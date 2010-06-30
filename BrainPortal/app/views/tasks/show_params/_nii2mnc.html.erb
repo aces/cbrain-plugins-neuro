@@ -1,0 +1,32 @@
+
+<STRONG>Input:</STRONG>
+
+<BR>
+<UL>
+<% params[:interface_userfile_ids].each do |id| %>
+  <LI>Userfile: <%= link_to_userfile_if_accessible id %></LI>
+<% end %>
+</UL>
+
+<P>
+
+Voxel type: <%= h(params[:voxel_type]) %>
+<% if params[:voxel_type] =~ /short|word|int/ %>
+<%= h(params[:voxel_int_signity]) %>
+<% end %>
+<P>
+Space ordering: <%= h(params[:space_ordering]) %>
+<% flipped = []
+   flipped << "X" if params[:flipx] == "1"
+   flipped << "Y" if params[:flipy] == "1"
+   flipped << "Z" if params[:flipz] == "1"
+%>
+<% if flipped.size > 0 %>
+with flipped <%= flipped.join(", ") %> direction(s).
+<% end %>
+
+<P>
+
+<STRONG>Output Minc File:</STRONG>
+<%= link_to_userfile_if_accessible params[:output_mincfile_id] %></LI>
+

@@ -1,0 +1,58 @@
+
+<% title 'Nii2Mnc Parameters' %>
+
+<strong>List of Userfiles selected:</strong>
+<BR>
+
+<UL>
+  <% params[:interface_userfile_ids].each do |id| %>
+  <LI><%= h(Userfile.find(id).name) %></LI>
+  <% end %>
+</UL>
+
+<strong>Voxel Convertion Parameters</strong>
+<BR>
+
+Write voxel data in type: <%= select_tag :voxel_type.to_la,
+                              options_for_select( [ [ "(Select data type)",              "" ],
+                                                    [ "'byte': 8-bit integer",           "byte" ],
+                                                    [ "'word': 16-bit integer",          "word" ],
+                                                    [ "'int': 32-bit integer",           "int" ],
+                                                    [ "'float': 32-bit floating point",  "float" ],
+                                                    [ "'double': 64-bit floating point", "double" ],
+                                                    [ "'default': let the program choose!", "default" ]
+                                                  ], params[:voxel_type] ) %>
+<BR>
+For <strong>integer</strong> voxel data types, use <%= select_tag :voxel_int_signity.to_la,
+                              options_for_select( [ [ "(Select sign)",                "" ],
+                                                    [ "signed integers",              "signed" ],
+                                                    [ "unsigned integers",            "unsigned" ],
+                                                    [ "default: let the program choose!", "default" ]
+                                                  ], params[:voxel_int_signity] ) %>
+<BR>
+Option: do NOT automatically scan the range of data values: <%= form.params_check_box :noscan %>
+
+<P>
+
+<strong>XYZ Space Parameters</strong>
+<BR>
+
+The NIfTY files use this ordering for spatial dimensions: <%= select_tag :space_ordering.to_la,
+                              options_for_select( [ [ "(Select ordering)",              "" ],
+                                                    [ "ZYX a.k.a. 'transverse'",        "transverse" ],
+                                                    [ "XZY a.k.a. 'sagittal'",          "sagittal" ],
+                                                    [ "YZX a.k.a 'coronal'",            "coronal" ],
+                                                    [ "XYZ",                            "xyz" ],
+                                                    [ "YXZ",                            "yxz" ],
+                                                    [ "ZXY",                            "zxy" ],
+                                                    [ "'default': let the program choose!", "default" ]
+                                                  ], params[:space_ordering] ) %>
+
+<BR>
+Flip the direction of certain dimensions:<BR>
+<UL>
+  <LI>Flip X? <%= form.params_check_box :flipx %></LI>
+  <LI>Flip Y? <%= form.params_check_box :flipy %></LI>
+  <LI>Flip Z? <%= form.params_check_box :flipz %></LI>
+</UL>
+

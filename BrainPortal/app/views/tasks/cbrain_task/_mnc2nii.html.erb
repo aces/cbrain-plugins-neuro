@@ -9,12 +9,24 @@
                Output voxel data type:
             </td>
             <td>
-               <select name="<%= :data_type.to_la %>">
-                 <%= options_for_select(
-                   [ "byte", "short", "int", "float", "double", "signed", "unsigned", "default" ],
-                   params[:data_type])
-                 %>
-                 </select>
+               <select name="<%= :voxel_type.to_la %>">
+                          <%= options_for_select( [ [ "(Select data type)",              "" ],
+                                                    [ "'byte': 8-bit integer",           "byte" ],
+                                                    [ "'word': 16-bit integer",          "word" ],
+                                                    [ "'int': 32-bit integer",           "int" ],
+                                                    [ "'float': 32-bit floating point",  "float" ],
+                                                    [ "'double': 64-bit floating point", "double" ],
+                                                    [ "'default': let the program choose!", "default" ]
+                                                  ], params[:voxel_type]) %>
+               </select>
+               For <strong>integer</strong> voxel data types, use
+               <select name="<%= :voxel_int_signity.to_la %>">
+                          <%= options_for_select( [ [ "(Select sign)",                "" ],
+                                                    [ "signed integers",              "signed" ],
+                                                    [ "unsigned integers",            "unsigned" ],
+                                                    [ "let the program choose!",      "default" ]
+                                                  ], params[:voxel_int_signity] ) %>
+               </select>
             </td>
          </tr>
          <tr>

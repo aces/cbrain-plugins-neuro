@@ -16,16 +16,22 @@ class CbrainTask::Mnc2nii < CbrainTask::PortalTask
 
   def self.default_launch_args #:nodoc:
     {
-      :data_type   => 'default',
-      :file_format => 'nii'
+      :voxel_type          => "",    # byte, short, int, float, double, default
+      :voxel_int_signity   => "",    # signed, unsigned, default
+      :file_format         => 'nii'
     }
   end
 
+  def after_form
+    params = self.params
+    cb_error "Missing voxel type"     if params[:voxel_type].blank?
+    cb_error "Missing voxel int sign" if params[:voxel_int_signity].blank? && params[:voxel_type] =~ /^(short|word|int)$/
+    ""
+  end
+
   def final_task_list #:nodoc:
-    params      = self.params
-    file_ids    = params[:interface_userfile_ids]
-    data_type   = params[:data_type]
-    file_format = params[:file_format]
+    params             = self.params
+    file_ids           = params[:interface_userfile_ids]
      
     task_list = []
     file_ids.each do |id|
