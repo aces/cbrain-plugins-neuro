@@ -9,8 +9,8 @@
 # $Id$
 #
 
-#A subclass of CbrainTask::PortalTask to launch dcm2mnc.
-class CbrainTask::Dcm2mnc < CbrainTask::PortalTask
+#A subclass of PortalTask to launch dcm2mnc.
+class CbrainTask::Dcm2mnc < PortalTask
 
   Revision_info="$Id$"
 

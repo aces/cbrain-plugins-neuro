@@ -1,6 +1,6 @@
 
-#A subclass of CbrainTask::PortalTask to launch civet.
-class CbrainTask::Civet < CbrainTask::PortalTask
+#A subclass of PortalTask to launch civet.
+class CbrainTask::Civet < PortalTask
 
   Revision_info="$Id$"
 

@@ -10,7 +10,7 @@
 #
 
 # A subclass of CbrainTask to launch Nii2mnc.
-class CbrainTask::Nii2mnc < CbrainTask::PortalTask
+class CbrainTask::Nii2mnc < PortalTask
 
   Revision_info="$Id$"
 

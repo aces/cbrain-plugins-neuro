@@ -9,8 +9,8 @@
 # $Id$
 #
 
-# A subclass of CbrainTask::PortalTask to launch civet_qc.
-class CbrainTask::CivetQc < CbrainTask::PortalTask
+# A subclass of PortalTask to launch civet_qc.
+class CbrainTask::CivetQc < PortalTask
 
   Revision_info="$Id$"
 

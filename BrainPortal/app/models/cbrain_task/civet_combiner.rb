@@ -9,8 +9,8 @@
 # $Id$
 #
 
-#A subclass of CbrainTask::PortalTask to launch civet_combiner.
-class CbrainTask::CivetCombiner < CbrainTask::PortalTask
+#A subclass of PortalTask to launch civet_combiner.
+class CbrainTask::CivetCombiner < PortalTask
 
   Revision_info="$Id$"
 
