@@ -40,7 +40,7 @@ class CivetCollection < FileCollection
       return { :text  => doc.to_html}
 
     else
-      {:partial => 'file_collection', :locals  => {:subject  => self.list_files}}
+      super
     end
   end
 

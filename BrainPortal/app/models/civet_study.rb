@@ -38,7 +38,6 @@ class CivetStudy < FileCollection
     else
       return super
     end
-    return nil
   end
  
   def pretty_type
