@@ -1,3 +1,4 @@
+
 Thickness File: 
 <select name="thickness" class="thickness">
   <%= options_for_select   @userfile.list_files("thickness").map(&:name).reject { |n| n =~ /\.dat$/ } %>

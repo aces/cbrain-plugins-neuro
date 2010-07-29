@@ -1,12 +1,9 @@
+
 <% title 'CivetCombiner Parameters' %>
 
 <strong>Name of the combined Study:</strong><BR>
 <%= text_field_tag :civet_study_name.to_la, params[:civet_study_name] %>
 <br>
-
-<div class = "help_button_tools">
-    <a class = "overlay_link" data-url = "/doc/tasks/civet_combiner_options.html">Help</a>
-</div>
 
 <table>
   <tr>
@@ -26,3 +23,4 @@
 
 After the Study is successfully created, <strong>destroy permanently</strong>
 the CivetCollections used? <%= check_box_tag( :destroy_sources.to_la, 'YeS') %>
+
