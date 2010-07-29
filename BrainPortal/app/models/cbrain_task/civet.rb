@@ -332,6 +332,7 @@ class CbrainTask::Civet < PortalTask
     combiner.bourreau_id      = self.bourreau_id
     combiner.description      = study_name
     combiner.status           = 'New'
+    combiner.group_id         = self.group_id
     combiner.params = {
       :civet_study_name     => study_name,
       :civet_from_task_ids  => tids.join(","),
@@ -355,6 +356,7 @@ class CbrainTask::Civet < PortalTask
     qc.bourreau_id = self.bourreau_id
     qc.description = params[:study_name]
     qc.status      = 'New'
+    qc.group_id    = self.group_id
     qc.params      = { :study_from_task_id => cid }
     qc.add_prerequisites_for_setup(cid)
 
