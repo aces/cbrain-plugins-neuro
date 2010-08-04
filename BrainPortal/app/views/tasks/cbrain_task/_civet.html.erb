@@ -3,264 +3,269 @@
 
 <%= form.params_hidden_field :collection_id %> <!-- can be nil -->
 
-         <big>Command options:</big><BR>
+<big>Command options:</big><BR>
 
-         <table class="simple">
-            <tr>
-               <th>Pipeline Control Options</th>
-               <th>Civet Options</th>
-            <tr>
-            <tr class="list-even">
-            <td>
-               <table class="simple">
-               <tr>
-                  <td>
-                     Make graph:
-                  </td>
-                  <td>
-                    <span title="Create a dot graph file"><%= form.params_check_box :make_graph %>     
-                  </td>
-               </tr>
-               <tr>
-                  <td>
-                      Make filename graph:  
-                  </td>
-                  <td>
-                      <span title="Create dot graph of filenames"><%= form.params_check_box :make_filename_graph %>    
-                  </td>
-               </tr>
-               <tr>
-                  <td>
-                      Print status report:
-                  </td>
-                  <td>
-                      <span title="Print the status of each pipeline"><%= form.params_check_box :print_status_report %>    
-                  </td>
-               </tr>
-               </table>      
-            </td>
-            <td rowspan="3">
-               <table class="simple">
-                  <tr>
-                     <td>
-                        Interpolation:
-                     </td>
-                     <td>
-                        <span title="Interpolation method from native to stereotaxic space (trilinear, tricubic, sinc) default trilinear">
-                        <select name="<%= :interp.to_la %>">
-                          <%= options_for_select(
-                            [ "trilinear", "tricubic", "sinc" ],
-                            params[:interp])
-                          %>
-                        </select>
-                     </td>
-                  </tr>
-                  <tr>
-                     <td>
-                        N3 distance:
-                     </td>
-                     <td>
-                        <span title="N3 spline distance in mm (suggested values: 200 for 1.5T scan; 25 for 3T scan) default: 200">
-                        <%= form.params_text_field :N3_distance, :size => 4 %>
-                     </td>
-                  </tr>
-                  <tr>
-                     <td>
-                        Number of parameters transformation for linear registration:
-                     </td>
-                     <td>
-                        <select name="<%= :lsq.to_la %>">
-                          <%= options_for_select(
-                            [ "6", "9", "12" ],
-                            params[:lsq])
-                          %>
-                          </select>
-                     </td>
-                  </tr>
-                  <tr>
-                     <td>
-                        Do NOT build surfaces:
-                     </td>
-                     <td>
-                         <%= form.params_check_box :no_surfaces %>
-                     </td>
-                  </tr>
-                  <tr>
-                     <td>
-                        Thickness method and kernel size:       
-                     </td>
-                     <td>
-                        <select name="<%= :thickness_method.to_la %>">
-                          <%= options_for_select(
-                            [ "tnormal", "tlink", "tlaplace", "tnear" ],
-                            params[:thickness_method])
-                          %>
-                          </select>
-                          <%= form.params_text_field :thickness_kernel, :size => 4 %>
-                     </td>
-                  </tr>
-                  <tr>
-                     <td>
-                        Resample surfaces:
-                     </td>
-                     <td>
-                        <span title="Resample cortical surfaces">
-                        <%= form.params_check_box :resample_surfaces %>
-                     </td>
-                  </tr>
-                  <tr>
-                     <td>
-                        Combine surfaces:
-                     </td>
-                     <td>
-                        <span title="Combine left and right cortical surfaces">
-                        <%= form.params_check_box :combine_surfaces %>
-                     </td>
-                  </tr>
-                </table>
-            </td>
-            </tr>
+<table class="simple">
+  <tr>
+     <th>Pipeline Control Options</th>
+     <th>Civet Options</th>
+  <tr>
+  <tr class="list-even">
+  <td>
+     <table class="simple">
+     <tr>
+        <td>
+           Make graph:
+        </td>
+        <td>
+          <span title="Create a dot graph file"><%= form.params_check_box :make_graph %>     
+        </td>
+     </tr>
+     <tr>
+        <td>
+            Make filename graph:  
+        </td>
+        <td>
+            <span title="Create dot graph of filenames"><%= form.params_check_box :make_filename_graph %>    
+        </td>
+     </tr>
+     <tr>
+        <td>
+            Print status report:
+        </td>
+        <td>
+            <span title="Print the status of each pipeline"><%= form.params_check_box :print_status_report %>    
+        </td>
+     </tr>
+     </table>      
+  </td>
+  <td rowspan="3">
+     <table class="simple">
+        <tr>
+           <td>
+              Interpolation:
+           </td>
+           <td>
+              <span title="Interpolation method from native to stereotaxic space (trilinear, tricubic, sinc) default trilinear">
+              <select name="<%= :interp.to_la %>">
+                <%= options_for_select(
+                  [ "trilinear", "tricubic", "sinc" ],
+                  params[:interp])
+                %>
+              </select>
+           </td>
+        </tr>
+        <tr>
+           <td>
+              N3 distance:
+           </td>
+           <td>
+              <span title="N3 spline distance in mm (suggested values: 200 for 1.5T scan; 25 for 3T scan) default: 200">
+              <%= form.params_text_field :N3_distance, :size => 4 %>
+           </td>
+        </tr>
+        <tr>
+           <td>
+              Number of parameters transformation for linear registration:
+           </td>
+           <td>
+              <select name="<%= :lsq.to_la %>">
+                <%= options_for_select(
+                  [ "6", "9", "12" ],
+                  params[:lsq])
+                %>
+                </select>
+           </td>
+        </tr>
+        <tr>
+           <td>
+              Do NOT build surfaces:
+           </td>
+           <td>
+               <%= form.params_check_box :no_surfaces %>
+           </td>
+        </tr>
+        <tr>
+           <td>
+              Thickness method and kernel size:       
+           </td>
+           <td>
+              <select name="<%= :thickness_method.to_la %>">
+                <%= options_for_select(
+                  [ "tnormal", "tlink", "tlaplace", "tnear" ],
+                  params[:thickness_method])
+                %>
+                </select>
+                <%= form.params_text_field :thickness_kernel, :size => 4 %>
+           </td>
+        </tr>
+        <tr>
+           <td>
+              Resample surfaces:
+           </td>
+           <td>
+              <span title="Resample cortical surfaces">
+              <%= form.params_check_box :resample_surfaces %>
+           </td>
+        </tr>
+        <tr>
+           <td>
+              Combine surfaces:
+           </td>
+           <td>
+              <span title="Combine left and right cortical surfaces">
+              <%= form.params_check_box :combine_surfaces %>
+           </td>
+        </tr>
+      </table>
+  </td>
+  </tr>
 
-            <tr>
-               <th>Pipeline Options</th>
-            </tr>
-            <tr class="list-even">
-            <td>
-               <table class="simple">
-                  <tr>
-                     <td>
-                        Template:
-                     </td>
-                     <td>
-                        <span title="Define the template for image processing">
-                        <select name="<%= :template.to_la %>">
-                          <%= options_for_select(
-                            [ "0.50", "0.75", "1.00", "1.50", "2.00", "3.00", "4.00", "6.00" ],
-                            params[:template])
-                          %>
-                          </select>
-                     </td>
-                  </tr>
-                  <tr>
-                     <td>
-                        Model:
-                     </td>
-                     <td>
-                        <span title="Define the model for image-processing">
-                        <select name="<%= :model.to_la %>">
-                          <%= options_for_select(
-                            [ "icbm152lin", "icbm152nl" ],
-                            params[:model])
-                          %>
-                          </select>
-                     </td>
-                  </tr>
-                </table>
-            </td>
-            </tr>
-
-
-            <tr>
-               <th COLSPAN="1">VBM Options</th>
-               <th>(this space for rent)</th>
-            </tr>
-
-            <tr class="list-even">
-            <td COLSPAN="1">
-               <table class="simple">
-                  <tr>
-                     <td>
-                        Process VBM files:
-                     </td>
-                     <td>
-                        <%= form.params_check_box :VBM %>
-                     </td>
-                  </tr>
-                  <tr>
-                     <td>
-                        Blurring kernel size in mm for volume:
-                     </td>
-                     <td>
-                        <%= form.params_text_field :VBM_fwhm, :size => 4 %>
-                     </td>
-                  </tr>
-                  <tr>
-                     <td>
-                        Run symmetry tools:
-                     </td>
-                     <td>
-                        <%= form.params_check_box :VBM_symmetry %>
-                     </td>
-                  </tr>
-                  <tr>
-                     <td>
-                        Keep cerebellum in VBM maps:
-                     </td>
-                     <td>
-                        <%= form.params_check_box :VBM_cerebellum %>
-                     </td>
-                  </tr>
-               </table>
-            </td>
-            <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(See your ad here!)</td>
-            </tr>
-
-         </table>
+  <tr>
+     <th>Pipeline Options</th>
+  </tr>
+  <tr class="list-even">
+  <td>
+     <table class="simple">
+        <tr>
+           <td>
+              Template:
+           </td>
+           <td>
+              <span title="Define the template for image processing">
+              <select name="<%= :template.to_la %>">
+                <%= options_for_select(
+                  [ "0.50", "0.75", "1.00", "1.50", "2.00", "3.00", "4.00", "6.00" ],
+                  params[:template])
+                %>
+                </select>
+           </td>
+        </tr>
+        <tr>
+           <td>
+              Model:
+           </td>
+           <td>
+              <span title="Define the model for image-processing">
+              <select name="<%= :model.to_la %>">
+                <%= options_for_select(
+                  [ "icbm152lin", "icbm152nl" ],
+                  params[:model])
+                %>
+                </select>
+           </td>
+        </tr>
+      </table>
+  </td>
+  </tr>
 
 
+  <tr>
+     <th COLSPAN="1">VBM Options</th>
+     <th>(this space for rent)</th>
+  </tr>
 
+  <tr class="list-even">
+  <td COLSPAN="1">
+     <table class="simple">
+        <tr>
+           <td>
+              Process VBM files:
+           </td>
+           <td>
+              <%= form.params_check_box :VBM %>
+           </td>
+        </tr>
+        <tr>
+           <td>
+              Blurring kernel size in mm for volume:
+           </td>
+           <td>
+              <%= form.params_text_field :VBM_fwhm, :size => 4 %>
+           </td>
+        </tr>
+        <tr>
+           <td>
+              Run symmetry tools:
+           </td>
+           <td>
+              <%= form.params_check_box :VBM_symmetry %>
+           </td>
+        </tr>
+        <tr>
+           <td>
+              Keep cerebellum in VBM maps:
+           </td>
+           <td>
+              <%= form.params_check_box :VBM_cerebellum %>
+           </td>
+        </tr>
+     </table>
+  </td>
+  <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(See your ad here!)</td>
+  </tr>
 
-         <hr>
-
-         <% if ! params[:collection_id].blank? %>
-           <big>MINC file input list for collection <em><%= Userfile.find(params[:collection_id]).name %></em></big>
-         <% else %>
-           <big>MINC file input list</big>
-         <% end %>
-
-         <br>
-
-         <table>
-            <tr>
-              <th>Launch CIVET?</th>
-              <th>T1 name</th>
-              <th>Prefix</th>
-              <th>Subject ID</th>
-              <th>T2 found?</th>
-              <th>PD found?</th>
-              <th>Mask found?</th>
-              <th>Use multispectral?</th>
-              <th>Use mask?</th>
-            </tr>
-            <% params[:file_args].each do |idx,file| %>
-               <% if ! params[:collection_id].blank? %>
-                 <%= render :partial => 'tasks/cbrain_task/civet_file_from_col',  :locals  => {:file  => file, :idx => idx, :disabled => !@task.new_record? } %>
-               <% else %>
-                 <%= render :partial => 'tasks/cbrain_task/civet_file_from_list', :locals  => {:file  => file, :idx => idx, :disabled => !@task.new_record? } %>
-               <% end %>
-            <% end %>
-         </table>
-
-
-
-         <% if @task.new_record? %>
-
-         <hr>
-
-         <BIG>Optional post-Civet operations</BIG><P>
-
-         Combine CIVET results into a CivetStudy named: <%= form.params_text_field :study_name %> then <%= form.params_check_box :qc_study %> launch Claude's QC script on that CivetStudy.<br>
-
-         <% end %>
+</table>
 
 
 
 
-         <% if current_user.has_role?(:admin) %>
-           <hr>
-           <BIG>Fake run:</BIG><P>
-           Enter the numeric ID of a pre-existing CivetCollection to use it as 'pretend' output:
-           <%= form.params_text_field :fake_run_civetcollection_id %>
-           <P>
-         <% end %>
+<hr>
+
+<% if ! params[:collection_id].blank? %>
+ <big>MINC file input list for collection <em><%= Userfile.find(params[:collection_id]).name %></em></big>
+<% else %>
+ <big>MINC file input list</big>
+<% end %>
+
+<br>
+
+<table>
+  <tr>
+    <th>Launch CIVET?</th>
+    <th>T1 name</th>
+    <th>Prefix</th>
+    <th>Subject ID</th>
+    <th>T2 found?</th>
+    <th>PD found?</th>
+    <th>Mask found?</th>
+    <th>Use multispectral?</th>
+    <th>Use mask?</th>
+  </tr>
+  <% 
+    keys = params[:file_args].keys
+    keys = keys.sort_by{ |k| params[:file_args][k][:t1_name] || ""}
+   %>
+  <% keys.each do |idx| %>
+    <% file = params[:file_args][idx] %>
+     <% if ! params[:collection_id].blank? %>
+       <%= render :partial => 'tasks/cbrain_task/civet_file_from_col',  :locals  => {:file  => file, :idx => idx, :disabled => !@task.new_record? } %>
+     <% else %>
+       <%= render :partial => 'tasks/cbrain_task/civet_file_from_list', :locals  => {:file  => file, :idx => idx, :disabled => !@task.new_record? } %>
+     <% end %>
+  <% end %>
+</table>
+
+
+
+<% if @task.new_record? %>
+
+<hr>
+
+<BIG>Optional post-Civet operations</BIG><P>
+
+Combine CIVET results into a CivetStudy named: <%= form.params_text_field :study_name %> then <%= form.params_check_box :qc_study %> launch Claude's QC script on that CivetStudy.<br>
+
+<% end %>
+
+
+
+
+<% if current_user.has_role?(:admin) %>
+ <hr>
+ <BIG>Fake run:</BIG><P>
+ Enter the numeric ID of a pre-existing CivetCollection to use it as 'pretend' output:
+ <%= form.params_text_field :fake_run_civetcollection_id %>
+ <P>
+<% end %>
 
