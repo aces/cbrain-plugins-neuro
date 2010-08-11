@@ -11,55 +11,53 @@
   <tr class="list-even">
   <td>
      <table class="simple">
-     <tr>
+     <tr title="Create a dot graph file">
         <td>
            Make graph:
         </td>
         <td>
-          <span title="Create a dot graph file"><%= form.params_check_box :make_graph %>     
+          <%= form.params_check_box :make_graph %>
         </td>
      </tr>
-     <tr>
+     <tr title="Create dot graph of filenames">
         <td>
             Make filename graph:  
         </td>
         <td>
-            <span title="Create dot graph of filenames"><%= form.params_check_box :make_filename_graph %>    
+            <%= form.params_check_box :make_filename_graph %>  
         </td>
      </tr>
-     <tr>
+     <tr title="Print the status of each pipeline">
         <td>
             Print status report:
         </td>
         <td>
-            <span title="Print the status of each pipeline"><%= form.params_check_box :print_status_report %>    
+          <%= form.params_check_box :print_status_report %> 
         </td>
      </tr>
      </table>      
   </td>
   <td rowspan="3">
      <table class="simple">
-        <tr>
+        <tr title="Interpolation method from native to stereotaxic space (trilinear, tricubic, sinc) default trilinear">
            <td>
               Interpolation:
            </td>
            <td>
-              <span title="Interpolation method from native to stereotaxic space (trilinear, tricubic, sinc) default trilinear">
-              <select name="<%= :interp.to_la %>">
-                <%= options_for_select(
-                  [ "trilinear", "tricubic", "sinc" ],
-                  params[:interp])
-                %>
-              </select>
+             <select name="<%= :interp.to_la %>">
+               <%= options_for_select(
+                 [ "trilinear", "tricubic", "sinc" ],
+                 params[:interp])
+               %>
+             </select>
            </td>
         </tr>
-        <tr>
+        <tr title="N3 spline distance in mm (suggested values: 200 for 1.5T scan; 25 for 3T scan) default: 200">
            <td>
               N3 distance:
            </td>
            <td>
-              <span title="N3 spline distance in mm (suggested values: 200 for 1.5T scan; 25 for 3T scan) default: 200">
-              <%= form.params_text_field :N3_distance, :size => 4 %>
+             <%= form.params_text_field :N3_distance, :size => 4 %>
            </td>
         </tr>
         <tr>
@@ -97,21 +95,19 @@
                 <%= form.params_text_field :thickness_kernel, :size => 4 %>
            </td>
         </tr>
-        <tr>
+        <tr title="Resample cortical surfaces">
            <td>
               Resample surfaces:
            </td>
            <td>
-              <span title="Resample cortical surfaces">
-              <%= form.params_check_box :resample_surfaces %>
+             <%= form.params_check_box :resample_surfaces %>
            </td>
         </tr>
-        <tr>
+        <tr title="Combine left and right cortical surfaces">
            <td>
               Combine surfaces:
            </td>
            <td>
-              <span title="Combine left and right cortical surfaces">
               <%= form.params_check_box :combine_surfaces %>
            </td>
         </tr>
@@ -125,12 +121,11 @@
   <tr class="list-even">
   <td>
      <table class="simple">
-        <tr>
+        <tr title="Define the template for image processing">
            <td>
               Template:
            </td>
            <td>
-              <span title="Define the template for image processing">
               <select name="<%= :template.to_la %>">
                 <%= options_for_select(
                   [ "0.50", "0.75", "1.00", "1.50", "2.00", "3.00", "4.00", "6.00" ],
@@ -139,18 +134,17 @@
                 </select>
            </td>
         </tr>
-        <tr>
+        <tr title="Define the model for image-processing">
            <td>
               Model:
            </td>
            <td>
-              <span title="Define the model for image-processing">
               <select name="<%= :model.to_la %>">
                 <%= options_for_select(
                   [ "icbm152lin", "icbm152nl" ],
                   params[:model])
                 %>
-                </select>
+              </select>
            </td>
         </tr>
       </table>
