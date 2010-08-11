@@ -2,4 +2,5 @@
 <%= render :partial => 'utility_interface_file_list',
            :locals  => { :toolname => 'Dcm2Minc', :params_var => :dicom_colid }
 %>
-
+Use Coordinates:
+<%= check_box_tag( :use_coordinates.to_la, '1', params[:use_coordinates]) %>
