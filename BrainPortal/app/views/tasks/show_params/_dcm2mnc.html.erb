@@ -3,6 +3,8 @@
 <P>
 DICOM collection: <%= link_to_userfile_if_accessible params[:dicom_colid] %>
 <P>
+Use coordinates? <%= params[:use_coordinates].blank? ? "No" : "Yes" %>
+<P>
 <STRONG>Outputs:</STRONG>
 <P>
 <UL>
