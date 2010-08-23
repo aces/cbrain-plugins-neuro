@@ -11,7 +11,7 @@
 <P>
 
 Voxel type: <%= h(params[:voxel_type]) %>
-<% if params[:voxel_type] =~ /short|word|int/ %>
+<% if params[:voxel_type] =~ /byte|short|int/ %>
 <%= h(params[:voxel_int_signity]) %>
 <% end %>
 <P>

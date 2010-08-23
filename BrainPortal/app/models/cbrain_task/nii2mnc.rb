@@ -40,7 +40,7 @@ class CbrainTask::Nii2mnc < PortalTask
     params = self.params
     cb_error "Missing voxel type"     if params[:voxel_type].blank?
     cb_error "Missing space ordering" if params[:space_ordering].blank?
-    cb_error "Missing voxel int sign" if params[:voxel_int_signity].blank? && params[:voxel_type] =~ /^(short|word|int)$/
+    cb_error "Missing voxel int sign" if params[:voxel_int_signity].blank? && params[:voxel_type] =~ /^(byte|short|int)$/
     ""
   end
 
