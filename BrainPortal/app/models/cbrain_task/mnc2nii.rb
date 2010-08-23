@@ -25,7 +25,7 @@ class CbrainTask::Mnc2nii < PortalTask
   def after_form
     params = self.params
     cb_error "Missing voxel type"     if params[:voxel_type].blank?
-    cb_error "Missing voxel int sign" if params[:voxel_int_signity].blank? && params[:voxel_type] =~ /^(short|word|int)$/
+    cb_error "Missing voxel int sign" if params[:voxel_int_signity].blank? && params[:voxel_type] =~ /^(byte|short|int)$/
     ""
   end
 
