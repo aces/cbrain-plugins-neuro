@@ -1,15 +1,12 @@
 <h1>CIVET Directories Decrypted</h1>
 <br>
-<b>Some Basic Naming Conventions</b>
+A CIVET processing job typically requires two names (or identifiers) to be optionally specified before the job starts, the default naming conventions are shown below.
 <ul>
-    <li>/[{id}]/{prefix}_{id}_t1.mnc</li>
-    <li>/[{id}]/{prefix}_{id}_mask.mnc</li>
+    <li>{prefix}_{dsid}_t1.mnc</li>
     <ul>
-        <li>where mask is a user-defined brain mask in native space (new in CIVET 1.1.9)</li>
         <li>t1 could be replaced by t2 or pd</li>
-        <li>id is the subject id</li>
-        <li>prefix is the name of the study</li>
-        <li>the /[{id}]/ directory is optional</li>
+        <li>dsid is the unique subject name</li>
+        <li>prefix is the name of the study itself</li>
     </ul>
 </ul>
 <br>
