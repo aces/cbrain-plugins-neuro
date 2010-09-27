@@ -23,6 +23,7 @@ class CbrainTask::Nii2mnc < PortalTask
     :flipx               => 0,     # -flipx
     :flipy               => 0,     # -flipy
     :flipz               => 0,     # -flipz
+    :rectify_cosines     => 0,     # run minc_modify_header -dinsert xspace:direction_cosines=1,0,0 (y and z too)
     }
   end
   

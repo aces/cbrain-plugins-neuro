@@ -24,6 +24,8 @@ Space ordering: <%= h(params[:space_ordering]) %>
 <% if flipped.size > 0 %>
 with flipped <%= flipped.join(", ") %> direction(s).
 <% end %>
+<P>
+Cosines rectified with <em>minc_modify_header</em>: <%= params[:rectify_cosines] == "1" ? "Yes" : "No" %>
 
 <P>
 
