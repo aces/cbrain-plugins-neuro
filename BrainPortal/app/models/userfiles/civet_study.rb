@@ -18,11 +18,15 @@
 class CivetStudy < FileCollection
 
   Revision_info="$Id$"
-
+  
+  def viewers  #:nodoc
+    [:civet_study, :file_collection]
+  end
+  
   def content(options)
 
     if options[:study_subject]
-      return {:partial  => "file_collection_civet_file_list", :locals  => { :subject  => self.get_full_subdir_listing(options[:study_subject]) }}
+      return {:partial  => "userfiles/viewers/file_collection_civet_file_list", :locals  => { :subject  => self.get_full_subdir_listing(options[:study_subject]) }}
 
     elsif options[:qc_file]
       if options[:qc_file] == "base"

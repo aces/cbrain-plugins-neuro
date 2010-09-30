@@ -17,6 +17,10 @@
 class CivetCollection < FileCollection
   Revision_info="$Id$"
   
+  def viewers  #:nodoc
+    [:civet_collection, :file_collection]
+  end
+  
   def content(options) #:nodoc
     if options[:thickness] == "list"
       {:json => self.list_files("thickness").map(&:name).to_json}
