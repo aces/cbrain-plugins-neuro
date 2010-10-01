@@ -18,7 +18,7 @@ class CivetCollection < FileCollection
   Revision_info="$Id$"
   
   def viewers  #:nodoc
-    [:civet_collection, :file_collection]
+    [:civet_collection, :file_collection ]
   end
   
   def content(options) #:nodoc

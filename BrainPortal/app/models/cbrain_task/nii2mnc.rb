@@ -27,7 +27,7 @@ class CbrainTask::Nii2mnc < PortalTask
     }
   end
   
-  def before_form
+  def before_form #:nodoc:
     params = self.params
     ids    = params[:interface_userfile_ids]
     ids.each do |id|
@@ -37,7 +37,7 @@ class CbrainTask::Nii2mnc < PortalTask
     ""
   end
 
-  def after_form
+  def after_form #:nodoc:
     params = self.params
     cb_error "Missing voxel type"     if params[:voxel_type].blank?
     cb_error "Missing space ordering" if params[:space_ordering].blank?
@@ -45,7 +45,7 @@ class CbrainTask::Nii2mnc < PortalTask
     ""
   end
 
-  def final_task_list
+  def final_task_list #:nodoc:
     params = self.params
     ids    = params[:interface_userfile_ids] || []
 
@@ -60,7 +60,7 @@ class CbrainTask::Nii2mnc < PortalTask
     task_list
   end
 
-  def untouchable_params_attributes
+  def untouchable_params_attributes #:nodoc:
     { :output_mincfile_id => true, :mincbase => true }
   end
 
