@@ -9,7 +9,7 @@
       <div id="userfile_contents_display" class="loading_message">
       
         <strong>QC</strong><br><br>
-        <% ajax_element(url_for(:action  => :content, :qc_file  => "base")) do %>
+        <% ajax_element(url_for(:action  => :display, :viewer => "civet_study/qc_file", :qc_file  => "base")) do %>
           <span class="loading_message">Loading...</span>
         <% end %>
         <br>

@@ -17,30 +17,12 @@
 class CivetCollection < FileCollection
   Revision_info="$Id$"
   
-  has_viewer :name => "Civet Collection", :partial => "civet_collection"
+  has_viewer :civet_collection
       
   def content(options) #:nodoc
-    if options[:thickness] == "list"
-      {:json => self.list_files("thickness").map(&:name).to_json}
-    elsif options[:viewer] == "true"
-      {:partial => "userfiles/content/civet_collection_viewer", :locals => {:userfile => self}}
-    elsif options[:collection_file]
+    if options[:collection_file]
       path = self.cache_full_path.parent + options[:collection_file]
-     
       {:sendfile => path}
-      
-    elsif options[:qc_file]
-      if options[:qc_file] == "base"
-        qc_file = @userfile.list_files("QC", :file).find{ |qc| qc.name =~ /\.html$/ && !@userfile.subject_ids.include?(Pathname.new(qc.name).basename.to_s.sub(/\.html$/, "")) }.name
-      else
-        qc_file = @userfile.name + "/QC/" + options[:qc_file]
-      end
-      doc = Nokogiri::HTML.fragment(File.read(@userfile.cache_full_path.parent + qc_file))
-      doc.search("a").each {|link| link['href'] = "/userfiles/#{@userfile.id}/content?qc_file=#{link['href']}" }
-      doc.search("img").each {|img| img['src'] = "/userfiles/#{@userfile.id}/content?collection_file=#{@userfile.list_files.map(&:name).find{ |file| file =~ /#{img['src'].sub(/^\.+\//, "")}$/ }}" }
-      doc.search("image").each {|img| img['src'] = "/userfiles/#{@userfile.id}/content?collection_file=#{@userfile.list_files.map(&:name).find{ |file| file =~ /#{img['src'].sub(/^\.+\//, "")}$/ }}" }
-      return { :text  => doc.to_html}
-
     else
       super
     end
