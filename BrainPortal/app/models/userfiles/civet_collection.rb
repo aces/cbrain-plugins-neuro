@@ -82,11 +82,5 @@ class CivetCollection < FileCollection
   def list_verify
     @verify_list ||= get_full_subdir_listing('verify')
   end
-  
-  # Returns a simple keyword identifying the type of
-  # the userfile; used mostly by the index view.
-  def pretty_type
-    "(Civet)"
-  end
 
 end

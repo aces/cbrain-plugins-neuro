@@ -20,10 +20,6 @@ class CivetStudy < FileCollection
   Revision_info="$Id$"
   
   has_viewer :civet_study
- 
-  def pretty_type
-    "(Study)"
-  end
   
   #Returns a list of the ids of the subjects contained in this study.
   def subject_ids

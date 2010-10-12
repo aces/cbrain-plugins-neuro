@@ -18,8 +18,4 @@ class MincFile < SingleFile
     "MINC"
   end
   
-  def pretty_type
-    "(Minc)"
-  end
-  
 end
