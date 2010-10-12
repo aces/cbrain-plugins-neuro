@@ -18,4 +18,8 @@ class MincFile < SingleFile
     "MINC"
   end
   
+  def self.file_name_pattern
+    /\.mi?nc(\.gz|\.Z|\.gz2)?$/i
+  end
+  
 end
