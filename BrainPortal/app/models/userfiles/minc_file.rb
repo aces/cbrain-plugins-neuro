@@ -12,7 +12,7 @@ class MincFile < SingleFile
 
   Revision_info="$Id$"
   
-  has_viewer :name  => "Jiv Viewer", :partial  => "jiv_file", :if  => Proc.new{ |u| u.has_format?(:jiv) && u.get_format(:jiv).is_locally_synced? }
+  has_viewer :partial  => "jiv_file", :if  => Proc.new{ |u| u.has_format?(:jiv) && u.get_format(:jiv).is_locally_synced? }
   
   def format_name
     "MINC"
