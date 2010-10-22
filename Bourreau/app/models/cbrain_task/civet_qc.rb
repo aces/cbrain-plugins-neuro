@@ -93,6 +93,10 @@ class CbrainTask::CivetQc < ClusterTask
     true
   end
 
+  def job_walltime_estimate #:nodoc:
+    2.hours
+  end
+
   def cluster_commands #:nodoc:
     params       = self.params
 
