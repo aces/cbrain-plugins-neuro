@@ -35,6 +35,21 @@
           <%= form.params_check_box :print_status_report %> 
         </td>
      </tr>
+     <% if ! @task.new_record? %>
+     <tr title="Stage to restart from">
+        <td>
+            Restart from this stage:
+        </td>
+        <td>
+          <select name="<%= :reset_from.to_la %>">
+            <%= options_for_select(
+              [ "" ] + CbrainTask::Civet::StagesNames,
+              params[:reset_from])
+            %>
+          </select>
+        </td>
+     </tr>
+     <% end %>
      </table>      
   </td>
   <td rowspan="3">

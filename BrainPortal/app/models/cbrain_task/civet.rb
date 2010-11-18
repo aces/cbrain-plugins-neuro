@@ -4,6 +4,63 @@ class CbrainTask::Civet < PortalTask
 
   Revision_info="$Id$"
 
+  StagesNames = %w(
+    nuc_t1_native
+    skull_masking_native
+    stx_register
+    stx_tal_to_7
+    stx_tal_to_6
+    tal_t1
+    nuc_inorm_t1
+    skull_removal
+    nlfit
+    mask_classify
+    pve_curvature
+    pve
+    reclassify
+    cls_volumes
+    cortical_masking
+    surface_classify
+    artefact
+    create_wm_hemispheres
+    extract_white_surface_left
+    extract_white_surface_right
+    flip_right_hemi_obj_back
+    slide_left_hemi_obj_back
+    slide_right_hemi_obj_back
+    calibrate_left_white
+    calibrate_right_white
+    laplace_field
+    gray_surface_left
+    gray_surface_right
+    mid_surface_left
+    mid_surface_right
+    gyrification_index_left_gray
+    dataterm_left_surface
+    dataterm_right_surface
+    gyrification_index_right_gray
+    cerebral_volume
+    surface_fit_error
+    gyrification_index_left_white
+    surface_registration_left
+    verify_image_nlfit
+    surface_registration_right
+    verify_brain_mask
+    classify_qc
+    gyrification_index_right_white
+    brain_mask_qc
+    gyrification_index_left_mid
+    thickness_tlink_20mm_right
+    thickness_tlink_20mm_left
+    gyrification_index_right_mid
+    verify_image
+    resample_right_thickness
+    resample_left_thickness
+    lobe_thickness_right
+    lobe_thickness_left
+    verify_clasp
+  )
+
   # Returns the scientific parameters common to all the CIVET
   # jobs we're about to launch
   def self.default_launch_args #:nodoc:
@@ -13,6 +70,7 @@ class CbrainTask::Civet < PortalTask
       :make_graph          => false,       # -make-graph for true
       :make_filename_graph => false,       # -make-filename-graph for true
       :print_status_report => false,       # -print-status-report for true
+      :reset_from          => "",          # -reset-from
 
       :template            => '1.00',      # -template
       :model               => 'icbm152nl', # -model
