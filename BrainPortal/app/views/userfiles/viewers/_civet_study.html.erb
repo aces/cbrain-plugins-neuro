@@ -6,7 +6,7 @@
   <% if @userfile.list_files(".", :directory).find{ |dir| dir.name[-3, 3] == "/QC" }%>
     <%= overlay_ajax_link "Civet QC Legend", "/doc/userfiles/civetqc_results.html" %>
     
-      <div id="userfile_contents_display" class="loading_message">
+      <div id="userfile_contents_display" class="centered">
       
         <strong>QC</strong><br><br>
         <% ajax_element(url_for(:action  => :display, :viewer => "civet_study/qc_file", :qc_file  => "base")) do %>
@@ -19,4 +19,9 @@
   <% end %>
 <% end %>
 
+<P>
+
+<strong>File Listing</strong>
+
 <%= render :partial  => "userfiles/viewers/file_collection_form", :locals  => {:collection_partial  => "file_collection_civet_study_file_list"} %>
+
