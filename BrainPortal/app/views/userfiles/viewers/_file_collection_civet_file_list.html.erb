@@ -1,5 +1,5 @@
 <% 
-  subject ||= @userfile.list_files
+  subject ||= ( @userfile.list_files rescue [] )
  %>
  
 <table class="simple">
