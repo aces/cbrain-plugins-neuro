@@ -3,7 +3,16 @@
 <P>
 DICOM collection: <%= link_to_userfile_if_accessible params[:dicom_colid] %>
 <P>
-Use coordinates? <%= params[:use_coordinates].blank? ? "No" : "Yes" %>
+Use coordinates? <%= params[:use_coordinates] == "1" ? "Yes" : "No" %>
+<P>
+File renaming pattern:
+<% if ! params[:output_filename_pattern].blank? %>
+  <%= h(params[:output_filename_pattern]) %>
+<% else %>
+  (None. Output Minc filenames are chosen by Dcm2Minc)
+<% end %>
+
+
 <P>
 <STRONG>Outputs:</STRONG>
 <P>
@@ -13,7 +22,22 @@ Use coordinates? <%= params[:use_coordinates].blank? ? "No" : "Yes" %>
   <LI>Mincfile: <%= link_to_userfile_if_accessible id %></LI>
 <%   end %>
 <% else %>
-  <LI>(No mincfiles created yet)</LI>
+  <LI>(No Minc files created yet)</LI>
 <% end %>
 </UL>
+
+
+
+<% onames = params[:orig_mincfile_basenames] || [] %>
+<% if onames.size > 0 && ! params[:output_filename_pattern].blank? %>
+<P>
+For your information, here is the list of original Minc filenames as created by Dcm2Mnc,
+before they were renamed:
+<P>
+<UL>
+<% onames.each do |n| %>
+  <li><%= h(n) %></li>
+<% end %>
+</UL>
+<% end %>
 
