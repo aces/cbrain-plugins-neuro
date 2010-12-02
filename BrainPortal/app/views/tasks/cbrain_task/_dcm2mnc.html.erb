@@ -5,23 +5,33 @@
 
 <h4>Options</h4>
 
-<div class="groupentry">
+<fieldset class="groupentry">
+
+<legend>Basic Dcm2Mnc command-line options</legend>
+
+<P>
 
 Use Dcm2Minc's '-usecoordinates' option:
 <%= form.params_check_box :use_coordinates %>
 
-</div>
+<P>
+
+</fieldset>
 
 <p>
 
-<div class="groupentry">
+<fieldset class="groupentry">
+
+<legend>Output filenames renaming</legend>
+
+<p>
 
 Created Minc files will be renamed with names that match this pattern:
 <br>
 <%= form.params_text_field :output_filename_pattern, :size => 80 %><br>
 <small>(Leave blank to let Dcm2Minc name the files automatically like it normally does)</small>
 
-<br>
+<P>
 Patterns can include the following special
 <em>{keywords}</em> in curly brackets that will be substituted
 automatically. The supported keywords are:
@@ -81,7 +91,9 @@ automatically. The supported keywords are:
 
 </dl>
 
-</div>
+<p>
+
+</fieldset>
 
 <%
   previous_minc_ids = params[:created_mincfile_ids] || []
@@ -96,7 +108,12 @@ automatically. The supported keywords are:
 
   <P>
 
-  <div class="groupentry">
+  <fieldset class="groupentry">
+
+  <legend>Auto-cleanup of previous runs</legend>
+
+  <p>
+ 
   Upon successful completion of this task,
   erase these mincfiles created by a previous run:
   <%= form.params_check_box :erase_old_results %>
@@ -106,7 +123,10 @@ automatically. The supported keywords are:
       <li><%= link_to_userfile_if_accessible(u) %></li>
     <% end %>
   </ul>
-  </div>
+
+  <p>
+
+  </fieldset>
 
 <% end %>
 
