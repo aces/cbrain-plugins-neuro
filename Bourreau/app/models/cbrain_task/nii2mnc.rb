@@ -58,9 +58,25 @@ class CbrainTask::Nii2mnc < ClusterTask
     command += " -#{int_sign}"   if voxel_type =~ /^(short|word|int)$/ && int_sign != "default"
     command += " -noscanrange"   if params[:noscan] == "1"
     command += " -#{order}"      if order != "default"
-    command += " -flipx"         if params[:flipx] == "1"
-    command += " -flipy"         if params[:flipy] == "1"
-    command += " -flipz"         if params[:flipz] == "1"
+
+    flip_order = params[:flip_order] # will check for nil later on
+
+    # Compatibility adjustment with old tasks which used :flipx etc.
+    # instead of :flip_order
+    if flip_order.nil?  # not blank, NIL! It is important as "" is acceptable for flip_order
+      flip_order = ""
+      flip_order += "x" if params[:flipx].to_s == "1"   # old arg API
+      flip_order += "y" if params[:flipy].to_s == "1"   # old arg API
+      flip_order += "z" if params[:flipz].to_s == "1"   # old arg API
+    end
+
+    # The new flip_order will place the command line options
+    # for flipx etc. in a specific order.
+    flip_order.downcase.each_char do |c|
+      command += " -flipx" if c == 'x'
+      command += " -flipy" if c == 'y'
+      command += " -flipz" if c == 'z'
+    end
 
     command += " #{basename} #{mincbase}"
 

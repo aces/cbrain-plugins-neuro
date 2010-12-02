@@ -35,24 +35,70 @@ Option: do NOT automatically scan the range of data values: <%= form.params_chec
 <strong>XYZ Space Parameters</strong>
 <BR>
 
-The NIfTI files use this ordering for spatial dimensions: <%= select_tag :space_ordering.to_la,
-                              options_for_select( [ [ "(Select ordering)",              "" ],
-                                                    [ "ZYX a.k.a. 'transverse'",        "transverse" ],
-                                                    [ "XZY a.k.a. 'sagittal'",          "sagittal" ],
-                                                    [ "YZX a.k.a 'coronal'",            "coronal" ],
-                                                    [ "XYZ",                            "xyz" ],
-                                                    [ "YXZ",                            "yxz" ],
-                                                    [ "ZXY",                            "zxy" ],
-                                                    [ "'default': let the program choose!", "default" ]
-                                                  ], params[:space_ordering] ) %>
+The NIfTI files use this ordering for spatial dimensions:
+ <%= select_tag :space_ordering.to_la,
+     options_for_select( [ [ "(Select ordering)",              "" ],
+                           [ "ZYX a.k.a. 'transverse'",        "transverse" ],
+                           [ "XZY a.k.a. 'sagittal'",          "sagittal" ],
+                           [ "YZX a.k.a 'coronal'",            "coronal" ],
+                           [ "XYZ",                            "xyz" ],
+                           [ "YXZ",                            "yxz" ],
+                           [ "ZXY",                            "zxy" ],
+                           [ "'default': let the program choose!", "default" ]
+                         ], params[:space_ordering] )
+ %>
 
-<BR>
-Flip the direction of certain dimensions:<BR>
-<UL>
-  <LI>Flip X? <%= form.params_check_box :flipx %></LI>
-  <LI>Flip Y? <%= form.params_check_box :flipy %></LI>
-  <LI>Flip Z? <%= form.params_check_box :flipz %></LI>
-</UL>
+<P>
+
+<fieldset class="groupentry">
+<legend>Axis flipping options</legend>
+<P>
+Flip the direction of certain dimensions:
+<%= select_tag :flip_order.to_la,
+    grouped_options_for_select(
+      [
+        [
+          "Do not flip any axis.",
+                        [ [ "No, do not flip any axis.", "" ] ],
+        ],
+        [
+          "Flip one axis",
+                        [
+                          [ "Flip X", "x" ],
+                          [ "Flip Y", "y" ],
+                          [ "Flip Z", "z" ],
+                        ]
+        ],
+        [
+          "Flip two axis",
+                        [
+                          [ "Flip X, then Y", "xy" ],
+                          [ "Flip X, then Z", "xz" ],
+                          [ "Flip Y, then X", "yx" ],
+                          [ "Flip Y, then Z", "yz" ],
+                          [ "Flip Z, then X", "zx" ],
+                          [ "Flip Z, then Y", "zy" ],
+                        ]
+        ],
+        [
+          "Flip three axis",
+                        [
+                          [ "Flip X, then Y, then Z", "xyz" ],
+                          [ "Flip X, then Z, then Y", "xzy" ],
+                          [ "Flip Y, then X, then Z", "yxz" ],
+                          [ "Flip Y, then Z, then X", "yzx" ],
+                          [ "Flip Z, then X, then Y", "zxy" ],
+                          [ "Flip Z, then Y, then X", "zyx" ],
+                        ],
+        ],
+      ],
+      params[:flip_order] )
+ %>
+
+
+</fieldset>
+
+<P>
 
 Rectify cosines using <em>minc_modify_header</em>: <%= form.params_check_box :rectify_cosines %>
 

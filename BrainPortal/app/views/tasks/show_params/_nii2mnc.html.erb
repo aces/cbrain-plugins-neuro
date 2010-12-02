@@ -16,14 +16,15 @@ Voxel type: <%= h(params[:voxel_type]) %>
 <% end %>
 <P>
 Space ordering: <%= h(params[:space_ordering]) %>
-<% flipped = []
-   flipped << "X" if params[:flipx] == "1"
-   flipped << "Y" if params[:flipy] == "1"
-   flipped << "Z" if params[:flipz] == "1"
-%>
+
+<% flip_order = params[:flip_order] || "" %>
+<% flipped = flip_order.each_char.select { |c| c =~ /[xyz]/i } %>
 <% if flipped.size > 0 %>
-with flipped <%= flipped.join(", ") %> direction(s).
+with these axis flipper in order: <%= flipped.map(&:upcase).join(", ") %>.
+<% else %>
+with no flipping of any axis.
 <% end %>
+
 <P>
 Cosines rectified with <em>minc_modify_header</em>: <%= params[:rectify_cosines] == "1" ? "Yes" : "No" %>
 

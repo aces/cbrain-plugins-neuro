@@ -20,18 +20,38 @@ class CbrainTask::Nii2mnc < PortalTask
     :voxel_int_signity   => "",    # signed, unsigned, default
     :noscan              => 0,     # -noscanrange
     :space_ordering      => "",    # transverse, sagittal, coronal, xyz, zxy, yxz, default
-    :flipx               => 0,     # -flipx
-    :flipy               => 0,     # -flipy
-    :flipz               => 0,     # -flipz
+    #:flipx               => 0,     # -flipx DEPRECATED
+    #:flipy               => 0,     # -flipy DEPRECATED
+    #:flipz               => 0,     # -flipz DEPRECATED
+    :flip_order          => "",    # Order of -flip[xyz] options, one of "xyz", "xzy" etc etc.
     :rectify_cosines     => 0,     # run minc_modify_header -dinsert xspace:direction_cosines=1,0,0 (y and z too)
     }
   end
   
+  # Updates the old flip options :flipx, :flipy and :flipz into the new :flip_order
+  # when reloading an old task
+  def after_find #:nodoc:
+    params = self.params
+    return true if ! params
+    return true unless params.has_key?(:flipx) || params.has_key?(:flipy) || params.has_key?(:flipz)
+    if params[:flip_order].blank?
+      params[:flip_order] = ""
+      params[:flip_order] += "x" if params[:flipx].to_s == "1"
+      params[:flip_order] += "y" if params[:flipy].to_s == "1"
+      params[:flip_order] += "z" if params[:flipz].to_s == "1"
+    end
+    params.delete(:flipx)
+    params.delete(:flipy)
+    params.delete(:flipz)
+    true
+  end
+
   def before_form #:nodoc:
     params = self.params
     ids    = params[:interface_userfile_ids]
     ids.each do |id|
-      u = Userfile.find(id)
+      u = Userfile.find(id) rescue nil
+      cb_error "Error: the input file for this task doesn't exist anymore." unless u
       cb_error "Error: '#{u.name}' does not seem to be a single file." unless u.is_a?(SingleFile)
     end
     ""
