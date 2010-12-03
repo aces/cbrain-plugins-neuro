@@ -9,7 +9,7 @@
       <th>Surfaces</th>
    </tr>
    <tr class="list-odd">
-      <td class="no_wrap">
+      <td rowspan="3" class="no_wrap">
          <%= subject.select{ |file| file.name =~ /^.+\/final\// }.map{ |file|  string_if(@userfile.is_locally_synced?, check_box_tag('file_ids[]', file.name)) + file.name.sub(/^.+\/final\//, "") +
                                                                                                                                           " (#{pretty_size(file.size).strip})"}.join('<br>') %>
       </td>
@@ -17,8 +17,17 @@
          <%= subject.select{ |file| file.name =~ /^.+\/native\// }.map{ |file|  string_if(@userfile.is_locally_synced?, check_box_tag('file_ids[]', file.name)) + file.name.sub(/^.+\/native\//, "") +
                                                                                                                                           " (#{pretty_size(file.size).strip})"}.join('<br>') %>
       </td>
-      <td class="no_wrap">
+      <td rowspan="3" class="no_wrap">
          <%= subject.select{ |file| file.name =~ /^.+\/surfaces\// }.map{ |file|  string_if(@userfile.is_locally_synced?, check_box_tag('file_ids[]', file.name)) + obj_link(file.name, @userfile) +
+                                                                                                                                          " (#{pretty_size(file.size).strip})"}.join('<br>') %>
+      </td>
+   </tr>
+   <tr>
+      <th>Mask</th>
+   </tr>
+   <tr class="list-odd">
+      <td class="no_wrap">
+         <%= subject.select{ |file| file.name =~ /^.+\/mask\// }.map{ |file|  string_if(@userfile.is_locally_synced?, check_box_tag('file_ids[]', file.name)) + file.name.sub(/^.+\/mask\//, "") +
                                                                                                                                           " (#{pretty_size(file.size).strip})"}.join('<br>') %>
       </td>
    </tr>
