@@ -154,6 +154,50 @@
   <% end %>
 </table>
 
+<P>
+
+Convenience helper: provide overall patterns for
+the <strong>prefix</strong> and <strong>subject ID</strong> here:
+
+<P>
+
+Prefix:     <%= form.params_text_field :prefix_auto_comp %>
+Subject ID: <%= form.params_text_field :dsid_auto_comp %>
+
+<P>
+
+The patterns can include special <em>components</em>
+<%= show_hide_toggle "(toggle explanation)", "#component_explain", :class  => 'action_link' %>
+like <em>{1}</em>, <em>{2}</em> etc.
+
+Click <%= submit_tag 'Refresh this list' %> to see all the Prefix and Subject IDs automatically updated.
+
+
+<div id="component_explain" style="display:none">
+
+Components identify the sequences of alphanumeric characters in the T1 filenames,
+numbered from 1 to 8.
+<p>
+For instance, if a MINC T1 file is named "anonymous_2008-07-10_092900_10_mri.mnc", then its
+componants would be:
+
+      <ul>
+        <li>{1} = "anonymous"</li>
+        <li>{2} = "2008"</li>
+        <li>{3} = "07"</li>
+        <li>{4} = "10"</li>
+        <li>{5} = "092900"</li>
+        <li>{6} = "10"</li>
+        <li>{7} = "mri"</li>
+        <li>{8} = "mnc"</li>
+      </ul>
+
+As an example, if you entered the pattern "{1}_{6}" for the prefix,
+then the actual prefix automatically extracted for you would be "anonymous_10".
+
+</div>
+
+
 </fieldset>
 
 

@@ -154,18 +154,7 @@ class CbrainTask::Dcm2mnc < ClusterTask
     end
 
     # Create new basename
-    pat_comps = pattern.split(/(\{(?:[a-z_]+(?:-\d+)?)\})/i)
-    final = ""
-    pat_comps.each_with_index do |comp,i|
-      if i.even?
-        final += comp
-      else
-        comp.gsub!(/[{}]/,"")
-        val = components[comp.downcase]
-        cb_error "While building new filename, cannot find value for keyword '{#{comp.downcase}}'." if val.blank?
-        final += val
-      end
-    end
+    final = pattern.pattern_substitute(components) # in cbrain_extensions.rb
 
     # Append .mnc or .mnc.gz if necessary
     final.sub!(/\.mi?nc(\.gz)?$/i,"")

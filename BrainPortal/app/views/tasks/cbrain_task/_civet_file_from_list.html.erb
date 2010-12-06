@@ -15,36 +15,36 @@
 <td><%= text_field_tag "cbrain_task[params][file_args][#{idx}][prefix]", file[:prefix], :disabled => disabled %></td>
 <td><%= text_field_tag "cbrain_task[params][file_args][#{idx}][dsid]",   file[:dsid], :disabled => disabled   %></td>
 
-<% if file[:t2_id] %>
-  <td><FONT COLOR="green">&#10004;</FONT></td>
-<% else %>
+<% if file[:t2_id].blank? %>
   <td><FONT COLOR="red">&times;</FONT></td>
+<% else %>
+  <td><FONT COLOR="green">&#10004;</FONT></td>
 <% end %>
 
-<% if file[:pd_id] %>
-  <td><FONT COLOR="green">&#10004;</FONT></td>
-<% else %>
+<% if file[:pd_id].blank? %>
   <td><FONT COLOR="red">&times;</FONT></td>
+<% else %>
+  <td><FONT COLOR="green">&#10004;</FONT></td>
 <% end %>
 
-<% if file[:mk_id] %>
-  <td><FONT COLOR="green">&#10004;</FONT></td>
-<% else %>
+<% if file[:mk_id].blank? %>
   <td><FONT COLOR="red">&times;</FONT></td>
+<% else %>
+  <td><FONT COLOR="green">&#10004;</FONT></td>
 <% end %>
 
-<% if file[:t2_id] || file[:pd_id] %>
+<% if file[:t2_id].blank? && file[:pd_id].blank? %>
+  <td></td>
+<% else %>
   <td>
     <%= check_box_tag( "cbrain_task[params][file_args][#{idx}][multispectral]", '1', file[:multispectral], :disabled => disabled ) %>
   </td>
-<% else %>
-  <td></td>
 <% end %>
 
-<% if file[:mk_id] %>
-  <td><%= check_box_tag( "cbrain_task[params][file_args][#{idx}][spectral_mask]", '1', file[:spectral_mask], :disabled => disabled ) %></td>
-<% else %>
+<% if file[:mk_id].blank? %>
   <td></td>
+<% else %>
+  <td><%= check_box_tag( "cbrain_task[params][file_args][#{idx}][spectral_mask]", '1', file[:spectral_mask], :disabled => disabled ) %></td>
 <% end %>
 
 </tr>

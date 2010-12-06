@@ -421,6 +421,25 @@ class CbrainTask::Civet < PortalTask
     return qc
   end
 
+  # Apply the new auto-prefix and auto-dsid extraction mechanism.
+  def refresh_form #:nodoc
+    params = self.params
+    prefpat = params[:prefix_auto_comp] || ""
+    dsidpat = params[:dsid_auto_comp]   || ""
+    return if prefpat.blank? && dsidpat.blank? # nothing to do
+    file_args = params[:file_args] || {}
+    file_args.values.each do |struct|
+      t1_name = struct[:t1_name]
+      next if t1_name.blank?
+      comps_array = t1_name.split(/([a-zA-Z0-9]+)/)
+      comps = {}
+      1.step(comps_array.size,2) { |i| comps[((i-1)/2+1).to_s] = comps_array[i] }
+      struct[:prefix] = prefpat.pattern_substitute(comps) if ! prefpat.blank?
+      struct[:dsid]   = dsidpat.pattern_substitute(comps) if ! dsidpat.blank?
+    end
+    ""
+  end
+
   private
 
   def find_t2_pd_mask(t1_name,userfileindex) #:nodoc:
