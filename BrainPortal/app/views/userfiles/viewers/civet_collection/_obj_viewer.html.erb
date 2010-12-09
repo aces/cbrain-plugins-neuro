@@ -1,30 +1,3 @@
-<!doctype html>
-<html lang="en">  
-  <head>  
-    <meta http-equiv="content-type" content="text/html; charset=UTF-8">  
-    <title>MNI Surface Viewer</title>  
-  </head>  
-  <body>  
-
-    <div id="controls">
-      
-      <div id="surface_choice" class="box full_box">
-	<h4>Files</h4>
-<%- 
-  if params[:collection_file]
-    surface_dir = (Pathname.new(params[:collection_file]).parent.parent + "surfaces").to_s.sub(/^#{@userfile.name}\/+/, "")
-  else
-    thickness_dir = "surfaces"
-  end 
--%>
-
-
-Surface: 
-<select name="surface" id="surface">
-  <%= options_for_select   @userfile.list_files(surface_dir).map(&:name).select { |n| n =~ /\.obj$/ } %>
-</select>
-
-
 <%- 
   if params[:collection_file]
     thickness_dir = (Pathname.new(params[:collection_file]).parent.parent + "thickness").to_s.sub(/^#{@userfile.name}\/+/, "")
@@ -33,100 +6,35 @@ Surface:
   end 
 -%>
 
-
 Thickness File: 
-<select name="thickness" id="thickness">
-  <%= options_for_select   @userfile.list_files(thickness_dir).map(&:name).select { |n| n =~ /\.txt$/ } %>
+<select name="thickness" class="thickness">
+  <%= options_for_select   @userfile.list_files(thickness_dir).map(&:name).reject { |n| n =~ /\.dat$/ } %>
 </select>
-
-
-      </div>
-      
-      <div class="combo_box full_box">
-	<div id="views" class="box half_box" >
-	  <h4>Views</h4>
-	  <div id="hem_views_1" class="half_box">
-	    <input id="left_hem_visible" class="view_button" type="checkbox" checked="true">Left 
-	    <br />
-	    <input id="hem_superior" class="view_button" type="radio" name="hem_view" value="superior" checked="true">Superior
-	    
-	    <br />
-	    <input id="hem_medial" class="view_button" type="radio" name="hem_view" value="medial">Medial
-	    
-	    <br />
-	    <input id="hem_anterior" class="view_button" type="radio" name="hem_view" value="anterior">Anterior
-	    
-	  </div>
-	  <div id="hem_views_2" class="half_box">
-	    <input id="right_hem_visible" class="view_button" type="checkbox" checked="true">Right<br />
-	    <input id="hem_inferior" class="view_button" type="radio" name="hem_view" value="inferior">Inferior	     
-	    <br />
-	    <input id="hem_lateral" class="view_button" type="radio" name="hem_view" value="lateral">Lateral
-	    <br />
-	    <input id="hem_posterior" class="view_button" type="radio" name="hem_view" value="posterior">Posterior
-	  </div>
-	  <p>
-	    <a class="button" id="resetview">Reset View</a>
-	  </p>
-	  
-	</div>
-
-	<div id="coordinates" class="box half_box">
-	  <h4>Coordinates</h4>
-	  <p>
-	    <input id="x-coord" type="text" size="5">&nbsp<span class="button" id="x-coord-flip">X</span><br />
-	    <input id="y-coord" type="text" size="5"> Y<br />
-	    <input id="z-coord" type="text" size="5"> Z<br />
-	    <input id="v-coord" type="text" size="5"> Index<br />
-	    <input id="value-coord" type="text" size="5"> Value
-	  </p>
-	</div>
-      </div>
-      
-      <div id="data range" class="box full_box">
-	<h4>Thresholding</h4>
-	<div id="data-range">
-	  Min: <input class="range-box" id="data-range-min" type="text" name="range_min" size="5" ><br />
-	    <div id="range-slider"></div>
-	  Max: <input class="range-box" id="data-range-max" type="text" name="range_max" size="5" >
-	  <input type="checkbox" id="fix_range">Fix Range<br />
-	</div>
-      </div>
-</div>
-    <!-- The webgl window and loading messages if any -->
-    <div Id="view-window">
-      <div id="o3d"></div>  
-      <div id="loading"></div>
+<div id="controls">
+    Data Range:
+    <div id="data-range">
+      Min: <input class="range-box" id="data-range-min" type="text" name="range_min" size="5"><br />
+      Max: <input class="range-box" id="data-range-max" type="text" name="range_max" size="5">
+      <a class="button" id="range_change">Change Range</a>
     </div>
-
-    <!-- all the scripts and css -->
-    <link type="text/css" href="/javascripts/brainbrowser/mniobjweb2.css" rel="Stylesheet" />
-    <script type="text/javascript" src="/javascripts/jquery.js"></script>
-    <script type="text/javascript" src="/javascripts/brainbrowser/o3d-webgl/base.js"></script>
-    <script type="text/javascript" src="/javascripts/brainbrowser/o3djs/base.js"></script> 
-    <script tyep="text/javascript" src="/javascripts/brainbrowser/surfview-combined.min.js"></script>
-    <script type="text/javascript" src="/javascripts/jquery-ui.js"></script>
-    <script type="text/javascript">
-    $(function() {4
-      document.getElementById("view-window").onselectstart = function() {
-      return false;
-    };
-      
-      document.getElementById("view-window").onmousedown = function() {
-        return false;
-      };
-      
-      jQuery(".button").button();
-      var surfview = new SurfView();
-      jQuery("#surface").change(function() {
-        surfview.brainbrowser.loadObjFromUrl("<%= userfile_path(@userfile) %>/content?collection_file=" + $("#surface").val());
-      });
-      
-      jQuery("#thickness").change(function() {
-        surfview.brainbrowser.loadDataFromUrl("<%= userfile_path(@userfile) %>/content?collection_file=" + $("#thickness").val());
-      });
-
-    });
-    </script>
-  </body>  
-</html>  
+    <div>
+      <div id="spectrum"></div>
+      <div id="scale">
+	      <span id="min_mark" class="mark"></span>
+      	<span id="scale_space" class="empty"> </span>
+      	<span id="mid_mark" class="mark"> </span>
+      	<span id="scale_space" class="empty"> </span>
+      	<span id="max_mark" class="mark"> </span>
+      </div>
+    </div>
+    
+    <br />
+    <a class="macacc_button" id="fillmode">Fill Mode</a>
+    <a class="macacc_button" id="screenshot" target="_blank">Screenshot</a>
+    <br />
+</div>
+  
+<div id="view-window" data-url="true">
+  <div id="o3d" style="width: 100%; height: 90%" ></div>
+  <div id="loading"></div>
+</div>
