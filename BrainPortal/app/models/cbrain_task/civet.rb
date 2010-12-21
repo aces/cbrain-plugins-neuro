@@ -426,7 +426,7 @@ class CbrainTask::Civet < PortalTask
     params = self.params
     prefpat = params[:prefix_auto_comp] || ""
     dsidpat = params[:dsid_auto_comp]   || ""
-    return if prefpat.blank? && dsidpat.blank? # nothing to do
+    return "" if prefpat.blank? && dsidpat.blank? # nothing to do
     file_args = params[:file_args] || {}
     file_args.values.each do |struct|
       t1_name = struct[:t1_name]
