@@ -15,5 +15,5 @@ T1 minc file: <%= if params[:file_args] && params[:file_args]["0"]
 <P>
 CIVET collection: <%= link_to_userfile_if_accessible params[:output_civetcollection_id] %>
 <P>
-See this task's <%= link_to "edit page", "/tasks/edit/#{task.id}" %> for more information.
+See this task's <%= link_to "edit page", edit_task_path(task) %> for more information.
 

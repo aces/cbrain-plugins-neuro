@@ -14,5 +14,5 @@ MINC inputfile: <%= link_to_userfile_if_accessible params[:mincfile_id] %>
   <LI>(No NIfTI files (or other format files) created yet)</LI>
 <% end %>
 </UL>
-See this task's <%= link_to "edit page", "/tasks/edit/#{task.id}" %> for more information.
+See this task's <%= link_to "edit page", edit_task_path(task) %> for more information.
 
