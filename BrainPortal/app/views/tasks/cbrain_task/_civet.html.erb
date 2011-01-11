@@ -4,8 +4,8 @@
 <fieldset>
 <legend>Pipeline Options</legend>
 
-  <label title="Define the template for image processing">Template:</label>
-  <select name="<%= :template.to_la %>">
+  <%= form.params_label :template, "Template:", :title => "Define the template for image processing" %>
+  <select name="<%= :template.model.to_la %>" id="<%= :template.to_la_id %>">
     <%= options_for_select(
           [ "0.50", "0.75", "1.00", "1.50", "2.00", "3.00", "4.00", "6.00" ],
           params[:template])
@@ -14,8 +14,8 @@
 
   <br>
 
-  <label title="Define the model for image-processing">Model:</label>
-  <select name="<%= :model.to_la %>">
+  <%= form.params_label :model, "Model:", :title => "Define the model for image-processing" %>
+  <select name="<%= :model.to_la %>" id="<%= :model.to_la_id %>">
     <%= options_for_select(
           [ "icbm152lin", "icbm152nl" ],
           params[:model])
@@ -24,15 +24,15 @@
 
   <% if ! @task.new_record? %>
 
-  <br>
+    <br>
 
-  <label title="Stage to restart from">Restart from this stage:</label>
-  <select name="<%= :reset_from.to_la %>">
-    <%= options_for_select(
-          [ "" ] + CbrainTask::Civet::StagesNames,
-          params[:reset_from])
-    %>
-  </select>
+    <%= form.params_label :reset_from, "Restart from this stage:", :title => "Stage to restart from" %>
+    <select name="<%= :reset_from.to_la %>" id="<%= :reset_from.to_la_id %>">
+      <%= options_for_select(
+            [ "" ] + CbrainTask::Civet::StagesNames,
+            params[:reset_from])
+      %>
+    </select>
   <% end %>
 
 </fieldset>
@@ -42,8 +42,8 @@
 <fieldset>
 <legend>CIVET options</legend>
 
-  <label title="Interpolation method from native to stereotaxic space (trilinear, tricubic, sinc) default trilinear">Interpolation:</label>
-  <select name="<%= :interp.to_la %>">
+  <%= form.params_label :interp, "Interpolation", :title => "Interpolation method from native to stereotaxic space (trilinear, tricubic, sinc) default trilinear" %>
+  <select name="<%= :interp.to_la %>" id="<%= :interp.to_la_id %>">
   <%= options_for_select(
         [ "trilinear", "tricubic", "sinc" ],
         params[:interp])
@@ -52,13 +52,13 @@
 
   <br>
 
-  <label title="N3 spline distance in mm (suggested values: 200 for 1.5T scan; 25 for 3T scan) default: 200">N3 distance:</label>
+  <%= form.params_label :N3_distance, "N3 distance:", :title => "N3 spline distance in mm (suggested values: 200 for 1.5T scan; 25 for 3T scan) default: 200" %>
   <%= form.params_text_field :N3_distance, :size => 4 %>
 
   <br>
 
-  <label title="Number of parameters transformation for linear registration">Number of parameters transformation for linear registration:</label>
-  <select name="<%= :lsq.to_la %>">
+  <%= form.params_label :lsq, "Number of parameters transformation for linear registration:", :title => "Number of parameters transformation for linear registration" %>
+  <select name="<%= :lsq.to_la %>" id="<%= :lsq.to_la_id %>">
   <%= options_for_select(
         [ "6", "9", "12" ],
         params[:lsq])
@@ -67,28 +67,29 @@
 
   <br>
 
-  <label title="Do NOT build surfaces">Do NOT build surfaces:</label>
+  <%= form.params_label :no_surfaces, "Do NOT build surfaces:", :title => "Do NOT build surfaces" %>
   <%= form.params_check_box :no_surfaces %>
 
   <br>
 
-  <label title="Thickness method and kernel size">Thickness method and kernel size:</label>
-  <select name="<%= :thickness_method.to_la %>">
+  <%= form.params_label :thickness_method, "Thickness method:", :title => "Thickness method" %>
+  <select name="<%= :thickness_method.to_la %>" id="<%= :thickness_method.to_la_id %>">
   <%= options_for_select(
         [ "tnormal", "tlink", "tlaplace", "tnear" ],
         params[:thickness_method])
   %>
   </select>
+  <%= form.params_label :thickness_kernel, "and kernel size:", :title => "Kernel size" %>
   <%= form.params_text_field :thickness_kernel, :size => 4 %>
 
   <br>
 
-  <label title="Resample cortical surfaces">Resample surfaces:</label>
+  <%= form.params_label :resample_surfaces, "Resample surfaces:", :title => "Resample cortical surfaces" %>
   <%= form.params_check_box :resample_surfaces %>
 
   <br>
 
-  <label title="Combine left and right cortical surfaces">Combine surfaces:</label>
+  <%= form.params_label :combine_surfaces, "Combine surfaces:", :title => "Combine left and right cortical surfaces" %>
   <%= form.params_check_box :combine_surfaces %>
 
 </fieldset>
@@ -98,22 +99,22 @@
 <fieldset>
 <legend>VBM Options</legend>
 
-  <label title="Process VBM files">Process VBM files:</label>
+  <%= form.params_label :VBM, "Process VBM files:", :title => "Process VBM files" %>
   <%= form.params_check_box :VBM %>
 
   <br>
 
-  <label title="Blurring kernel size in mm for volume">Blurring kernel size in mm for volume:</label>
+  <%= form.params_label :VBM_fwhm, "Blurring kernel size in mm for volume:", :title => "Blurring kernel size in mm for volume" %>
   <%= form.params_text_field :VBM_fwhm, :size => 4 %>
 
   <br>
 
-  <label title="Run symmetry tools">Run symmetry tools:</label>
+  <%= form.params_label :VBM_symmetry, "Run symmetry tools:", :title => "Run symmetry tools" %>
   <%= form.params_check_box :VBM_symmetry %>
 
   <br>
 
-  <label title="Keep cerebellum in VBM maps">Keep cerebellum in VBM maps:</label>
+  <%= form.params_label :VBM_cerebellum, "Keep cerebellum in VBM maps:", :title => "Keep cerebellum in VBM maps" %>
   <%= form.params_check_box :VBM_cerebellum %>
 
 </fieldset>
