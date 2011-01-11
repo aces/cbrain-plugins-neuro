@@ -67,15 +67,10 @@ class CbrainTask::Civet < PortalTask
     {
       :file_args           => {},
 
-      :make_graph          => false,       # -make-graph for true
-      :make_filename_graph => false,       # -make-filename-graph for true
-      :print_status_report => false,       # -print-status-report for true
       :reset_from          => "",          # -reset-from
 
       :template            => '1.00',      # -template
       :model               => 'icbm152nl', # -model
-        
-      :correct_pve         => false,       # -[no-]correct-pve
         
       :interp              => 'trilinear', # -interp
       :N3_distance         => 200,         # -N3-distance
@@ -92,10 +87,6 @@ class CbrainTask::Civet < PortalTask
       :VBM_symmetry        => false,       # -[no-]VBM-symmetry
       :VBM_cerebellum      => true,        # -[no-]VBM-cerebellum
 
-      # Not yet implemented in interface
-      :animal              => false,       # -[no-]animal
-      :atlas               => 'lobe'       # -symmetric-atlas or -lobe-atlas
-      # TODO animal-atlas-dir
     }
   end
 
