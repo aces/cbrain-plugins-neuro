@@ -129,18 +129,19 @@
 <P>
 
 Convenience helper: provide overall patterns for
-the <strong>prefix</strong> and <strong>subject ID</strong> here:
+the <strong>Prefix</strong> and <strong>Subject ID</strong>:
 
 <P>
 
-Prefix:     <%= form.params_text_field :prefix_auto_comp %>
-Subject ID: <%= form.params_text_field :dsid_auto_comp %>
+<%= form.params_label :prefix_auto_comp, "Prefix pattern:" %>     <%= form.params_text_field :prefix_auto_comp %>
+<%= form.params_label :dsid_auto_comp,   "Subject ID pattern:" %> <%= form.params_text_field :dsid_auto_comp %>
 
 <P>
 
 The patterns can include special <em>components</em>
 <%= show_hide_toggle "(toggle explanation)", "#component_explain", :class  => 'action_link' %>
-like <em>{1}</em>, <em>{2}</em> etc.
+like <em>{1}</em>, <em>{2}</em> etc which will extract pieces of text from the
+<strong>T1 Name</strong>.<br/>
 
 Click <%= submit_tag 'Refresh this list' %> to see all the Prefix and Subject IDs automatically updated.
 
