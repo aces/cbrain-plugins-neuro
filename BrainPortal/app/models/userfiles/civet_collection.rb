@@ -82,5 +82,9 @@ class CivetCollection < FileCollection
   def list_verify
     @verify_list ||= get_full_subdir_listing('verify')
   end
+  
+  def qc_files
+    self.list_files("verify").select { |f| f.name =~ /\.png$/ }
+  end
 
 end

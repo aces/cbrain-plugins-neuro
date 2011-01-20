@@ -4,8 +4,8 @@
 
 <% if @userfile.is_locally_synced? %>
   <% content_viewer do %>
-    <% clasp_file  = @userfile.list_files.find { |f| f.name =~ /clasp\.png$/ } %>
-    <% verify_file = @userfile.list_files.find { |f| f.name =~ /verify\.png$/} %>
+    <% clasp_file  = @userfile.list_files("verify").find { |f| f.name =~ /clasp\.png$/ } %>
+    <% verify_file = @userfile.list_files("verify").find { |f| f.name =~ /verify\.png$/} %>
     <% if clasp_file %>
        <h3>Clasp</h3>
        <%= image_tag url_for(:action  => :content, :collection_file  => clasp_file.name) %>
