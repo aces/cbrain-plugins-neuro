@@ -144,15 +144,19 @@ like <em>{1}</em>, <em>{2}</em> etc which will extract pieces of text from the
 <strong>T1 Name</strong>.<br/>
 
 Click <%= submit_tag 'Refresh this list' %> to see all the Prefix and Subject IDs automatically updated.
+You can try this as often as you want, until you're satisfied.
 
 
 <div id="component_explain" style="display:none">
 
+<p>
 Components identify the sequences of alphanumeric characters in the T1 filenames,
 numbered from 1 to 8.
+</p>
 <p>
 For instance, if a MINC T1 file is named "anonymous_2008-07-10_092900_10_mri.mnc", then its
 componants would be:
+</p>
 
       <ul>
         <li>{1} = "anonymous"</li>
@@ -165,11 +169,76 @@ componants would be:
         <li>{8} = "mnc"</li>
       </ul>
 
+<p>
 As an example, if you entered the pattern "{1}_{6}" for the prefix,
 then the actual prefix automatically extracted for you would be "anonymous_10".
+</p>
 
 </div>
 
+
+</fieldset>
+
+<p/>
+
+<fieldset>
+
+<legend>Optional Output Renaming <%= show_hide_toggle "(Show)", "#output_renaming", :class  => 'action_link' %></legend>
+
+<div id="output_renaming" style="display: none">
+
+<p>
+Civet's output is saved in FileCollections. By default, the names are
+composites of the subject ID, the execution server's name and the
+task's ID.
+</p>
+An alternate naming scheme can be provided by entering a pattern here:
+<br>
+<%= form.params_text_field :output_filename_pattern, :size => 80 %><br>
+<small>(Leave blank to let CIVET name the files automatically like it normally does)</small>
+
+<p>
+This naming pattern use the same <em>components</em> (like <em>{1}</em>, <em>{2}</em> etc)
+described above for the automatic prefix/subject ID pattern matching.<br/>
+These components will extract pieces of text from the <strong>T1 Name</strong>.
+The naming pattern can also include <em>other special keywords</em><br/>
+(like <em>{date}</em>, <em>{run_number}</em> etc) that will be substituted
+automatically. The supported keywords are:
+</p>
+
+<dl>
+
+  <dt>{date}</dt>
+  <dd>The current date in this format: YYYY-MM-DD</dd>
+
+  <dt>{time}</dt>
+  <dd>The current time in this format: HH::MM::SS</dd>
+
+  <dt>{task_id}</dt>
+  <dd>A unique number ID for each CIVET task, which
+      doesn't change even if the task is restarted</dd>
+
+  <dt>{run_number}</dt>
+  <dd>A numeric run number that increases everytime the CIVET
+      task is restarted, initially set to '1'</dd>
+
+  <dt>{prefix}</dt>
+  <dd>The prefix of the CIVET run</dd>
+
+  <dt>{subject}</dt>
+  <dd>The subject ID of the CIVET run</dd>
+
+  <dt>{cluster}</dt>
+  <dd>The name of the cluster for the run</dd>
+
+</dl>
+
+<p>
+<strong>Use these keywords to make sure your your output filenames are unique enough, so that one CIVET<br/>
+job's output doesn't crush another job's output!</strong>.
+</p>
+
+</div>
 
 </fieldset>
 

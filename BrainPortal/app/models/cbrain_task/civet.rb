@@ -87,6 +87,9 @@ class CbrainTask::Civet < PortalTask
       :VBM_symmetry        => false,       # -[no-]VBM-symmetry
       :VBM_cerebellum      => true,        # -[no-]VBM-cerebellum
 
+      # CBRAIN output renaming
+      :output_filename_pattern => '{subject}-{cluster}-{task_id}-{run_number}'
+
     }
   end
 
