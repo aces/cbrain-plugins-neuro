@@ -1,19 +1,42 @@
 
+<P>
 <STRONG>Input:</STRONG>
 <P>
+
 <% if ! params[:collection_id].blank? %>
 Minc collection: <%= link_to_userfile_if_accessible params[:collection_id] %>
-<% else %>
-T1 minc file: <%= if params[:file_args] && params[:file_args]["0"]
-                    link_to_userfile_if_accessible params[:file_args]["0"][:t1_id]
-                  else
-                    link_to_userfile_if_accessible nil
-                  end %>
+<% end  %>
+
+<P>
+
+<% if params[:file_args] %>
+  T1 minc file(s):
+  <ul>
+  <% params[:file_args].keys.sort { |a,b| a.to_i <=> b.to_i }.each do |arg_idx| %>
+    <% file = params[:file_args][arg_idx] %>
+    <% if params[:collection_id].blank? %>
+      <li><%= link_to_userfile_if_accessible file[:t1_id] %></li>
+    <% else %>
+      <li><%= h(file[:t1_name]) %> (inside collection)</li>
+    <% end %>
+  <% end %>
+  </ul>
 <% end %>
+
 <P>
 <STRONG>Output:</STRONG>
 <P>
-CIVET collection: <%= link_to_userfile_if_accessible params[:output_civetcollection_id] %>
+
+<% if params[:output_civetcollection_ids].blank? && ! params[:output_civetcollection_id].blank? %>
+  CIVET Collection: <%= link_to_userfile_if_accessible params[:output_civetcollection_id] %>
+<% else %>
+  <ul>
+  <% (params[:output_civetcollection_ids] || []).each do |id| %>
+    <li>CIVET Collection: <%= link_to_userfile_if_accessible(id) %></li>
+  <% end %>
+  </ul>
+<% end %>
+
 <P>
 See this task's <%= link_to "edit page", edit_task_path(task) %> for more information.
 

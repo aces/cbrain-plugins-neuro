@@ -133,15 +133,16 @@ class CbrainTask::Civet < PortalTask
   def after_form #:nodoc:
     params          = self.params
 
-    # file_args is returned as a hash, so
-    # transform it back into an array of records (in the values)
-    file_args_hash  = params[:file_args] || {}
-    file_args       = file_args_hash.values
-
     # Nothing to do when we're editing a task.
     if ! self.new_record?
       return ""
     end
+
+    # file_args is returned as a hash, so
+    # transform it back into an array of records (in the values)
+    file_args_hash  = params[:file_args] || {}
+    file_args       = file_args_hash.values
+    file_args       = file_args.select { |f| f[:launch].to_s == '1' }
 
     if file_args.empty?
       cb_error "No CIVET started, as no T1 file selected for launch!"
@@ -166,9 +167,14 @@ class CbrainTask::Civet < PortalTask
     file_args       = file_args_hash.values
     file_args       = file_args.select { |f| f[:launch].to_s == '1' }
 
+    ncpus = self.tool_config.ncpus rescue 1
+    ncpus = 1 if ncpus.blank? || ncpus < 1
+
     task_list = []
-    file_args.each do |file|
-      task_list << self.create_civet_for_one(file)
+    while file_args.size > 0
+      file_slice = file_args[0,ncpus]
+      file_args[0,ncpus] = []
+      task_list << self.create_civet_for_slice(file_slice)
     end
 
     task_list
@@ -201,7 +207,10 @@ class CbrainTask::Civet < PortalTask
   end
 
   def untouchable_params_attributes #:nodoc:
-    { :file_args => true, :collection_id => true, :output_civetcollection_id => true }
+    { :file_args => true, :collection_id => true,
+      :output_civetcollection_id  => true, # OLD deprecated
+      :output_civetcollection_ids => true  # The NEW convention is to use output_civetcollection_ids (with an 's'), not _id
+    }
   end
 
 
@@ -347,7 +356,7 @@ class CbrainTask::Civet < PortalTask
     return file_args
   end
 
-  def create_civet_for_one(one_file_args) #:nodoc:
+  def create_civet_for_slice(file_slice) #:nodoc:
 
     # Create the new object
     civ             = self.clone
@@ -359,18 +368,32 @@ class CbrainTask::Civet < PortalTask
     civparams.delete(:qc_study)
 
     # Adjust description
-    if civ.description.blank?
-      collection_id   = civparams[:collection_id]
-      collection_id   = nil if collection_id.blank?
-      collection      = collection_id ? FileCollection.find(collection_id) : nil
+    desc  = civ.description.blank? ? "" : civ.description.strip
+    desc += "\n" if (! desc.blank?) && (civ.description !~ /\n$/)
+    desc += "\n" if (! desc.blank?) && (civ.description !~ /\n\n$/)
+
+    collection_id   = civparams[:collection_id]
+    collection_id   = nil if collection_id.blank?
+    collection      = collection_id ? Userfile.find(collection_id) : nil
+
+    desc += file_slice.size > 1 ? "Parallel CIVET x #{file_slice.size}\n\n" : ""
+    iuids = collection ? [ collection.id ] : []
+    file_slice.each do |one_file_args|
       t1_object       = collection || Userfile.find(one_file_args[:t1_id])
       t1_name         = collection ? one_file_args[:t1_name] : t1_object.name
-      civ.description = t1_name
-      civparams[:interface_userfile_ids] = [ t1_object.id ]
+      desc += "#{t1_name}\n"
+      iuids << t1_object.id unless collection
     end
+    civ.description = desc
 
-    # Initialize the new object
-    civparams[:file_args] = { "0" => one_file_args } # just a single entry named '0'
+    civparams[:interface_userfile_ids] = iuids
+
+    # Initialize the new object's file_args
+    file_args_hash = {}
+    file_slice.each_with_index do |one_file_args,i|
+      file_args_hash[i.to_s] = one_file_args
+    end
+    civparams[:file_args] = file_args_hash
 
     return civ
   end

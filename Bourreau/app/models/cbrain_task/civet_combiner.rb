@@ -31,9 +31,11 @@ class CbrainTask::CivetCombiner < ClusterTask
     task_ids.each do |tid|
       task    = CbrainTask.find(tid)
       tparams = task.params
-      cid     = tparams[:output_civetcollection_id]
-      cb_error "Could not found the output CIVET collection ID from task '#{task.bname_tid}'." if cid.blank?
-      civet_ids << cid
+      cid     = tparams[:output_civetcollection_id]  # old a single id
+      cids    = tparams[:output_civetcollection_ids] # new, an array
+      cb_error "Could not found any output CIVET collection IDs from task '#{task.bname_tid}'." if cid.blank? && cids.blank?
+      civet_ids << cid  unless cid.blank?
+      civet_ids += cids unless cids.blank?
     end
 
     # Save back full list of all collection IDs into params
