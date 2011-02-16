@@ -133,11 +133,6 @@ class CbrainTask::Civet < PortalTask
   def after_form #:nodoc:
     params          = self.params
 
-    # Nothing to do when we're editing a task.
-    if ! self.new_record?
-      return ""
-    end
-
     # file_args is returned as a hash, so
     # transform it back into an array of records (in the values)
     file_args_hash  = params[:file_args] || {}
@@ -145,8 +140,12 @@ class CbrainTask::Civet < PortalTask
     file_args       = file_args.select { |f| f[:launch].to_s == '1' }
 
     if file_args.empty?
-      cb_error "No CIVET started, as no T1 file selected for launch!"
+      cb_error  "No CIVET started, as no T1 file selected for launch!" if self.new_record?
+      cb_notice "Warning! No T1 file selected for processing!"
     end
+
+    # Nothing else to do when we're editing an existing task
+    return "" if ! self.new_record?
 
     study_name = params[:study_name] || ""
     if ! study_name.blank? && ! Userfile.is_legal_filename?(study_name)
@@ -213,7 +212,7 @@ class CbrainTask::Civet < PortalTask
   end
 
   def untouchable_params_attributes #:nodoc:
-    { :file_args => true, :collection_id => true,
+    { :collection_id => true,
       :output_civetcollection_id  => true, # OLD deprecated
       :output_civetcollection_ids => true  # The NEW convention is to use output_civetcollection_ids (with an 's'), not _id
     }

@@ -119,9 +119,9 @@
   <% keys.each do |idx| %>
     <% file = params[:file_args][idx] %>
      <% if ! params[:collection_id].blank? %>
-       <%= render :partial => 'tasks/cbrain_task/civet_file_from_col',  :locals  => {:file  => file, :idx => idx, :disabled => !@task.new_record? } %>
+       <%= render :partial => 'tasks/cbrain_task/civet_file_from_col',  :locals  => {:file  => file, :idx => idx } %>
      <% else %>
-       <%= render :partial => 'tasks/cbrain_task/civet_file_from_list', :locals  => {:file  => file, :idx => idx, :disabled => !@task.new_record? } %>
+       <%= render :partial => 'tasks/cbrain_task/civet_file_from_list', :locals  => {:file  => file, :idx => idx } %>
      <% end %>
   <% end %>
 </table>
@@ -145,6 +145,12 @@ like <em>{1}</em>, <em>{2}</em> etc which will extract pieces of text from the
 
 Click <%= submit_tag 'Refresh this list' %> to see all the Prefix and Subject IDs automatically updated.
 You can try this as often as you want, until you're satisfied.
+
+<% if ! @task.new_record? %>
+ <p>
+ <strong>Since this is an existing task, changing any Subject IDs will require a full restart of the pipelines.</strong>
+ </p>
+<% end %>
 
 
 <div id="component_explain" style="display:none">
@@ -170,12 +176,11 @@ componants would be:
       </ul>
 
 <p>
-As an example, if you entered the pattern "{1}_{6}" for the prefix,
-then the actual prefix automatically extracted for you would be "anonymous_10".
+As an example, if you entered the pattern "K2-{1}_{6}" for the prefix,
+then the actual prefix automatically created for you would be "K2-anonymous_10".
 </p>
 
 </div>
-
 
 </fieldset>
 
