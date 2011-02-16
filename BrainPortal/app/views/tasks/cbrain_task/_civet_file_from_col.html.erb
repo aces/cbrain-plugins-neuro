@@ -1,7 +1,7 @@
 
 <tr>
 
-<td><%= check_box_tag( "cbrain_task[params][file_args][#{idx}][launch]", '1', file[:launch], :disabled => disabled ) %></td>
+<td><%= check_box_tag( "cbrain_task[params][file_args][#{idx}][launch]", '1', file[:launch], :class => 'launch_it', :disabled => disabled ) %></td>
 
 <td>
   <%= h(file[:t1_name]) %>

@@ -166,6 +166,7 @@ class CbrainTask::Civet < PortalTask
     file_args_hash  = params[:file_args] || {}
     file_args       = file_args_hash.values
     file_args       = file_args.select { |f| f[:launch].to_s == '1' }
+    num_pipelines   = file_args.size
 
     ncpus = self.tool_config.ncpus rescue 1
     ncpus = 1 if ncpus.blank? || ncpus < 1
@@ -177,7 +178,12 @@ class CbrainTask::Civet < PortalTask
       task_list << self.create_civet_for_slice(file_slice)
     end
 
-    task_list
+    messages = ""
+    if ncpus > 1 && num_pipelines > 1
+      messages = "NOTE: each task will run up to #{ncpus} CIVET pipelines in parallel."
+    end
+
+    return task_list,messages
   end
 
   def after_final_task_list_saved(task_list) #:nodoc:
