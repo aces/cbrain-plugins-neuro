@@ -218,6 +218,11 @@ class CbrainTask::Civet < PortalTask
     }
   end
 
+  def unpresetable_params_attributes #:nodoc:
+    { :file_args => true }
+  end
+
+
 
   #################################################
   # OLD API BELOW (+ modified)
