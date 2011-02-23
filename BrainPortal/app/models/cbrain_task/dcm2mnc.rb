@@ -15,7 +15,7 @@ class CbrainTask::Dcm2mnc < PortalTask
   Revision_info="$Id$"
 
   def self.properties #:nodoc:
-    { :no_presets => true }
+    { :no_presets => true, :use_parallelizer => true }
   end
   
   def before_form #:nodoc:

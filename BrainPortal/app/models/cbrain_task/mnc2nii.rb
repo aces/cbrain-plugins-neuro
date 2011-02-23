@@ -14,6 +14,10 @@ class CbrainTask::Mnc2nii < PortalTask
 
   Revision_info="$Id$"
 
+  def self.properties #:nodoc:
+    { :use_parallelizer => true }
+  end
+
   def self.default_launch_args #:nodoc:
     {
       :voxel_type          => "",    # byte, short, int, float, double, default
