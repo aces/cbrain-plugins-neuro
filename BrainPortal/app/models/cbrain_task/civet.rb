@@ -96,12 +96,6 @@ class CbrainTask::Civet < PortalTask
   def before_form #:nodoc:
     params           = self.params
 
-    # If we're editing a task already existing, nothing to do.
-    if ! self.new_record?
-      adjust_old_civet_structure # for back compatibility
-      return ""
-    end
-
     file_ids         = params[:interface_userfile_ids]
 
     userfiles = []
@@ -147,9 +141,22 @@ class CbrainTask::Civet < PortalTask
     # Nothing else to do when we're editing an existing task
     return "" if ! self.new_record?
 
+    # Combine into a Study
     study_name = params[:study_name] || ""
-    if ! study_name.blank? && ! Userfile.is_legal_filename?(study_name)
-      cb_error "Sorry, but the study name provided contains some unacceptable characters."
+    if ! study_name.blank? 
+      if ! Userfile.is_legal_filename?(study_name)
+        cb_error "Sorry, but the study name provided contains some unacceptable characters."
+      end
+      combiner_tool_config_id = params[:combiner_tool_config_id]
+      cb_error "You need to select a version for the optional CivetCombiner task." if combiner_tool_config_id.blank?
+      cb_error "The version of CivetCombiner you selected is not on the same Execution Server as your CIVET tasks!" if
+        ToolConfig.find(combiner_tool_config_id).bourreau_id != self.bourreau_id
+      if params[:qc_study] == '1'
+        qc_tool_config_id = params[:qc_tool_config_id]
+        cb_error "You need to select a version for the optional CivetQc task." if qc_tool_config_id.blank?
+        cb_error "The version of CivetQc you selected is not on the same Execution Server as your CIVET tasks!" if
+          ToolConfig.find(qc_tool_config_id).bourreau_id != self.bourreau_id
+      end
     end
 
     return ""
@@ -199,10 +206,12 @@ class CbrainTask::Civet < PortalTask
     unless study_name.blank?
       tids = task_list.map &:id
       combiner = create_combiner(study_name,tids)
+      combiner.tool_config_id = params[:combiner_tool_config_id].to_i
       combiner.save!
       messages += "Started CivetCombiner task '#{combiner.bname_tid}'\n"
       if qc_study.to_s == '1'
         qc = create_qc(combiner.id)
+        qc.tool_config_id = params[:qc_tool_config_id].to_i
         qc.save!
         messages += "Started Civet QC task '#{qc.bname_tid}'\n"
       end
@@ -376,6 +385,8 @@ class CbrainTask::Civet < PortalTask
     civparams.delete(:file_args)
     civparams.delete(:study_name)
     civparams.delete(:qc_study)
+    civparams.delete(:combiner_tool_config_id)
+    civparams.delete(:qc_tool_config_id)
 
     # Adjust description
     desc  = civ.description.blank? ? "" : civ.description.strip
@@ -502,29 +513,6 @@ class CbrainTask::Civet < PortalTask
     minclist = minclist - [ t2_name, pd_name, mk_name ]
 
     [ t2_name, pd_name, mk_name, minclist ]
-  end
-
-  def adjust_old_civet_structure #:nodoc:
-    params = self.params
-
-    # This assignment is for back compatibility with old CIVET tasks
-    params[:file_args] ||= { "0" => # note that NEW CIVET tasks SAVE the :file_args["0"]
-                           { :launch              => true,
-                             :t1_id               => params[:t1_id], 
-                             :t1_name             => params[:t1_name],
-                             :t2_id               => params[:t2_id],
-                             :t2_name             => params[:t2_name],
-                             :pd_id               => params[:pd_id],
-                             :pd_name             => params[:pd_name],
-                             :mk_id               => params[:mk_id],
-                             :mk_name             => params[:mk_name],
-                             :prefix              => params[:prefix],
-                             :dsid                => params[:dsid],
-                             :multispectral       => params[:multispectral],
-                             :spectral_mask       => params[:spectral_mask]
-                           } }
-    params.delete(:study_name) # just to be sure
-    params.delete(:qc_study) # just to be sure
   end
 
 end

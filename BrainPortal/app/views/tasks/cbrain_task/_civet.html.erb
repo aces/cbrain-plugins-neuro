@@ -248,15 +248,40 @@ job's output doesn't crush another job's output!</strong>.
 </fieldset>
 
 
-<% if @task.new_record? %>
+<% combiner_tool_configs = ToolConfig.find(:all, :conditions => { :bourreau_id => @bourreaux.map(&:id), :tool_id => CbrainTask::CivetCombiner.tool.id }) %>
+<% combiner_tool_configs.reject! { |tc| ! tc.can_be_accessed_by?(@task.user) } %>
+
+<% qc_tool_configs       = ToolConfig.find(:all, :conditions => { :bourreau_id => @bourreaux.map(&:id), :tool_id => CbrainTask::CivetQc.tool.id }) %>
+<% qc_tool_configs.reject! { |tc| ! tc.can_be_accessed_by?(@task.user) } %>
+
+<% if @task.new_record? && combiner_tool_configs.size > 0 %>
 
 <P>
 
-<hr>
+<fieldset>
+<legend>Optional post-CIVET operations <%= show_hide_toggle "(Show)", "#combiner_qc_panel", :class  => 'action_link' %></legend>
 
-<BIG>Optional post-CIVET operations</BIG><P>
+<div id="combiner_qc_panel" style="display: none">
 
-Combine CIVET results into a CivetStudy named: <%= form.params_text_field :study_name %> then <%= form.params_check_box :qc_study %> launch Claude's QC script on that CivetStudy.<br>
+<ul>
+
+<li>
+  Combine CIVET results into a CivetStudy named: <%= form.params_text_field :study_name %>
+  using CivetCombiner version: <%= tool_config_select :combiner_tool_config_id.to_la, { :tool_configs => combiner_tool_configs, :selector => params[:combiner_tool_config_id] } %>
+</li>
+
+<% if qc_tool_configs.size > 0 %>
+<li>
+  Launch <%= form.params_check_box :qc_study %> Claude's QC script on that CivetStudy
+  using CivetQc version: <%= tool_config_select :qc_tool_config_id.to_la, { :tool_configs => qc_tool_configs, :selector => params[:qc_tool_config_id] } %>
+</li>
+<% end %>
+
+</ul>
+
+</div>
+
+</fieldset>
 
 <% end %>
 
