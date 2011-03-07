@@ -3,7 +3,7 @@
 <P>
   
 <% if @userfile.is_locally_synced? %>
-  <% if @userfile.list_files(".", :directory).find{ |dir| dir.name[-3, 3] == "/QC" }%>
+  <% if @userfile.list_files(".", :directory).find{ |dir| dir.name[-3, 3] == "/QC" } %>
     <%= overlay_ajax_link "Civet QC Legend", "/doc/userfiles/civetqc_results.html" %>
     
       <div id="userfile_contents_display" class="centered">
