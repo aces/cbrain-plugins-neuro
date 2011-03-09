@@ -28,9 +28,13 @@ class CbrainTask::Mnc2nii < PortalTask
 
   def after_form #:nodoc:
     params = self.params
-    cb_error "Missing voxel type"     if params[:voxel_type].blank?
-    cb_error "Missing voxel int sign" if params[:voxel_int_signity].blank? && params[:voxel_type] =~ /^(byte|short|int)$/
+    params_errors.add(:voxel_type, "needs to be specified.")        if params[:voxel_type].blank?
+    params_errors.add(:voxel_int_signity, "needs to be specified.") if params[:voxel_int_signity].blank?
     ""
+  end
+
+  def self.pretty_params_names #:nodoc:
+    { :voxel_type => 'Output voxel data type', :voxel_int_signity => 'Output voxel signity' }
   end
 
   def final_task_list #:nodoc:
