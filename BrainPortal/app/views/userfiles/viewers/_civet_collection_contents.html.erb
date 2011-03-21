@@ -1,0 +1,19 @@
+<% if @userfile.is_locally_synced? %>
+  <% overlay_content_link "Show Displayable Contents", :class => "action_link" do %>
+    <% clasp_file  = @userfile.list_files("#{base_dir}").find { |f| f.name =~ /clasp\.png$/ } %>
+    <% verify_file = @userfile.list_files("#{base_dir}").find { |f| f.name =~ /verify\.png$/} %>
+    <% if clasp_file %>
+       <h3>Clasp</h3>
+       <%= image_tag url_for(:action  => :content, :collection_file  => clasp_file.name) %>
+    <% end %>
+ 
+    <% if verify_file %>
+       <br><h3>Verify</h3>
+       <%= image_tag url_for(:action  => :content, :collection_file  => verify_file.name) %>
+    <% end %>
+  <% end %>
+<% end %>
+<%= render :partial  => "userfiles/viewers/civet_directories_help" %>
+<br><br>
+
+<%= render :partial  => "userfiles/viewers/file_collection_form", :locals  => {:collection_partial  => "file_collection_plain_file_list"} %>

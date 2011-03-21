@@ -16,7 +16,8 @@
 #directory tree produced by *civet*.
 class CivetCollection < FileCollection
   Revision_info="$Id$"
-  
+
+  reset_viewers
   has_viewer :civet_collection
       
   def content(options) #:nodoc
