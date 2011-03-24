@@ -73,7 +73,7 @@ class CbrainTask::Civet < PortalTask
       :model               => 'icbm152nl', # -model
         
       :interp              => 'trilinear', # -interp
-      :N3_distance         => 200,         # -N3-distance
+      :N3_distance         => 0,           # -N3-distance
       :lsq                 => '9',         # -lsq6, -lsq9, -lsq12
       :no_surfaces         => false,       # -no-surfaces
       :thickness_method    => 'tlink',     # -thickness method kernel
@@ -136,6 +136,10 @@ class CbrainTask::Civet < PortalTask
     if file_args.empty?
       cb_error  "No CIVET started, as no T1 file selected for launch!" if self.new_record?
       cb_notice "Warning! No T1 file selected for processing!"
+    end
+
+    if params[:N3_distance].blank? || params[:N3_distance].to_i < 1
+      cb_error "You need to select a N3 distance. Suggested values are 200 for a 1.5T scanner, 25 for a 3T scanner."
     end
 
     # Nothing else to do when we're editing an existing task
