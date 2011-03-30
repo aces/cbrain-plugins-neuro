@@ -7,17 +7,25 @@
   <%= form.params_label  :template, "Template:", :title => "Define the template for image processing" %>
   <%= form.params_select :template, [ "0.50", "0.75", "1.00", "1.50", "2.00", "3.00", "4.00", "6.00" ] %>
 
-  <br>
+  <br/>
 
   <%= form.params_label  :model, "Model:", :title => "Define the model for image-processing" %>
   <%= form.params_select :model, [ "icbm152lin", "icbm152nl" ] %>
 
   <% if ! @task.new_record? %>
 
-    <br>
+    <br/>
 
     <%= form.params_label  :reset_from, "Restart from this stage:", :title => "Stage to restart from" %>
     <%= form.params_select :reset_from, [ "" ] + CbrainTask::Civet::StagesNames %>
+
+  <% else  %>
+
+    <br/>
+
+    <strong>(Experimental, leave blank by default)</strong> <%= form.params_label  :reset_from, "Start from this stage:", :title => "Stage to start from" %>
+    <%= form.params_select :reset_from, [ "" ] + CbrainTask::Civet::StagesNames %>
+    <small>Warning: this will likely NOT work well (or at all) for some of these stages... caveat emptor.</small>
 
   <% end %>
 
