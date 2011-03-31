@@ -453,7 +453,7 @@ class CbrainTask::Civet < ClusterTask
     end
     badnews  = logfiles.select { |lf| lf =~ /\.(fail(ed)?)$/i }
     unless badnews.empty?
-      failed_t1_trigger = "#{dsid}_nuc_t1_native.failed"
+      failed_t1_trigger = "#{dsid}.nuc_t1_native.failed"
       if badnews.include?(failed_t1_trigger)
          self.addlog("Error: it seems this CIVET run could not process your T1 file!")
          self.addlog("We found this file in 'logs' : #{failed_t1_trigger}")
