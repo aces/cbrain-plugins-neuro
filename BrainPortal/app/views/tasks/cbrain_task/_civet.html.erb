@@ -19,14 +19,6 @@
     <%= form.params_label  :reset_from, "Restart from this stage:", :title => "Stage to restart from" %>
     <%= form.params_select :reset_from, [ "" ] + CbrainTask::Civet::StagesNames %>
 
-  <% else  %>
-
-    <br/>
-
-    <strong>(Experimental, leave blank by default)</strong> <%= form.params_label  :reset_from, "Start from this stage:", :title => "Stage to start from" %>
-    <%= form.params_select :reset_from, [ "" ] + CbrainTask::Civet::StagesNames %>
-    <small>Warning: this will likely NOT work well (or at all) for some of these stages... caveat emptor.</small>
-
   <% end %>
 
 </fieldset>
