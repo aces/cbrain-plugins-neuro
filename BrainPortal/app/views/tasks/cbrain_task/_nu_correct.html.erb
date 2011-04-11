@@ -1,10 +1,11 @@
 
-<p class="short_paragraphs"
+<p class="short_paragraphs">
 <STRONG>
-This is a preliminary implementation of nu_correct ; better documentation
+This is a preliminary implementation of nu_correct.
+</STRONG>
+Better documentation
 and functionality will be provided later on, but feel free to contact
 us and make requests or give us feedback about problems!
-</STRONG>
 </p>
 
 <fieldset>
@@ -17,7 +18,7 @@ us and make requests or give us feedback about problems!
    <th>Use mask?</th>
 </tr>
 <% params[:launch_table].each do |idx,entry| %>
-  <tr>
+  <tr class="<%= cycle('list-odd', 'list-even') %>">
     <td><%= form.params_check_box "launch_table[#{idx}][do_it]" %></td>
     <td>
         <%= link_to_userfile_if_accessible(entry[:in_id]) %>
@@ -36,6 +37,12 @@ us and make requests or give us feedback about problems!
   </tr>
 <% end %>
 </table>
+
+<br/>
+
+<strong>Note:</strong> mask files are found when they match exactly the names of the input<br/>
+files except that they have "_mask" or "_mk" just before the ".mnc" extension.
+
 </fieldset>
 
 <P>
