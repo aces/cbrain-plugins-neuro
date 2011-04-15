@@ -25,13 +25,13 @@ us and make requests or give us feedback about problems!
         <%= form.params_hidden_field "launch_table[#{idx}][in_id]" %>
     </td>
     <% if (! entry[:mk_id].blank?) && entry[:mk_id] != "0" %>
-      <td><%= red_if(false, "Yes:", nil, :color1 => 'green') %>
+      <td><%= html_colorize("Yes:", 'green') %>
         <%= link_to_userfile_if_accessible(entry[:mk_id]) %>
         <%= form.params_hidden_field "launch_table[#{idx}][mk_id]" %>
       </td>
       <td><%= form.params_check_box "launch_table[#{idx}][use_mask]" %></td>
     <% else %>
-      <td><%= red_if(true, nil, "No") %></td>
+      <td><%= html_colorize("No") %></td>
       <td><%= form.params_check_box "launch_table[#{idx}][use_mask]", { :disabled => true } %></td>
     <% end %>
   </tr>
