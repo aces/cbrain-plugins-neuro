@@ -95,16 +95,16 @@ class MincFile < SingleFile
   end
   
   # The raw binary data, in short integers
-  def raw_data #:nodoc:
+  def minc_get_raw_data #:nodoc:
     cb_error "Call to raw_data() when minctools not installed!" unless self.class.has_minctools?
     @raw_data ||= IO.popen("minctoraw -byte -unsigned -normalize #{escaped_path}"){ |fh| fh.readlines.join }
   end
 
-  def data #:nodoc:
+  def minc_get_data #:nodoc:
     @data ||= self.raw_data.unpack('v*') #Unpack is used here to convert 4 byte(char) to a short unsigned integer
   end
   
-  def data_string #:nodoc:
+  def minc_get_data_string #:nodoc:
     @data_string ||= self.data.join(" ") #making a space delimited array of the data (useful to send to server)
   end
 
