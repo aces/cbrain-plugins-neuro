@@ -97,7 +97,10 @@ class MincFile < SingleFile
   # The raw binary data, in short integers
   def minc_get_raw_data #:nodoc:
     cb_error "Call to raw_data() when minctools not installed!" unless self.class.has_minctools?
-    @raw_data ||= IO.popen("minctoraw -byte -unsigned -normalize #{escaped_path}"){ |fh| fh.readlines.join }
+    return @raw_data if @raw_data
+    cache_path   = self.cache_full_path
+    escaped_path = shell_escape(cache_path)
+    @raw_data = IO.popen("minctoraw -byte -unsigned -normalize #{escaped_path}") { |fh| fh.readlines.join }
   end
 
   def minc_get_data #:nodoc:
