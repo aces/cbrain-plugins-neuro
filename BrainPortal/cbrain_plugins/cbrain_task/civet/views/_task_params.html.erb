@@ -119,9 +119,9 @@
   <% keys.each do |idx| %>
     <% file = params[:file_args][idx] %>
      <% if ! params[:collection_id].blank? %>
-       <%= render :partial => 'tasks/cbrain_task/civet_file_from_col',  :locals  => {:file  => file, :idx => idx } %>
+       <%= render :partial => task_partial('civet_file_from_col'),  :locals  => {:file  => file, :idx => idx } %>
      <% else %>
-       <%= render :partial => 'tasks/cbrain_task/civet_file_from_list', :locals  => {:file  => file, :idx => idx } %>
+       <%= render :partial => task_partial('civet_file_from_list'), :locals  => {:file  => file, :idx => idx } %>
      <% end %>
   <% end %>
 </table>
