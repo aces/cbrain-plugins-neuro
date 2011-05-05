@@ -139,7 +139,8 @@ class CbrainTask::Civet < PortalTask
     end
 
     if params[:N3_distance].blank? || params[:N3_distance].to_i < 1
-      cb_error "You need to select a N3 distance. Suggested values are 200 for a 1.5T scanner, 25 for a 3T scanner."
+      params_errors.add(:N3_distance, "You need to select a N3 distance. Suggested values are 200 for a 1.5T scanner, 25 for a 3T scanner.")
+      return ""
     end
 
     # Nothing else to do when we're editing an existing task
@@ -149,7 +150,8 @@ class CbrainTask::Civet < PortalTask
     study_name = params[:study_name] || ""
     if ! study_name.blank? 
       if ! Userfile.is_legal_filename?(study_name)
-        cb_error "Sorry, but the study name provided contains some unacceptable characters."
+        params_errors.add(:study_name, "Sorry, but the study name provided contains some unacceptable characters.")
+        return ""
       end
       combiner_tool_config_id = params[:combiner_tool_config_id]
       cb_error "You need to select a version for the optional CivetCombiner task." if combiner_tool_config_id.blank?
