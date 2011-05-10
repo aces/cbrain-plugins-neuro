@@ -570,7 +570,7 @@ class CbrainTask::Civet < ClusterTask
       return true # no validation necessary in test 'fake' mode.
     end
     outerr = self.tool_config_system("mincinfo #{path} 2>&1")
-    out    = outerr[0]
+    out    = outerr[0] + outerr[1]
     base = File.basename(path)
     if File.symlink?(path)
       base = File.basename(File.readlink(path)) rescue base
