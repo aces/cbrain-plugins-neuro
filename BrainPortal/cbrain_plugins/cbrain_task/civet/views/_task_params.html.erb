@@ -248,10 +248,10 @@ job's output doesn't crush another job's output!</strong>.
 </fieldset>
 
 
-<% combiner_tool_configs = ToolConfig.find(:all, :conditions => { :bourreau_id => @bourreaux.map(&:id), :tool_id => CbrainTask::CivetCombiner.tool.id }) %>
+<% combiner_tool_configs = ToolConfig.where( :bourreau_id => @bourreaux.map(&:id), :tool_id => CbrainTask::CivetCombiner.tool.id ) %>
 <% combiner_tool_configs.reject! { |tc| ! tc.can_be_accessed_by?(@task.user) } %>
 
-<% qc_tool_configs       = ToolConfig.find(:all, :conditions => { :bourreau_id => @bourreaux.map(&:id), :tool_id => CbrainTask::CivetQc.tool.id }) %>
+<% qc_tool_configs       = ToolConfig.where( :bourreau_id => @bourreaux.map(&:id), :tool_id => CbrainTask::CivetQc.tool.id ) %>
 <% qc_tool_configs.reject! { |tc| ! tc.can_be_accessed_by?(@task.user) } %>
 
 <% if @task.new_record? && combiner_tool_configs.size > 0 %>
