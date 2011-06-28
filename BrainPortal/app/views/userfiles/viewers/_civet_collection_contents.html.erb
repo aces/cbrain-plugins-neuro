@@ -1,5 +1,5 @@
 <% if @userfile.is_locally_synced? %>
-  <% overlay_content_link "Show Displayable Contents", :class => "action_link" do %>
+  <%= overlay_content_link "Show Displayable Contents", :class => "action_link" do %>
     <% clasp_file  = @userfile.list_files("#{base_dir}").find { |f| f.name =~ /clasp\.png$/ } %>
     <% verify_file = @userfile.list_files("#{base_dir}").find { |f| f.name =~ /verify\.png$/} %>
     <% if clasp_file %>
