@@ -9,7 +9,7 @@
 
 class DicomFile < SingleFile
 
-  Revision_info="$Id$"
+  Revision_info=CbrainFileRevision[__FILE__]
   
   def self.file_name_pattern
     /\.(dcm|dicom)$/i

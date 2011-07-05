@@ -12,7 +12,7 @@
 #A subclass of PortalTask to launch mnc2nii.
 class CbrainTask::Mnc2nii < PortalTask
 
-  Revision_info="$Id$"
+  Revision_info=CbrainFileRevision[__FILE__]
 
   def self.properties #:nodoc:
     { :use_parallelizer => true }

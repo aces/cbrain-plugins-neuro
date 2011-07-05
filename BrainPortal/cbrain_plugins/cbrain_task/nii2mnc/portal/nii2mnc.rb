@@ -12,7 +12,7 @@
 # A subclass of CbrainTask to launch Nii2mnc.
 class CbrainTask::Nii2mnc < PortalTask
 
-  Revision_info="$Id$"
+  Revision_info=CbrainFileRevision[__FILE__]
 
   after_find :after_find_update_flip_params
 

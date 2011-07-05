@@ -10,7 +10,7 @@
 # A subclass of ClusterTask to run NuCorrect.
 class CbrainTask::NuCorrect < ClusterTask
 
-  Revision_info="$Id$"
+  Revision_info=CbrainFileRevision[__FILE__]
 
   include RestartableTask
   include RecoverableTask

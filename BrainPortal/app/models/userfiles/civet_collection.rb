@@ -15,7 +15,7 @@
 #provide simple access to the contents of particular directories in the
 #directory tree produced by *civet*.
 class CivetCollection < FileCollection
-  Revision_info="$Id$"
+  Revision_info=CbrainFileRevision[__FILE__]
 
   reset_viewers
   has_viewer :civet_collection

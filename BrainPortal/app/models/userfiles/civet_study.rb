@@ -17,7 +17,7 @@
 # API to come later.
 class CivetStudy < FileCollection
 
-  Revision_info="$Id$"
+  Revision_info=CbrainFileRevision[__FILE__]
   
   has_viewer :civet_study
   

@@ -2,7 +2,7 @@
 #A subclass of PortalTask to launch civet.
 class CbrainTask::Civet < PortalTask
 
-  Revision_info="$Id$"
+  Revision_info=CbrainFileRevision[__FILE__]
 
   StagesNames = %w(
     nuc_t1_native
