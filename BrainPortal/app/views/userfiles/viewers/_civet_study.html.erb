@@ -3,7 +3,7 @@
   <% if @userfile.list_files(".", :directory).find{ |dir| dir.name[-3, 3] == "/QC" } %>
     <%= overlay_content_link "Show QC Data", :class => "action_link" do %>      
          <strong>QC</strong><br><br>
-         <% ajax_element(url_for(:action  => :display, :viewer => "civet_study/qc_file", :qc_file  => "base")) do %>
+         <%= ajax_element(url_for(:action  => :display, :viewer => "civet_study/qc_file", :qc_file  => "base")) do %>
            <span class="loading_message">Loading...</span>
          <% end %>
          <br>
