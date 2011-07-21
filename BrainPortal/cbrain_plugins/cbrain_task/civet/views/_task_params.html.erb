@@ -28,17 +28,17 @@
 <fieldset>
 <legend>CIVET options</legend>
 
-  <%= form.params_label  :interp, "Interpolation", :title => "Interpolation method from native to stereotaxic space (trilinear, tricubic, sinc) default trilinear" %>
+  <%= form.params_label  :interp, "Interpolation", :title => "Volume interpolation method from native to stereotaxic space (trilinear, tricubic, sinc) default trilinear" %>
   <%= form.params_select :interp, [ "trilinear", "tricubic", "sinc" ] %>
 
   <br>
 
-  <%= form.params_label      :N3_distance, "N3 distance:", :title => "N3 spline distance in mm (suggested values: 200 for 1.5T scan; 25 for 3T scan) default: 200" %>
+  <%= form.params_label      :N3_distance, "N3 distance:", :title => "N3 spline distance in mm (suggested values: 200 for 1.5T scan; 50 for 3T scan) default: 200" %>
   <%= form.params_text_field :N3_distance, :size => 4 %>
 
   <br>
 
-  <%= form.params_label  :lsq, "Number of parameters transformation for linear registration:", :title => "Number of parameters transformation for linear registration" %>
+  <%= form.params_label  :lsq, "Degrees of freedom for linear registration:", :title => "Degrees of freedom for linear registration to stereotaxic space" %>
   <%= form.params_select :lsq, [ "6", "9", "12" ] %>
 
   <br>
@@ -50,12 +50,12 @@
 
   <%= form.params_label      :thickness_method,  "Thickness method:", :title => "Thickness method" %>
   <%= form.params_select     :thickness_method, [ "tnormal", "tlink", "tlaplace", "tnear" ] %>
-  <%= form.params_label      :thickness_kernel, "and kernel size:", :title => "Kernel size" %>
+  <%= form.params_label      :thickness_kernel, "and kernel size:", :title => "FWHM for surface blurring" %>
   <%= form.params_text_field :thickness_kernel, :size => 4 %>
 
   <br>
 
-  <%= form.params_label     :resample_surfaces, "Resample surfaces:", :title => "Resample cortical surfaces" %>
+  <%= form.params_label     :resample_surfaces, "Resample surfaces:", :title => "Resample cortical surfaces to obtain elemental vertex areas and volumes" %>
   <%= form.params_check_box :resample_surfaces %>
 
   <br>
