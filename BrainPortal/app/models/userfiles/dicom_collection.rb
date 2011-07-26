@@ -10,7 +10,7 @@
 
 class DicomCollection < FileCollection
 
-  Revision_info="$Id$"
+  Revision_info=CbrainFileRevision[__FILE__]
 
   def self.pretty_type
     "DICOM file collection"

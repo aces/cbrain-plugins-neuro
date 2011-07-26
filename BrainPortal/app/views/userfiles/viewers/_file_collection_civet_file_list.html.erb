@@ -1,6 +1,6 @@
 <% 
-  subject ||= ( @userfile.list_files rescue [] )
- %>
+  filelist ||= ( @userfile.list_files rescue [] )
+%>
  
 <table class="simple">
    <tr>
@@ -10,15 +10,15 @@
    </tr>
    <tr class="list-odd">
       <td rowspan="3" class="no_wrap">
-         <%= subject.select{ |file| file.name =~ /^.+\/final\// }.map{ |file|  string_if(@userfile.is_locally_synced?, check_box_tag('file_ids[]', file.name)) + file.name.sub(/^.+\/final\//, "") +
+         <%= filelist.select{ |file| file.name =~ /^.+\/final\// }.map{ |file|  string_if(@userfile.is_locally_synced?, check_box_tag('file_ids[]', file.name)) + file.name.sub(/^.+\/final\//, "") +
                                                                                                                                           " (#{pretty_size(file.size).strip})"}.join('<br>') %>
       </td>
       <td class="no_wrap">
-         <%= subject.select{ |file| file.name =~ /^.+\/native\// }.map{ |file|  string_if(@userfile.is_locally_synced?, check_box_tag('file_ids[]', file.name)) + file.name.sub(/^.+\/native\//, "") +
+         <%= filelist.select{ |file| file.name =~ /^.+\/native\// }.map{ |file|  string_if(@userfile.is_locally_synced?, check_box_tag('file_ids[]', file.name)) + file.name.sub(/^.+\/native\//, "") +
                                                                                                                                           " (#{pretty_size(file.size).strip})"}.join('<br>') %>
       </td>
       <td rowspan="3" class="no_wrap">
-         <%= subject.select{ |file| file.name =~ /^.+\/surfaces\// }.map{ |file|  string_if(@userfile.is_locally_synced?, check_box_tag('file_ids[]', file.name)) + obj_link(file.name, @userfile) +
+         <%= filelist.select{ |file| file.name =~ /^.+\/surfaces\// }.map{ |file|  string_if(@userfile.is_locally_synced?, check_box_tag('file_ids[]', file.name)) + obj_link(file.name, @userfile) +
                                                                                                                                           " (#{pretty_size(file.size).strip})"}.join('<br>') %>
       </td>
    </tr>
@@ -27,7 +27,7 @@
    </tr>
    <tr class="list-odd">
       <td class="no_wrap">
-         <%= subject.select{ |file| file.name =~ /^.+\/mask\// }.map{ |file|  string_if(@userfile.is_locally_synced?, check_box_tag('file_ids[]', file.name)) + file.name.sub(/^.+\/mask\//, "") +
+         <%= filelist.select{ |file| file.name =~ /^.+\/mask\// }.map{ |file|  string_if(@userfile.is_locally_synced?, check_box_tag('file_ids[]', file.name)) + file.name.sub(/^.+\/mask\//, "") +
                                                                                                                                           " (#{pretty_size(file.size).strip})"}.join('<br>') %>
       </td>
    </tr>
@@ -38,15 +38,15 @@
    </tr>
    <tr class="list-odd">
       <td class="no_wrap">
-         <%= subject.select{ |file| file.name =~ /^.+\/classify\// }.map{ |file|  string_if(@userfile.is_locally_synced?, check_box_tag('file_ids[]', file.name)) + file.name.sub(/^.+\/classify\//, "") +
+         <%= filelist.select{ |file| file.name =~ /^.+\/classify\// }.map{ |file|  string_if(@userfile.is_locally_synced?, check_box_tag('file_ids[]', file.name)) + file.name.sub(/^.+\/classify\//, "") +
                                                                                                                                           " (#{pretty_size(file.size).strip})"}.join('<br>') %>
       </td>
       <td class="no_wrap">
-        <%= subject.select{ |file| file.name =~ /^.+\/thickness\// }.map{ |file|  string_if(@userfile.is_locally_synced?, check_box_tag('file_ids[]', file.name)) + file.name.sub(/^.+\/thickness\//, "") +
+        <%= filelist.select{ |file| file.name =~ /^.+\/thickness\// }.map{ |file|  string_if(@userfile.is_locally_synced?, check_box_tag('file_ids[]', file.name)) + file.name.sub(/^.+\/thickness\//, "") +
                                                                                                                                           " (#{pretty_size(file.size).strip})"}.join('<br>') %>
       </td>
       <td class="no_wrap">
-         <%= subject.select{ |file| file.name =~ /^.+\/verify\// }.map{ |file|  string_if(@userfile.is_locally_synced?, check_box_tag('file_ids[]', file.name)) + file.name.sub(/^.+\/verify\//, "") +
+         <%= filelist.select{ |file| file.name =~ /^.+\/verify\// }.map{ |file|  string_if(@userfile.is_locally_synced?, check_box_tag('file_ids[]', file.name)) + file.name.sub(/^.+\/verify\//, "") +
                                                                                                                                            " (#{pretty_size(file.size).strip})"}.join('<br>') %>
       </td>
    </tr>
@@ -57,15 +57,15 @@
    </tr>
    <tr class="list-odd">
       <td class="no_wrap">
-         <%= subject.select{ |file| file.name =~ /^.+\/transforms\/linear\// }.map{ |file|  string_if(@userfile.is_locally_synced?, check_box_tag('file_ids[]', file.name)) + file.name.sub(/^.+\/transforms\/linear\//, "") +
+         <%= filelist.select{ |file| file.name =~ /^.+\/transforms\/linear\// }.map{ |file|  string_if(@userfile.is_locally_synced?, check_box_tag('file_ids[]', file.name)) + file.name.sub(/^.+\/transforms\/linear\//, "") +
                                                                                                                                            " (#{pretty_size(file.size).strip})"}.join('<br>') %>
       </td>
       <td class="no_wrap">
-         <%= subject.select{ |file| file.name =~ /^.+\/transforms\/nonlinear\// }.map{ |file|  string_if(@userfile.is_locally_synced?, check_box_tag('file_ids[]', file.name)) + file.name.sub(/^.+\/transforms\/nonlinear\//, "") +
+         <%= filelist.select{ |file| file.name =~ /^.+\/transforms\/nonlinear\// }.map{ |file|  string_if(@userfile.is_locally_synced?, check_box_tag('file_ids[]', file.name)) + file.name.sub(/^.+\/transforms\/nonlinear\//, "") +
                                                                                                                                             " (#{pretty_size(file.size).strip})"}.join('<br>') %>
       </td>
       <td class="no_wrap">
-         <%= subject.select{ |file| file.name =~ /^.+\/transforms\/surfreg\// }.map{ |file|  string_if(@userfile.is_locally_synced?, check_box_tag('file_ids[]', file.name)) + file.name.sub(/^.+\/transforms\/surfreg\//, "") + 
+         <%= filelist.select{ |file| file.name =~ /^.+\/transforms\/surfreg\// }.map{ |file|  string_if(@userfile.is_locally_synced?, check_box_tag('file_ids[]', file.name)) + file.name.sub(/^.+\/transforms\/surfreg\//, "") + 
                                                                                                                                             " (#{pretty_size(file.size).strip})"}.join('<br>') %>
       </td>
    </tr>

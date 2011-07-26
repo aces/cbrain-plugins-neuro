@@ -12,7 +12,7 @@
 #A subclass of PortalTask to launch civet_combiner.
 class CbrainTask::CivetCombiner < PortalTask
 
-  Revision_info="$Id$"
+  Revision_info=CbrainFileRevision[__FILE__]
 
   def self.properties #:nodoc:
     { :no_presets => true }
