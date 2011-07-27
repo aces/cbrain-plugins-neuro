@@ -13,7 +13,7 @@
 # A subclass of ClusterTask to combine CIVET results.
 class CbrainTask::CivetCombiner < ClusterTask
 
-  Revision_info="$Id$"
+  Revision_info=CbrainFileRevision[__FILE__]
 
   include RestartableTask # This task is naturally restartable
   include RecoverableTask # This task is naturally recoverable

@@ -10,7 +10,7 @@
 # A subclass of CbrainTask to launch nu_correct.
 class CbrainTask::NuCorrect < PortalTask
 
-  Revision_info="$Id$"
+  Revision_info=CbrainFileRevision[__FILE__]
 
   # RDOC comments here, if you want, although the method
   # is created with #:nodoc: in this template.

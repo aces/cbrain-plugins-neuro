@@ -12,7 +12,7 @@
 # A subclass of ClusterTask to run Nii2mnc.
 class CbrainTask::Nii2mnc < ClusterTask
 
-  Revision_info="$Id$"
+  Revision_info=CbrainFileRevision[__FILE__]
 
   include RecoverableTask
   include RestartableTask

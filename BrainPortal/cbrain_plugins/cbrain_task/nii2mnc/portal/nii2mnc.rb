@@ -12,7 +12,9 @@
 # A subclass of CbrainTask to launch Nii2mnc.
 class CbrainTask::Nii2mnc < PortalTask
 
-  Revision_info="$Id$"
+  Revision_info=CbrainFileRevision[__FILE__]
+
+  after_find :after_find_update_flip_params
 
   def self.properties #:nodoc:
     { :use_parallelizer => true }
@@ -34,7 +36,7 @@ class CbrainTask::Nii2mnc < PortalTask
   
   # Updates the old flip options :flipx, :flipy and :flipz into the new :flip_order
   # when reloading an old task
-  def after_find #:nodoc:
+  def after_find_update_flip_params #:nodoc:
     params = self.params
     return true if ! params
     return true unless params.has_key?(:flipx) || params.has_key?(:flipy) || params.has_key?(:flipz)
