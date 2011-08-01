@@ -245,16 +245,19 @@ class CbrainTask::Civet < PortalTask
 
   def old_get_default_args_for_collection(collection) #:nodoc:
 
-    # TODO: Provide the link directly in the CIVET args page?
-    state = collection.local_sync_status
-    cb_error "Error: in order to process this collection, it must first have been synchronized.\n" +
-          "In the file manager, click on the collection then on the 'synchronize' link." if
-          ! state || state.status != "InSync"
-
-    # Get the list of all files inside the collection; we only
-    # look one level deep inside the directory.
-    files_inside  = collection.list_files(:top).map(&:name)
-    files_inside  = files_inside.map { |f| f.sub(/^.*\//,"") }
+    # Get the list of all files inside the collection
+    if collection.is_a?(LorisSubject)
+      files_inside  = collection.list_files().map(&:name) # will work synchronized or not
+    else
+      # TODO: Provide the link directly in the CIVET args page?
+      state = collection.local_sync_status
+      cb_error "Error: in order to process this collection, it must first have been synchronized.\n" +
+               "In the file manager, click on the collection then on the 'synchronize' link." if
+               ! state || state.status != "InSync"
+      # we only look one level deep inside the directory.
+      files_inside  = collection.list_files(:top).map(&:name)
+      files_inside  = files_inside.map { |f| Pathname.new(f).basename.to_s }
+    end
 
     # Parse the list of all files and extract the MINC files.
     # We ignore everything else.
