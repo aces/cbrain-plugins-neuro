@@ -49,7 +49,16 @@
   <br>
 
   <%= form.params_label      :thickness_method,  "Thickness method:", :title => "Thickness method" %>
-  <%= form.params_select     :thickness_method, [ "tnormal", "tlink", "tlaplace", "tnear" ] %>
+  <%
+     tmethods =  [ "tlink", "tlaplace" ]
+     if !@task.new_record? && ! @task.params[:thickness_method].blank?
+       old_val = @task.params[:thickness_method].to_s
+       if old_val =~ /^(tnear|tnormal)$/ # old values no longer supported
+         tmethods << old_val
+       end
+     end
+  %>
+  <%= form.params_select     :thickness_method, tmethods %>
   <%= form.params_label      :thickness_kernel, "and kernel size:", :title => "FWHM for surface blurring" %>
   <%= form.params_text_field :thickness_kernel, :size => 4 %>
 
