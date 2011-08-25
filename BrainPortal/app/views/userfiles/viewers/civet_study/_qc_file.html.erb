@@ -15,7 +15,7 @@
   doc.search("img").each {|img| img['src'] = "/userfiles/#{@userfile.id}/content?collection_file=#{@userfile.list_files.map(&:name).find{ |file| file =~ /#{img['src'].sub(/^\.+\//, "")}$/ }}" }
   doc.search("image").each {|img| img['src'] = "/userfiles/#{@userfile.id}/content?collection_file=#{@userfile.list_files.map(&:name).find{ |file| file =~ /#{img['src'].sub(/^\.+\//, "")}$/ }}" }
   %>
-  <%= doc.to_html %>
+  <%= doc.to_html.html_safe %>
 <% else %>
   Error: the QC report seems to be missing in this study. Maybe the QC task did
   not complete successfully.
