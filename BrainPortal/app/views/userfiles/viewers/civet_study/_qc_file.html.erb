@@ -11,7 +11,7 @@
 <% if File.file?(@userfile.cache_full_path.parent + qc_file) %>
   <%
   doc = Nokogiri::HTML.fragment(File.read(@userfile.cache_full_path.parent + qc_file))
-  doc.search("a").each {|link| link['href'] = "/userfiles/#{@userfile.id}/content?qc_file=#{link['href']}" }
+  doc.search("a").each {|link| link['href'] = "/userfiles/#{@userfile.id}/display?viewer=civet_study%2Fqc_file&qc_file=#{link['href']}&apply_div=false" }
   doc.search("img").each {|img| img['src'] = "/userfiles/#{@userfile.id}/content?collection_file=#{@userfile.list_files.map(&:name).find{ |file| file =~ /#{img['src'].sub(/^\.+\//, "")}$/ }}" }
   doc.search("image").each {|img| img['src'] = "/userfiles/#{@userfile.id}/content?collection_file=#{@userfile.list_files.map(&:name).find{ |file| file =~ /#{img['src'].sub(/^\.+\//, "")}$/ }}" }
   %>
