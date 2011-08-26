@@ -13,9 +13,10 @@ class MincFile < SingleFile
 
   Revision_info=CbrainFileRevision[__FILE__]
   
-  has_viewer :partial => "jiv_file",          :if  => Proc.new{ |u| u.has_format?(:jiv) && u.get_format(:jiv).is_locally_synced? }
-  has_viewer :partial => "html5_minc_viewer", :if  => Proc.new{ |u| u.class.has_minctools? && u.is_locally_synced? && u.size < 30.megabytes }
-
+  has_viewer :partial => "jiv_file",                                         :if  => Proc.new { |u| u.has_format?(:jiv) && u.get_format(:jiv).is_locally_synced? }
+  has_viewer :partial => "html5_minc_viewer",                                :if  => Proc.new { |u| u.class.has_minctools? && u.is_locally_synced? && u.size < 30.megabytes }
+  has_viewer :partial => "minc_file/info_header", :name => "Info & Headers", :if  => Proc.new { |u| u.class.has_minctools?(["mincinfo","mincheader"]) && u.is_locally_synced? }
+  
   def format_name #:nodoc:
     "MINC"
   end
@@ -33,17 +34,9 @@ class MincFile < SingleFile
   end
 
   # Returns true only if the current system PATH environment
-  # can invoke the minc tools 'mincinfo' and 'minctoraw'.
-  def self.has_minctools?
-    return @_minctools_installed == :yes unless @_minctools_installed.blank?
-    if system("bash","-c","which mincinfo >/dev/null 2>&1") &&
-       system("bash","-c","which minctoraw >/dev/null 2>&1")
-      @_minctools_installed = :yes
-      return true
-    else
-      @_minctools_installed = :no
-      return false
-    end
+  # can invoke tools (default: 'mincinfo' and 'minctoraw').
+  def self.has_minctools?(which_tools=["mincinfo", "minctoraw"])
+    which_tools.all? { |tool| system("bash","-c","which #{tool} >/dev/null 2>&1") }
   end
 
   def to_s #:nodoc:
@@ -110,8 +103,6 @@ class MincFile < SingleFile
   def minc_get_data_string #:nodoc:
     @data_string ||= self.data.join(" ") #making a space delimited array of the data (useful to send to server)
   end
-
-  private
 
   # This utility method escapes properly any string such that
   # it becomes a literal in a bash command; the string returned
