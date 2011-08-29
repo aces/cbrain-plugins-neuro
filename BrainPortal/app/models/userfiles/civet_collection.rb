@@ -18,16 +18,7 @@ class CivetCollection < FileCollection
   Revision_info=CbrainFileRevision[__FILE__]
 
   reset_viewers
-  has_viewer :civet_collection
-      
-  def content(options) #:nodoc
-    if options[:collection_file]
-      path = self.cache_full_path.parent + options[:collection_file]
-      {:sendfile => path}
-    else
-      super
-    end
-  end
+  has_viewer    :civet_collection
   
   def qc_images
     self.list_files("verify").select { |f| f.name =~ /\.png$/ }
