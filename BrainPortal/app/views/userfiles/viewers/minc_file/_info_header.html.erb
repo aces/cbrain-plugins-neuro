@@ -2,11 +2,11 @@
 cache_path   = @userfile.cache_full_path
 escaped_path = @userfile.shell_escape(cache_path) # TODO refactor elsewhere
 
-minc_info = IO.popen("mincinfo #{escaped_path} mincinfo", "r") do |fh|
+minc_info = IO.popen("mincinfo #{escaped_path}", "r") do |fh|
   fh.read rescue "Cannot run mincinfo ?!?" 
 end
 
-minc_head = IO.popen("mincheader #{escaped_path} mincheader", "r") do |fh| 
+minc_head = IO.popen("mincheader #{escaped_path}", "r") do |fh| 
   fh.read rescue "Cannot run mincheader ?!?" 
 end
 %>
