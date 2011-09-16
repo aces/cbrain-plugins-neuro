@@ -26,6 +26,8 @@ class CbrainTask::NuCorrect < ClusterTask
     basename   = fullpath.basename
     safe_symlink(fullpath,basename)
 
+    self.results_data_provider_id ||= infile.data_provider_id
+
     maskfile = lt[:use_mask] == "1" ? Userfile.find(lt[:mk_id]) : nil
     if maskfile
       maskfile.sync_to_cache
@@ -82,7 +84,7 @@ class CbrainTask::NuCorrect < ClusterTask
 
     outfile = safe_userfile_find_or_new(MincFile,
       :name             => outname,
-      :data_provider_id => (params[:data_provider_id].blank? ? infile.data_provider.id : params[:data_provider_id])
+      :data_provider_id => self.results_data_provider_id
     )
     outfile.save!
     outfile.move_to_child_of(infile)

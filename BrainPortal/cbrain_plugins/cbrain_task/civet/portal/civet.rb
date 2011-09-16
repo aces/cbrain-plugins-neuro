@@ -442,8 +442,7 @@ class CbrainTask::Civet < PortalTask
     combiner.params = {
       :civet_study_name     => study_name,
       :civet_from_task_ids  => tids.join(","),
-      :destroy_sources      => false,  # must be the string 'YeS' to trigger it
-      :data_provider_id     => params[:data_provider_id]
+      :destroy_sources      => false  # must be the string 'YeS' to trigger it
     }
 
     tids.each do |tid|

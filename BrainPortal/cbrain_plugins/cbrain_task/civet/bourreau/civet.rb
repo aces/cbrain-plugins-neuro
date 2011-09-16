@@ -87,12 +87,7 @@ class CbrainTask::Civet < ClusterTask
       mk_id  = file0[:mk_id]  # can be nil
     end
 
-    # Setting the data_provider_id here means it persists
-    # in the ActiveRecord params structure for later use.
-    if params[:data_provider_id].blank?
-       params[:data_provider_id] = collection.data_provider.id if collection
-       params[:data_provider_id] = t1.data_provider.id if ! collection
-    end
+    self.results_data_provider_id ||= collection ? collection.data_provider_id : t1.data_provider_id
 
     # MODE A (collection) symlinks
     if collection
@@ -405,7 +400,6 @@ class CbrainTask::Civet < ClusterTask
 
     prefix           = file0[:prefix] || "unkpref"  # not used in this method
     dsid             = file0[:dsid]   || "unkdsid"
-    data_provider_id = params[:data_provider_id]
 
     unless mybool(file0[:launch])
       self.addlog("No need to save results for CIVET ##{arg_idx} '#{dsid}': not selected for processing.")
@@ -469,7 +463,7 @@ class CbrainTask::Civet < ClusterTask
     out_name = output_name_from_pattern(file0[:t1_name],arg_idx)
     civetresult = safe_userfile_find_or_new(CivetCollection,
       :name             => out_name,
-      :data_provider_id => data_provider_id,
+      :data_provider_id => self.results_data_provider_id,
       :task             => "Civet"
     )
     unless civetresult.save
