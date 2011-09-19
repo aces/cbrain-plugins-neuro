@@ -463,8 +463,7 @@ class CbrainTask::Civet < ClusterTask
     out_name = output_name_from_pattern(file0[:t1_name],arg_idx)
     civetresult = safe_userfile_find_or_new(CivetCollection,
       :name             => out_name,
-      :data_provider_id => self.results_data_provider_id,
-      :task             => "Civet"
+      :data_provider_id => self.results_data_provider_id
     )
     unless civetresult.save
       cb_error "Could not save back result file '#{civetresult.name}'."

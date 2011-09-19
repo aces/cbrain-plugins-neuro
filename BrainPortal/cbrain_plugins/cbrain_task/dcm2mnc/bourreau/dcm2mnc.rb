@@ -82,8 +82,7 @@ class CbrainTask::Dcm2mnc < ClusterTask
       basename     = File.basename(newrelpath)
       mincfile = safe_userfile_find_or_new(MincFile,
         :name             => basename,
-        :data_provider_id => self.results_data_provider_id,
-        :task             => "Dcm2mnc"
+        :data_provider_id => self.results_data_provider_id
       )
       mincfile.cache_copy_from_local_file(newrelpath)
       if mincfile.save
