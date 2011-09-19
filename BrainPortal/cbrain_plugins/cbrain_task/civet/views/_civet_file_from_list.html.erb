@@ -1,19 +1,19 @@
 
 <tr>
 
-<td><%= check_box_tag( "cbrain_task[params][file_args][#{idx}][launch]", '1', file[:launch], :class => 'launch_it' ) %></td>
+<td><%= form.params_check_box "file_args[#{idx}][launch]" %></td>
 
 <td>
   <%= h(file[:t1_name]) %>
-  <%= hidden_field_tag "cbrain_task[params][file_args][#{idx}][t1_name]", file[:t1_name] %>
-  <%= hidden_field_tag "cbrain_task[params][file_args][#{idx}][t1_id]",   file[:t1_id]   %>
-  <%= hidden_field_tag "cbrain_task[params][file_args][#{idx}][t2_id]",   file[:t2_id]   %>
-  <%= hidden_field_tag "cbrain_task[params][file_args][#{idx}][pd_id]",   file[:pd_id]   %>
-  <%= hidden_field_tag "cbrain_task[params][file_args][#{idx}][mk_id]",   file[:mk_id]   %>
+  <%= form.params_hidden_field "file_args[#{idx}][t1_name]" %>
+  <%= form.params_hidden_field "file_args[#{idx}][t1_id]"   %>
+  <%= form.params_hidden_field "file_args[#{idx}][t2_id]"   %>
+  <%= form.params_hidden_field "file_args[#{idx}][pd_id]"   %>
+  <%= form.params_hidden_field "file_args[#{idx}][mk_id]"   %>
 </td>
 
-<td><%= text_field_tag "cbrain_task[params][file_args][#{idx}][prefix]", file[:prefix] %></td>
-<td><%= text_field_tag "cbrain_task[params][file_args][#{idx}][dsid]",   file[:dsid]   %></td>
+<td><%= form.params_text_field "file_args[#{idx}][prefix]" %></td>
+<td><%= form.params_text_field "file_args[#{idx}][dsid]"   %></td>
 
 <% if file[:t2_id].blank? %>
   <td><FONT COLOR="red">&times;</FONT></td>

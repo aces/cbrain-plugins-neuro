@@ -32,7 +32,7 @@ class CbrainTask::Mnc2nii < ClusterTask
     basename  = cachename.basename.to_s
     safe_symlink(cachename,basename)
 
-    params[:data_provider_id] = mincfile.data_provider_id if params[:data_provider_id].blank?
+    self.results_data_provider_id ||= mincfile.data_provider_id
 
     true
   end
@@ -90,8 +90,6 @@ class CbrainTask::Mnc2nii < ClusterTask
     basename    = cachename.basename.to_s
     shortbase   = basename.sub(/\.mi?nc(\.g?z)?$/i,"")
 
-    data_provider_id = params[:data_provider_id]
-
     out_files = Dir.glob("*.{img,hdr,nii,nia}")
     if out_files.size == 0
       self.addlog("Could not find any output files?!?")
@@ -103,7 +101,7 @@ class CbrainTask::Mnc2nii < ClusterTask
       self.addlog("Found raw output file '#{file}'.")
       niifile = safe_userfile_find_or_new(SingleFile,
         :name             => shortbase + File.extname(file),
-        :data_provider_id => data_provider_id,
+        :data_provider_id => self.results_data_provider_id,
         :task             => "Mnc2nii"
       )
       niifile.cache_copy_from_local_file(file)

@@ -26,7 +26,7 @@ class CbrainTask::Nii2mnc < ClusterTask
     u = Userfile.find(id)
     u.sync_to_cache
     safe_symlink(u.cache_full_path,u.cache_full_path.basename)
-    params[:data_provider_id] = u.data_provider_id if params[:data_provider_id].blank?
+    self.results_data_provider_id ||= u.data_provider_id
     true
   end
 
@@ -113,7 +113,7 @@ class CbrainTask::Nii2mnc < ClusterTask
 
     mincfile = safe_userfile_find_or_new(MincFile,
       :name             => mincbase,
-      :data_provider_id => params[:data_provider_id]
+      :data_provider_id => self.results_data_provider_id
     )
     mincfile.save!
     mincfile.cache_copy_from_local_file(mincbase)

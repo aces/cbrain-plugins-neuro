@@ -68,8 +68,7 @@ class CbrainTask::CivetCombiner < ClusterTask
     self.addlog("Synchronization finished.")
 
     # Choose a DP id if none was supplied; we pick the first collections' DP.
-    params[:data_provider_id] = cols[0].data_provider_id if params[:data_provider_id].blank?
-    data_provider_id = params[:data_provider_id]
+    self.results_data_provider_id ||= cols[0].data_provider_id
 
     # Check that all CIVET outputs have
     # 1) the same 'prefix'
@@ -134,7 +133,7 @@ class CbrainTask::CivetCombiner < ClusterTask
   
   def save_results #:nodoc:
     params       = self.params
-    provid       = params[:data_provider_id]
+    provid       = self.results_data_provider_id
     newname      = params[:civet_study_name]
     prefix       = params[:prefix] # set in setup() above
     tcol_to_dsid = params[:dsids]  # set in setup() above

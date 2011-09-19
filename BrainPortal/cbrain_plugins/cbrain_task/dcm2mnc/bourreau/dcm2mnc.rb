@@ -32,7 +32,7 @@ class CbrainTask::Dcm2mnc < ClusterTask
       return false
     end
 
-    params[:data_provider_id] = dicom_col.data_provider_id if params[:data_provider_id].blank?
+    self.results_data_provider_id ||= dicom_col.data_provider_id
 
     dicom_col.sync_to_cache
     cachename = dicom_col.cache_full_path.to_s
@@ -82,7 +82,7 @@ class CbrainTask::Dcm2mnc < ClusterTask
       basename     = File.basename(newrelpath)
       mincfile = safe_userfile_find_or_new(MincFile,
         :name             => basename,
-        :data_provider_id => params[:data_provider_id],
+        :data_provider_id => self.results_data_provider_id,
         :task             => "Dcm2mnc"
       )
       mincfile.cache_copy_from_local_file(newrelpath)
