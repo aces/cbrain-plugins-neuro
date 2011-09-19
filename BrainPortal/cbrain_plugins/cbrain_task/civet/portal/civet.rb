@@ -139,9 +139,31 @@ class CbrainTask::Civet < PortalTask
     end
 
     if params[:N3_distance].blank? || params[:N3_distance].to_i < 1
-      params_errors.add(:N3_distance, "You need to select a N3 distance. Suggested values are 200 for a 1.5T scanner, 25 for a 3T scanner.")
+      params_errors.add(:N3_distance, " value is bad. Suggested values are 200 for a 1.5T scanner, 25 for a 3T scanner.")
       return ""
     end
+
+    # Verify uniqueness of subject IDs
+    dsid_counts = {}
+    file_args_hash.each do |idx,fa|
+      dsid = fa[:dsid]
+      dsid_counts[dsid] ||= 0
+      dsid_counts[dsid]  += 1
+    end
+    dup_warned = false
+    file_args_hash.each do |idx,fa|
+      next unless fa[:launch] == '1'
+      dsid = fa[:dsid]
+      if dsid.blank?
+        self.class.pretty_params_names["file_args[#{idx}][dsid]"] = "Subject ID for '#{fa[:t1_name]}'"
+        params_errors.add(             "file_args[#{idx}][dsid]", " is blank?")
+      elsif dsid_counts[dsid] > 1
+        self.class.pretty_params_names["file_args[#{idx}][dsid]"] = "Subject ID for '#{fa[:t1_name]}'"
+        params_errors.add(             "file_args[#{idx}][dsid]", " is the same as another subject ID.")
+        dup_warned = true
+      end
+    end
+    return "" unless params_errors.empty?
 
     # Nothing else to do when we're editing an existing task
     return "" if ! self.new_record?
@@ -487,6 +509,10 @@ class CbrainTask::Civet < PortalTask
       struct[:dsid]   = dsidpat.pattern_substitute(comps) if ! dsidpat.blank?
     end
     ""
+  end
+
+  def self.pretty_params_names #:nodoc:
+    @_ppn ||= {}
   end
 
   private
