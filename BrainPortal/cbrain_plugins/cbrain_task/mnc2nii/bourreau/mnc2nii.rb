@@ -101,8 +101,7 @@ class CbrainTask::Mnc2nii < ClusterTask
       self.addlog("Found raw output file '#{file}'.")
       niifile = safe_userfile_find_or_new(SingleFile,
         :name             => shortbase + File.extname(file),
-        :data_provider_id => self.results_data_provider_id,
-        :task             => "Mnc2nii"
+        :data_provider_id => self.results_data_provider_id
       )
       niifile.cache_copy_from_local_file(file)
       if niifile.save
