@@ -4,12 +4,12 @@
     <% verify_file = @userfile.list_files("#{base_dir}").find { |f| f.name =~ /verify\.png$/} %>
     <% if clasp_file %>
        <h3>Clasp</h3>
-       <%= image_tag url_for(:action  => :content, :collection_file  => clasp_file.name) %>
+       <%= image_tag url_for(:action  => :content, :content_loader => :collection_file, :arguments => clasp_file.name) %>
     <% end %>
  
     <% if verify_file %>
        <br><h3>Verify</h3>
-       <%= image_tag url_for(:action  => :content, :collection_file  => verify_file.name) %>
+       <%= image_tag url_for(:action  => :content, :content_loader => :collection_file, :arguments => verify_file.name) %>
     <% end %>
   <% end %>
 <% end %>
