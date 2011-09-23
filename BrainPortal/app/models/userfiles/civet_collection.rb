@@ -19,7 +19,7 @@ class CivetCollection < FileCollection
 
   reset_viewers
   has_viewer    :civet_collection
-  has_viewer    :partial => "civet_collection/obj_viewer_launcher", :name => "brainbrowser",  :if  => Proc.new { |u| u.is_locally_synced? }
+  has_viewer    :partial => "civet_collection/obj_viewer_launcher", :name => "BrainBrowser",  :if  => Proc.new { |u| u.is_locally_synced? }
   
   def qc_images
     self.list_files("verify").select { |f| f.name =~ /\.png$/ }

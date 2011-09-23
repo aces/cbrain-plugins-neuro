@@ -17,20 +17,15 @@ class MincFile < SingleFile
   has_viewer :partial => "html5_minc_viewer",                                :if  => Proc.new { |u| u.class.has_minctools? && u.is_locally_synced? && u.size < 30.megabytes }
   has_viewer :partial => "minc_file/info_header", :name => "Info & Headers", :if  => Proc.new { |u| u.class.has_minctools?(["mincinfo","mincheader","mincdump","mincexpand"]) && u.is_locally_synced? }
   
+  has_content :method => :get_headers_to_json, :type => :text
+  has_content :method => :get_raw_data,        :type => :text
+  
   def format_name #:nodoc:
     "MINC"
   end
   
   def self.file_name_pattern #:nodoc:
     /\.mi?nc(\.gz|\.Z|\.gz2)?$/i
-  end
-  
-  def content(params) #:nodoc:
-    if params["minc_headers"]
-      return { :text => minc_get_headers.to_json }
-    elsif params["raw_data"]
-      return { :text => minc_get_raw_data }
-    end    
   end
 
   # Returns true only if the current system PATH environment
@@ -87,8 +82,13 @@ class MincFile < SingleFile
     @headers
   end
   
+  #For content
+  def get_headers_to_json
+    minc_get_headers.to_json
+  end
+  
   # The raw binary data, in short integers
-  def minc_get_raw_data #:nodoc:
+  def get_raw_data #:nodoc:
     cb_error "Call to raw_data() when minctools not installed!" unless self.class.has_minctools?
     return @raw_data if @raw_data
     cache_path   = self.cache_full_path
