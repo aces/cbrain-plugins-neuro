@@ -14,7 +14,7 @@ class MincFile < SingleFile
   Revision_info=CbrainFileRevision[__FILE__]
   
   has_viewer :partial => "jiv_file",                                         :if  => Proc.new { |u| u.has_format?(:jiv) && u.get_format(:jiv).is_locally_synced? }
-  has_viewer :partial => "html5_minc_viewer",                                :if  => Proc.new { |u| u.class.has_minctools? && u.is_locally_synced? && u.size < 30.megabytes }
+  has_viewer :partial => "html5_minc_viewer",                                :if  => Proc.new { |u| u.class.has_minctools? && u.is_locally_synced? && u.size < 80.megabytes }
   has_viewer :partial => "minc_file/info_header", :name => "Info & Headers", :if  => Proc.new { |u| u.class.has_minctools?(["mincinfo","mincheader","mincdump","mincexpand"]) && u.is_locally_synced? }
   
   has_content :method => :get_headers_to_json, :type => :text
