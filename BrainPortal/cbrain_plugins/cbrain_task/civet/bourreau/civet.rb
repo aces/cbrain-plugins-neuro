@@ -492,8 +492,10 @@ class CbrainTask::Civet < ClusterTask
     # this result set.
     run_params_file = "#{out_dsid}/CBRAIN_#{uniq_run}.params.yml"
     params_link     = "#{out_dsid}/CBRAIN.params.yml"
+    specific_params = params.dup
+    specific_params[:file_args] = { "0" => file0 }
     File.open(run_params_file,"w") do |fh|
-      fh.write(params.to_yaml)
+      fh.write(specific_params.to_yaml)
     end
     File.unlink(params_link) rescue true
     File.symlink(run_params_file.sub(/.*\//,""),params_link) rescue true
