@@ -50,7 +50,7 @@ class CbrainTask::CivetQc < ClusterTask
     prefix = nil
     dsid_dirs.each do |dir|
       ymltext        = File.read("#{study_path}/#{dir}/CBRAIN.params.yml")
-      civet_params   = YAML::load(ymltext)
+      civet_params   = YAML::load(ymltext).with_indifferent_access
       file_args      = civet_params[:file_args] || { "0" => {} }
       file0          = file_args["0"] || {}
 
