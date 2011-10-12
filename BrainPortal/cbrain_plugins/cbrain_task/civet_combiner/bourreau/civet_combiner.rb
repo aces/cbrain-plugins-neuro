@@ -39,7 +39,7 @@ class CbrainTask::CivetCombiner < ClusterTask
     end
 
     # Save back full list of all collection IDs into params
-    civet_ids.uniq!
+    civet_ids = civet_ids.map(&:to_s).uniq.sort
     params[:civet_collection_ids] = civet_ids
 
     # Get each source collection

@@ -494,6 +494,7 @@ class CbrainTask::Civet < ClusterTask
     params_link     = "#{out_dsid}/CBRAIN.params.yml"
     specific_params = params.dup
     specific_params[:file_args] = { "0" => file0 }
+    specific_params[:output_civetcollection_ids] = [ civetresult.id ]
     File.open(run_params_file,"w") do |fh|
       fh.write(specific_params.to_yaml)
     end
