@@ -28,6 +28,7 @@ class CbrainTask::CivetCombiner < ClusterTask
     # Fetch list of collection IDs indirectly through task list
     task_list_ids        = params[:civet_from_task_ids] || ""
     task_ids             = task_list_ids.split(/,/)
+    civet_collection_ids = [] if ! task_ids.empty? # with a task ID list, we ignore the original civet_collection_ids
     task_ids.each do |tid|
       task    = CbrainTask.find(tid)
       tparams = task.params
