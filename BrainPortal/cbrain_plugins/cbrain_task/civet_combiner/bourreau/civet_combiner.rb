@@ -148,7 +148,7 @@ class CbrainTask::CivetCombiner < ClusterTask
     civet_collection_ids = params[:civet_collection_ids] || [] # used to be string
     civet_ids            = civet_collection_ids.is_a?(Array) ? civet_collection_ids : civet_collection_ids.split(/,/)
     # Save back full list of all collection IDs into params
-    civet_ids.uniq!
+    civet_ids = civet_ids.map(&:to_s).uniq.sort
     params[:civet_collection_ids] = civet_ids
     cols = civet_ids.map { |id| Userfile.find(id) }
 
