@@ -158,7 +158,7 @@ class CbrainTask::CivetCombiner < ClusterTask
     # to destroy the incomplete newstudy object.
 
     self.addlog("Combining collections...")
-    begin
+    #begin
       newstudy.save!
       newstudy.cache_prepare
       self.addlog_to_userfiles_these_created_these(cols,[newstudy],"with prefix '#{prefix}'")
@@ -200,11 +200,11 @@ class CbrainTask::CivetCombiner < ClusterTask
         end
       end
 
-    rescue => itswrong
-      newstudy.destroy
-      params.delete(:output_civetstudy_id)
-      raise itswrong
-    end
+    #rescue => itswrong
+    #  newstudy.destroy
+    #  params.delete(:output_civetstudy_id)
+    #  raise itswrong
+    #end
 
     true
   end
