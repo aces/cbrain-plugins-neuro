@@ -185,6 +185,9 @@ class CbrainTask::CivetCombiner < ClusterTask
           cb_error "Error running rsync; rsync returned '#{rsyncout}'"
         end
       end
+
+      newstudy.save
+      self.addlog("Syncing CivetStudy '#{newstudy.name}' (ID=#{newstudy.id}) to its Data Provider...")
       newstudy.sync_to_provider
       newstudy.set_size
       newstudy.save
