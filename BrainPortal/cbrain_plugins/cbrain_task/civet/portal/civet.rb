@@ -78,7 +78,7 @@ class CbrainTask::Civet < PortalTask
       :no_surfaces         => false,       # -no-surfaces
       :thickness_method    => 'tlink',     # -thickness method kernel
       :thickness_kernel    => 20,          #             "
-      :resample_surfaces   => false,       # -[no-]resample-surfaces
+      :resample_surfaces   => true,        # -[no-]resample-surfaces
       :combine_surfaces    => false,       # -[no-]combine-surfaces
 
       # VBM options
@@ -272,10 +272,8 @@ class CbrainTask::Civet < PortalTask
       files_inside  = collection.list_files().map(&:name) # will work synchronized or not
     else
       # TODO: Provide the link directly in the CIVET args page?
-      state = collection.local_sync_status
       cb_error "Error: in order to process this collection, it must first have been synchronized.\n" +
-               "In the file manager, click on the collection then on the 'synchronize' link." if
-               ! state || state.status != "InSync"
+               "In the file manager, click on the collection then on the 'synchronize' link." unless collection.is_locally_synced?
       # we only look one level deep inside the directory.
       files_inside  = collection.list_files(:top).map(&:name)
       files_inside  = files_inside.map { |f| Pathname.new(f).basename.to_s }
