@@ -512,6 +512,7 @@ class CbrainTask::Civet < ClusterTask
 
   end
 
+  # Overrides the placeholder method in the module RecoverableTask
   def recover_from_cluster_failure
     params       = self.params        || {}
     file_args    = params[:file_args] || {}
@@ -523,7 +524,6 @@ class CbrainTask::Civet < ClusterTask
     return success
   end
 
-  # Overrides the placeholder method in the module RecoverableTask
   def recover_from_cluster_failure_single(arg_idx) #:nodoc:
     params       = self.params || {}
     file0        = params[:file_args][arg_idx] # we require this single entry for info on the data files
