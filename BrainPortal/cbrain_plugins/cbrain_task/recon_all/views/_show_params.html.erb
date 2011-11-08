@@ -1,0 +1,20 @@
+
+<STRONG>Input:</STRONG>
+<P>
+<UL>
+<% params[:interface_userfile_ids].each do |id| %>
+  <LI>Userfile: <%= link_to_userfile_if_accessible id %></LI>
+<% end %>
+</UL>
+
+<P/>
+
+<STRONG>Subject:</STRONG>
+<P>
+Subject name: <%= params[:subject_name] %>
+
+<P/>
+<STRONG>Output:</STRONG>
+<P>
+Final file: <%= link_to_userfile_if_accessible params[:outfile_id] %>
+
