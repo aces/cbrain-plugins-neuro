@@ -1,0 +1,14 @@
+
+Input volumes selected:<BR>
+<UL>
+  <% params[:interface_userfile_ids].each do |id| %>
+  <LI><%= h(Userfile.find(id).name) %></LI>
+  <% end %>
+</UL>
+
+<P>
+
+Subject name: </br>
+<%= form.params_text_field :subject_name %></br>
+Output name: </br>
+<%= form.params_text_field :output_name %>
