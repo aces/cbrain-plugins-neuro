@@ -12,8 +12,6 @@
 # A subclass of CbrainTask to launch recon-all of FreeSurfer.
 class CbrainTask::ReconAll
 
-  Revision_info=CbrainFileRevision[__FILE__]
-
   def has_legal_output_name?
     output_name = params[:output_name] 
     return output_name.blank? || Userfile.is_legal_filename?(output_name)
