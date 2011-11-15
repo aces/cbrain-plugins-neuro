@@ -56,7 +56,7 @@ class CbrainTask::ReconAll < ClusterTask
     cb_error("Sorry, but the subject name provided is blank or contains some unacceptable characters.") unless has_legal_subject_name?
     output_subject = "#{task_work}/#{params[:subject_name]}"
     FileUtils.rm_rf(output_subject) if  File.exists?(output_subject) && File.directory?(output_subject)
-    
+
     recon_all_command = "recon-all -sd #{task_work} #{dash_i} -subjid #{params[:subject_name]} -all"
 
     [
@@ -72,20 +72,26 @@ class CbrainTask::ReconAll < ClusterTask
     params       = self.params
 
     cb_error("Sorry, but the subject name provided is blank or contains some unacceptable characters.") unless has_legal_subject_name?
-
+    
     file_ids = params[:interface_userfile_ids] || []
     mgzfiles = Userfile.find_all_by_id(file_ids)
     
     self.results_data_provider_id ||= mgzfiles[0].data_provider_id
 
-
+    # Verify if recon-all exit without error.
+    stdout = File.read(self.stdout_cluster_filename) rescue ""
+    if stdout =~ /recon-all .+ exited with ERRORS at/
+      self.addlog("recon-all exit with error (see Standard Output)")
+      return false
+    end
+    
     # Verify output name
     output_name = params[:output_name]
     if params[:output_name].blank? || ! self.has_legal_output_name?
-      output_name = "#{self.name}-#{self.run_id}"
+      output_name = "FreeSurfer-#{self.name}-#{self.run_id}"
     end
 
-    outfile = safe_userfile_find_or_new(FileCollection,
+    outfile = safe_userfile_find_or_new(ReconAllOutput,
       :name             => output_name,
       :data_provider_id => self.results_data_provider_id
     )

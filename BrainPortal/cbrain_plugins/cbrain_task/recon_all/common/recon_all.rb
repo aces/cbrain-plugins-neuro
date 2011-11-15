@@ -21,5 +21,10 @@ class CbrainTask::ReconAll
     subject_name = params[:subject_name]
     return subject_name =~ /^[a-z0-9][\w\-]*$/i
   end
-  
+ 
+  def pretty_name #:nodoc:
+    "FreeSurfer Recon-all"
+  end
+
+ 
 end
