@@ -6,8 +6,9 @@
   else
     qc_file = @userfile.name + "/QC/" + params[:qc_file]
   end
+  qc_file = "" unless @userfile.list_files.find { |f| f.name == qc_file }
 %>
-  
+
 <% if File.file?(@userfile.cache_full_path.parent + qc_file) %>
   <%
   doc = Nokogiri::HTML.fragment(File.read(@userfile.cache_full_path.parent + qc_file))
