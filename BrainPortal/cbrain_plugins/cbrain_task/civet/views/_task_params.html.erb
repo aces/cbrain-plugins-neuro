@@ -257,11 +257,11 @@ job's output doesn't crush another job's output!</strong>.
 </fieldset>
 
 
-<% bourreau_list = @tool_configs.collect { |tc| tc.bourreau }.sort.uniq %>
-<% combiner_tool_configs = ToolConfig.where( :bourreau_id => bourreau_list.map(&:id), :tool_id => CbrainTask::CivetCombiner.tool.id ) %>
+<% bourreau_ids = @tool_configs.collect { |tc| tc.bourreau }.compact.map(&:id).uniq %>
+<% combiner_tool_configs = ToolConfig.where( :bourreau_id => bourreau_ids, :tool_id => CbrainTask::CivetCombiner.tool.id ) %>
 <% combiner_tool_configs.reject! { |tc| ! tc.can_be_accessed_by?(@task.user) } %>
 
-<% qc_tool_configs       = ToolConfig.where( :bourreau_id => bourreau_list.map(&:id), :tool_id => CbrainTask::CivetQc.tool.id ) %>
+<% qc_tool_configs       = ToolConfig.where( :bourreau_id => bourreau_ids, :tool_id => CbrainTask::CivetQc.tool.id ) %>
 <% qc_tool_configs.reject! { |tc| ! tc.can_be_accessed_by?(@task.user) } %>
 
 <% if @task.new_record? && combiner_tool_configs.size > 0 %>
