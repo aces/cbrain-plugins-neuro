@@ -362,7 +362,7 @@ class CbrainTask::Civet < PortalTask
 
     user    = self.user
 
-    all_files_I_can_access = Userfile.find_all_accessible_by_user(user)
+    all_files_I_can_access = Userfile.find_all_accessible_by_user(user).all # TODO: Change! Really expensive!
     index_of_my_files      = all_files_I_can_access.index_by(&:name)
 
     file_args_array = []
