@@ -47,8 +47,8 @@ class CbrainTask::CivetCombiner < ClusterTask
     cols = []
     civet_ids.each do |id|
       col = Userfile.find(id.to_i)
-      unless col && (col.is_a?(CivetCollection)) # || col.is_a?(CivetStudy))
-        self.addlog("Error: cannot find CivetCollection with ID=#{id}")
+      unless col && (col.is_a?(CivetOutput)) # || col.is_a?(CivetStudy))
+        self.addlog("Error: cannot find CivetOutput with ID=#{id}")
         return false
       end
       cols << col
@@ -83,7 +83,7 @@ class CbrainTask::CivetCombiner < ClusterTask
       params_file  = top + "CBRAIN.params.yml"
       ymltext      = File.read(params_file) rescue ""
       if ymltext.blank?
-        self.addlog("Could not find params file '#{params_file}' for CivetCollection '#{col.name}'.")
+        self.addlog("Could not find params file '#{params_file}' for CivetOutput '#{col.name}'.")
         return false
       end
       civet_params = YAML::load(ymltext).with_indifferent_access
@@ -92,11 +92,11 @@ class CbrainTask::CivetCombiner < ClusterTask
       prefix = file0[:prefix] || civet_params[:prefix]  # change in struct: NEW || OLD
       dsid   = file0[:dsid]   || civet_params[:dsid]    # change in struct: NEW || OLD
       if prefix.blank?
-        self.addlog("Could not find PREFIX for CivetCollection '#{col.name}'.")
+        self.addlog("Could not find PREFIX for CivetOutput '#{col.name}'.")
         return false
       end
       if dsid.blank?
-        self.addlog("Could not find DSID for CivetCollection '#{col.name}'.")
+        self.addlog("Could not find DSID for CivetOutput '#{col.name}'.")
         return false
       end
       seen_prefix[prefix]   = true
