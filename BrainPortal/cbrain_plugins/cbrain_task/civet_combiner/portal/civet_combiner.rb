@@ -35,7 +35,7 @@ class CbrainTask::CivetCombiner < PortalTask
     adjust_col_list
 
     civet_collection_ids = params[:civet_collection_ids] || []
-    cb_error "No CivetCollection selected." unless civet_collection_ids.size > 0
+    cb_error "No CivetOutput selected." unless civet_collection_ids.size > 0
 
     study_name           = params[:civet_study_name]     || "(unset?)"
     unless Userfile.is_legal_filename?(study_name)

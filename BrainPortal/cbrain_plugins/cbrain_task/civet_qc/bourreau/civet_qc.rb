@@ -34,7 +34,7 @@ class CbrainTask::CivetQc < ClusterTask
     study.sync_to_cache
 
     # Find out the subject IDs we have; these are stored in
-    # yml files in each CivetCollection subdirectory.
+    # yml files in each CivetOutput subdirectory.
     study_path = study.cache_full_path
     dsid_dirs  = Dir.entries(study_path.to_s).reject do |e|
        e == '.' || e == '..' ||
@@ -42,7 +42,7 @@ class CbrainTask::CivetQc < ClusterTask
        !File.exist?( study_path + e + "CBRAIN.params.yml")
     end
     if dsid_dirs.size == 0
-      self.addlog("Could not find any CivetCollection with params file?")
+      self.addlog("Could not find any CivetOutput with params file?")
       return false
     end
 
@@ -57,7 +57,7 @@ class CbrainTask::CivetQc < ClusterTask
       # Check that the DSID matches the dir name
       civet_dsid     = file0[:dsid] || civet_params[:dsid] || "(unset)"  # NEW || OLD || unset
       if civet_dsid.to_s != dir
-        self.addlog("Error: CivetCollection '#{dir}' is for subject id (DSID) '#{civet_dsid}'.")
+        self.addlog("Error: CivetOutput '#{dir}' is for subject id (DSID) '#{civet_dsid}'.")
         return false
       end
 
@@ -65,7 +65,7 @@ class CbrainTask::CivetQc < ClusterTask
       civet_prefix   = file0[:prefix] || civet_params[:prefix] || "(unset)"   # NEW || OLD || unset
       prefix       ||= civet_prefix
       if prefix != civet_prefix
-        self.addlog("Error: CivetCollection '#{dir}' is for prefix '#{civet_prefix}' while we found others with '#{prefix}'.")
+        self.addlog("Error: CivetOutput '#{dir}' is for prefix '#{civet_prefix}' while we found others with '#{prefix}'.")
         return false
       end
 
