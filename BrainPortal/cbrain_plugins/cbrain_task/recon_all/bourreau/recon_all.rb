@@ -51,12 +51,13 @@ class CbrainTask::ReconAll < ClusterTask
 
 
     # Check output_name and subject_name if not valid create one valid 
-    task_work    = self.full_cluster_workdir
+    task_work     = self.full_cluster_workdir
     cb_error("Sorry, but the subject name provided is blank or contains some unacceptable characters.") unless has_legal_subject_name?
     output_subject = "#{task_work}/#{params[:subject_name]}"
     FileUtils.rm_rf(output_subject) if  File.exists?(output_subject) && File.directory?(output_subject)
-
-    recon_all_command = "recon-all -sd #{task_work} #{dash_i} -subjid #{params[:subject_name]} -all"
+    with_qcache    = params[:with_qcache].to_i == 1 ? "-qcache" : ""; 
+    
+    recon_all_command = "recon-all #{with_qcache} -sd #{task_work} #{dash_i} -subjid #{params[:subject_name]} -all"
 
     [
       "echo \"\";echo Showing ENVIRONMENT",
