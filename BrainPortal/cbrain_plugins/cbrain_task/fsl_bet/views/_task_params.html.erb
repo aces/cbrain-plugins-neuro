@@ -1,0 +1,14 @@
+
+Input files selected:<BR>
+<UL>
+  <% params[:interface_userfile_ids].each do |id| %>
+  <LI><%= link_to_userfile_if_accessible(id) %></LI>
+  <% end %>
+</UL>
+
+<P>
+
+Fractional intensity threshold (-f): </br>
+<%= form.params_text_field :fractional_intensity %></br>
+Vertical gradient in fractional intensity threshold (-g): </br>
+<%= form.params_text_field :vertical_gradient %></br>
