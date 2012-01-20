@@ -20,7 +20,7 @@ class CbrainTask::ReconAll < ClusterTask
   def setup #:nodoc:
     params     = self.params
     
-    self.safe_mkdir("input_minc")
+    self.safe_mkdir("input")
     
     file_ids  = params[:interface_userfile_ids] || []
     
@@ -29,7 +29,7 @@ class CbrainTask::ReconAll < ClusterTask
       self.addlog("Preparing input file '#{mgzfile.name}'")
       mgzfile.sync_to_cache
       cache_path = mgzfile.cache_full_path
-      self.safe_symlink(cache_path, "input_minc/#{mgzfile.name}")
+      self.safe_symlink(cache_path, "input/#{mgzfile.name}")
     end
     
     true
@@ -48,7 +48,7 @@ class CbrainTask::ReconAll < ClusterTask
     
     basenames    = mgzfiles.map &:name
     dash_i       = ""
-    basenames.each { |name| dash_i += " -i input_minc/#{name}" }
+    basenames.each { |name| dash_i += " -i input/#{name}" }
     subject_name ||= basenames[0]  # should never happen
 
     # Check output_name and subject_name if not valid create one valid 
@@ -64,8 +64,6 @@ class CbrainTask::ReconAll < ClusterTask
     recon_all_command = "recon-all #{with_qcache} -sd #{task_work} #{dash_i} -subjid #{absolute_subject_path} -all"
 
     [
-      "echo \"\";echo Showing ENVIRONMENT",
-      "env | sort",
       "echo \"\";echo Starting Recon-all",
       "echo Command: #{recon_all_command}",
       "#{recon_all_command}"
@@ -84,7 +82,7 @@ class CbrainTask::ReconAll < ClusterTask
     
     self.results_data_provider_id ||= mgzfiles[0].data_provider_id
 
-    # Verify if recon-all exit without error.
+    # Verify if recon-all exited without error.
     stdout = File.read(self.stdout_cluster_filename) rescue ""
     if stdout !~ /recon-all .+ finished without error at/
       self.addlog("recon-all exit with error (see Standard Output)")
@@ -99,11 +97,11 @@ class CbrainTask::ReconAll < ClusterTask
     outfile.save!
     outfile.cache_copy_from_local_file("#{self.full_cluster_workdir}/#{subject_name}")
 
-    self.addlog_to_userfiles_these_created_these( [ mgzfiles ], [ outfile ] ) if mgzfiles
+    self.addlog_to_userfiles_these_created_these( [ mgzfiles ], [ outfile ] )
     self.addlog("Saved result file #{output_name}")
     
     params[:outfile_id] = outfile.id
-    outfile.move_to_child_of(mgzfiles[0]) if mgzfiles
+    outfile.move_to_child_of(mgzfiles[0])
 
     true
   end

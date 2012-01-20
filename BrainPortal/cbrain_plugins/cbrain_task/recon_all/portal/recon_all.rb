@@ -29,7 +29,7 @@ class CbrainTask::ReconAll < PortalTask
     file_ids  = params[:interface_userfile_ids] || []
     mgzfiles = Userfile.find_all_by_id(file_ids)
     mgzfiles.each do |mgzfile|     
-      cb_error "Error: this program can only run on MGZ File." unless 
+      cb_error "Error: this program can only run on MGZ Files." unless 
         mgzfile.is_a?(MgzFile)
     end
     
@@ -80,11 +80,10 @@ class CbrainTask::ReconAll < PortalTask
     # Adjust subject_name and output_name foreach task
     task_list.each do |task|
 
-      id            = task.params[:interface_userfile_ids][0]
-      input_name    = Userfile.find(id).name
-
-      ids           = task.params[:interface_userfile_ids]
-      userfile_list = (Userfile.find(ids).map &:name).join(", ")
+      ids            = task.params[:interface_userfile_ids]
+      userfiles_name = Userfile.find(ids).map &:name
+      input_name     = userfiles_name[0]
+      userfile_list  = userfiles_name.join(", ")
 
       # Verify subject_name
       local_subject_name   = task.params[:subject_name]
