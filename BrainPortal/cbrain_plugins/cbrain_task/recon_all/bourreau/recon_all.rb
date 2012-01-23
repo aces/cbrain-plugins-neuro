@@ -18,7 +18,6 @@ class CbrainTask::ReconAll < ClusterTask
   include RecoverableTask
 
   def setup #:nodoc:
-    self.addlog("Setup")
     params     = self.params
     
     self.safe_mkdir("input_minc")
@@ -30,14 +29,14 @@ class CbrainTask::ReconAll < ClusterTask
       self.addlog("Preparing input file '#{mgzfile.name}'")
       mgzfile.sync_to_cache
       cache_path = mgzfile.cache_full_path
-      self.addlog("Cash path: #{cache_path}")
-      self.addlog("Create: #{mgzfile.cache_full_path}")
       self.safe_symlink(cache_path, "input_minc/#{mgzfile.name}")
     end
-
-    self.addlog("End Setup")
     
     true
+  end
+
+  def job_walltime_estimate #:nodoc:
+    36.hours
   end
 
   def cluster_commands #:nodoc:
@@ -80,7 +79,7 @@ class CbrainTask::ReconAll < ClusterTask
 
     # Verify if recon-all exit without error.
     stdout = File.read(self.stdout_cluster_filename) rescue ""
-    if stdout =~ /recon-all .+ exited with ERRORS at/
+    if stdout !~ /recon-all .+ finished without error at/
       self.addlog("recon-all exit with error (see Standard Output)")
       return false
     end
@@ -99,7 +98,7 @@ class CbrainTask::ReconAll < ClusterTask
     outfile.cache_copy_from_local_file("#{self.full_cluster_workdir}/#{params[:subject_name]}")
 
     self.addlog_to_userfiles_these_created_these( [ mgzfiles ], [ outfile ] ) if mgzfiles
-    self.addlog("Saved #{output_name}")
+    self.addlog("Saved result file #{output_name}")
     
     params[:outfile_id] = outfile.id
     outfile.move_to_child_of(mgzfiles[0]) if mgzfiles
