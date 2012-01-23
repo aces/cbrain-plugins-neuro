@@ -3,7 +3,7 @@
 # CBRAIN Project
 #
 # This class runs the CIVET pipeline on
-# one t1 MINC file, producing one CivetCollection result (one
+# one t1 MINC file, producing one CivetOutput result (one
 # subject only).
 #
 # Original author: Pierre Rioux
@@ -289,7 +289,7 @@ class CbrainTask::Civet < ClusterTask
     fake_id = params[:fake_run_civetcollection_id]
     unless fake_id.blank?
       self.addlog("Triggering fake run with pre-saved collection ID '#{fake_id}'.")
-      ccol = CivetCollection.find(fake_id)
+      ccol = CivetOutput.find(fake_id)
       ccol.sync_to_cache
       ccol_path = ccol.cache_full_path
       FileUtils.remove_entry("civet_out/#{dsid}",true)
@@ -459,9 +459,9 @@ class CbrainTask::Civet < ClusterTask
       self.addlog("This result set might therefore be only partial, but we'll proceed in saving it.")
     end
 
-    # Create new CivetCollection
+    # Create new CivetOutput
     out_name = output_name_from_pattern(file0[:t1_name],arg_idx)
-    civetresult = safe_userfile_find_or_new(CivetCollection,
+    civetresult = safe_userfile_find_or_new(CivetOutput,
       :name             => out_name,
       :data_provider_id => self.results_data_provider_id
     )

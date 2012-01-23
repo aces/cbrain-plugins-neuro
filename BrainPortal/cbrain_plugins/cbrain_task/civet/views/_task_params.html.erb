@@ -202,7 +202,7 @@ then the actual prefix automatically created for you would be "K2-anonymous_10".
 <div id="output_renaming" style="display: none">
 
 <p>
-Civet's output is saved in FileCollections. By default, the names are
+CIVET's output is saved in CivetOutput files. By default, the names are
 composites of the subject ID, the execution server's name and the
 task's ID.
 </p>
@@ -301,7 +301,7 @@ job's output doesn't crush another job's output!</strong>.
 <% if current_user.has_role?(:admin) %>
  <hr>
  <BIG>Fake run:</BIG><P>
- Enter the numeric ID of a pre-existing CivetCollection to use it as 'pretend' output:
+ Enter the numeric ID of a pre-existing CivetOutput to use it as 'pretend' output:
  <%= form.params_text_field :fake_run_civetcollection_id %>
 
 <% end %>
