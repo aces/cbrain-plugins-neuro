@@ -1,0 +1,18 @@
+
+<STRONG>Input:</STRONG>
+<P>
+<UL>
+<% params[:interface_userfile_ids].each do |id| %>
+  <LI>Userfile: <%= link_to_userfile_if_accessible(id) %></LI>
+<% end %>
+</UL>
+
+<P/>
+
+<STRONG>Fractional intensity threshold (-f):</STRONG>
+<%= params[:fractional_intensity].to_s %>
+
+<P/>
+<STRONG>Vertical gradient in fractional intensity threshold (-g):</STRONG>
+<%= params[:vertical_gradient].to_s %>
+
