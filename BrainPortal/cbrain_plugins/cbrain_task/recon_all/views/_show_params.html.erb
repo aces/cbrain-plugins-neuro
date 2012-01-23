@@ -17,4 +17,7 @@ Subject name: <%= params[:subject_name] %>
 <STRONG>Output:</STRONG>
 <P>
 Final file: <%= link_to_userfile_if_accessible params[:outfile_id] %>
-
+<% if params[:with_qcache].to_i == 1 %>
+<P>
+Run with qcache option.
+<% end %>

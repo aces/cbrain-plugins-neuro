@@ -2,13 +2,48 @@
 Input volumes selected:<BR>
 <UL>
   <% params[:interface_userfile_ids].each do |id| %>
-  <LI><%= h(Userfile.find(id).name) %></LI>
+  <LI><%= link_to_userfile_if_accessible(id) %></LI>
   <% end %>
 </UL>
 
-<P>
+<% with_multi_userfile = true if params[:interface_userfile_ids].size > 1 %>
+
+<% if with_multi_userfile && @task.new_record? %>
+  Run this set as multiple subjects? 
+  <%= form.params_select    :multiple_subjects, [ '', 'Single', 'Multiple' ] %><br/>
+  <small class="medium_paragraph">
+    You need to choose between :</br>
+    - Single: All the input volumes are considered as acquisitions of a single subject,
+    which will launch a single recon-all task.</br>
+    - Multiple: All the input volumes are considered as independants acquisitions for many subjects,
+    which will launch one recon-all for each input file.</br> 
+  </small>
+<% end %>
+
+</p>
 
 Subject name: </br>
 <%= form.params_text_field :subject_name %></br>
+<% if with_multi_userfile %>
+  <small class="medium_paragraph">
+    <% if with_multi_userfile %>
+    Subject name is required if you run multiples volumes for one subject.<br>
+    <% end %>
+    If you don't fill this option, the subject name will have the following format: {input_without_extension}</br>
+  </small>
+<% end %>
+
+</p>
+
 Output name: </br>
-<%= form.params_text_field :output_name %>
+<%= form.params_text_field :output_name %></br>
+<small class="medium_paragraph">
+  recon-all's output is saved in ReconAllOutput files.</br>
+  If you don't fill this option, the output name will be the same as the subject name.<br>
+  Otherwise, the output name will have the following format {output_name}-{task_number}-{run_number}</br>
+</small>
+
+</p>
+
+Run with qcache: 
+<%= form.params_check_box :with_qcache %>
