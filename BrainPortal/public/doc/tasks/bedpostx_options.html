@@ -22,17 +22,16 @@
 #
 -->
 
-<h1>BET options</h1>
-<b><center>Not all options listed are provided on CBRAIN</center></b>
-<center>To request additional options, leave feedback.</center>
-<br>
-<br>
-This tool will performs BET of FSL.
-<br>
-<br>
-<b>Options</b>:
+<h1>Task options for Bedpostx</h1>
+
+Based on the FSL documentation at the <A HREF="http://www.fmrib.ox.ac.uk/fsl/fdt/fdt_bedpostx.html">FMRIB's Diffusion Toolbox</A>
+
+<P>
+
+<b>Options:</b>
 <ul>
-    <li><b>Fractional intensity threshold (-f)</b>: fractional intensity threshold (0->1); default=0.5; smaller values give larger brain outline estimates.</li>
-    <li><b>Vertical gradient in fractional intensity threshold (-g)</b>: vertical gradient in fractional intensity threshold (-1->1); default=0; positive values give larger brain outline at bottom, smaller at top.</li>
+    <li><b>Fibers:</b>Number of fibres modelled per voxel.</li>
+    <li><b>Weight:</b>Multiplicative factor for the prior on the additional modelled fibres. A smaller factor means more weighting for the additional fibres.</li>
+    <li><b>Burn in:</b>Number of iterations before starting the sampling. These might be increased if the data are noisy, and the MCMC needs more iterations to converge.</li>
 </ul>
 
