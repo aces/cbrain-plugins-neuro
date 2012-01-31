@@ -439,6 +439,9 @@ class CbrainTask::Civet < ClusterTask
     else              # MODE B SingleFile
       t1_id           = file0[:t1_id]
       source_userfile = SingleFile.find(t1_id)
+      if file0[:t1_name].blank?
+        file0[:t1_name] = source_userfile.name
+      end
     end
 
     # Where we find this subject's results
