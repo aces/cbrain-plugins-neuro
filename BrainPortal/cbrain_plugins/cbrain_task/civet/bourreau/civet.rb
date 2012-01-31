@@ -92,6 +92,9 @@ class CbrainTask::Civet < ClusterTask
     else # MODE B: singlefiles
       t1_id  = file0[:t1_id]  # cannot be nil
       t1 = Userfile.find(t1_id)
+      if file0[:t1_name].blank?
+        file0[:t1_name] = t1.name
+      end
       unless t1
         self.addlog("Could not find active record entry for singlefile '#{t1_id}'.")
         return false
