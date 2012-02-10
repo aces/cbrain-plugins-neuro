@@ -39,3 +39,9 @@
 <STRONG>Vertical gradient in fractional intensity threshold (-g):</STRONG>
 <%= params[:vertical_gradient].to_s %>
 
+<P/>
+<STRONG>Output:</STRONG>
+<P>
+Final file: <%= link_to_userfile_if_accessible params[:outfile_id] %></br>
+Id: <%= params[:outfile_id] %>
+
