@@ -123,7 +123,7 @@ class CbrainTask::FslBet < ClusterTask
       
       self.addlog_to_userfiles_these_created_these( [ file ], [ output ] )
       self.addlog("Saved result file #{output_name}")
-      params[:outfile_id] = outfile.id
+      params[:outfile_id] = output.id
       output.move_to_child_of(file)
     end
 
