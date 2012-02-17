@@ -1,0 +1,58 @@
+
+<%
+#
+# CBRAIN Project
+#
+# Copyright (C) 2008-2012
+# The Royal Institution for the Advancement of Learning
+# McGill University
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.  
+#
+-%>
+
+<!-- Input files -->
+<div class="no_wrap">
+  <h4>Input files</h4></br>
+  <STRONG>Input:</STRONG></br>
+  <%= link_to_userfile_if_accessible params[:in]%></br>
+  <STRONG>Reference:</STRONG></br>
+  <%= link_to_userfile_if_accessible params[:ref]%>
+  </p>
+  
+  <!-- General options-->
+  <h4>General options</h4></br>
+  Model/DOF (input to ref) (-dof): <%= params[:dof] %>
+  </p>
+  <strong>Search</strong></br>
+  Search Angles:</br>
+  X-axis (degrees): min <%= params[:searchx_min] %> max <%= params[:searchx_max] %></br>
+  Y-axis (degrees): min <%= params[:searchy_min] %> max <%= params[:searchy_max] %></br>
+  Z-axis (degrees): min <%= params[:searchz_min] %> max <%= params[:searchz_max] %></br>
+  </p>
+  <strong>Cost Function</strong></br>
+  Cost (-cost): <%= params[:cost] %></br>
+  Number of Histogram Bins (-bins): <%= params[:bins] %></br>
+  </p>
+  <strong>Interpolation</strong></br>
+  Final Interpolation Method (Reslice Only) (-interp): <%= params[:interp]%>
+  </p>
+  
+  <!-- Output files -->
+  <h4>Output files</h4></br>
+  <STRONG>Output file:</STRONG></br>
+  <%= link_to_userfile_if_accessible params[:outfile_id] %></br>
+  <STRONG>Output matrice:</STRONG></br>
+  <%= link_to_userfile_if_accessible params[:outmatrice_id] %>
+</div>

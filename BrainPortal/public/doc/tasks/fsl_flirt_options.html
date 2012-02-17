@@ -1,0 +1,56 @@
+
+<!--
+#
+# CBRAIN Project
+#
+# Copyright (C) 2008-2012
+# The Royal Institution for the Advancement of Learning
+# McGill University
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.  
+#
+-->
+
+<h1>FLIRT options</h1>
+
+<b><center>Not all options listed are provided on CBRAIN</center></b>
+<center>To request additional options, leave feedback.</center>
+<br>
+<br>
+This tool will performs FLIRT of FSL.
+<br>
+<br>
+<b>Options</b>:
+<ul>
+
+<h4>Input files</h4>
+  <li><b>Input (-in)</b>: name of input file.</li>
+  <li><b>Reference (-ref)</b>: name of reference file.</li>
+
+<h4>Output file</h4>
+  <li><b>Output (-out)</b>: name of output file.</li>
+  
+<h4>General options</h4>
+    <li><b>Model/DOF (-dof)</b>: restrict the transformation type.</br>
+    In 2D to 2D mode only 3 DOF transformations are allowed.</br>
+    For 3D to 3D mode the DOF can be set to 12, 9, 7 or 6.
+    </li>
+    <li><b>Search Angles (-searchx, -searchy, -searchz )</b>: select the angular range over which the initial optimisation search stage is performed.</br>
+    Must be between -180 and 180 for X-axis, Y-axis, Z-axis.</li>
+    <li><b>Cost Function (-cost)</b>: select the desired cost function.</li>
+    <li><b>Bins (-bin)</b>: number of histogram bins
+    <li><b>Interpolation (-interp)</b>: final interpolation method.</li>
+    
+</ul>>
+
