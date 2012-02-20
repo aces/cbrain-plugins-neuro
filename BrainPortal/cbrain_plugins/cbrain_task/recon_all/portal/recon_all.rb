@@ -120,7 +120,7 @@ class CbrainTask::ReconAll < PortalTask
   end
 
   def self.pretty_params_names #:nodoc:
-    { :output_name => 'Output name ', :subject_name => 'Subject name' }
+    { :output_name => 'Output name ', :subject_name => 'Subject name ' }
   end
 
   def untouchable_params_attributes
