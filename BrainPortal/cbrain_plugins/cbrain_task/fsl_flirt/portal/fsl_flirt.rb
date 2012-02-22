@@ -29,16 +29,36 @@ class CbrainTask::FslFlirt < PortalTask
 
    def self.default_launch_args #:nodoc:
     {
-      :dof         => "12",
-      :searchx_min => -90,
-      :searchy_min => -90,
-      :searchz_min => -90,
-      :searchx_max =>  90,
-      :searchy_max =>  90,
-      :searchz_max =>  90,
-      :bins        => 256,
-      :cost        => "corratio",
-      :interp      => "trilinear"
+      :dof          => "12",
+      :searchrx_min => -90,
+      :searchry_min => -90,
+      :searchrz_min => -90,
+      :searchrx_max =>  90,
+      :searchry_max =>  90,
+      :searchrz_max =>  90,
+      :bins         => 256,
+      :cost         => "corratio",
+      :interp       => "trilinear"
+    }
+  end
+
+  def self.pretty_params_names #:nodoc:
+    {
+      :ref          => "Reference file ",
+      :in           => "Input file ",
+      :high         => "High res image ",
+      :low          => "Low res image ",
+      :out          => "Output name ",
+      :dof          => 'Number of transform dofs ',
+      :searchrx_min => 'X-axis (degrees) min ',
+      :searchry_min => 'Y-axis (degrees) min ',
+      :searchrz_min => 'Z-axis (degrees) min ',
+      :searchrx_max => 'X-axis (degrees) max ',
+      :searchry_max => 'Y-axis (degrees) max ',
+      :searchrz_max => 'Z-axis (degrees) max ',
+      :bins         => "Number of histogram bins ",
+      :cost         => "Cost fonction ",
+      :interp       => "Interpolation ",
     }
   end
   
@@ -58,82 +78,96 @@ class CbrainTask::FslFlirt < PortalTask
     end
     ""
   end
+
+  def refresh_form #:nodoc:
+    params       = self.params || {}
+    nb_files     = params[:interface_userfile_ids].count
+    cb_error "Error: You only have #{nb_files} files, you can't choose this mode." if params[:mode] == "low_high_ref" && nb_files < 3
+    ""
+  end
+
   
   def after_form #:nodoc:
     params = self.params
 
+    # Check if input and ref is different
+    self.params_errors.add(:ref, "and input file must be different.") if 
+    params[:in] == params[:ref]   && params[:mode] == "input_res"
+ 
+    # Check high input and ref is different
+    self.params_errors.add(:ref, "and high resolution image file must be different.") if 
+      params[:high] == params[:ref] && params[:mode] == "low_high_res"
+      
+    # Check if low input and high is different
+    self.params_errors.add(:high, "and low resolution file must be different.") if 
+      params[:low] == params[:high] &&  params[:mode] == "low_high_res"
+    
+    # Check model
+    model = params[:model]
+    self.params_errors.add(:model, "need to be one of the following values: 2D or 3D." ) unless
+      model.present? && [ "2D", "3D" ].include?(model)
+    
     # Check dof
     dof = params[:dof]
     self.params_errors.add(:dof, "need to be one of the following values: 3, 6, 7, 9, 12." ) unless
       dof.present? && [ "3", "6", "7", "9", "12" ].include?(dof)
 
-    # Check searchx_min
-    searchx_min = params[:searchx_min]
-    self.params_errors.add(:searchx_min, "must be between -180 and 180.") unless
-      searchx_min.present? && searchx_min.to_f >= -180 && searchx_min.to_f <= 180
+    # Check searchrx_min
+    searchrx_min = params[:searchrx_min]
+    self.params_errors.add(:searchrx_min, "must be between -180 and 180.") unless
+      searchrx_min.present? && searchrx_min.to_f >= -180 && searchrx_min.to_f <= 180
 
-    # Check searchy_min
-    searchy_min = params[:searchy_min]
-    self.params_errors.add(:searchy_min, "must be between -180 and 180.") unless
-      searchy_min.present? && searchy_min.to_f >= -180 && searchy_min.to_f <= 180
+    # Check searchry_min
+    searchry_min = params[:searchry_min]
+    self.params_errors.add(:searchry_min, "must be between -180 and 180.") unless
+      searchry_min.present? && searchry_min.to_f >= -180 && searchry_min.to_f <= 180
     
-    # Check searchz_min
-    searchz_min = params[:searchz_min]
-    self.params_errors.add(:searchz_min, "must be between -180 and 180.") unless
-      searchz_min.present? && searchz_min.to_f >= -180 && searchz_min.to_f <= 180
+    # Check searchrz_min
+    searchrz_min = params[:searchrz_min]
+    self.params_errors.add(:searchrz_min, "must be between -180 and 180.") unless
+      searchrz_min.present? && searchrz_min.to_f >= -180 && searchrz_min.to_f <= 180
 
     
-    # Check searchx_max
-    searchx_max = params[:searchx_max]
-    self.params_errors.add(:searchx_max, "must be between -180 and 180.") unless
-      searchx_max.present? && searchx_max.to_f >= -180 && searchx_max.to_f <= 180
+    # Check searchrx_max
+    searchrx_max = params[:searchrx_max]
+    self.params_errors.add(:searchrx_max, "must be between -180 and 180.") unless
+      searchrx_max.present? && searchrx_max.to_f >= -180 && searchrx_max.to_f <= 180
 
-    # Check searchy_max
-    searchy_max = params[:searchy_max]
-    self.params_errors.add(:searchy_max, "must be between -180 and 180.") unless
-      searchy_max.present? && searchy_max.to_f >= -180 && searchy_max.to_f <= 180
+    # Check searchry_max
+    searchry_max = params[:searchry_max]
+    self.params_errors.add(:searchry_max, "must be between -180 and 180.") unless
+      searchry_max.present? && searchry_max.to_f >= -180 && searchry_max.to_f <= 180
     
-    # Check searchz_max
-    searchz_max = params[:searchz_max]
-    self.params_errors.add(:searchz_max, "must be between -180 and 180.") unless
-      searchz_max.present? && searchz_max.to_f >= -180 && searchz_max.to_f <= 180
+    # Check searchrz_max
+    searchrz_max = params[:searchrz_max]
+    self.params_errors.add(:searchrz_max, "must be between -180 and 180.") unless
+      searchrz_max.present? && searchrz_max.to_f >= -180 && searchrz_max.to_f <= 180
     
     # Check cost
     cost = params[:cost]
     self.params_errors.add(:cost, "value is invalid.") unless
-    cost.present? && [ "corratio", "mutualinfo", "normmi", "normcorr", "leastsq"].include?(cost)
+      cost.present? && [ "corratio", "mutualinfo", "normmi", "normcorr", "leastsq"].include?(cost)
 
     # Check bins
     bins = params[:bins]
     self.params_errors.add(:bins, "must be between 1 and 5000.") unless
-     bins.present? && bins.to_f >= 1 && bins.to_f <= 5000
+      bins.present? && bins.to_f >= 1 && bins.to_f <= 5000
     
     # Check interp
     interp = params[:interp]
     self.params_errors.add(:interp, "value is invalid.") unless
       interp.present? &&  [ "trilinear", "nearestneighbour", "sinc"].include?(interp) 
 
-    # Check if input and ref is different
-    self.params_errors.add(:ref, "and input file must be different.") if 
-      params[:in] == params[:ref]
-
+    if params[:out].present?
       self.params_errors.add(:out, "contains some unacceptable characters.") unless 
-        Userfile.is_legal_filename?(params[:out])
-      
+          Userfile.is_legal_filename?(params[:out])
+    end
+    
     ""
   end
 
-  def self.pretty_params_names #:nodoc:
-    { :dof => 'Number of transform dofs ',
-      :searchx_min => 'X-axis (degrees) min ', :searchy_min => 'Y-axis (degrees) min ', :searchz_min => 'Z-axis (degrees) min ',
-      :searchx_max => 'X-axis (degrees) max ', :searchy_max => 'Y-axis (degrees) max ', :searchz_max => 'Z-axis (degrees) max ',
-      :cost => "Cost fonction ", :bins => "Number of histogram bins ", :interp => "Interpolation",
-      :ref  => "Reference file ", :out => "Output name "
-    }
-  end
-
   def untouchable_params_attributes #:nodoc:
-    { :outfile_id => true, :outmatrice_id => true }
+    { :outfile_id => true, :outmatrice_id => true, :output_list => true, :remainning_file_ids => true }
   end
 
   

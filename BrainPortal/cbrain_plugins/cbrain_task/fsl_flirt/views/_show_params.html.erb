@@ -22,37 +22,58 @@
 #
 -%>
 
-<!-- Input files -->
 <div class="no_wrap">
-  <h4>Input files</h4></br>
+
+  <!-- Input files -->
+  <h4>Input and output</h4></br>
+  <STRONG>Reference:</STRONG></br>
+  <%= link_to_userfile_if_accessible params[:ref]%></br>
+  </p>
+  
+  <% if params[:mode] == "input_ref"%>
   <STRONG>Input:</STRONG></br>
   <%= link_to_userfile_if_accessible params[:in]%></br>
-  <STRONG>Reference:</STRONG></br>
-  <%= link_to_userfile_if_accessible params[:ref]%>
+  <% else %>
+    <STRONG>High resolution file: </STRONG></br>
+    <%= link_to_userfile_if_accessible params[:high]%></br>
+    <STRONG>Low resolution file :</STRONG></br>
+    <%= link_to_userfile_if_accessible params[:low]%></br>
+  <% end %>
+  
+  <% if params[:remainning_file_ids].count > 0 %>
+    </p>
+    <STRONG>Secondary images:</STRONG></br>
+    <% params[:remainning_file_ids].each do |id| %>
+      <%= link_to_userfile_if_accessible id %></br>
+    <%end%>
+  
+  <%end%>
+  </p>
+  
+  <STRONG>Output file directory:</STRONG></br>
+  <%= link_to_userfile_if_accessible params[:outfile_id] %></br>
   </p>
   
   <!-- General options-->
   <h4>General options</h4></br>
+  <strong>Model/DOF</strong></br>
   Model/DOF (input to ref) (-dof): <%= params[:dof] %>
   </p>
+
   <strong>Search</strong></br>
-  Search Angles:</br>
-  X-axis (degrees): min <%= params[:searchx_min] %> max <%= params[:searchx_max] %></br>
-  Y-axis (degrees): min <%= params[:searchy_min] %> max <%= params[:searchy_max] %></br>
-  Z-axis (degrees): min <%= params[:searchz_min] %> max <%= params[:searchz_max] %></br>
+  Search angles:</br>
+  X-axis (degrees): min <%= params[:searchrx_min] %> max <%= params[:searchrx_max] %></br>
+  Y-axis (degrees): min <%= params[:searchry_min] %> max <%= params[:searchry_max] %></br>
+  Z-axis (degrees): min <%= params[:searchrz_min] %> max <%= params[:searchrz_max] %></br>
   </p>
-  <strong>Cost Function</strong></br>
+
+  <strong>Cost function</strong></br>
   Cost (-cost): <%= params[:cost] %></br>
-  Number of Histogram Bins (-bins): <%= params[:bins] %></br>
-  </p>
-  <strong>Interpolation</strong></br>
-  Final Interpolation Method (Reslice Only) (-interp): <%= params[:interp]%>
+  Number of histogram bins (-bins): <%= params[:bins] %></br>
   </p>
   
-  <!-- Output files -->
-  <h4>Output files</h4></br>
-  <STRONG>Output file:</STRONG></br>
-  <%= link_to_userfile_if_accessible params[:outfile_id] %></br>
-  <STRONG>Output matrice:</STRONG></br>
-  <%= link_to_userfile_if_accessible params[:outmatrice_id] %>
+  <strong>Interpolation</strong></br>
+  Final interpolation method (reslice only) (-interp): <%= params[:interp]%>
+  </p>
+  
 </div>
