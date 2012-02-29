@@ -30,7 +30,7 @@
   <%= link_to_userfile_if_accessible params[:ref]%></br>
   </p>
   
-  <% if params[:mode] == "input_ref"%>
+  <% if params[:mode].present? && params[:mode] == "input_ref"%>
   <STRONG>Input:</STRONG></br>
   <%= link_to_userfile_if_accessible params[:in]%></br>
   <% else %>
@@ -40,10 +40,10 @@
     <%= link_to_userfile_if_accessible params[:low]%></br>
   <% end %>
   
-  <% if params[:remainning_file_ids].count > 0 %>
+  <% if params[:remaining_file_ids].present? && params[:remaining_file_ids].count > 0 %>
     </p>
     <STRONG>Secondary images:</STRONG></br>
-    <% params[:remainning_file_ids].each do |id| %>
+    <% params[:remaining_file_ids].each do |id| %>
       <%= link_to_userfile_if_accessible id %></br>
     <%end%>
   
@@ -57,23 +57,23 @@
   <!-- General options-->
   <h4>General options</h4></br>
   <strong>Model/DOF</strong></br>
-  Model/DOF (input to ref) (-dof): <%= params[:dof] %>
+  Model/DOF (input to ref) (-dof): <%= params[:dof] || "" %>
   </p>
 
   <strong>Search</strong></br>
   Search angles:</br>
-  X-axis (degrees): min <%= params[:searchrx_min] %> max <%= params[:searchrx_max] %></br>
-  Y-axis (degrees): min <%= params[:searchry_min] %> max <%= params[:searchry_max] %></br>
-  Z-axis (degrees): min <%= params[:searchrz_min] %> max <%= params[:searchrz_max] %></br>
+  X-axis (degrees): min <%= params[:searchrx_min] || "" %> max <%= params[:searchrx_max] || "" %></br>
+  Y-axis (degrees): min <%= params[:searchry_min] || "" %> max <%= params[:searchry_max] || "" %></br>
+  Z-axis (degrees): min <%= params[:searchrz_min] || "" %> max <%= params[:searchrz_max] || "" %></br>
   </p>
 
   <strong>Cost function</strong></br>
   Cost (-cost): <%= params[:cost] %></br>
-  Number of histogram bins (-bins): <%= params[:bins] %></br>
+  Number of histogram bins (-bins): <%= params[:bins] || "" %></br>
   </p>
   
   <strong>Interpolation</strong></br>
-  Final interpolation method (reslice only) (-interp): <%= params[:interp]%>
+  Final interpolation method (reslice only) (-interp): <%= params[:interp] || "" %>
   </p>
   
 </div>

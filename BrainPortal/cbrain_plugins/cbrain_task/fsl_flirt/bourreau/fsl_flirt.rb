@@ -121,7 +121,7 @@ class CbrainTask::FslFlirt < ClusterTask
     end
 
     # Treat secondary image for both case
-    params[:remainning_file_ids] = remaining_file_ids
+    params[:remaining_file_ids] = remaining_file_ids
     remaining_file_ids.each do |id|
       secondary_image_input  = secondary_image_no_ext = Userfile.find(id.to_i).name
 
