@@ -61,7 +61,7 @@ class CbrainTask::FslBet < ClusterTask
     g_option  = params[:vertical_gradient].empty?    ? 0.0 : params[:vertical_gradient].to_f 
 
     cmds      = []
-    cmds      << "echo Starting BET2"
+    cmds      << "echo Starting BET"
     outnames  = {} # input_id => output_name
     files.each do |file|
       output  = file.name
@@ -69,7 +69,7 @@ class CbrainTask::FslBet < ClusterTask
       outnames[file.id] = "#{output}"
       output  = "#{task_work}/#{output}"
 
-      cmd     = "bet2 #{self.full_cluster_workdir}/#{file.name} #{output} -f #{f_option} -g #{g_option}"
+      cmd     = "bet #{self.full_cluster_workdir}/#{file.name} #{output} -f #{f_option} -g #{g_option}"
       cmds    << "echo running #{cmd}"
       cmds    << cmd
     end
