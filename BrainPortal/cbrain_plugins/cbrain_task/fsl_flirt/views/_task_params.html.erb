@@ -25,7 +25,21 @@
 <div class="no_wrap">
 
   <strong>Mode</strong></br>
-  <%= form.params_select :mode, [ ["Input image -> Reference image","input_ref"] , ["Low res image -> High res image -> Reference image  ","low_high_ref"] ] %> <%= submit_tag 'Refresh' %>
+  
+  <% if params[:interface_userfile_ids].count == 2 %>
+    Input image -> Reference image</br>
+    <small>This task can also work with low and high resolution files if you choose more than 2 files.</small>
+    <%= form.params_hidden_field :mode %>
+  <% else %>
+    <%= form.params_select :mode, 
+                    options_for_select([["Input image -> Reference image","input_ref"],["Low res image -> High res image -> Reference image","low_high_ref"]], :selected => params[:mode]),
+                   {},
+                   :class => "submit_onchange",
+                   "data-commit" => "refresh" %>
+  <% end %>
+  
+  
+  
   </P>
 
   <strong>Input and Output</strong></br>

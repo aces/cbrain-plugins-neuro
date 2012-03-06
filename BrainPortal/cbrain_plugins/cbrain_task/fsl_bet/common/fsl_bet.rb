@@ -20,11 +20,11 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.  
 #
 
-# A subclass of CbrainTask to launch bet2 of FSL.
+# A subclass of CbrainTask to launch bet of FSL.
 class CbrainTask::FslBet
   
   def pretty_name #:nodoc:
-    "FSL Bet2"
+    "FSL Bet"
   end
  
 end
