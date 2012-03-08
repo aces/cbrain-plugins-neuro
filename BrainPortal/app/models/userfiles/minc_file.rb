@@ -25,8 +25,8 @@ class MincFile < SingleFile
   Revision_info=CbrainFileRevision[__FILE__]
   
   has_viewer :partial => "jiv_file",                                         :if  => Proc.new { |u| u.has_format?(:jiv) && u.get_format(:jiv).is_locally_synced? }
-  has_viewer :partial => "html5_minc_viewer",                                :if  => Proc.new { |u| u.class.has_minctools? && u.is_locally_synced? && u.size < 80.megabytes }
-  has_viewer :partial => "minc_file/info_header", :name => "Info & Headers", :if  => Proc.new { |u| u.class.has_minctools?(["mincinfo","mincheader","mincdump","mincexpand"]) && u.is_locally_synced? }
+  has_viewer :partial => "html5_minc_viewer",                                :if  => Proc.new { |u| u.class.has_minctools?([2,0,0]) && u.is_locally_synced? && u.size < 80.megabytes }
+  has_viewer :partial => "minc_file/info_header", :name => "Info & Headers", :if  => Proc.new { |u| u.class.has_minctools?([2,0,0],["mincinfo","mincheader","mincdump","mincexpand"]) && u.is_locally_synced? }
   
   has_content :method => :get_headers_to_json, :type => :text
   has_content :method => :get_raw_data,        :type => :text
@@ -41,8 +41,18 @@ class MincFile < SingleFile
 
   # Returns true only if the current system PATH environment
   # can invoke tools (default: 'mincinfo' and 'minctoraw').
-  def self.has_minctools?(which_tools=["mincinfo", "minctoraw"])
-    which_tools.all? { |tool| system("bash","-c","which #{tool} >/dev/null 2>&1") }
+  def self.has_minctools?(min_version, which_tools=["mincinfo", "minctoraw"])
+    if which_tools.all? { |tool| system("bash","-c","which #{tool} >/dev/null 2>&1") }
+      IO.popen("mincinfo -version | grep \"program\" | cut -d \":\" -f 2") { |fh| 
+        version = fh.readlines.join.strip.split(".").map {|num| num.to_i}
+        if(min_version[0] <= version[0] && min_version[1] <= version[1]  && min_version[2] <= version[2])
+          return true
+        else
+          puts_red("VERSION" + version.join(".") + " " + min_version.join("."))
+          return false
+        end
+      }
+    end    
   end
 
   def to_s #:nodoc:
@@ -52,7 +62,7 @@ class MincFile < SingleFile
   def minc_get_headers #:nodoc:
 
     return @headers if @headers
-    cb_error "Call to minc_get_headers() when minctools not installed!" unless self.class.has_minctools?
+    cb_error "Call to minc_get_headers() when minctools not installed!" unless self.class.has_minctools? [2,0,0]
  
     cache_path   = self.cache_full_path
     escaped_path = shell_escape(cache_path)
@@ -100,7 +110,7 @@ class MincFile < SingleFile
   
   # The raw binary data, in short integers
   def get_raw_data #:nodoc:
-    cb_error "Call to raw_data() when minctools not installed!" unless self.class.has_minctools?
+    cb_error "Call to raw_data() when minctools not installed!" unless self.class.has_minctools? [2,0,0]
     return @raw_data if @raw_data
     cache_path   = self.cache_full_path
     escaped_path = shell_escape(cache_path)
