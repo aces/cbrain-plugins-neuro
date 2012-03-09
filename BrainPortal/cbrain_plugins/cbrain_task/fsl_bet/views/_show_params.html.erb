@@ -26,7 +26,7 @@
 <P>
 <UL>
 <% params[:interface_userfile_ids].each do |id| %>
-  <LI>Userfile: <%= link_to_userfile_if_accessible(id) %></LI>
+  <LI><%= link_to_userfile_if_accessible(id) %></LI>
 <% end %>
 </UL>
 
@@ -41,7 +41,7 @@
 
 <P/>
 <STRONG>Output:</STRONG>
-<P>
-Final file: <%= link_to_userfile_if_accessible params[:outfile_id] %></br>
-Id: <%= params[:outfile_id] %>
-
+</p>
+<UL>
+  <li><%= link_to_userfile_if_accessible params[:outfile_id] %></li>
+</UL>
