@@ -43,15 +43,14 @@ class MincFile < SingleFile
   # can invoke tools (default: 'mincinfo' and 'minctoraw').
   def self.has_minctools?(min_version, which_tools=["mincinfo", "minctoraw"])
     if which_tools.all? { |tool| system("bash","-c","which #{tool} >/dev/null 2>&1") }
-      IO.popen("mincinfo -version | grep \"program\" | cut -d \":\" -f 2") { |fh| 
+      IO.popen("mincinfo -version | grep \"program\" | cut -d \":\" -f 2") do |fh| 
         version = fh.readlines.join.strip.split(".").map {|num| num.to_i}
-        if(min_version[0] <= version[0] && min_version[1] <= version[1]  && min_version[2] <= version[2])
+        if (min_version[0] <= (version[0] || 0) && min_version[1] <= (version[1] || 0)  && min_version[2] <= (version[2] || 0))
           return true
         else
-          puts_red("VERSION" + version.join(".") + " " + min_version.join("."))
           return false
         end
-      }
+      end
     end    
   end
 
@@ -123,6 +122,26 @@ class MincFile < SingleFile
   
   def minc_get_data_string #:nodoc:
     @data_string ||= self.data.join(" ") #making a space delimited array of the data (useful to send to server)
+  end
+
+  #This method return the version of MINC file ('MINC1' or 'MINC2').
+  #To do this, they invoke the command file, which is why it is necessary
+  #that the file is synchronized when this method is called.
+  #If it can't determine the type, it returns 'UNKNOWN'.
+  def which_minc_version  
+    type = "UNKNOWN"
+    IO.popen("file #{self.cache_full_path}") do |fh|
+      first_line = fh.readlines[0] || ""
+      if first_line =~ /NetCDF/i
+        type =  "MINC1"
+      elsif first_line =~ /Hierarchical/i
+        type = "MINC2"
+      end
+      break
+    end
+    return type
+  rescue
+    "UNKNOWN"
   end
 
   # This utility method escapes properly any string such that
