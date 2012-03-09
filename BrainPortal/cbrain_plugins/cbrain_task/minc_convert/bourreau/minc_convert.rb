@@ -2,12 +2,25 @@
 #
 # CBRAIN Project
 #
-# ClusterTask Model MincConvert
+# Copyright (C) 2008-2012
+# The Royal Institution for the Advancement of Learning
+# McGill University
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.  
 #
 
-# A subclass of ClusterTask to run MincConvert.
-#
-# Original author: Natacha Beck
+# A subclass of ClusterTask to run minc_convert.
 class CbrainTask::MincConvert < ClusterTask
 
   
@@ -55,7 +68,6 @@ class CbrainTask::MincConvert < ClusterTask
     
     cmds      = []
     cmds      << "echo Starting mincconvert"
-    outnames  = {}
 
     # Minc2 --> Minc1 or Minc1 --> Minc2
     minc2_opt  = to_minc2 ? "-2" : ""
@@ -76,18 +88,16 @@ class CbrainTask::MincConvert < ClusterTask
     inputfile_id = params[:inputfile_id]
     inputfile    = Userfile.find(inputfile_id)
 
-    # Seulement gerer les valid_id
-    task_work = self.full_cluster_workdir
+    task_work    = self.full_cluster_workdir
     
     output  = inputfile.name
     output  = output =~ /(\..+)/ ? output.sub( /(\..+)/ , "_#{new_format}#{temp_add}-#{self.run_id}#{$1}") : "#{output}_#{new_format}-#{self.run_id}" 
-    outnames[inputfile.id] = "#{output}"
 
     mincconvert_cmd = "mincconvert #{minc2_opt} #{temp_opt} #{comp_opt} #{chunk_opt} #{inputfile.name} #{output}"
     cmds    << "echo running #{mincconvert_cmd}"
     cmds    << mincconvert_cmd
     
-    params[:output_name] = outnames
+    params[:output_name] = output
 
     cmds 
   end
@@ -96,34 +106,31 @@ class CbrainTask::MincConvert < ClusterTask
     params  = self.params
     user_id = self.user_id
 
-    inputfile_id = params[:inputfile_id].to_i
-    inputfile    = Userfile.find(inputfile_id)
-
-    outname      = params[:output_name]
-    output_name  = outname[inputfile_id]
+    output_name      = params[:output_name]
     self.addlog("output_name #{output_name}")
     unless File.exists?(output_name)
       self.addlog("The cluster job did not produce our 'mincconvert' output?!?")
       return false
     end
 
-
-    group_id    = Userfile.find(inputfile.id).group_id
+    inputfile_id = params[:inputfile_id].to_i
+    inputfile    = Userfile.find(inputfile_id)
+    group_id     = Userfile.find(inputfile_id).group_id
     self.results_data_provider_id ||= file.data_provider_id
 
-    output =  safe_userfile_find_or_new(SingleFile,
+    outputfile =  safe_userfile_find_or_new(SingleFile,
                 :user_id          => user_id,
                 :group_id         => group_id,
                 :data_provider_id => self.results_data_provider_id,
                 :name             => output_name
               )
-    output.save!
-    output.cache_copy_from_local_file(output_name)
-    
-    self.addlog_to_userfiles_these_created_these( [ inputfile ], [ output ] )
+    outputfile.save!
+    outputfile.cache_copy_from_local_file(output_name)
+
+    self.addlog_to_userfiles_these_created_these( [ inputfile ], [ outputfile ] )
     self.addlog("Saved result file #{output_name}")
-    params[:outfile_id] = output.id
-    output.move_to_child_of(inputfile)
+    params[:outfile_id] = outputfile.id
+    outputfile.move_to_child_of(inputfile)
 
     true
   end
