@@ -28,29 +28,28 @@ class CbrainTask::MincConvert < PortalTask
  Revision_info=CbrainFileRevision[__FILE__]
 
 
-  def self.properties
+  def self.properties #:nodoc:
     { :use_parallelizer => true }
   end
  
   def self.default_launch_args #:nodoc:
     {
-      :to_minc2 => "false",
+      :conv_direction => "minc1",
     }
   end
 
   
   def self.pretty_params_names #:nodoc:
     {
-      :to_minc2 => "Convertion way ",
-      :template => "Template file ",
-      :compress => "Compression level ",
-      :chunk    => "Target block size for chunking ",
+      :conv_direction => "Convertion direction",
+      :template       => "Template file",
+      :compress       => "Compression level",
+      :chunk          => "Target block size for chunking",
     }
   end
   
-  def before_form
+  def before_form #:nodoc:
     params   = self.params
-
     ids    = params[:interface_userfile_ids]
     
     ids.each do |id|                                
@@ -76,15 +75,16 @@ class CbrainTask::MincConvert < PortalTask
       chunk.present? && chunk >= -1
 
     # Checks files types.  
-    to_minc2  = params[:to_minc2] == "true" ? true : false
+    minc_direction = params[:conv_direction]
+    self.params_errors.add(:conv_direction , "must be 'minc2' for 'MINC2 -> MINC1' or 'minc2' for 'MINC1 -> MINC2'") unless
+      minc_direction.present? && (minc_direction == "minc1" || minc_direction == "minc2") 
+    
     ids       = params[:interface_userfile_ids] || []
 
     valid_ids   = []
-    list = ""
     ids.each do |id|                                        
       file = Userfile.find(id)
-      list += "file #{file.name} MINC2? = #{file.is_a?(Minc2File)} MINC1? = #{file.is_a?(Minc1File)}\n"
-      if ( (file.is_a?(Minc2File) && to_minc2 == false) || (file.is_a?(Minc1File) && to_minc2 == true))
+      if ( (file.is_a?(Minc2File) && minc_direction == "minc1") || (file.is_a?(Minc1File) && minc_direction == "minc2"))
         valid_ids << file.id.to_s
       end
     end
@@ -92,9 +92,8 @@ class CbrainTask::MincConvert < PortalTask
     
     invalid_files = ""
     invalid_ids = ids - valid_ids
-    self.addlog("valid_ids #{valid_ids} invalid_ids #{invalid_ids}" )
     if invalid_ids.size > 0
-      invalid_files += "\nThe following files are ignored they seem to already be in the right format:\n "
+      invalid_files += "\nThe following files are ignored they seem to already be in the right format:\n"
       invalid_files += (Userfile.find(invalid_ids).map &:name).join(", ")
       invalid_files += "."
     end
@@ -105,7 +104,6 @@ class CbrainTask::MincConvert < PortalTask
   def final_task_list #:nodoc:
     params = self.params
     ids    = params[:interface_userfile_ids] || []
-    
     valid_ids = params[:valid_ids] || []
     task_list  = []
     valid_ids.each do |id|
@@ -115,7 +113,6 @@ class CbrainTask::MincConvert < PortalTask
       task.description = Userfile.find(id).name if task.description.blank?
       task_list << task
     end
-
     task_list
   end
 

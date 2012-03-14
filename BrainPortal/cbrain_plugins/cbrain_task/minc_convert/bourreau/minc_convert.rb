@@ -43,9 +43,9 @@ class CbrainTask::MincConvert < ClusterTask
     cache_path = inputfile.cache_full_path
     safe_symlink(cache_path, "#{inputfile.name}")
 
-    to_minc2           = params[:to_minc2] == "true" ? true : false
+    conv_direction     = params[:conv_direction]
     input_minc_version = inputfile.which_minc_version
-    if (input_minc_version == "MINC2" && to_minc2 == true) || ( input_minc_version == "MINC1" && to_minc2 == false)
+    if (input_minc_version == "MINC2" && conv_direction == "minc2") || ( input_minc_version == "MINC1" && conv_direction == "minc1")
       self.addlog("Your file is already in the desired format.")
       return false
     end
@@ -60,18 +60,17 @@ class CbrainTask::MincConvert < ClusterTask
   end
 
   def cluster_commands #:nodoc:
-    params       = self.params
-    to_minc2     = params[:to_minc2] == "true" ? true : false
-    template     = params[:template]
-    compress     = params[:compress]
-    chunk        = params[:chunk]
+    params         = self.params
+    conv_direction = params[:conv_direction]
+    template       = params[:template]
+    compress       = params[:compress]
+    chunk          = params[:chunk]
     
     cmds      = []
     cmds      << "echo Starting mincconvert"
 
     # Minc2 --> Minc1 or Minc1 --> Minc2
-    minc2_opt  = to_minc2 ? "-2" : ""
-    new_format = to_minc2 ? "minc2" : "minc1"
+    minc2_opt  = "-2" if conv_direction == "minc2"
       
     # Template option
     temp_opt   = template.present? && template == "1" ? "-template" : ""
@@ -88,10 +87,8 @@ class CbrainTask::MincConvert < ClusterTask
     inputfile_id = params[:inputfile_id]
     inputfile    = Userfile.find(inputfile_id)
 
-    task_work    = self.full_cluster_workdir
-    
     output  = inputfile.name
-    output  = output =~ /(\..+)/ ? output.sub( /(\..+)/ , "_#{new_format}#{temp_add}-#{self.run_id}#{$1}") : "#{output}_#{new_format}-#{self.run_id}" 
+    output  = output =~ /(\..+)/ ? output.sub( /(\..+)/ , "_#{conv_direction}#{temp_add}-#{self.run_id}#{$1}") : "#{output}_#{conv_direction}-#{self.run_id}" 
 
     mincconvert_cmd = "mincconvert #{minc2_opt} #{temp_opt} #{comp_opt} #{chunk_opt} #{inputfile.name} #{output}"
     cmds    << "echo running #{mincconvert_cmd}"
@@ -104,7 +101,6 @@ class CbrainTask::MincConvert < ClusterTask
   
   def save_results #:nodoc:
     params  = self.params
-    user_id = self.user_id
 
     output_name      = params[:output_name]
     self.addlog("output_name #{output_name}")
@@ -115,15 +111,12 @@ class CbrainTask::MincConvert < ClusterTask
 
     inputfile_id = params[:inputfile_id].to_i
     inputfile    = Userfile.find(inputfile_id)
-    group_id     = Userfile.find(inputfile_id).group_id
-    self.results_data_provider_id ||= file.data_provider_id
 
-    outputfile =  safe_userfile_find_or_new(SingleFile,
-                :user_id          => user_id,
-                :group_id         => group_id,
-                :data_provider_id => self.results_data_provider_id,
-                :name             => output_name
-              )
+    outtype =  SingleFile
+    outtype =  Minc1File if params[:conv_direction] == "minc1"
+    outtype =  Minc2File if params[:conv_direction] == "minc2"
+    outputfile = safe_userfile_find_or_new(outtype, :name => output_name)
+
     outputfile.save!
     outputfile.cache_copy_from_local_file(output_name)
 
@@ -134,12 +127,6 @@ class CbrainTask::MincConvert < ClusterTask
 
     true
   end
-  
-  # Add here the optional error-recovery and restarting
-  # methods described in the documentation if you want your
-  # task to have such capabilities. See the methods
-  # recover_from_setup_failure(), restart_at_setup() and
-  # friends, described in CbrainTask_Recovery_Restart.txt.
 
 end
 

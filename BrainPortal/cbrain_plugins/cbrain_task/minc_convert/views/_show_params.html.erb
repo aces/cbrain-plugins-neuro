@@ -26,7 +26,16 @@
 
 <strong>Output: </strong><%= link_to_userfile_if_accessible params[:outfile_id] %></p>
 
-<strong>Conversion way (-2): </strong> <%= params[:to_minc2].present? && params[:to_minc2] == "true" ? "MINC1 -> MINC2" : "MINC2 -> MINC1"%>
+<% conv_direction = params[:conv_direction] %>
+
+<% if conv_direction.present? %> 
+  <strong>Conversion way (-2): </strong>
+    <% if conv_direction == "minc1" %>
+      MINC2 -> MINC1
+    <% elsif conv_direction == "minc2"%>
+      MINC1 -> MINC2
+    <% end %>
+<% end %>
 <!--
 <strong>Compression level (-compress): </strong> <%= params[:compress] || "" %></p>
 <strong>Block size for chuncking (chunk): </strong> <%= params[:chunk] || "" %></br>
