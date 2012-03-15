@@ -27,7 +27,7 @@ class CbrainTask::FslBet < PortalTask
 
   Revision_info=CbrainFileRevision[__FILE__]
 
-  def self.properties
+  def self.properties #:nodoc:
     { :use_parallelizer => true }
   end
 
@@ -69,18 +69,21 @@ class CbrainTask::FslBet < PortalTask
   
   def final_task_list #:nodoc:
     ids    = params[:interface_userfile_ids] || []
+    
     mytasklist = []
     ids.each do |id|
       task=self.clone
       task.params[:interface_userfile_ids] = [ id ]
+      task.params[:inputfile_id]           = id
       task.description = Userfile.find(id).name if task.description.blank?
       mytasklist << task
     end
+    
     mytasklist
   end
   
   def untouchable_params_attributes #:nodoc:
-    { :output_names => true}
+    { :inputfile_id => true, :output_name => true, :outfile_id => true}
   end
 
 end
