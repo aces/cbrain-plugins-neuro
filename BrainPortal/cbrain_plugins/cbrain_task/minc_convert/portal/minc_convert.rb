@@ -81,17 +81,17 @@ class CbrainTask::MincConvert < PortalTask
     
     ids       = params[:interface_userfile_ids] || []
 
-    valid_ids   = []
+    invalid_ids   = []
     ids.each do |id|                                        
       file = Userfile.find(id)
-      if ( (file.is_a?(Minc2File) && minc_direction == "minc1") || (file.is_a?(Minc1File) && minc_direction == "minc2"))
-        valid_ids << file.id.to_s
+      if ( (file.is_a?(Minc2File) && minc_direction == "minc2") || (file.is_a?(Minc1File) && minc_direction == "minc1"))
+        invalid_ids << file.id.to_s
       end
     end
-    params[:valid_ids] = valid_ids
     
+    valid_ids = ids - invalid_ids
+    params[:valid_ids] = valid_ids
     invalid_files = ""
-    invalid_ids = ids - valid_ids
     if invalid_ids.size > 0
       invalid_files += "\nThe following files are ignored they seem to already be in the right format:\n"
       invalid_files += (Userfile.find(invalid_ids).map &:name).join(", ")
