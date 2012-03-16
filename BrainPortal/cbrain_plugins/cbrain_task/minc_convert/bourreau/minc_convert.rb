@@ -43,13 +43,6 @@ class CbrainTask::MincConvert < ClusterTask
     cache_path = inputfile.cache_full_path
     safe_symlink(cache_path, "#{inputfile.name}")
 
-    conv_direction     = params[:conv_direction]
-    input_minc_version = inputfile.which_minc_version
-    if (input_minc_version == "MINC2" && conv_direction == "minc2") || ( input_minc_version == "MINC1" && conv_direction == "minc1")
-      self.addlog("Your file is already in the desired format.")
-      return false
-    end
-    
     self.results_data_provider_id ||= inputfile.data_provider_id
 
     true
