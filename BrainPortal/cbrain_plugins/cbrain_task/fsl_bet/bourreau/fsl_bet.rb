@@ -28,20 +28,22 @@ class CbrainTask::FslBet < ClusterTask
   include RestartableTask
   include RecoverableTask
 
-  # See CbrainTask.txt
   def setup #:nodoc:
     params       = self.params
-      
-    file_ids  =  params[:interface_userfile_ids] || []
-    
-    files = Userfile.find_all_by_id(file_ids)
-    files.each do |file|            
-      self.addlog("Preparing input file '#{file.name}'")
-      file.sync_to_cache
-      cache_path = file.cache_full_path
-      self.safe_symlink(cache_path, "#{file.name}")
+    inputfile_id = params[:inputfile_id].to_i
+    inputfile    = Userfile.find(inputfile_id)
+
+    unless inputfile
+      self.addlog("Could not find active record entry for file #{inputfile_id}")
+      return false
     end
-    
+
+    inputfile.sync_to_cache
+    cache_path = inputfile.cache_full_path
+    safe_symlink(cache_path, "#{inputfile.name}")
+
+    self.results_data_provider_id ||= inputfile.data_provider_id
+
     true
   end
 
@@ -50,35 +52,31 @@ class CbrainTask::FslBet < ClusterTask
   end
 
   def cluster_commands #:nodoc:
-    params       = self.params
-
-    file_ids  = params[:interface_userfile_ids] || []
-    files     = Userfile.find_all_by_id(file_ids)
-
-
-    task_work = self.full_cluster_workdir
+    params    = self.params
     f_option  = params[:fractional_intensity].empty? ? 0.5 : params[:fractional_intensity].to_f
     g_option  = params[:vertical_gradient].empty?    ? 0.0 : params[:vertical_gradient].to_f 
 
     cmds      = []
     cmds      << "echo Starting BET"
-    outnames  = {} # input_id => output_name
-    files.each do |file|
-      output  = file.name
-      output  = output =~ /(\..+)/ ? output.sub( /(\..+)/ , "_brain-#{self.run_id}#{$1}") : "#{output}_brain-#{self.run_id}" 
-      outnames[file.id] = "#{output}"
-      output  = "#{task_work}/#{output}"
 
-      cmd     = "bet #{self.full_cluster_workdir}/#{file.name} #{output} -f #{f_option} -g #{g_option}"
-      cmds    << "echo running #{cmd}"
-      cmds    << cmd
-    end
-    params[:output_names] = outnames
+    # Create bet cmd
+    inputfile_id  = params[:inputfile_id] || []
+    inputfile     = Userfile.find(inputfile_id)
 
-    cmds 
+    task_work     = self.full_cluster_workdir
+    
+    output  = inputfile.name
+    output  = output =~ /(\..+)/ ? output.sub( /(\..+)/ , "_brain-#{self.run_id}#{$1}") : "#{output}_brain-#{self.run_id}" 
+
+    cmd_bet = "bet #{self.full_cluster_workdir}/#{inputfile.name} #{output} -f #{f_option} -g #{g_option}"
+    cmds    << "echo running #{cmd_bet}"
+    cmds    << cmd_bet
+    
+    params[:output_name] = output
+    
+    cmds
   end
   
-  # See CbrainTask.txt
   def save_results #:nodoc:
     params  = self.params
     user_id = self.user_id
@@ -96,45 +94,26 @@ class CbrainTask::FslBet < ClusterTask
       return false
     end
 
-    file_ids = params[:interface_userfile_ids] || []
-    files    = Userfile.find_all_by_id(file_ids)
-
-    outnames  = params[:output_names]
-
-    files.each do |file|
-      output_name = outnames[file.id]
-      group_id    = Userfile.find(file.id).group_id
-
-      unless File.exists?(output_name)
-        self.addlog("The cluster job did not produce our 'bet' output?!?")
-        return false
-      end
-      
-      self.results_data_provider_id ||= file.data_provider_id
-
-      output =  safe_userfile_find_or_new(SingleFile,
-                  :user_id          => user_id,
-                  :group_id         => group_id,
-                  :data_provider_id => self.results_data_provider_id,
-                  :name             => output_name
-                )
-      output.save!
-      output.cache_copy_from_local_file(output_name)
-      
-      self.addlog_to_userfiles_these_created_these( [ file ], [ output ] )
-      self.addlog("Saved result file #{output_name}")
-      params[:outfile_ids] << output.id
-      output.move_to_child_of(file)
+    output_name  = params[:output_name]
+    unless File.exists?(output_name)
+      self.addlog("The cluster job did not produce our 'bet' output?!?")
+      return false
     end
+
+    inputfile_id = params[:inputfile_id].to_i
+    inputfile    = Userfile.find(inputfile_id)
+    
+    outputfile =  safe_userfile_find_or_new(SingleFile, :name => output_name )
+    outputfile.save!
+    outputfile.cache_copy_from_local_file(output_name)
+
+    self.addlog_to_userfiles_these_created_these( [ inputfile ], [ outputfile ] )
+    self.addlog("Saved result file #{output_name}")
+    params[:outfile_id] = outputfile.id
+    outputfile.move_to_child_of(inputfile)
 
     true
   end
-
-  # Add here the optional error-recovery and restarting
-  # methods described in the documentation if you want your
-  # task to have such capabilities. See the methods
-  # recover_from_setup_failure(), restart_at_setup() and
-  # friends, described in CbrainTask_Recovery_Restart.txt.
 
 end
 
