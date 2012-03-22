@@ -24,17 +24,29 @@
 
 <% if @userfile.is_locally_synced? %>
   <%= overlay_content_link "Show Displayable Contents", :class => "action_link" do %>
-    <% clasp_file  = @userfile.list_files("#{base_dir}").find { |f| f.name =~ /clasp\.png$/ } %>
     <% verify_file = @userfile.list_files("#{base_dir}").find { |f| f.name =~ /verify\.png$/} %>
+    <% clasp_file  = @userfile.list_files("#{base_dir}").find { |f| f.name =~ /clasp\.png$/ } %>
+    <% atlas_file  = @userfile.list_files("#{base_dir}").find { |f| f.name =~ /atlas\.png$/ } %>
+
+    <% if verify_file %>
+       <h3>Verify</h3>
+       <%= image_tag url_for(:action  => :content, :content_loader => :collection_file, :arguments => verify_file.name) %>
+    <% end %>
+
+    <br>
+
     <% if clasp_file %>
        <h3>Clasp</h3>
        <%= image_tag url_for(:action  => :content, :content_loader => :collection_file, :arguments => clasp_file.name) %>
     <% end %>
  
-    <% if verify_file %>
-       <br><h3>Verify</h3>
-       <%= image_tag url_for(:action  => :content, :content_loader => :collection_file, :arguments => verify_file.name) %>
+    <br>
+
+    <% if atlas_file %>
+       <h3>Atlas</h3>
+       <%= image_tag url_for(:action  => :content, :content_loader => :collection_file, :arguments => atlas_file.name) %>
     <% end %>
+ 
   <% end %>
 <% end %>
 <%= render :partial  => "userfiles/viewers/civet_directories_help" %>
