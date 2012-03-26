@@ -297,7 +297,7 @@ set fmri(regstandard_yn) 1
 <%# Registration to standard image always done in CBRAIN %>
 # Standard image
 <% 
-  fsl_dir = `echo $FSL_DIR`
+  fsl_dir = `echo $FSLDIR`
   fsl_dir.gsub!(/\s/ , "")
 %>
   set fmri(regstandard) "<%= "#{fsl_dir}/data/standard/MNI152_T1_2mm_brain" %>"
