@@ -24,7 +24,7 @@ class MincCollection < FileCollection
 
   Revision_info=CbrainFileRevision[__FILE__]
 
-  def self.pretty_type
+  def self.pretty_type #:nodoc:
     "MINC file collection"
   end
   

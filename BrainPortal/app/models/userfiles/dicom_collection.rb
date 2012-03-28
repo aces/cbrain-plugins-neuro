@@ -26,7 +26,7 @@ class DicomCollection < FileCollection
 
   Revision_info=CbrainFileRevision[__FILE__]
 
-  def self.pretty_type
+  def self.pretty_type #:nodoc:
     "DICOM file collection"
   end
   

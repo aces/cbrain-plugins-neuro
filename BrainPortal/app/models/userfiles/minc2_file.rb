@@ -36,7 +36,7 @@ class Minc2File < MincFile
     "MINC2"
   end
 
-  def has_minctools?(min_version=[2,0,0],which_tools=["mincinfo", "minctoraw"])
+  def has_minctools?(min_version=[2,0,0],which_tools=["mincinfo", "minctoraw"])  #:nodoc:
     super
   end
   
