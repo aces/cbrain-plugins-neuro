@@ -298,7 +298,7 @@ set fmri(regstandard_yn) 1
 # Standard image
 <% 
   fsl_dir = `echo $FSLDIR`
-  fsl_dir.gsub!(/\s/ , "")
+  fsl_dir.strip!  
 %>
   set fmri(regstandard) "<%= "#{fsl_dir}/data/standard/MNI152_T1_2mm_brain" %>"
 
