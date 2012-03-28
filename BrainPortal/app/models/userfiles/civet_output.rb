@@ -34,7 +34,7 @@ class CivetOutput < FileCollection
   has_viewer    :civet_output
   has_viewer    :partial => "civet_output/obj_viewer_launcher", :name => "BrainBrowser",  :if  => Proc.new { |u| u.is_locally_synced? }
   
-  def qc_images
+  def qc_images  #:nodoc:
     self.list_files("verify").select { |f| f.name =~ /\.png$/ }
   end
 
