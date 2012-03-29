@@ -162,6 +162,14 @@ class CbrainTask::Dcm2nii < ClusterTask
       components[keyword] = dcm_comps[i]
     end
 
+    # Add {nii-N} keywords
+    nii_name = File.basename(orig_nii_relpath)
+    nii_comps = nii_name.split(/([a-z0-9]+)/i)
+    1.step(nii_comps.size-1,2) do |i|
+      keyword = "nii-#{(i-1)/ 2+1}"
+      components[keyword] = nii_comps[i]
+    end
+
     # Create new basename
     final = pattern.pattern_substitute(components) # in cbrain_extensions.rb
 
