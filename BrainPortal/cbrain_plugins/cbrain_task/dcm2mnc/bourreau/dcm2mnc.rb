@@ -151,7 +151,7 @@ class CbrainTask::Dcm2mnc < ClusterTask
     # Add {dicom-N} keywords
     dcm_comps = dicom_name.split(/([a-z0-9]+)/i)
     1.step(dcm_comps.size-1,2) do |i|
-      keyword = "dicom-#{(i-1)/2+1}"
+      keyword = "dicom-#{(i-1)/ 2+1}"
       components[keyword] = dcm_comps[i]
     end
 
@@ -159,7 +159,7 @@ class CbrainTask::Dcm2mnc < ClusterTask
     minc_name = File.basename(orig_minc_relpath)
     mnc_comps = minc_name.split(/([a-z0-9]+)/i)
     1.step(mnc_comps.size-1,2) do |i|
-      keyword = "minc-#{(i-1)/2+1}"
+      keyword = "minc-#{(i-1)/ 2+1}"
       components[keyword] = mnc_comps[i]
     end
 
