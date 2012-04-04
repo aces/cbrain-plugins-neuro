@@ -24,9 +24,9 @@
 
 <% if @userfile.is_locally_synced? %>
   <%= overlay_content_link "Show Displayable Contents", :class => "action_link" do %>
-    <% verify_file = @userfile.list_files("#{base_dir}").find { |f| f.name =~ /verify\.png$/} %>
-    <% clasp_file  = @userfile.list_files("#{base_dir}").find { |f| f.name =~ /clasp\.png$/ } %>
-    <% atlas_file  = @userfile.list_files("#{base_dir}").find { |f| f.name =~ /atlas\.png$/ } %>
+    <% verify_file = @userfile.list_files("#{base_dir}").find { |f| f.name =~ /verify\.png$/} rescue nil %>
+    <% clasp_file  = @userfile.list_files("#{base_dir}").find { |f| f.name =~ /clasp\.png$/ } rescue nil %>
+    <% atlas_file  = @userfile.list_files("#{base_dir}").find { |f| f.name =~ /atlas\.png$/ } rescue nil%>
 
     <% if verify_file %>
        <h3>Verify</h3>
