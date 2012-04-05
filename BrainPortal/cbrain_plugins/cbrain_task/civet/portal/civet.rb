@@ -161,7 +161,6 @@ class CbrainTask::Civet < PortalTask
 
     if params[:N3_distance].blank? || params[:N3_distance].to_i < 1
       params_errors.add(:N3_distance, " value is bad. Suggested values are 200 for a 1.5T scanner, 25 for a 3T scanner.")
-      return ""
     end
 
     # Verify uniqueness of subject IDs
@@ -171,29 +170,54 @@ class CbrainTask::Civet < PortalTask
       dsid_counts[dsid] ||= 0
       dsid_counts[dsid]  += 1
     end
-    dup_warned = false
+
+    # Verify validity of subject IDs and prefix
     file_args_hash.each do |idx,fa|
       next unless fa[:launch] == '1'
-      dsid = fa[:dsid]
+
+      dsid = (fa[:dsid] || "").strip
+      fa[:dsid] = dsid
+
+      message = nil
       if dsid.blank?
-        self.class.pretty_params_names["file_args[#{idx}][dsid]"] = "Subject ID for '#{fa[:t1_name]}'"
-        params_errors.add(             "file_args[#{idx}][dsid]", " is blank?")
+        message = " is blank?"
+      elsif dsid !~ /^\w[\w\-]*$/
+        message = " is not a simple identifier."
       elsif dsid_counts[dsid] > 1
-        self.class.pretty_params_names["file_args[#{idx}][dsid]"] = "Subject ID for '#{fa[:t1_name]}'"
-        params_errors.add(             "file_args[#{idx}][dsid]", " is the same as another subject ID.")
-        dup_warned = true
+        message = " is the same as another subject ID."
       end
+      if message
+        self.class.pretty_params_names["file_args[#{idx}][dsid]"] = "Subject ID for '#{fa[:t1_name]}'"
+        params_errors.add(             "file_args[#{idx}][dsid]", message)
+      end
+
+      prefix = (fa[:prefix] || "").strip
+      fa[:prefix] = prefix
+
+      message = nil
+      if prefix.blank?
+        message = " is blank?"
+      elsif prefix !~ /^\w[\w\-]*$/
+        message = " is not a simple identifier."
+      end
+      if message
+        self.class.pretty_params_names["file_args[#{idx}][prefix]"] = "Prefix ID for '#{fa[:t1_name]}'"
+        params_errors.add(             "file_args[#{idx}][prefix]", message)
+      end
+
     end
-    return "" unless params_errors.empty?
 
     # Nothing else to do when we're editing an existing task
     return "" if ! self.new_record?
 
     # Combine into a Study
     study_name = params[:study_name] || ""
-    if ! study_name.blank? 
+    if params[:qc_study] == '1' && study_name.blank?
+      params_errors.add(:study_name, "needs to be given if QC is requested too.")
+    end
+    if study_name.present?
       if ! Userfile.is_legal_filename?(study_name)
-        params_errors.add(:study_name, "Sorry, but the study name provided contains some unacceptable characters.")
+        params_errors.add(:study_name, "contains some unacceptable characters.")
         return ""
       end
       combiner_tool_config_id = params[:combiner_tool_config_id]
@@ -303,11 +327,19 @@ class CbrainTask::Civet < PortalTask
     # Parse the list of all files and extract the MINC files.
     # We ignore everything else.
     minc_files = []
+    warned_bad = 0
     files_inside.each do |basename|
-      minc_files << basename if basename.match(/\.mnc(\.gz|\.Z)?$/i)
+      if basename.match(/\.mnc(\.gz|\.Z)?$/i)
+        if Userfile.is_legal_filename?(basename)
+          minc_files << basename
+        else
+          warned_bad += 1
+        end
+      end
     end
+    self.errors.add(:base, "Some filenames (#{warned_bad} of them) inside the collection are not correct and will be ignored.") if warned_bad > 0
 
-    cb_error "There are no MINC files in this FileCollection!" unless minc_files.size > 0
+    cb_error "There are no valid MINC files in this collection!" unless minc_files.size > 0
 
     # From the list of minc files, try to identify files
     # that are clearly 't1' files, based on the filename.
