@@ -64,7 +64,7 @@ class CbrainTask::FslFlirt < PortalTask
     }
   end
   
-  def before_form
+  def before_form #:nodoc:
     params   = self.params
 
     ids    = params[:interface_userfile_ids]
