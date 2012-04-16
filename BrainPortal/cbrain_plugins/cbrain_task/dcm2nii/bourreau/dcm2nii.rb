@@ -1,7 +1,5 @@
 
 #
-# CBRAIN Project
-#
 # Copyright (C) 2008-2012
 # The Royal Institution for the Advancement of Learning
 # McGill University
@@ -20,13 +18,13 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.  
 #
 
-#A subclass of ClusterTask to run dcm2mnc.
-class CbrainTask::Dcm2mnc < ClusterTask
+#A subclass of ClusterTask to run dcm2nii.
+class CbrainTask::Dcm2nii < ClusterTask
 
   Revision_info=CbrainFileRevision[__FILE__]
 
-  include RestartableTask # This task is naturally restartable
-  include RecoverableTask # This task is naturally recoverable
+  include RestartableTask
+  include RecoverableTask
 
   def setup #:nodoc:
     params      = self.params
@@ -47,7 +45,7 @@ class CbrainTask::Dcm2mnc < ClusterTask
 
     dicom_col.sync_to_cache
     cachename = dicom_col.cache_full_path.to_s
-    safe_symlink(cachename,"dicom_col")
+    safe_symlink(cachename, dicom_col.name)
     safe_mkdir("results",0700)
 
     true
@@ -56,25 +54,34 @@ class CbrainTask::Dcm2mnc < ClusterTask
   def job_walltime_estimate #:nodoc:
     1.hours
   end
-
+  
   def cluster_commands #:nodoc:
-    params       = self.params
-    use_coord = params[:use_coordinates] == "1" ? "-usecoordinates" : ""
-    [
-      "dcm2mnc #{use_coord} dicom_col results",
-    ]
-  end
+    params      = self.params
 
+    dicom_colid = params[:dicom_colid]  # the ID of a FileCollection
+    dicom_col   = Userfile.find(dicom_colid)
+
+    safe_mkdir("results", 0700)
+    cmd_dcm2nii = "dcm2nii -o results #{dicom_col.name}"
+
+    cmds = []
+    cmds << "echo Starting dcm2nii"
+    cmds << "echo Running #{cmd_dcm2nii}"
+    cmds << "#{cmd_dcm2nii}"
+
+    cmds
+  end
+  
   def save_results #:nodoc:
     params      = self.params
     dicom_colid = params[:dicom_colid]  # the ID of a FileCollection
     dicom_col   = Userfile.find(dicom_colid)
 
     relpaths = []
-    IO.popen("find results -type f -name \"*.mnc*\" -print","r") do |io|
+    IO.popen("find results -type f -name \"*.nii*\" -print","r") do |io|
       io.each_line do |relpath|
-        next unless relpath.match(/\.mnc(.gz)?\s*$/i)
-        relpath.sub!(/\s+$/,"")
+        next unless relpath.match(/\.nii(.gz)?\s*$/i)
+        relpath.strip!
         relpaths << relpath
       end
     end
@@ -82,7 +89,7 @@ class CbrainTask::Dcm2mnc < ClusterTask
     numfail = 0
     numok   = 0
 
-    mincfiles      = []
+    niifiles       = []
     orig_basenames = []
 
     FileUtils.remove_dir("renamed", true) rescue true
@@ -91,16 +98,16 @@ class CbrainTask::Dcm2mnc < ClusterTask
     relpaths.each do |relpath|
       newrelpath   = rename_by_pattern(dicom_col.name,relpath)
       basename     = File.basename(newrelpath)
-      mincfile = safe_userfile_find_or_new(MincFile,
+      niifile      = safe_userfile_find_or_new(NiftiFile,
         :name             => basename,
         :data_provider_id => self.results_data_provider_id
       )
-      mincfile.cache_copy_from_local_file(newrelpath)
-      if mincfile.save
-        mincfile.move_to_child_of(dicom_col)
+      niifile.cache_copy_from_local_file(newrelpath)
+      if niifile.save
+        niifile.move_to_child_of(dicom_col)
         numok += 1
-        self.addlog("Saved new MINC file #{basename}")
-        mincfiles      << mincfile
+        self.addlog("Saved new NIfTI file #{basename}")
+        niifiles       << niifile
         orig_basenames << File.basename(relpath)
       else
         numfail += 1
@@ -108,23 +115,23 @@ class CbrainTask::Dcm2mnc < ClusterTask
       end
     end
 
-    old_mincfile_ids = params[:created_mincfile_ids] || []
-    new_mincfile_ids = mincfiles.map &:id
+    old_niifile_ids = params[:created_niifile_ids] || []
+    new_niifile_ids = niifiles.map &:id
 
     if params[:erase_old_results] == "1" && numok > 0 && numfail == 0
-      old_mincfile_ids -= new_mincfile_ids
-      old_mincfile_ids.each do |id|
+      old_niifile_ids -= new_niifile_ids
+      old_niifile_ids.each do |id|
         u = Userfile.find(id) rescue nil
         next unless u
         u.destroy rescue true
-        self.addlog("Erasing old result mincfile '#{u.name}'")
+        self.addlog("Erasing old result niifile '#{u.name}'")
       end
     end
+    
+    params[:created_niifile_ids]    = new_niifile_ids
+    params[:orig_niifile_basenames] = orig_basenames
 
-    params[:created_mincfile_ids]    = new_mincfile_ids
-    params[:orig_mincfile_basenames] = orig_basenames
-
-    self.addlog_to_userfiles_these_created_these([dicom_col],mincfiles)
+    self.addlog_to_userfiles_these_created_these([dicom_col],niifiles)
 
     return true if numok > 0 && numfail == 0
     false
@@ -132,11 +139,11 @@ class CbrainTask::Dcm2mnc < ClusterTask
 
   private
 
-  def rename_by_pattern(dicom_name,orig_minc_relpath)
+  def rename_by_pattern(dicom_name,orig_nii_relpath) #:nodoc:
     pattern = self.params[:output_filename_pattern] || ""
     pattern.strip!
     if pattern.blank?
-      return orig_minc_relpath # nothing to do really
+      return orig_nii_relpath # nothing to do really
     end
 
     # Create standard keywords
@@ -155,23 +162,23 @@ class CbrainTask::Dcm2mnc < ClusterTask
       components[keyword] = dcm_comps[i]
     end
 
-    # Add {minc-N} keywords
-    minc_name = File.basename(orig_minc_relpath)
-    mnc_comps = minc_name.split(/([a-z0-9]+)/i)
-    1.step(mnc_comps.size-1,2) do |i|
-      keyword = "minc-#{(i-1)/ 2+1}"
-      components[keyword] = mnc_comps[i]
+    # Add {nii-N} keywords
+    nii_name = File.basename(orig_nii_relpath)
+    nii_comps = nii_name.split(/([a-z0-9]+)/i)
+    1.step(nii_comps.size-1,2) do |i|
+      keyword = "nii-#{(i-1)/ 2+1}"
+      components[keyword] = nii_comps[i]
     end
 
     # Create new basename
     final = pattern.pattern_substitute(components) # in cbrain_extensions.rb
 
-    # Append .mnc or .mnc.gz if necessary
-    final.sub!(/\.mi?nc(\.gz)?$/i,"")
-    if orig_minc_relpath =~ /\.mi?nc\.gz$/i
-      final += ".mnc.gz"
+    # Append .nii or .nii.gz if necessary
+    final.sub!(/\.nii(\.gz)?$/i,"")
+    if orig_nii_relpath =~ /\.nii\.gz$/i
+      final += ".nii.gz"
     else
-      final += ".mnc"
+      final += ".nii"
     end
 
     # Validate it
@@ -181,14 +188,13 @@ class CbrainTask::Dcm2mnc < ClusterTask
     # Create hard link with new name
     new_relpath = "renamed/#{final}"
     if File.exist?(new_relpath)
-      cb_error "Error: it seems this task's renaming pattern mapped several of dcm2mnc's output mincfiles to the same new name '#{final}'."
+      cb_error "Error: it seems this task's renaming pattern mapped several of dcm2nii's output niifiles to the same new name '#{final}'."
     end
 
-    File.link(orig_minc_relpath,new_relpath)
+    File.link(orig_nii_relpath,new_relpath)
 
     return new_relpath
 
   end
 
 end
-

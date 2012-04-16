@@ -24,7 +24,7 @@ class DicomFile < SingleFile
 
   Revision_info=CbrainFileRevision[__FILE__]
   
-  def self.file_name_pattern
+  def self.file_name_pattern #:nodoc:
     /\.(dcm|dicom)$/i
   end
   

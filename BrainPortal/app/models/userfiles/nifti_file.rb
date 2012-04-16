@@ -20,14 +20,16 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.  
 #
 
-# Dicom collection model
-# Essentially a file collection of DICOM files
-class DicomCollection < FileCollection
+class NiftiFile < SingleFile
 
   Revision_info=CbrainFileRevision[__FILE__]
-
-  def self.pretty_type #:nodoc:
-    "DICOM file collection"
-  end
   
+  def self.pretty_type #:nodoc:
+    "NIfTI file"
+  end
+
+  def self.file_name_pattern #:nodoc:
+    /\.nii(\.gz)?$/i 
+  end
+
 end
