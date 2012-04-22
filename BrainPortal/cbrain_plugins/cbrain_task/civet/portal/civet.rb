@@ -512,6 +512,7 @@ class CbrainTask::Civet < PortalTask
     combiner.status           = 'New'
     combiner.group_id         = self.group_id
     combiner.launch_time      = self.launch_time
+    combiner.batch_id         = self.batch_id
     combiner.params = {
       :civet_study_name     => study_name,
       :civet_from_task_ids  => tids.join(","),
@@ -537,6 +538,7 @@ class CbrainTask::Civet < PortalTask
     qc.status      = 'New'
     qc.group_id    = self.group_id
     qc.launch_time = self.launch_time
+    qc.batch_id    = self.batch_id
     qc.params      = { :study_from_task_id => cid }
     qc.add_prerequisites_for_setup(cid)
 
