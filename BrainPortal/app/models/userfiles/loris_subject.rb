@@ -37,5 +37,7 @@
 # 212396/v24/mri/native/ibis_212396_v24_dti_001.mnc
 class LorisSubject < FileCollection
 
+  Revision_info=CbrainFileRevision[__FILE__]
+
 end
 
