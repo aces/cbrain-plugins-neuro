@@ -27,6 +27,17 @@ class CbrainTask::Dcm2nii < PortalTask
   def self.properties #:nodoc:
     { :use_parallelizer => true }
   end
+
+  def self.default_launch_args #:nodoc:
+    {
+      :anonymize => "1",
+      :date      => "1",
+      :events    => "1", 
+      :gzip      => "1",
+      :id        => "1",
+      :protocol  => "1"
+    }
+  end
     
   def before_form #:nodoc:
     params = self.params
