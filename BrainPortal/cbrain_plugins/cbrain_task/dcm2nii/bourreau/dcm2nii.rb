@@ -43,10 +43,10 @@ class CbrainTask::Dcm2nii < ClusterTask
 
     self.results_data_provider_id ||= dicom_col.data_provider_id
 
-    dicom_col.sync_to_cache
+    dicom_col.sync_to_cache   
     cachename = dicom_col.cache_full_path.to_s
     safe_symlink(cachename, dicom_col.name)
-    safe_mkdir("results",0700)
+    safe_mkdir("#{result_dir}",0700)
 
     true
   end
@@ -61,8 +61,15 @@ class CbrainTask::Dcm2nii < ClusterTask
     dicom_colid = params[:dicom_colid]  # the ID of a FileCollection
     dicom_col   = Userfile.find(dicom_colid)
 
-    safe_mkdir("results", 0700)
-    cmd_dcm2nii = "dcm2nii -o results #{dicom_col.name}"
+    additional_opts = ""
+    additional_opts << " -a N" if params[:anonymize] == "0"
+    additional_opts << " -d N" if params[:date] == "0"
+    additional_opts << " -e N" if params[:events] == "0"
+    additional_opts << " -g N" if params[:gzip] == "0"
+    additional_opts << " -i N" if params[:id] == "0"
+    additional_opts << " -p N" if params[:protocol] == "0"
+    
+    cmd_dcm2nii = "dcm2nii #{additional_opts} -o #{result_dir} #{dicom_col.name}"
 
     cmds = []
     cmds << "echo Starting dcm2nii"
@@ -78,10 +85,12 @@ class CbrainTask::Dcm2nii < ClusterTask
     dicom_col   = Userfile.find(dicom_colid)
 
     relpaths = []
-    IO.popen("find results -type f -name \"*.nii*\" -print","r") do |io|
+    IO.popen("find #{result_dir} -type f -print","r") do |io|
       io.each_line do |relpath|
-        next unless relpath.match(/\.nii(.gz)?\s*$/i)
         relpath.strip!
+        next unless relpath.match(/\.nii(.gz)?$/i) || 
+                    relpath.match(/\.bval$/i)      ||
+                    relpath.match(/\.bvec$/i)
         relpaths << relpath
       end
     end
@@ -175,10 +184,11 @@ class CbrainTask::Dcm2nii < ClusterTask
 
     # Append .nii or .nii.gz if necessary
     final.sub!(/\.nii(\.gz)?$/i,"")
+    extension = orig_nii_relpath.scan(/\.[^\.]+$/).last
     if orig_nii_relpath =~ /\.nii\.gz$/i
       final += ".nii.gz"
-    else
-      final += ".nii"
+    else 
+      final += "#{extension}"
     end
 
     # Validate it
@@ -195,6 +205,10 @@ class CbrainTask::Dcm2nii < ClusterTask
 
     return new_relpath
 
+  end
+
+  def result_dir
+    "result_#{self.run_number}"
   end
 
 end
