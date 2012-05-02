@@ -129,19 +129,19 @@ class MincFile < SingleFile
   #that the file is synchronized when this method is called.
   #If it can't determine the type, it returns 'UNKNOWN'.
   def which_minc_version  
-    type = "UNKNOWN"
+    type = :unknown
+    return type unless File.exist?(self.cache_full_path) 
     IO.popen("file #{self.cache_full_path}") do |fh|
-      first_line = fh.readlines[0] || ""
+      first_line = fh.readline
       if first_line =~ /NetCDF/i
-        type =  "MINC1"
+        type =  :minc1
       elsif first_line =~ /Hierarchical/i
-        type = "MINC2"
+        type = :minc2
       end
-      break
     end
     return type
   rescue
-    "UNKNOWN"
+    :unknown
   end
 
   # This utility method escapes properly any string such that
