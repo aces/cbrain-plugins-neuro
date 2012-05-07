@@ -38,11 +38,12 @@ class CbrainTask::ReconAll < PortalTask
     params   = self.params
 
     file_ids  = params[:interface_userfile_ids] || []
-    mgzfiles = Userfile.find_all_by_id(file_ids)
-    mgzfiles.each do |mgzfile|     
-      cb_error "Error: this program can only run on MGZ Files." unless 
-        mgzfile.is_a?(MgzFile)
-    end
+    files = Userfile.find_all_by_id(file_ids)
+    files.each do |file|
+      cb_error "Error: this task can only run on MGZ files MINC1 or NifTi." unless
+         file.is_a?(MgzFile) || file.is_a?(NiftiFile) || 
+        (file.is_a?(MincFile) && file.which_minc_version != :minc2)
+    end 
     
     return ""
   end
@@ -99,7 +100,7 @@ class CbrainTask::ReconAll < PortalTask
       # Verify subject_name
       local_subject_name   = task.params[:subject_name]
       if local_subject_name.blank?
-        local_subject_name = input_name.sub(/\.[^\.]+$/,"")
+        local_subject_name = input_name.split(/\./)[0]
         task.params[:subject_name] = local_subject_name 
       end
 

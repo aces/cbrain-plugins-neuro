@@ -37,12 +37,18 @@ class CbrainTask::ReconAll < ClusterTask
     
     file_ids  = params[:interface_userfile_ids] || []
     
-    mgzfiles = Userfile.find_all_by_id(file_ids)
-    mgzfiles.each do |mgzfile|            
-      self.addlog("Preparing input file '#{mgzfile.name}'")
-      mgzfile.sync_to_cache
-      cache_path = mgzfile.cache_full_path
-      self.safe_symlink(cache_path, "input/#{mgzfile.name}")
+    files = Userfile.find_all_by_id(file_ids)
+    files.each do |file|            
+      self.addlog("Preparing input file '#{file.name}'")
+      file.sync_to_cache
+      if file.is_a?(MincFile)
+        if file.which_minc_version != :minc1
+          self.addlog("Recon-all can only run on MINC1.")
+          return false
+        end
+      end
+      cache_path = file.cache_full_path
+      self.safe_symlink(cache_path, "input/#{file.name}")
     end
     
     true
@@ -57,9 +63,9 @@ class CbrainTask::ReconAll < ClusterTask
     subject_name = params[:subject_name]
 
     file_ids     = params[:interface_userfile_ids] || []
-    mgzfiles     = Userfile.find_all_by_id(file_ids)
+    files        = Userfile.find_all_by_id(file_ids)
     
-    basenames    = mgzfiles.map &:name
+    basenames    = files.map &:name
     dash_i       = ""
     basenames.each { |name| dash_i += " -i input/#{name}" }
     subject_name ||= basenames[0]  # should never happen
@@ -72,9 +78,10 @@ class CbrainTask::ReconAll < ClusterTask
     absolute_subject_path = "#{task_work}/#{relative_subject_path}"
     FileUtils.rm_rf(relative_subject_path)
     
-    with_qcache    = params[:with_qcache].to_i == 1 ? "-qcache" : "";
+    with_qcache    = params[:with_qcache] == "1" ? "-qcache" : "";
+    with_mprage    = params[:with_mprage] == "1" ? "-mprage" : "";
     
-    recon_all_command = "recon-all #{with_qcache} -sd #{task_work} #{dash_i} -subjid #{absolute_subject_path} -all"
+    recon_all_command = "recon-all #{with_qcache} #{with_mprage} -sd #{task_work} #{dash_i} -subjid #{absolute_subject_path} -all"
 
     [
       "echo \"\";echo Starting Recon-all",
@@ -91,9 +98,9 @@ class CbrainTask::ReconAll < ClusterTask
     cb_error("Sorry, but the subject name provided contains some unacceptable characters.") unless is_legal_subject_name?(subject_name)
     
     file_ids = params[:interface_userfile_ids] || []
-    mgzfiles = Userfile.find_all_by_id(file_ids)
+    files = Userfile.find_all_by_id(file_ids)
     
-    self.results_data_provider_id ||= mgzfiles[0].data_provider_id
+    self.results_data_provider_id ||= files[0].data_provider_id
 
     # Verify if recon-all exited without error.
     stdout = File.read(self.stdout_cluster_filename) rescue ""
@@ -110,11 +117,11 @@ class CbrainTask::ReconAll < ClusterTask
     outfile.save!
     outfile.cache_copy_from_local_file("#{self.full_cluster_workdir}/#{subject_name}")
 
-    self.addlog_to_userfiles_these_created_these( [ mgzfiles ], [ outfile ] )
+    self.addlog_to_userfiles_these_created_these( [ files ], [ outfile ] )
     self.addlog("Saved result file #{output_name}")
     
     params[:outfile_id] = outfile.id
-    outfile.move_to_child_of(mgzfiles[0])
+    outfile.move_to_child_of(files[0])
 
     true
   end
