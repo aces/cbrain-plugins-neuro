@@ -84,7 +84,7 @@ class CbrainTask::ReconAll < ClusterTask
     recon_all_command = "recon-all #{with_qcache} #{with_mprage} -sd #{task_work} #{dash_i} -subjid #{absolute_subject_path} -all"
 
     [
-      "echo \"\";echo Starting Recon-all",
+      "echo Starting Recon-all cross-sectional",
       "echo Command: #{recon_all_command}",
       "#{recon_all_command}"
     ]
@@ -110,7 +110,7 @@ class CbrainTask::ReconAll < ClusterTask
     end
 
     output_name  += "-#{self.run_id}"
-    outfile = safe_userfile_find_or_new(ReconAllOutput,
+    outfile = safe_userfile_find_or_new(ReconAllCrossSectionalOutput,
       :name             => output_name,
       :data_provider_id => self.results_data_provider_id
     )

@@ -1,4 +1,5 @@
 
+<%-
 #
 # CBRAIN Project
 #
@@ -19,23 +20,21 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.  
 #
+-%>
 
-# A subclass of CbrainTask to launch recon-all of FreeSurfer.
-class CbrainTask::ReconAll
 
-  def is_legal_output_name?(output_name) #:nodoc:
-    output_name ||= params[:output_name]
-    return Userfile.is_legal_filename?(output_name)
-  end               
+Input collections selected:<BR>
+<UL>
+  <% params[:interface_userfile_ids].each do |id| %>
+  <LI><%= link_to_userfile_if_accessible(id) %></LI>
+  <% end %>
+</UL>
 
-  def is_legal_subject_name?(subject_name) #:nodoc:
-    return subject_name =~ /^[a-z0-9][\w\-]*$/i
-  end
- 
-  def pretty_name #:nodoc:
-    "FreeSurfer Recon-all"
-  end
 
- 
-end
-
+Base name: </br>
+<%= form.params_text_field :base_name %></br>
+<small>
+recon-all's base output is saved in Recon-all base output.</br>
+If you don't fill this option, the base name will be Base-{task_number}-{run_number}.<br>
+Otherwise, the base name will have the following format {base_name}-{task_number}-{run_number}</br>
+</small>
