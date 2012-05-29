@@ -20,12 +20,15 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.  
 #
 
+# This abstract class represents a FileCollection meant to model a recon-all collection.
 class ReconAllOutput < FileCollection
 
   Revision_info=CbrainFileRevision[__FILE__]
+
+  cbrain_abstract_model! # objects of this class are not to be instanciated
   
   def self.pretty_type #:nodoc:
-    "Freesurfer Recon-all Output"
+    "Recon-all Output"
   end
   
 end

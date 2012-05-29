@@ -20,22 +20,13 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.  
 #
 
-# A subclass of CbrainTask to launch recon-all of FreeSurfer.
-class CbrainTask::ReconAll
+class ReconAllBaseOutput < ReconAllOutput
 
-  def is_legal_output_name?(output_name) #:nodoc:
-    output_name ||= params[:output_name]
-    return Userfile.is_legal_filename?(output_name)
-  end               
-
-  def is_legal_subject_name?(subject_name) #:nodoc:
-    return subject_name =~ /^[a-z0-9][\w\-]*$/i
+  Revision_info=CbrainFileRevision[__FILE__]
+  
+  def self.pretty_type #:nodoc:
+    "Recon-all unbiased base"
   end
- 
-  def pretty_name #:nodoc:
-    "FreeSurfer Recon-all"
-  end
-
- 
+  
 end
 

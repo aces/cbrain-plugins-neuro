@@ -21,6 +21,8 @@
 #
 
 # A subclass of CbrainTask to launch recon-all of FreeSurfer.
+#
+# Original author: Natacha Beck
 class CbrainTask::ReconAll < PortalTask
 
   Revision_info=CbrainFileRevision[__FILE__]
