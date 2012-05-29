@@ -99,7 +99,7 @@ class CbrainTask::CivetCombiner < ClusterTask
         self.addlog("Could not find params file '#{params_file}' for CivetOutput '#{col.name}'.")
         return false
       end
-      civet_params = YAML::load(ymltext).with_indifferent_access
+      civet_params = YAML.load(ymltext).with_indifferent_access
       file_args = civet_params[:file_args] || { "0" => {} }
       file0     = file_args["0"]           || {}
       prefix = file0[:prefix] || civet_params[:prefix]  # change in struct: NEW || OLD
