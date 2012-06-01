@@ -25,8 +25,8 @@ class ReconAllCrossSectionalOutput < ReconAllOutput
   Revision_info=CbrainFileRevision[__FILE__]
   
   def self.pretty_type #:nodoc:
-    "Recon-all cross-sectional output"
+    "Recon-all Cross-Sectional Output"
   end
   
 end
-
+                

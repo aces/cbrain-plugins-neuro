@@ -1,4 +1,5 @@
 
+<%-
 #
 # CBRAIN Project
 #
@@ -19,14 +20,20 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.  
 #
+-%>
 
-class ReconAllBaseOutput < ReconAllOutput
+Input collections selected:<BR>
+<UL>
+  <% params[:interface_userfile_ids].each do |id| %>
+  <LI><%= link_to_userfile_if_accessible(id) %></LI>
+  <% end %>
+</UL>
 
-  Revision_info=CbrainFileRevision[__FILE__]
-  
-  def self.pretty_type #:nodoc:
-    "Recon-all Unbiased Base"
-  end
-  
-end
 
+Base name: </br>
+<%= form.params_text_field :base_name %></br>
+<small>
+recon-all's base output is saved in Recon-all base output.</br>
+If you don't fill this option, the base name will be Base-{task_number}-{run_number}.<br>
+Otherwise, the base name will have the following format {base_name}-{task_number}-{run_number}</br>
+</small>

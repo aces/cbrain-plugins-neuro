@@ -50,7 +50,6 @@ class CbrainTask::ReconAllBase < ClusterTask
     36.hours
   end
   
-  # See CbrainTask.txt
   def cluster_commands #:nodoc:
     params          = self.params
     base_name       = params[:base_name].presence || "Base"
@@ -79,7 +78,6 @@ class CbrainTask::ReconAllBase < ClusterTask
     ]
   end
   
-  # See CbrainTask.txt
   def save_results #:nodoc:
     params         = self.params
     base_name      = params[:base_name].presence || "Base"    
