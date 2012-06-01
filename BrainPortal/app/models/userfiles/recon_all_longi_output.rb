@@ -20,12 +20,12 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.  
 #
 
-class ReconAllBaseOutput < ReconAllOutput
+class ReconAllLongiOutput < ReconAllOutput
 
   Revision_info=CbrainFileRevision[__FILE__]
   
   def self.pretty_type #:nodoc:
-    "Recon-all Unbiased Base"
+    "Recon-all Longitunal Output"
   end
   
 end
