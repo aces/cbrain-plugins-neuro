@@ -90,23 +90,23 @@ class CbrainTask::Civet < PortalTask
 
       :reset_from          => "",          # -reset-from
 
-      :template            => '1.00',      # -template
-      :model               => 'icbm152nl', # -model
+      :template            => "1.00",      # -template
+      :model               => "icbm152nl", # -model
         
-      :interp              => 'trilinear', # -interp
-      :N3_distance         => 0,           # -N3-distance
-      :lsq                 => '9',         # -lsq6, -lsq9, -lsq12
-      :no_surfaces         => false,       # -no-surfaces
-      :thickness_method    => 'tlink',     # -thickness method kernel
-      :thickness_kernel    => 20,          #             "
-      :resample_surfaces   => true,        # -[no-]resample-surfaces
-      :combine_surfaces    => false,       # -[no-]combine-surfaces
+      :interp              => "trilinear", # -interp
+      :N3_distance         => "0",         # -N3-distance
+      :lsq                 => "9",         # -lsq6, -lsq9, -lsq12
+      :no_surfaces         => "0",         # -no-surfaces
+      :thickness_method    => "tlink",     # -thickness method kernel
+      :thickness_kernel    => "20",        #             "
+      :resample_surfaces   => "1",         # -[no-]resample-surfaces
+      :combine_surfaces    => "0",         # -[no-]combine-surfaces
 
       # VBM options
-      :VBM                 => false,       # -[no-]VBM
-      :VBM_fwhm            => '8',         # -VBM-fwhm
-      :VBM_symmetry        => false,       # -[no-]VBM-symmetry
-      :VBM_cerebellum      => true,        # -[no-]VBM-cerebellum
+      :VBM                 => "0",         # -[no-]VBM
+      :VBM_fwhm            => "8",         # -VBM-fwhm
+      :VBM_symmetry        => "0",         # -[no-]VBM-symmetry
+      :VBM_cerebellum      => "1",         # -[no-]VBM-cerebellum
 
       # CBRAIN output renaming
       :output_filename_pattern => '{subject}-{cluster}-{task_id}-{run_number}'
