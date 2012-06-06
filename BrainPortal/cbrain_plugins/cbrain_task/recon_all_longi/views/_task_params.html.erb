@@ -30,9 +30,12 @@ Input collections selected:<BR>
 </UL>
 
 
-Base name: </br>
-<%= form.params_text_field :base_name %></br>
+Base output name: </br>
+<%= form.params_text_field :base_output_name %></br>
 <small>
+<% if !@task.new_record? %>
+<font color="red">Note:</font> This option shouldn't be changed if you want to restart at the post-processing stage.</br>
+<% end %>
 recon-all's base output is saved in Recon-all base output.</br>
 If you don't fill this option, the base name will be Base-{task_number}-{run_number}.<br>
 Otherwise, the base name will have the following format {base_name}-{task_number}-{run_number}</br>

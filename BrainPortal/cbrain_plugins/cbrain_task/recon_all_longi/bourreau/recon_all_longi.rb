@@ -25,20 +25,19 @@ class CbrainTask::ReconAllLongi < ClusterTask
 
   Revision_info=CbrainFileRevision[__FILE__]
 
-  # include RestartableTask
+  include RestartableTask
   include RecoverableTask
 
   def setup #:nodoc:
     params = self.params
     
-    self.safe_mkdir("input")
     collection_ids  = params[:interface_userfile_ids] || []
     collections     = Userfile.find_all_by_id(collection_ids)
     collections.each do |collection|            
       self.addlog("Preparing input file '#{collection.name}'")
       collection.sync_to_cache
       cache_path = collection.cache_full_path
-      self.safe_symlink(cache_path, "input/#{collection.name}")
+      self.safe_symlink(cache_path, collection.name)
     end
     
     true
@@ -76,31 +75,25 @@ class CbrainTask::ReconAllLongi < ClusterTask
     tpn_files.each { |name| tp_list += " -tp \'#{name}\'" }
 
 
-    # Check base_name and subject_name if not valid create one valid 
-    base_name       = params[:base_name].presence || "Base"
-
-    task_work       = self.full_cluster_workdir
-    cb_error("Sorry, but the subject name provided contains some unacceptable characters.") unless is_legal_base_name?(base_name)
-
+    # Check base_output_name
+    base_output_name = params[:base_output_name].presence || "Base"
+    cb_error("Sorry, but the base output name provided contains some unacceptable characters.") unless is_legal_base_name?(base_output_name)
+    task_work        = self.full_cluster_workdir
 
     # Create within subject
-    sd                 = "input"
-    params[:sd]        = "#{sd}"
-    relative_base_path = base_name
-    recon_all_base_log = "#{sd}/#{relative_base_path}/scripts/recon-all.log"
-    params[:base_output_name] = relative_base_path
+    recon_all_base_log = "#{base_output_name}/scripts/recon-all.log"
     recon_all_base_cmd = <<-RECON_SCRIPT
       #
-      # Main Recon-all creation of base #{relative_base_path}
+      # Main Recon-all creation of base #{base_output_name}
       #
-
+                                                       
       echo Starting Recon-all -long.
 
       if test -f #{recon_all_base_log} && grep -q -i -P "recon-all .+ finished without error at" #{recon_all_base_log} ; then
         echo Base file construction already performed.
       else
         echo Starting base file construction.
-        recon-all -sd '#{sd}' -base '#{relative_base_path}' #{tp_list} -all
+        recon-all -sd . -base '#{base_output_name}' #{tp_list} -all
       fi
       
       if ! test -f #{recon_all_base_log} || ! grep -q -i -P "recon-all .+ finished without error at" #{recon_all_base_log} ; then
@@ -111,13 +104,21 @@ class CbrainTask::ReconAllLongi < ClusterTask
     RECON_SCRIPT
 
     # Longitudinal runs
-    recon_all_long_cmds        = []
+    recon_all_long_cmds         = []
     params[:long_outputs_names] = []
     nb_cpu = self.tool_config.ncpus || 1
-    collections.each do |collection,cnt|
-      output_path = "#{collection.name}.long.#{relative_base_path}"
-      recon_all_long_log  = "#{sd}/#{output_path}/scripts/recon-all.log"
+
+    # An array of array each sub-array is composed by recon-all cmd name of stdout and name of stderr.
+    cmd_out_err_list   = []
+    collections.each_with_index do |collection,idx|
+      output_path = "#{collection.name}.long.#{base_output_name}"
+      recon_all_long_log  = "#{output_path}/scripts/recon-all.log"
       params[:long_outputs_names] << output_path
+
+      cmd_string = "recon-all -sd . -long '#{collection.name}' '#{base_output_name}' -all"
+      out_file   = "out#{idx}"
+      err_file   = "err#{idx}"
+      cmd_out_err_list   << [ cmd_string , out_file, err_file ] 
       recon_all_long_cmd = <<-RECON_SCRIPT
       #
       # Processing longitudinal studies for #{collection.name}
@@ -127,19 +128,58 @@ class CbrainTask::ReconAllLongi < ClusterTask
         echo Longitudinal studies for #{collection.name} construction already performed.  
       else
         echo Starting longitudinal studies for #{collection.name} in background.
-        recon-all -sd '#{sd}' -long '#{collection.name}' '#{relative_base_path}' -all &
+        #{cmd_string} > #{out_file} 2> #{err_file}  &
       fi
       
       test `jobs | wc -l` -ge #{nb_cpu} && wait
-                                                                         
-      RECON_SCRIPT
 
+      RECON_SCRIPT
+      
       recon_all_long_cmds << recon_all_long_cmd
     end
-        
-    recon_all_long_cmds << "\n# Wait for all subprocesses\nwait\n"
 
-    [ recon_all_base_cmd ] + recon_all_long_cmds
+    recon_all_long_cmds << <<-WAIT_SCRIPT
+    
+      # Wait for all subprocesses.
+      
+      echo Waiting for all subprocesses to finish.
+      wait
+      
+    WAIT_SCRIPT
+
+    # Cat in STDOUT and STDERR
+    cat_cmds = []
+    cmd_out_err_list.each do |sub_list|
+      cmd_string, out_file, err_file = sub_list
+      if File.exist?(out_file)
+        cat_cmd = <<-CAT_SCRIPT
+      
+        echo ""
+        echo "**********************************************"
+        echo "* Standard Output for #{cmd_string}:"
+        echo "**********************************************"
+        cat #{out_file}
+
+        CAT_SCRIPT
+        cat_cmds << cat_cmd
+      end
+      if File.exist?(err_file)
+        cat_cmd = <<-CAT_SCRIPT
+
+        echo "" 1>&2
+        echo "**********************************************"  1>&2
+        echo "* Standard Error for #{cmd_string}:"             1>&2
+        echo "**********************************************"  1>&2
+        cat #{err_file} 1>&2
+        
+        CAT_SCRIPT
+        cat_cmds << cat_cmd
+      end
+    end
+
+    self.addlog("cat_cmds #{cat_cmds}")
+    
+    [ recon_all_base_cmd ] + recon_all_long_cmds + cat_cmds
   end
   
   def save_results #:nodoc:
@@ -152,8 +192,7 @@ class CbrainTask::ReconAllLongi < ClusterTask
     self.results_data_provider_id ||= first_coll.data_provider_id
     
     # Verify if recon-all for base and foreach longitudinal studies.
-    sd                 = params[:sd]
-    base_output_name   = params[:base_output_name]  || "Base"
+    base_output_name   = params[:base_output_name]   || "Base"
     long_outputs_names = params[:long_outputs_names] || []
     outputs_name       = [base_output_name] + long_outputs_names
     if outputs_name.empty?
@@ -163,7 +202,7 @@ class CbrainTask::ReconAllLongi < ClusterTask
 
     list_of_error_dir = []
     outputs_name.each do |name|
-      log_file = "#{sd}/#{name}/scripts/recon-all.log"
+      log_file = "#{name}/scripts/recon-all.log"
       if !log_file_contains(log_file, /recon-all .+ finished without error at/) 
         list_of_error_dir << name
       end
@@ -183,7 +222,7 @@ class CbrainTask::ReconAllLongi < ClusterTask
                 :name             => base_name,
                 :data_provider_id => self.results_data_provider_id
                 )
-    base_userfile.cache_copy_from_local_file("#{sd}/#{base_output_name}")
+    base_userfile.cache_copy_from_local_file(base_output_name)
     if base_userfile.save
       base_userfile.move_to_child_of(first_coll)
       self.addlog("Saved base output directory #{base_userfile.name}")
@@ -201,7 +240,7 @@ class CbrainTask::ReconAllLongi < ClusterTask
         :name             => long_name,
         :data_provider_id => self.results_data_provider_id
       )
-      long_userfile.cache_copy_from_local_file("#{sd}/#{name}")
+      long_userfile.cache_copy_from_local_file("#{name}")
       if long_userfile.save
         long_userfile.move_to_child_of(first_coll)
         self.addlog("Saved output directory #{long_userfile.name}")
@@ -217,9 +256,23 @@ class CbrainTask::ReconAllLongi < ClusterTask
     true
   end
 
+
+  def restart_at_setup #:nodoc:
+    Dir.glob('*').each do |file|
+      FileUtils.rm_rf(file)
+    end
+    true
+  end
+  
+  def restart_at_cluster #:nodoc:
+    self.restart_at_setup
+    self.setup
+  end
+
+  
   private
 
-  def log_file_contains(file, grep_regex)
+  def log_file_contains(file, grep_regex) #:nodoc:
     return false unless File.exist?(file)
     file_contain = File.read(file)
     file_contain =~ grep_regex

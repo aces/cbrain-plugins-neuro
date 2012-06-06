@@ -49,13 +49,13 @@ class CbrainTask::ReconAllLongi < PortalTask
   def after_form #:nodoc:
     params = self.params
 
-    self.params_errors.add(:base_name, "provided contains some unacceptable characters.") unless params[:base_name].blank? || is_legal_base_name?(params[:base_name])
+    self.params_errors.add(:base_output_name, "provided contains some unacceptable characters.") unless params[:base_output_name].blank? || is_legal_base_name?(params[:base_output_name])
       
     return ""
   end
   
   def untouchable_params_attributes
-    { :base_output_name => true, :long_outputs_names => true, :sd => true, :base_output_id => true , :long_outputs_ids => true}
+    { :long_outputs_names => true, :base_output_id => true , :long_outputs_ids => true}
   end
   
 end

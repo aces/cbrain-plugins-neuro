@@ -23,9 +23,9 @@
 # A subclass of CbrainTask to launch recon-all base of FreeSurfer.
 class CbrainTask::ReconAllLongi
 
-  def is_legal_base_name?(base_name) #:nodoc:
-    output_name ||= params[:base_name]
-    return Userfile.is_legal_filename?(base_name)
+  def is_legal_base_name?(base_output_name) #:nodoc:
+    base_output_name ||= params[:base_output_name]
+    return Userfile.is_legal_filename?(base_output_name)
   end               
 
   def pretty_name #:nodoc:
