@@ -154,7 +154,7 @@ class MincFile < SingleFile
   #
   #   'Mike O'\''Connor'
   def shell_escape(s)
-    s.bash_escape(true)  # in config/initializers/core_extentions/string.rb
+    s.to_s.bash_escape(true)  # in config/initializers/core_extentions/string.rb
   end
   
 end

@@ -121,7 +121,7 @@ class CbrainTask::NuCorrect < ClusterTask
   #
   #   'Mike O'\''Connor'
   def shell_escape(s) #:nodoc:
-    s.bash_escape(true)  # in config/initializers/core_extentions/string.rb
+    s.to_s.bash_escape(true)  # in config/initializers/core_extentions/string.rb
   end
 
 
