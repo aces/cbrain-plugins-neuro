@@ -86,7 +86,8 @@ class CbrainTask::ReconAllLongi < ClusterTask
       #
       # Main Recon-all creation of base #{base_output_name}
       #
-                                                       
+
+      echo ""
       echo Starting Recon-all -long.
 
       if test -f #{recon_all_base_log} && grep -q -i -P "recon-all .+ finished without error at" #{recon_all_base_log} ; then
@@ -124,6 +125,7 @@ class CbrainTask::ReconAllLongi < ClusterTask
       # Processing longitudinal studies for #{collection.name}
       #
 
+      echo ""
       if test -f #{recon_all_long_log} && grep -q -i -P "recon-all .+ finished without error at" #{recon_all_long_log} ; then
         echo Longitudinal studies for #{collection.name} construction already performed.  
       else
@@ -141,9 +143,14 @@ class CbrainTask::ReconAllLongi < ClusterTask
     recon_all_long_cmds << <<-WAIT_SCRIPT
     
       # Wait for all subprocesses.
-      
+
+      echo ""
       echo Waiting for all subprocesses to finish.
       wait
+
+      echo ""
+      echo "Compiling output and error files."
+      echo ""
       
     WAIT_SCRIPT
 
@@ -151,34 +158,31 @@ class CbrainTask::ReconAllLongi < ClusterTask
     cat_cmds = []
     cmd_out_err_list.each do |sub_list|
       cmd_string, out_file, err_file = sub_list
-      if File.exist?(out_file)
-        cat_cmd = <<-CAT_SCRIPT
-      
-        echo ""
-        echo "**********************************************"
-        echo "* Standard Output for #{cmd_string}:"
-        echo "**********************************************"
-        cat #{out_file}
-
-        CAT_SCRIPT
-        cat_cmds << cat_cmd
-      end
-      if File.exist?(err_file)
-        cat_cmd = <<-CAT_SCRIPT
-
-        echo "" 1>&2
-        echo "**********************************************"  1>&2
-        echo "* Standard Error for #{cmd_string}:"             1>&2
-        echo "**********************************************"  1>&2
-        cat #{err_file} 1>&2
+      cat_cmds  << <<-CAT_SCRIPT
+    
+      echo ""
+      echo "**********************************************"
+      echo "* Standard Output for #{cmd_string}:"
+      echo "**********************************************"
+      if ! -f '#{out_file}' ; then
+        echo "No Standard Output."
+      else
+        cat '#{out_file}'
+      fi
         
-        CAT_SCRIPT
-        cat_cmds << cat_cmd
-      end
+      echo "" 1>&2
+      echo "**********************************************"  1>&2
+      echo "* Standard Error for #{cmd_string}:"             1>&2
+      echo "**********************************************"  1>&2
+      if ! -f '#{err_file}' ; then
+        echo "No Standard Error." 1>&2
+      else
+        cat '#{err_file}' 1>&2
+      fi
+
+      CAT_SCRIPT
     end
 
-    self.addlog("cat_cmds #{cat_cmds}")
-    
     [ recon_all_base_cmd ] + recon_all_long_cmds + cat_cmds
   end
   
