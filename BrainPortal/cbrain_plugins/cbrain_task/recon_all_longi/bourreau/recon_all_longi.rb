@@ -54,8 +54,6 @@ class CbrainTask::ReconAllLongi < ClusterTask
     else
       ((1 + ( (nb_input / nb_cpu) + 1 )) * 24).hours   
     end
-    
-    ((self.params[:interface_userfile_ids].size + 1) * 72).hours
   end
   
 
