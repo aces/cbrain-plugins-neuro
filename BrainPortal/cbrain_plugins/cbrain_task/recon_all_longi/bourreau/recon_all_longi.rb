@@ -162,7 +162,7 @@ class CbrainTask::ReconAllLongi < ClusterTask
       echo "**********************************************"
       echo "* Standard Output for #{cmd_string}:"
       echo "**********************************************"
-      if ! -f '#{out_file}' ; then
+      if ! test -f '#{out_file}' ; then
         echo "No Standard Output."
       else
         cat '#{out_file}'
@@ -172,7 +172,7 @@ class CbrainTask::ReconAllLongi < ClusterTask
       echo "**********************************************"  1>&2
       echo "* Standard Error for #{cmd_string}:"             1>&2
       echo "**********************************************"  1>&2
-      if ! -f '#{err_file}' ; then
+      if ! test -f '#{err_file}' ; then
         echo "No Standard Error." 1>&2
       else
         cat '#{err_file}' 1>&2
