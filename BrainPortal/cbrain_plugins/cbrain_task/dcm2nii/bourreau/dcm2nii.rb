@@ -46,7 +46,6 @@ class CbrainTask::Dcm2nii < ClusterTask
     dicom_col.sync_to_cache   
     cachename = dicom_col.cache_full_path.to_s
     safe_symlink(cachename, dicom_col.name)
-    safe_mkdir("#{result_dir}",0700)
 
     true
   end
@@ -68,7 +67,8 @@ class CbrainTask::Dcm2nii < ClusterTask
     additional_opts << " -g N" if params[:gzip] == "0"
     additional_opts << " -i N" if params[:id] == "0"
     additional_opts << " -p N" if params[:protocol] == "0"
-    
+
+    safe_mkdir("#{result_dir}",0700)
     cmd_dcm2nii = "dcm2nii #{additional_opts} -o #{result_dir} #{dicom_col.name}"
 
     cmds = []
