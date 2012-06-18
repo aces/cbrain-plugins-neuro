@@ -49,10 +49,25 @@ class CbrainTask::FslFeat < ClusterTask
 
     self.results_data_provider_id ||= inputfile.data_provider_id
     
+    true
+  end
+
+  def job_walltime_estimate #:nodoc:
+    4.hours
+  end
+
+
+  def cluster_commands #:nodoc:
+    params    = self.params
+
     # -----------------------------------------------------------------
     # Create the *.fsf (FEAT structure file) for FEAT task.
     # -----------------------------------------------------------------
 
+    inputfile_id = params[:inputfile_id].to_i
+    inputfile    = Userfile.find(inputfile_id)
+    cache_path   = inputfile.cache_full_path
+    
     # Extract nb volumes if is 0
     if params[:data][:npts] == "0"
       fslhd = "fslhd #{cache_path.to_s.bash_escape} | grep -w 'dim4'"
@@ -100,17 +115,7 @@ class CbrainTask::FslFeat < ClusterTask
       fh.write fsf_filled
     end
 
-    true
-  end
-
-  def job_walltime_estimate #:nodoc:
-    4.hours
-  end
-
-
-  def cluster_commands #:nodoc:
-    params    = self.params
-
+    
     cmd_feat =  "feat design.fsf"
     
     cmds     = []
