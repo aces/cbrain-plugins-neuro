@@ -73,8 +73,8 @@ class CbrainTask::Dcm2mnc < ClusterTask
     relpaths = []
     IO.popen("find results -type f -name \"*.mnc*\" -print","r") do |io|
       io.each_line do |relpath|
-        next unless relpath.match(/\.mnc(.gz)?\s*$/i)
-        relpath.sub!(/\s+$/,"")
+        relpath.strip!
+        next unless relpath.match(/\.mnc(.gz)?$/i)
         relpaths << relpath
       end
     end

@@ -42,7 +42,7 @@ class MincFile < SingleFile
   # Returns true only if the current system PATH environment
   # can invoke tools (default: 'mincinfo' and 'minctoraw').
   def self.has_minctools?(min_version, which_tools=["mincinfo", "minctoraw"])
-    if which_tools.all? { |tool| system("bash","-c","which #{tool} >/dev/null 2>&1") }
+    if which_tools.all? { |tool| system("bash","-c","which #{tool.to_s.bash_escape} >/dev/null 2>&1") }
       IO.popen("mincinfo -version | grep \"program\" | cut -d \":\" -f 2") do |fh| 
         version = fh.readlines.join.strip.split(".").map {|num| num.to_i}
         if (min_version[0] <= (version[0] || 0) && min_version[1] <= (version[1] || 0)  && min_version[2] <= (version[2] || 0))
@@ -51,7 +51,7 @@ class MincFile < SingleFile
           return false
         end
       end
-    end    
+    end
   end
 
   def to_s #:nodoc:
@@ -64,7 +64,7 @@ class MincFile < SingleFile
     cb_error "Call to minc_get_headers() when minctools not installed!" unless self.class.has_minctools? [2,0,0]
  
     cache_path   = self.cache_full_path
-    escaped_path = shell_escape(cache_path)
+    escaped_path = cache_path.to_s.bash_escape
 
     order = IO.popen("mincinfo -attval image:dimorder #{escaped_path}") {|fh| fh.readlines.join.strip.split(',')}        
     if !(order.size == 3 or order.size == 4)
@@ -112,7 +112,7 @@ class MincFile < SingleFile
     cb_error "Call to raw_data() when minctools not installed!" unless self.class.has_minctools? [2,0,0]
     return @raw_data if @raw_data
     cache_path   = self.cache_full_path
-    escaped_path = shell_escape(cache_path)
+    escaped_path = cache_path.to_s.bash_escape
     @raw_data = IO.popen("minctoraw -byte -unsigned -normalize #{escaped_path}") { |fh| fh.readlines.join }
   end
 
@@ -131,7 +131,7 @@ class MincFile < SingleFile
   def which_minc_version  
     type = :unknown
     return type unless File.exist?(self.cache_full_path) 
-    IO.popen("file #{self.cache_full_path}") do |fh|
+    IO.popen("file #{self.cache_full_path.to_s.bash_escape}") do |fh|
       first_line = fh.readline
       if first_line =~ /NetCDF/i
         type =  :minc1
@@ -144,18 +144,5 @@ class MincFile < SingleFile
     :unknown
   end
 
-  # This utility method escapes properly any string such that
-  # it becomes a literal in a bash command; the string returned
-  # will include the surrounding single quotes.
-  #
-  #   shell_escape("Mike O'Connor")
-  #
-  # returns
-  #
-  #   'Mike O'\''Connor'
-  def shell_escape(s)
-    s.to_s.bash_escape(true)  # in config/initializers/core_extentions/string.rb
-  end
-  
 end
  

@@ -46,7 +46,7 @@ class CbrainTask::Dcm2nii < ClusterTask
     dicom_col.sync_to_cache   
     cachename = dicom_col.cache_full_path.to_s
     safe_symlink(cachename, dicom_col.name)
-    safe_mkdir("#{result_dir}",0700)
+    safe_mkdir(result_dir,0700)
 
     true
   end
@@ -69,7 +69,7 @@ class CbrainTask::Dcm2nii < ClusterTask
     additional_opts << " -i N" if params[:id] == "0"
     additional_opts << " -p N" if params[:protocol] == "0"
     
-    cmd_dcm2nii = "dcm2nii #{additional_opts} -o #{result_dir} #{dicom_col.name}"
+    cmd_dcm2nii = "dcm2nii #{additional_opts} -o #{result_dir.to_s.bash_escape} #{dicom_col.name.bash_escape}"
 
     cmds = []
     cmds << "echo Starting dcm2nii"
@@ -85,7 +85,7 @@ class CbrainTask::Dcm2nii < ClusterTask
     dicom_col   = Userfile.find(dicom_colid)
 
     relpaths = []
-    IO.popen("find #{result_dir} -type f -print","r") do |io|
+    IO.popen("find #{result_dir.to_s.bash_escape} -type f -print","r") do |io|
       io.each_line do |relpath|
         relpath.strip!
         next unless relpath.match(/\.nii(.gz)?$/i) || 
