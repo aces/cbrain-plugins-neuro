@@ -188,10 +188,10 @@ class CbrainTask::CivetCombiner < ClusterTask
         subjects << dsid
         self.addlog("Adding #{col.class.to_s} '#{col.name}'")
         newstudy.addlog("Adding #{col.class.to_s} '#{col.name}'")
-        colpath = col.cache_full_path
-        dsid_dir = coldir + dsid
-        Dir.mkdir(dsid_dir.to_s) unless File.directory?(dsid_dir.to_s)
-        rsyncout = IO.popen("rsync -a -l '#{colpath.to_s}/' #{dsid_dir} 2>&1 | tee -a #{errfile}","r") do |fh|
+        colpath  = col.cache_full_path.to_s
+        dsid_dir = (coldir + dsid).to_s
+        Dir.mkdir(dsid_dir) unless File.directory?(dsid_dir)
+        rsyncout = IO.popen("rsync -a -l #{colpath.bash_escape}/ #{dsid_dir.bash_escape} 2>&1 | tee -a #{errfile.to_s.bash_escape}","r") do |fh|
           fh.read
         end
         unless rsyncout.blank?
