@@ -70,7 +70,7 @@ class CbrainTask::FslFeat < ClusterTask
     
     # Extract nb volumes if is 0
     if params[:data][:npts] == "0"
-      fslhd = "fslhd #{cache_path} | grep -w 'dim4'"
+      fslhd = "fslhd #{cache_path.to_s.bash_escape} | grep -w 'dim4'"
       npts,ignorederr = tool_config_system(fslhd)
       
       npts.gsub!(/dim4/, "")
