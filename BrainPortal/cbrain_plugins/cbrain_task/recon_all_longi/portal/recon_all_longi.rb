@@ -50,7 +50,8 @@ class CbrainTask::ReconAllLongi < PortalTask
     params = self.params
 
     self.params_errors.add(:base_output_name, "provided contains some unacceptable characters.") unless params[:base_output_name].blank? || is_legal_base_name?(params[:base_output_name])
-      
+    params[:base_output_name] = "Base" if !params[:base_output_name].presence
+    
     return ""
   end
   

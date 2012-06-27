@@ -194,8 +194,8 @@ class CbrainTask::ReconAllLongi < ClusterTask
     self.results_data_provider_id ||= first_coll.data_provider_id
     
     # Verify if recon-all for base and foreach longitudinal studies.
-    base_output_name   = params[:base_output_name]   || "Base"
-    long_outputs_names = params[:long_outputs_names] || []
+    base_output_name   = params[:base_output_name].presence   || "Base"
+    long_outputs_names = params[:long_outputs_names].presence || []
     outputs_name       = [base_output_name] + long_outputs_names
     if outputs_name.empty?
       self.addlog("Recon-all seemed to encounter errors when running.")
@@ -213,7 +213,7 @@ class CbrainTask::ReconAllLongi < ClusterTask
     # Return false and display log.
     if !list_of_error_dir.empty?
       list = list_of_error_dir.join(", ")
-      self.addlog("Freesurfer has encounter a problem with the creation of output(s): #{list}. See Standard Output.")
+      self.addlog("Freesurfer has encountered a problem with the creation of output(s): #{list}. See Standard Output.")
       return false
     end
 
