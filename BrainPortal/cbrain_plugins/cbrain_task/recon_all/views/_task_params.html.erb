@@ -29,6 +29,10 @@ Input volumes selected:<BR>
   <% end %>
 </UL>
 
+<% if !@task.new_record? %>
+  <font color="red">Note:</font> If you want to restart at the post-processing stage, you can only change the output name.</br>
+<% end %>
+
 <% with_multi_userfile = true if params[:interface_userfile_ids].size > 1 %>
 
 <% if with_multi_userfile && @task.new_record? %>
@@ -55,7 +59,6 @@ Subject name: </br>
     If you don't fill this option, the subject name will have the following format: {input_without_extension}</br>
   </small>
 <% end %>
-
 </p>
 
 Output name: </br>

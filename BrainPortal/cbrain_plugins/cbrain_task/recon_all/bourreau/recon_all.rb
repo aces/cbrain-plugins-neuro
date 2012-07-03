@@ -31,8 +31,6 @@ class CbrainTask::ReconAll < ClusterTask
   include RecoverableTask
 
   def setup #:nodoc:
-    params     = self.params
-    
     self.safe_mkdir("input")
     
     file_ids  = params[:interface_userfile_ids] || []
@@ -60,77 +58,106 @@ class CbrainTask::ReconAll < ClusterTask
 
   def cluster_commands #:nodoc:
     params       = self.params
-    subject_name = params[:subject_name]
-
-    file_ids     = params[:interface_userfile_ids] || []
-    files        = Userfile.find_all_by_id(file_ids)
     
-    basenames    = files.map &:name
-    dash_i       = ""
-    basenames.each { |name| dash_i += " -i input/#{name}" }
-    subject_name ||= basenames[0]  # should never happen
+    subject_name = params[:subject_name]
+    to_recover   = params.delete(:to_recover)
 
     # Check output_name and subject_name if not valid create one valid 
-    task_work     = self.full_cluster_workdir
-    cb_error("Sorry, but the subject name provided contains some unacceptable characters.") unless is_legal_subject_name?(subject_name)
+    cb_error("Sorry, but the subject name '#{subject_name}' provided contains some unacceptable characters.") unless is_legal_subject_name?(subject_name)
+
+    # Command creation
+    if !to_recover  # NORMAL EXECUTION MODE
+      FileUtils.rm_rf(subject_name)
+      file_ids     = params[:interface_userfile_ids] || []
+      files        = Userfile.find_all_by_id(file_ids)
+      dash_i       = ""
+      files.map { |f| dash_i += " -i input/#{f.name}" }
+      
+      with_qcache    = params[:with_qcache] == "1" ? "-qcache"  : ""
+      with_mprage    = params[:with_mprage] == "1" ? "-mprage"  : ""
+      all            = "-all"
+      subj_opt       = "-subjid"
+      message        = "Starting Recon-all cross-sectional"
+    else # RECOVER FROM FAILURE MODE
+      dash_i         = ""
+      with_qcache    = ""
+      with_mprage    = ""
+      all            = "-make all"
+      subj_opt       = "-s"
+      message        = "Recovering Recon-all cross-sectional"
+    end
     
-    relative_subject_path = subject_name
-    absolute_subject_path = "#{task_work}/#{relative_subject_path}"
-    FileUtils.rm_rf(relative_subject_path)
-    
-    with_qcache    = params[:with_qcache] == "1" ? "-qcache" : "";
-    with_mprage    = params[:with_mprage] == "1" ? "-mprage" : "";
-    
-    recon_all_command = "recon-all #{with_qcache} #{with_mprage} -sd #{task_work} #{dash_i} -subjid #{absolute_subject_path} -all"
+    recon_all_command = "recon-all #{with_qcache} #{with_mprage} -sd . #{dash_i} #{subj_opt} #{subject_name} #{all}"
 
     [
-      "echo Starting Recon-all cross-sectional",
+      "echo #{message}",
       "echo Command: #{recon_all_command}",
-      "#{recon_all_command}"
+      recon_all_command
     ]
+    
   end
-  
+
   def save_results #:nodoc:
     params       = self.params
-    subject_name = params[:subject_name].presence || "Subject"    
-    output_name  = params[:output_name].presence  || "ReconAllOutput"
-    
+
+    subject_name = params[:subject_name]
+    output_name  = params[:output_name]
+
     cb_error("Sorry, but the subject name provided contains some unacceptable characters.") unless is_legal_subject_name?(subject_name)
-    
+
+    # Define dp 
     file_ids = params[:interface_userfile_ids] || []
     files = Userfile.find_all_by_id(file_ids)
-    
     self.results_data_provider_id ||= files[0].data_provider_id
 
-    # Verify if recon-all exited without error.
-    stdout = File.read(self.stdout_cluster_filename) rescue ""
-    if stdout !~ /recon-all .+ finished without error at/
-      self.addlog("recon-all exit with error (see Standard Output)")
+    # Check for error
+    list_of_error_dir = []
+    log_file          = "#{subject_name}/scripts/recon-all.log"
+    if !log_file_contains(log_file, /recon-all .+ finished without error at/) 
+      self.addlog("Recon-all exit with error (see Standard Output). See Standard Output.")
       return false
     end
 
+    # Create and save outfile
     output_name  += "-#{self.run_id}"
     outfile = safe_userfile_find_or_new(ReconAllCrossSectionalOutput,
       :name             => output_name,
       :data_provider_id => self.results_data_provider_id
     )
     outfile.save!
-    outfile.cache_copy_from_local_file("#{self.full_cluster_workdir}/#{subject_name}")
+    outfile.cache_copy_from_local_file(subject_name)
 
     self.addlog_to_userfiles_these_created_these( [ files ], [ outfile ] )
     self.addlog("Saved result file #{output_name}")
-    
+
     params[:outfile_id] = outfile.id
     outfile.move_to_child_of(files[0])
 
     true
   end
+ 
+  # Error-recovery and restarting methods described
+  def recover_from_cluster_failure
+    params       = self.params
+    
+    subject_name = params[:subject_name]
 
-  # Add here the optional error-recovery and restarting
-  # methods described in the documentation if you want your
-  # task to have such capabilities. See the methods
-  # recover_from_setup_failure(), restart_at_setup() and
-  # friends, described in CbrainTask_Recovery_Restart.txt.
+    # Remove IsRunning file
+    files = Dir.glob("#{subject_name}/scripts/IsRunning.*" )
+    files.each do |file|
+      FileUtils.rm_rf(file)
+    end
+    
+    params[:to_recover] = "yes"
+    true
+  end
 
+  private
+
+  def log_file_contains(file, grep_regex) #:nodoc:
+    return false unless File.exist?(file)
+    file_contain = File.read(file)
+    file_contain =~ grep_regex
+  end
+  
 end
-
