@@ -137,7 +137,7 @@ class CbrainTask::ReconAll < ClusterTask
   end
  
   # Error-recovery and restarting methods described
-  def recover_from_cluster_failure
+  def recover_from_cluster_failure #:nodoc:
     params       = self.params
     
     subject_name = params[:subject_name]
