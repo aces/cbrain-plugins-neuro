@@ -114,7 +114,7 @@ class CbrainTask::ReconAll < ClusterTask
     list_of_error_dir = []
     log_file          = "#{subject_name}/scripts/recon-all.log"
     if !log_file_contains(log_file, /recon-all .+ finished without error at/) 
-      self.addlog("Recon-all exit with error (see Standard Output). See Standard Output.")
+      self.addlog("Recon-all exited with errors. See Standard Output.")
       return false
     end
 
