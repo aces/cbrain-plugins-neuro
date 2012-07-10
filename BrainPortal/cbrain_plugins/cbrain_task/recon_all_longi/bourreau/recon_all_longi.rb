@@ -198,7 +198,7 @@ class CbrainTask::ReconAllLongi < ClusterTask
     long_outputs_names = params[:long_outputs_names].presence || []
     outputs_name       = [base_output_name] + long_outputs_names
     if outputs_name.empty?
-      self.addlog("Recon-all seemed to encounter errors when running.")
+      self.addlog("Recon-all seemed to have encountered errors when running.")
       return false
     end
 
