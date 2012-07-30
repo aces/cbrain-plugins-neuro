@@ -127,7 +127,7 @@ class CbrainTask::ReconAll < ClusterTask
     outfile.save!
     outfile.cache_copy_from_local_file(subject_name)
 
-    self.addlog_to_userfiles_these_created_these( [ files ], [ outfile ] )
+    self.addlog_to_userfiles_these_created_these( files , [ outfile ] )
     self.addlog("Saved result file #{output_name}")
 
     params[:outfile_id] = outfile.id
