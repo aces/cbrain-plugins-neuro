@@ -34,6 +34,7 @@ class CivetCollection < CivetOutput
   # This can fail if the 'object' is actually
   # part of a join, so we move on.
   def adjust_civet_collection_type
+    return true if self.class != CivetCollection
     self.type = 'CivetOutput'
     self.save
     true
