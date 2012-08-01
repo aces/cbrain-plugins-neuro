@@ -35,7 +35,6 @@ class CbrainTask::ReconAll
   def pretty_name #:nodoc:
     "FreeSurfer Recon-all"
   end
-
  
 end
 
