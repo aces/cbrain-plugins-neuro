@@ -20,7 +20,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.  
 #
 
-#A subclass of PortalTask to launch dcm2mnc.
+# A subclass of PortalTask to launch dcm2mnc.
 class CbrainTask::Dcm2mnc < PortalTask
 
   Revision_info=CbrainFileRevision[__FILE__]

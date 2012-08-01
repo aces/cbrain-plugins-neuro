@@ -20,6 +20,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.  
 #
 
+# Model for a MINC file (either MINC1 or MINC2).
 class MincFile < SingleFile
 
   Revision_info=CbrainFileRevision[__FILE__]

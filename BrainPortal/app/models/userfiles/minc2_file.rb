@@ -20,6 +20,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.  
 #
 
+# Model for MINC files in MINC2 format.
 class Minc2File < MincFile
 
   Revision_info=CbrainFileRevision[__FILE__]

@@ -20,13 +20,11 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.  
 #
 
-# This class runs the CIVET pipeline on
-# one t1 MINC file, producing one CivetOutput result (one
-# subject only).
+# This class runs the CIVET pipeline on one or several
+# t1 MINC files, producing one CivetOutput result per
+# input file (one subject only).
 #
 # Original author: Pierre Rioux
-#
-# A subclass of ClusterTask to run CIVET.
 class CbrainTask::Civet < ClusterTask
 
   Revision_info=CbrainFileRevision[__FILE__]

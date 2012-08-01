@@ -20,7 +20,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.  
 #
 
-#A subclass of PortalTask to launch civet_combiner.
+# A subclass of PortalTask to launch civet_combiner.
 class CbrainTask::CivetCombiner < PortalTask
 
   Revision_info=CbrainFileRevision[__FILE__]

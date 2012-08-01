@@ -20,6 +20,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.  
 #
 
+# Model for a collection of MINC files.
 class MincCollection < FileCollection
 
   Revision_info=CbrainFileRevision[__FILE__]

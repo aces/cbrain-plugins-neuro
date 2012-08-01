@@ -20,6 +20,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.  
 #
 
+# A subclass of PortalTask to run dcm2nii
 class CbrainTask::Dcm2nii < PortalTask
 
   Revision_info=CbrainFileRevision[__FILE__]
