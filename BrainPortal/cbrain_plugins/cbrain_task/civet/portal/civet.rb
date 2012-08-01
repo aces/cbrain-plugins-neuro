@@ -546,7 +546,7 @@ class CbrainTask::Civet < PortalTask
   end
 
   # Apply the new auto-prefix and auto-dsid extraction mechanism.
-  def refresh_form #:nodoc
+  def refresh_form #:nodoc:
     params = self.params
     prefpat = params[:prefix_auto_comp] || ""
     dsidpat = params[:dsid_auto_comp]   || ""
