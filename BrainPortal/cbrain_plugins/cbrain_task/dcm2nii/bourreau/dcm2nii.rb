@@ -18,7 +18,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.  
 #
 
-#A subclass of ClusterTask to run dcm2nii.
+# A subclass of ClusterTask to run dcm2nii.
 class CbrainTask::Dcm2nii < ClusterTask
 
   Revision_info=CbrainFileRevision[__FILE__]

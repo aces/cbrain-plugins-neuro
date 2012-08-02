@@ -20,6 +20,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.  
 #
 
+# Model for MGZ structural files.
 class MgzFile < SingleFile
 
   Revision_info=CbrainFileRevision[__FILE__]

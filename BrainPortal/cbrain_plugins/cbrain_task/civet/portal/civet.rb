@@ -20,7 +20,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.  
 #
 
-#A subclass of PortalTask to launch civet.
+# A subclass of PortalTask to launch civet.
 class CbrainTask::Civet < PortalTask
 
   Revision_info=CbrainFileRevision[__FILE__]
@@ -546,7 +546,7 @@ class CbrainTask::Civet < PortalTask
   end
 
   # Apply the new auto-prefix and auto-dsid extraction mechanism.
-  def refresh_form #:nodoc
+  def refresh_form #:nodoc:
     params = self.params
     prefpat = params[:prefix_auto_comp] || ""
     dsidpat = params[:dsid_auto_comp]   || ""
