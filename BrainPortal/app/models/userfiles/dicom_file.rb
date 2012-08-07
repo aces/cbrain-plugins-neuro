@@ -23,7 +23,7 @@
 # Model for DICOM files.
 class DicomFile < SingleFile
 
-  Revision_info=CbrainFileRevision[__FILE__]
+  Revision_info=CbrainFileRevision[__FILE__] #:nodoc:
   
   def self.file_name_pattern #:nodoc:
     /\.(dcm|dicom)$/i

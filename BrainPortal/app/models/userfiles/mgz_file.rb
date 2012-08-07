@@ -23,7 +23,7 @@
 # Model for MGZ structural files.
 class MgzFile < SingleFile
 
-  Revision_info=CbrainFileRevision[__FILE__]
+  Revision_info=CbrainFileRevision[__FILE__] #:nodoc:
   
   def self.file_name_pattern #:nodoc:
     /\.mgz$/i

@@ -25,7 +25,7 @@
 # Original author: Mathieu Desrosiers
 class CbrainTask::Mnc2nii < ClusterTask
 
-  Revision_info=CbrainFileRevision[__FILE__]
+  Revision_info=CbrainFileRevision[__FILE__] #:nodoc:
 
   include RestartableTask # This task is naturally restartable
   include RecoverableTask # This task is naturally recoverable

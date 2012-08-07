@@ -23,7 +23,7 @@
 # A subclass of PortalTask to launch civet_qc.
 class CbrainTask::CivetQc < PortalTask
 
-  Revision_info=CbrainFileRevision[__FILE__]
+  Revision_info=CbrainFileRevision[__FILE__] #:nodoc:
 
   def self.properties #:nodoc:
     { :no_presets => true }

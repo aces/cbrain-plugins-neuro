@@ -25,7 +25,7 @@
 # Original author:Mathieu Desrosiers 
 class CbrainTask::Mnc2nii < PortalTask
 
-  Revision_info=CbrainFileRevision[__FILE__]
+  Revision_info=CbrainFileRevision[__FILE__] #:nodoc:
 
   def self.properties #:nodoc:
     { :use_parallelizer => true }

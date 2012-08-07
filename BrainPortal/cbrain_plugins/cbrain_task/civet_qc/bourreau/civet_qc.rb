@@ -23,7 +23,7 @@
 # A subclass of ClusterTask to run Claude's CIVET QC PIPELINE
 class CbrainTask::CivetQc < ClusterTask
 
-  Revision_info=CbrainFileRevision[__FILE__]
+  Revision_info=CbrainFileRevision[__FILE__] #:nodoc:
 
   include RestartableTask # This task is naturally restartable
   include RecoverableTask # This task is naturally recoverable

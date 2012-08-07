@@ -23,7 +23,7 @@
 # A subclass of PortalTask to run dcm2nii
 class CbrainTask::Dcm2nii < PortalTask
 
-  Revision_info=CbrainFileRevision[__FILE__]
+  Revision_info=CbrainFileRevision[__FILE__] #:nodoc:
 
   def self.properties #:nodoc:
     { :use_parallelizer => true }

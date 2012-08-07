@@ -23,7 +23,7 @@
 # Model for MINC files in MINC2 format.
 class Minc2File < MincFile
 
-  Revision_info=CbrainFileRevision[__FILE__]
+  Revision_info=CbrainFileRevision[__FILE__] #:nodoc:
 
   def self.file_name_pattern #:nodoc:
     /\.mi?nc(\.gz|\.Z|\.gz2)?$/i

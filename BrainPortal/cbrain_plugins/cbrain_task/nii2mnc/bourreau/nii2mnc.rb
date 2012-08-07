@@ -23,7 +23,7 @@
 # A subclass of ClusterTask to run Nii2mnc.
 class CbrainTask::Nii2mnc < ClusterTask
 
-  Revision_info=CbrainFileRevision[__FILE__]
+  Revision_info=CbrainFileRevision[__FILE__] #:nodoc:
 
   include RecoverableTask
   include RestartableTask

@@ -24,7 +24,7 @@
 # Essentially a file collection of DICOM files
 class DicomCollection < FileCollection
 
-  Revision_info=CbrainFileRevision[__FILE__]
+  Revision_info=CbrainFileRevision[__FILE__] #:nodoc:
 
   def self.pretty_type #:nodoc:
     "DICOM file collection"
