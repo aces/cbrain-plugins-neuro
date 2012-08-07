@@ -23,7 +23,7 @@
 # A subclass of CbrainTask to launch FslFeat.
 class CbrainTask::FslFeat < PortalTask
 
-  Revision_info=CbrainFileRevision[__FILE__]
+  Revision_info=CbrainFileRevision[__FILE__] #:nodoc:
 
   def self.properties #:nodoc:
     { :use_parallelizer => true }
