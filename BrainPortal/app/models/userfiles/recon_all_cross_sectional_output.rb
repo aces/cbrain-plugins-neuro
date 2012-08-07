@@ -20,6 +20,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.  
 #
 
+# A FileCollection to model a recon-all cross sectional output.
+# Result of the first step in longitudinal studies.
 class ReconAllCrossSectionalOutput < ReconAllOutput
 
   Revision_info=CbrainFileRevision[__FILE__] #:nodoc:

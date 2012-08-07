@@ -70,7 +70,7 @@ class CbrainTask::ReconAll < PortalTask
     ""
   end
 
-  def final_task_list
+  def final_task_list #:nodoc:
     params       = self.params
 
     subject_name = params[:subject_name].presence  || ""
@@ -126,7 +126,7 @@ class CbrainTask::ReconAll < PortalTask
     { :output_name => 'Output name ', :subject_name => 'Subject name ' }
   end
 
-  def untouchable_params_attributes
+  def untouchable_params_attributes #:nodoc:
     { :outfile_id => true}
   end
 

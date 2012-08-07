@@ -21,12 +21,13 @@
 #
 
 # A subclass of ClusterTask to run ReconAllLongi.
+#
+# Original author: Natacha Beck
 class CbrainTask::ReconAllLongi < ClusterTask
 
   Revision_info=CbrainFileRevision[__FILE__] #:nodoc:
 
   include RestartableTask
-  include RecoverableTask
 
   def setup #:nodoc:
     params = self.params
@@ -258,7 +259,7 @@ class CbrainTask::ReconAllLongi < ClusterTask
     true
   end
 
-
+  # Error-recovery and restarting methods described    
   def restart_at_setup #:nodoc:
     Dir.glob('*').each do |file|
       FileUtils.rm_rf(file)
@@ -270,7 +271,6 @@ class CbrainTask::ReconAllLongi < ClusterTask
     self.restart_at_setup
     self.setup
   end
-
   
   private
 

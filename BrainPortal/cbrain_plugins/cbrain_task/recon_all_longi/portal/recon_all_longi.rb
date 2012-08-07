@@ -55,7 +55,7 @@ class CbrainTask::ReconAllLongi < PortalTask
     return ""
   end
   
-  def untouchable_params_attributes
+  def untouchable_params_attributes #:nodoc:
     { :long_outputs_names => true, :base_output_id => true , :long_outputs_ids => true}
   end
   

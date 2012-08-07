@@ -20,6 +20,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.  
 #
 
+# A FileCollection to model a recon-all longitidinal output.
+# Result of the third step in longitudinal studies.                       
 class ReconAllLongiOutput < ReconAllOutput
 
   Revision_info=CbrainFileRevision[__FILE__] #:nodoc:
