@@ -23,7 +23,7 @@
 # A subclass of ClusterTask to run FslBet.
 class CbrainTask::FslBet < ClusterTask
 
-  Revision_info=CbrainFileRevision[__FILE__]
+  Revision_info=CbrainFileRevision[__FILE__] #:nodoc:
 
   include RestartableTask
   include RecoverableTask
