@@ -25,7 +25,7 @@
 # Original author: Natacha Beck
 class CbrainTask::ReconAll < ClusterTask
 
-  Revision_info=CbrainFileRevision[__FILE__]
+  Revision_info=CbrainFileRevision[__FILE__] #:nodoc:
 
   include RestartableTask
   include RecoverableTask

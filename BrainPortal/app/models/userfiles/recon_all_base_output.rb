@@ -24,7 +24,7 @@
 # Result of the second step in longitudinal studies.
 class ReconAllBaseOutput < ReconAllOutput
 
-  Revision_info=CbrainFileRevision[__FILE__]
+  Revision_info=CbrainFileRevision[__FILE__] #:nodoc:
   
   def self.pretty_type #:nodoc:
     "Recon-all Unbiased Base"
