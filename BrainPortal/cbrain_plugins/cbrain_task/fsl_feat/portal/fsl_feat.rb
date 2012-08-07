@@ -21,6 +21,8 @@
 #
 
 # A subclass of CbrainTask to launch FslFeat.
+#
+# Original author: Natacha Beck
 class CbrainTask::FslFeat < PortalTask
 
   Revision_info=CbrainFileRevision[__FILE__]
