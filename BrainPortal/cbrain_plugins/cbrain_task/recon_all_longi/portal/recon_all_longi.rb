@@ -23,7 +23,7 @@
 # A subclass of CbrainTask to launch ReconAllLongi.
 class CbrainTask::ReconAllLongi < PortalTask
 
-  Revision_info=CbrainFileRevision[__FILE__]
+  Revision_info=CbrainFileRevision[__FILE__] #:nodoc:
 
   def self.default_launch_args #:nodoc:
     {
