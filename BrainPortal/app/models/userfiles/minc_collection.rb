@@ -23,7 +23,7 @@
 # Model for a collection of MINC files.
 class MincCollection < FileCollection
 
-  Revision_info=CbrainFileRevision[__FILE__]
+  Revision_info=CbrainFileRevision[__FILE__] #:nodoc:
 
   def self.pretty_type #:nodoc:
     "MINC file collection"

@@ -28,7 +28,7 @@
 # provide simple access to the contents of particular directories in the
 # directory tree produced by *civet*.
 class CivetOutput < FileCollection
-  Revision_info=CbrainFileRevision[__FILE__]
+  Revision_info=CbrainFileRevision[__FILE__] #:nodoc:
 
   reset_viewers
   has_viewer    :civet_output

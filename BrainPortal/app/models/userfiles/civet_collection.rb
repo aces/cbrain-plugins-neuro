@@ -24,7 +24,7 @@
 # The real class is CivetOutput
 class CivetCollection < CivetOutput
 
-  Revision_info=CbrainFileRevision[__FILE__]
+  Revision_info=CbrainFileRevision[__FILE__] #:nodoc:
 
   after_initialize :adjust_civet_collection_type
 

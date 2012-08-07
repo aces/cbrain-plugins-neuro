@@ -23,7 +23,7 @@
 # Model for NiFTI medical data files.
 class NiftiFile < SingleFile
 
-  Revision_info=CbrainFileRevision[__FILE__]
+  Revision_info=CbrainFileRevision[__FILE__] #:nodoc:
   
   def self.pretty_type #:nodoc:
     "NIfTI file"
