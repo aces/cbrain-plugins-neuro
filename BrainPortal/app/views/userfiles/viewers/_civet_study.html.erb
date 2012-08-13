@@ -24,15 +24,7 @@
 
 <% if @userfile.is_locally_synced? %>
   <% if @userfile.list_files(".", :directory).find{ |dir| dir.name[-3, 3] == "/QC" } %>
-    <%= overlay_content_link "Show QC Data", :class => "action_link" do %>      
-         <strong>QC</strong><br><br>
-         <%= ajax_element(url_for(:action  => :display, :viewer => "civet_study/qc_file", :qc_file  => "base")) do %>
-           <span class="loading_message">Loading...</span>
-         <% end %>
-         <br>
-         <div id="qc_data">
-         </div>
-     <% end %>
+    <%= overlay_ajax_link "Show QC Data", url_for(:action  => :display, :viewer => "civet_study/qc_file", :qc_file  => "base"), :class => "action_link" %><br>
     <%= overlay_ajax_link "Civet QC Legend", "/doc/userfiles/civetqc_results.html", :class => "action_link" %>
   <% end %>
 <% end %>
