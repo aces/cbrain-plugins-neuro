@@ -22,58 +22,70 @@
 #
 -%>
 
-Input volumes selected:<BR>
-<UL>
+<% 
+  nb_input              = params[:interface_userfile_ids].size
+  nb_singlefile         = @task.count_singlefiles_in_input_list
+  only_singlefile       = nb_input == nb_singlefile             ? true : false
+  only_collection       = nb_input - nb_singlefile == nb_input  ? true : false 
+  with_multi_singlefile = nb_input > 1 && only_singlefile       ? true : false 
+%>
+
+Input volumes selected:<br/>
+<ul>
   <% params[:interface_userfile_ids].each do |id| %>
-  <LI><%= link_to_userfile_if_accessible(id) %></LI>
+  <li><%= link_to_userfile_if_accessible(id) %></li>
   <% end %>
-</UL>
+</ul>
 
 <% if !@task.new_record? %>
-  <font color="red">Note:</font> If you want to restart at the post-processing stage, you can only change the output name.</br>
+  <font color="red">Note:</font> If you want to restart at the post-processing stage, you can only change the output name.<br/>
 <% end %>
 
-<% with_multi_userfile = true if params[:interface_userfile_ids].size > 1 %>
-
-<% if with_multi_userfile && @task.new_record? %>
+<!-- Single or Multiple -->
+<% if nb_input > 1 && only_singlefile && @task.new_record? %>
   Run this set as multiple subjects? 
   <%= form.params_select    :multiple_subjects, [ '', 'Single', 'Multiple' ] %><br/>
   <small class="medium_paragraph">
-    You need to choose between :</br>
+    You need to choose between :<br/>
     - Single: All the input volumes are considered as acquisitions of a single subject,
-    which will launch a single recon-all task.</br>
+    which will launch a single recon-all task.<br/>
     - Multiple: All the input volumes are considered as independants acquisitions for many subjects,
-    which will launch one recon-all for each input file.</br> 
+    which will launch one recon-all for each input file.<br/> 
   </small>
 <% end %>
+<p>
 
-</p>
-
-Subject name: </br>
-<%= form.params_text_field :subject_name %></br>
-<% if with_multi_userfile %>
-  <small class="medium_paragraph">
-    <% if with_multi_userfile %>
-    Subject name is required if you run multiples volumes for one subject.<br>
-    <% end %>
-    If you don't fill this option, the subject name will have the following format: {input_without_extension}</br>
-  </small>
-<% end %>
-</p>
-
-Output name: </br>
-<%= form.params_text_field :output_name %></br>
+<!-- Workflow directives -->
+Workflow directives:<br/>
+<%
+  options  = []
+  options << [ "Process all steps, including subcortical segmentation, all", "-all" ]
+  options << [ "Process steps   1-5, autorecon1",        "-autorecon1" ]
+  if only_collection
+    options << [ "Process steps  6-23, autorecon2",      "-autorecon2" ]
+    options << [ "Process steps 12-23, autorecon2-cp",   "-autorecon2-cp" ]
+    options << [ "Process steps 15-23, autorecon2-wm",   "-autorecon2-wm" ]
+    options << [ "Process steps 21-23, autorecon2-pial", "-autorecon2-pial" ]
+    options << [ "Process steps 24-31, autorecon3",      "-autorecon3" ]
+  end
+%>
+<%= select_tag :workflow_directives.to_la, options_for_select( options,  params[:workflow_directives] || "-all" ) %><br/>
 <small class="medium_paragraph">
-  recon-all's output is saved in ReconAllOutput files.</br>
-  If you don't fill this option, the output name will be the same as the subject name.<br>
-  Otherwise, the output name will have the following format {output_name}-{task_number}-{run_number}</br>
+  The same workflow directives will be used for all yours subjects.  
 </small>
+<p>
 
-</p>
+<!-- Output Name -->
+<% if nb_input == 1 || (nb_input > 1 && only_singlefile) %>
+  Output name: <br/>
+  <%= form.params_text_field :output_name %><br/>
+  <small class="medium_paragraph">
+    recon-all's output is saved in ReconAllOutput files.<br/>
+    If you don't fill this option, the output name will have the following format {input_name_without_extension}-{task_number}-{run_number}<br>
+    Otherwise, the output name will have the following format {output_name}-{task_number}-{run_number}<br/>
+  </small>
+  <p>
+<% end %>
 
-<%= form.params_check_box :with_qcache %>
-Run with qcache.
-</br>
-<%= form.params_check_box :with_mprage %>
-Run with mprage.
-</br>
+<%= form.params_check_box :with_qcache %>Run with qcache.<br/>
+<%= form.params_check_box :with_mprage %>Run with mprage.<br/>

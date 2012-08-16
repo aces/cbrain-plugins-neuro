@@ -22,23 +22,23 @@
 #
 -%>
 
-<STRONG>Input file:</STRONG>
-<P>
-  <UL>
+<strong>Input file:</strong>
+  <ul>
   <% params[:interface_userfile_ids].each do |id| %>
-    <LI><%= link_to_userfile_if_accessible id %></LI>
+    <li><%= link_to_userfile_if_accessible id %></li>
   <% end %>
-  </UL>
-<P/>
+  </ul>
+<p>
 
-<STRONG>Subject name:</STRONG> <%= params[:subject_name] %><br>
+<strong>Workflow directives:</strong> <%= params[:workflow_directives] %><br/>
 
-<STRONG>Output file:</STRONG> <%= link_to_userfile_if_accessible params[:outfile_id] %><br>
+<strong>Output file:</strong> <%= link_to_userfile_if_accessible params[:outfile_id] %><br/>
+
 
 <% if params[:with_qcache].to_i == 1 %>
-Run with qcache option.<br>
+  Run with qcache option.<br/>
 <% end %>
 <% if params[:with_mprage].to_i == 1 %>
-Run with mprage option.<br>
+  Run with mprage option.<br/>
 <% end %>
 

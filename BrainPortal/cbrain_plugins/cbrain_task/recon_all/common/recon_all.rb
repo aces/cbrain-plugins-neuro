@@ -35,6 +35,15 @@ class CbrainTask::ReconAll
   def pretty_name #:nodoc:
     "FreeSurfer Recon-all"
   end
+
+  def count_singlefiles_in_input_list #:nodoc:
+    params    = self.params
+    
+    file_ids  = params[:interface_userfile_ids] || []
+    files     = Userfile.find_all_by_id(file_ids)
+
+    files.count { |f| f.is_a?(SingleFile) }
+  end
  
 end
 

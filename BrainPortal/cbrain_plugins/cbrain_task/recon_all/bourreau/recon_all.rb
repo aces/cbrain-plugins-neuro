@@ -31,8 +31,6 @@ class CbrainTask::ReconAll < ClusterTask
   include RecoverableTask
 
   def setup #:nodoc:
-    self.safe_mkdir("input")
-    
     file_ids  = params[:interface_userfile_ids] || []
     
     files = Userfile.find_all_by_id(file_ids)
@@ -46,7 +44,7 @@ class CbrainTask::ReconAll < ClusterTask
         end
       end
       cache_path = file.cache_full_path
-      self.safe_symlink(cache_path, "input/#{file.name}")
+      self.safe_symlink(cache_path, file.name)
     end
     
     true
@@ -58,36 +56,45 @@ class CbrainTask::ReconAll < ClusterTask
 
   def cluster_commands #:nodoc:
     params       = self.params
-    
-    subject_name = params[:subject_name]
     to_recover   = params.delete(:to_recover)
-
-    # Check output_name and subject_name if not valid create one valid 
-    cb_error("Sorry, but the subject name '#{subject_name}' provided contains some unacceptable characters.") unless is_legal_subject_name?(subject_name)
-
+    
     # Command creation
     if !to_recover  # NORMAL EXECUTION MODE
-      FileUtils.rm_rf(subject_name)
-      file_ids     = params[:interface_userfile_ids] || []
-      files        = Userfile.find_all_by_id(file_ids)
-      dash_i       = ""
-      files.map { |f| dash_i += " -i input/#{f.name}" }
+
+      # Simple option
+      with_qcache        = params[:with_qcache] == "1" ? "-qcache"  : ""
+      with_mprage        = params[:with_mprage] == "1" ? "-mprage"  : ""
+
+      # Creation of command line
+      file_ids           = params[:interface_userfile_ids] || []
+      files              = Userfile.find_all_by_id(file_ids)
+      with_i_option      = true if params[:multiple_subjects] == "Single" || files[0].is_a?(SingleFile)
+      subjectid          = with_i_option ? "subjectid-#{self.run_id}" : files[0].name
+      params[:subjectid] = subjectid
+      subjid_info        = ""
+      # Specific for SingleFile
+      if with_i_option
+        # Potential pb see with Pierre
+        FileUtils.rm_rf(subjectid)
+        files.map { |f| subjid_info += " -i #{f.name}" }
+      else
+        remove_is_running_file()
+      end
+      # For SingleFile or FileCollection
+      subjid_info       += " -subjid #{subjectid}"
       
-      with_qcache    = params[:with_qcache] == "1" ? "-qcache"  : ""
-      with_mprage    = params[:with_mprage] == "1" ? "-mprage"  : ""
-      all            = "-all"
-      subj_opt       = "-subjid"
-      message        = "Starting Recon-all cross-sectional"
+      step               = params[:workflow_directives]
+      message            = "Starting Recon-all cross-sectional"
     else # RECOVER FROM FAILURE MODE
-      dash_i         = ""
-      with_qcache    = ""
-      with_mprage    = ""
-      all            = "-make all"
-      subj_opt       = "-s"
-      message        = "Recovering Recon-all cross-sectional"
+      subjectid          = params[:subjectid]
+      with_qcache        = ""
+      with_mprage        = ""
+      subjid_info        = "-s #{subjectid}"
+      step               = "-make all"
+      message            = "Recovering Recon-all cross-sectional"
     end
-    
-    recon_all_command = "recon-all #{with_qcache} #{with_mprage} -sd . #{dash_i} #{subj_opt} #{subject_name} #{all}"
+ 
+    recon_all_command = "recon-all #{with_qcache} #{with_mprage} -sd . #{subjid_info} #{step}"
 
     [
       "echo #{message}",
@@ -100,10 +107,8 @@ class CbrainTask::ReconAll < ClusterTask
   def save_results #:nodoc:
     params       = self.params
 
-    subject_name = params[:subject_name]
+    subjectid    = params[:subjectid]
     output_name  = params[:output_name]
-
-    cb_error("Sorry, but the subject name provided contains some unacceptable characters.") unless is_legal_subject_name?(subject_name)
 
     # Define dp 
     file_ids = params[:interface_userfile_ids] || []
@@ -112,7 +117,7 @@ class CbrainTask::ReconAll < ClusterTask
 
     # Check for error
     list_of_error_dir = []
-    log_file          = "#{subject_name}/scripts/recon-all.log"
+    log_file          = "#{subjectid}/scripts/recon-all.log"
     if !log_file_contains(log_file, /recon-all .+ finished without error at/) 
       self.addlog("Recon-all exited with errors. See Standard Output.")
       return false
@@ -125,7 +130,7 @@ class CbrainTask::ReconAll < ClusterTask
       :data_provider_id => self.results_data_provider_id
     )
     outfile.save!
-    outfile.cache_copy_from_local_file(subject_name)
+    outfile.cache_copy_from_local_file(subjectid)
 
     self.addlog_to_userfiles_these_created_these( files , [ outfile ] )
     self.addlog("Saved result file #{output_name}")
@@ -139,14 +144,8 @@ class CbrainTask::ReconAll < ClusterTask
   # Error-recovery and restarting methods described
   def recover_from_cluster_failure #:nodoc:
     params       = self.params
-    
-    subject_name = params[:subject_name]
 
-    # Remove IsRunning file
-    files = Dir.glob("#{subject_name}/scripts/IsRunning.*" )
-    files.each do |file|
-      FileUtils.rm_rf(file)
-    end
+    remove_is_running_file()
     
     params[:to_recover] = "yes"
     true
@@ -158,6 +157,16 @@ class CbrainTask::ReconAll < ClusterTask
     return false unless File.exist?(file)
     file_contain = File.read(file)
     file_contain =~ grep_regex
+  end
+
+  def remove_is_running_file #:nodoc:
+    subjectid = params[:subjectid]
+
+    # Remove IsRunning file
+    files = Dir.glob("#{subjectid}/scripts/IsRunning.*" )
+    files.each do |file|
+      FileUtils.rm_rf(file)
+    end
   end
   
 end
