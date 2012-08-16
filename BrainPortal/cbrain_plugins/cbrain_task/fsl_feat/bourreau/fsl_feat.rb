@@ -23,14 +23,14 @@
 # A subclass of ClusterTask to run FslFeat.
 class CbrainTask::FslFeat < ClusterTask
 
-  Revision_info=CbrainFileRevision[__FILE__]
+  Revision_info=CbrainFileRevision[__FILE__] #:nodoc:
 
   include RestartableTask
   include RecoverableTask
 
   # Used to encapsulate the *.fsf (FEAT structure file) for FEAT task.
   class FeatFsfEvaluator #:nodoc:
-    Revision_info=CbrainFileRevision[__FILE__]
+    Revision_info=CbrainFileRevision[__FILE__] #:nodoc:
   end
   
   def setup #:nodoc:
