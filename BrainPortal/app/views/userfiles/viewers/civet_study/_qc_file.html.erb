@@ -32,7 +32,7 @@
   end
   qc_file = "" unless @userfile.list_files.find { |f| f.name == qc_file }
 %>
-
+<strong>QC</strong><br><br>
 <% if File.file?(@userfile.cache_full_path.parent + qc_file) %>
   <%
   doc = Nokogiri::HTML.fragment(File.read(@userfile.cache_full_path.parent + qc_file))
@@ -45,4 +45,8 @@
   Error: the QC report seems to be missing in this study. Maybe the QC task did
   not complete successfully.
 <% end %>
+<br>
+<div id="qc_data">
+</div>
+
 

@@ -23,7 +23,7 @@
 # Model for a MINC file (either MINC1 or MINC2).
 class MincFile < SingleFile
 
-  Revision_info=CbrainFileRevision[__FILE__]
+  Revision_info=CbrainFileRevision[__FILE__] #:nodoc:
   
   has_viewer :partial => "jiv_file",                                         :if  => Proc.new { |u| u.has_format?(:jiv) && u.get_format(:jiv).is_locally_synced? }
   has_viewer :partial => "html5_minc_viewer",                                :if  => Proc.new { |u| u.class.has_minctools?([2,0,0]) && u.is_locally_synced? && u.size < 80.megabytes }

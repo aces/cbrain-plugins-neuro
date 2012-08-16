@@ -21,7 +21,7 @@
 # A subclass of ClusterTask to run dcm2nii.
 class CbrainTask::Dcm2nii < ClusterTask
 
-  Revision_info=CbrainFileRevision[__FILE__]
+  Revision_info=CbrainFileRevision[__FILE__] #:nodoc:
 
   include RestartableTask
   include RecoverableTask

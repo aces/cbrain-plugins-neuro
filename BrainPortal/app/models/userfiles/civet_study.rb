@@ -26,7 +26,7 @@
 # API to come later.
 class CivetStudy < FileCollection
 
-  Revision_info=CbrainFileRevision[__FILE__]
+  Revision_info=CbrainFileRevision[__FILE__] #:nodoc:
   
   has_viewer :civet_study
   

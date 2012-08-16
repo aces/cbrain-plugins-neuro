@@ -23,7 +23,7 @@
 # A subclass of PortalTask to launch dcm2mnc.
 class CbrainTask::Dcm2mnc < PortalTask
 
-  Revision_info=CbrainFileRevision[__FILE__]
+  Revision_info=CbrainFileRevision[__FILE__] #:nodoc:
 
   def self.properties #:nodoc:
     { :no_presets => true, :use_parallelizer => true }
