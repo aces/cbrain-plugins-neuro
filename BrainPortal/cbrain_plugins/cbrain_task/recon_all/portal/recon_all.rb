@@ -25,7 +25,7 @@
 # Original author: Natacha Beck
 class CbrainTask::ReconAll < PortalTask
 
-  Revision_info=CbrainFileRevision[__FILE__]
+  Revision_info=CbrainFileRevision[__FILE__] #:nodoc:
 
   def self.properties
     { :use_parallelizer => true }
