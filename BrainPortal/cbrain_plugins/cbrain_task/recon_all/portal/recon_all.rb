@@ -37,14 +37,16 @@ class CbrainTask::ReconAll < PortalTask
   end
   
   def before_form #:nodoc:
-    params   = self.params
+    params    = self.params
 
     file_ids  = params[:interface_userfile_ids] || []
-    files = Userfile.find_all_by_id(file_ids)
+    files     = Userfile.find_all_by_id(file_ids)
     files.each do |file|
-      cb_error "Error: this task can only run on MGZ files MINC1 or NifTi." unless
+      cb_error "Error: this task can only run on MGZ, MINC1, NifTi files
+      or on a Recon-all Cross-Sectional Output (FreeSurfer subject directory)." unless
          file.is_a?(MgzFile) || file.is_a?(NiftiFile) || 
-        (file.is_a?(MincFile) && file.which_minc_version != :minc2)
+        (file.is_a?(MincFile) && file.which_minc_version != :minc2) ||
+         file.is_a?(ReconAllCrossSectionalOutput)
     end 
     
     return ""
@@ -53,27 +55,27 @@ class CbrainTask::ReconAll < PortalTask
   def after_form #:nodoc:
     params = self.params
 
-    # Check output_name 
-    self.params_errors.add(:output_name, "provided contains some unacceptable characters.") unless params[:output_name].blank?  || is_legal_output_name?(params[:output_name])
-
-    # Check subject_name
-    self.params_errors.add(:subject_name, "provided contains some unacceptable characters.") unless params[:subject_name].blank? || is_legal_subject_name?(params[:subject_name])
-
+    nb_input              = params[:interface_userfile_ids].size
+    multiple_subjects     = params[:multiple_subjects]
+    output_name           = params[:output_name]
+    nb_singlefile         = self.count_singlefiles_in_input_list
+    only_singlefile       = nb_input == nb_singlefile             ? true : false
+    with_multi_singlefile = nb_input > 1 && only_singlefile       ? true : false 
+      
     # Verification for multiple_subjects can't be blank
-    self.params_errors.add(:multiple_subjects, "provided is blank. Choose between Single or Multiple.") if params[:multiple_subjects].blank? && (params[:interface_userfile_ids].size > 1)
+    self.params_errors.add(:multiple_subjects, "provided is blank. Choose between Single or Multiple.")              if multiple_subjects.blank? && (nb_input > 1)
 
-    # If multiple_subjects is Single subject_name id required
-    if params[:multiple_subjects] == "Single" && params[:subject_name].blank? && params[:interface_userfile_ids].size > 1
-      self.params_errors.add(:subject_name, "you chose to run more than one file for a single subject, so you need to choose a subject name.")
-    end
-    
+    # Check output_name 
+    self.params_errors.add(:output_name, "provided contains some unacceptable characters.")                          unless output_name.blank? || is_legal_output_name?(output_name)
+    # Output name cannot be blank if multiple_subjects is Single
+    self.params_errors.add(:output_name, "cannot be blank, if you run a single subject with multiple acquisitions.") if multiple_subjects == "Single" && with_multi_singlefile && output_name.blank?
+
     ""
   end
 
   def final_task_list #:nodoc:
     params       = self.params
 
-    subject_name = params[:subject_name].presence  || ""
     output_name  = params[:output_name].presence   || ""
     mode         = params.delete(:multiple_subjects)
     is_single    = mode == "Single" ? true : false 
@@ -91,7 +93,7 @@ class CbrainTask::ReconAll < PortalTask
       end
     end
 
-    # Adjust subject_name and output_name foreach task
+    # Adjust output_name foreach task
     task_list.each do |task|
 
       ids            = task.params[:interface_userfile_ids]
@@ -99,17 +101,10 @@ class CbrainTask::ReconAll < PortalTask
       input_name     = userfiles_name[0]
       userfile_list  = userfiles_name.join(", ")
 
-      # Verify subject_name
-      local_subject_name   = task.params[:subject_name]
-      if local_subject_name.blank?
-        local_subject_name = input_name.split(/\./)[0]
-        task.params[:subject_name] = local_subject_name 
-      end
-
       # Verify output_name
       local_output_name   = task.params[:output_name]
       if local_output_name.blank?
-        local_output_name = local_subject_name
+        local_output_name = input_name.split(/\./)[0]
         task.params[:output_name] = local_output_name
       end
 
@@ -123,11 +118,11 @@ class CbrainTask::ReconAll < PortalTask
   end
 
   def self.pretty_params_names #:nodoc:
-    { :output_name => 'Output name ', :subject_name => 'Subject name ' }
+    { :output_name => 'Output name', :multiple_subjects => "Multiple subjects" }
   end
 
   def untouchable_params_attributes #:nodoc:
-    { :outfile_id => true}
+    { :outfile_id => true, :subject_id => true }
   end
 
 end
