@@ -3,7 +3,6 @@
 class CbrainTask::FslProbtrackx < ClusterTask
 
   Revision_info=CbrainFileRevision[__FILE__] #:nodoc:
-  include RecoverableTask
 
   ################################################################
   # For full documentation on how to write CbrainTasks,
@@ -147,6 +146,14 @@ class CbrainTask::FslProbtrackx < ClusterTask
   # task to have such capabilities. See the methods
   # recover_from_setup_failure(), restart_at_setup() and
   # friends, described in CbrainTask_Recovery_Restart.txt.
+
+  def recover_from_post_processing_failure
+    true
+  end
+  
+  def restart_at_post_processing
+    true
+  end        
 
 end
 
