@@ -43,7 +43,14 @@ class CbrainTask::FslProbtrackx < PortalTask
   # is created with #:nodoc: in this template.
   def self.default_launch_args #:nodoc:
     # Example: { :my_counter => 1, :output_file => "ABC.#{Time.now.to_i}" }
-    { :num_samples => 1000, :rseed => 1}
+    { 
+      :sample_basename => "probtrackx-data/bedpostX/merged", 
+      :num_samples => 1000, 
+      :rseed => 1,
+      :curve_thresh => 0.2,
+      :num_steps =>  2000,
+      :step_length => 0.5
+    }
   end
   
 

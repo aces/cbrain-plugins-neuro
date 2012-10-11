@@ -91,25 +91,29 @@ class CbrainTask::FslProbtrackx < ClusterTask
 
   # See CbrainTask.txt
   def cluster_commands #:nodoc:
-    params       = self.params
-    mode         = params[:mode].to_s                        #--mode
-    seed_volume  = params[:seed_volume].to_s.gsub("..", "")  #-x  (path)
-    num_samples  = params[:num_samples].to_i                 #-P
-    transform    = params[:transform].to_s.gsub("..", "")    #-xfm (path)
-    stop_mask    = params[:stop_mask].to_s.gsub("..", "")    #--stop (path)
-    opd          = params[:opd]                              #--opd
-    waypoints    = params[:waypoints].to_s.gsub("..", "")    #--waypoints (path)
-    rseed        = params[:rseed].to_i                       #--rseed
+    params          = self.params
+    mode            = params[:mode].to_s                           #--mode
+    curve_thresh    = params[:curve_thresh].to_f                   #-c
+    num_steps       = params[:num_steps].to_i                      #-S
+    step_length     = params[:step_length].to_f                    #--steplength
+    seed_volume     = params[:seed_volume].to_s.gsub("..", "")     #-x  (path)
+    num_samples     = params[:num_samples].to_i                    #-P
+    transform       = params[:transform].to_s.gsub("..", "")       #-xfm (path)
+    stop_mask       = params[:stop_mask].to_s.gsub("..", "")       #--stop (path)
+    sample_basename = params[:sample_basename].to_s.gsub("..", "") #-s (path)
+    binary_mask     = params[:binary_mask].to_s.gsub("..", "")     #-m (path)
+    waypoints       = params[:waypoints].to_s.gsub("..", "")       #--waypoints (path)
+    rseed           = params[:rseed].to_i                          #--rseed
     
     raise "Seed volume outside task work directory!" if seed_volume !~ /^probtrackx-data\// || seed_volume =~ /\.\./
     raise "Transform outside task work directory!" if transform !~ /^probtrackx-data\// || transform =~ /\.\./
     raise "Stop mask outside task work directory!" if stop_mask !~ /^probtrackx-data\// || stop_mask =~ /\.\./
+    raise "Sample basename outside task work directory!" if sample_basename !~ /^probtrackx-data\// || sample_basename =~ /\.\./
+    raise "Binary mask outside task work directory!" if binary_mask !~ /^probtrackx-data\// || binary_mask =~ /\.\./
     raise "Waypoint mask outside task work directory!" if waypoints !~ /^probtrackx-data\// || waypoints =~ /\.\./
-    
-    opd = "--opd" if opd.present?
-    
+        
     [
-      "probtrackx --mode=#{mode.bash_escape} -x #{seed_volume.bash_escape} -V 0 -P #{num_samples} --xfm=#{transform.bash_escape} --stop=#{stop_mask.bash_escape} --forcedir #{opd} -s probtrackx-data/bedpostX/merged -m probtrackx-data/bedpostX/nodif_brain_mask --dir=output_directory --waypoints=#{waypoints.bash_escape} --rseed=#{rseed}"
+      "probtrackx --mode=#{mode.bash_escape} -x #{seed_volume.bash_escape} -V 1 -c #{curve_thresh} -S #{num_steps} --steplength=#{step_length} -P #{num_samples} --xfm=#{transform.bash_escape} --stop=#{stop_mask.bash_escape} --forcedir --opd -s #{sample_basename} -m #{binary_mask} --dir=output_directory --waypoints=#{waypoints.bash_escape} --rseed=#{rseed}"
     ]
   end
   
