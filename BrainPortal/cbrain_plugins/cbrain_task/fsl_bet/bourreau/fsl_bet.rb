@@ -53,8 +53,8 @@ class CbrainTask::FslBet < ClusterTask
 
   def cluster_commands #:nodoc:
     params    = self.params
-    f_option  = params[:fractional_intensity].empty? ? 0.5 : params[:fractional_intensity].to_f
-    g_option  = params[:vertical_gradient].empty?    ? 0.0 : params[:vertical_gradient].to_f 
+    f_option  = params[:fractional_intensity].blank? ? 0.5 : params[:fractional_intensity].to_f
+    g_option  = params[:vertical_gradient].blank?    ? 0.0 : params[:vertical_gradient].to_f 
 
     cmds      = []
     cmds      << "echo Starting BET"
@@ -67,6 +67,7 @@ class CbrainTask::FslBet < ClusterTask
     
     output  = inputfile.name
     output  = output =~ /(\..+)/ ? output.sub( /(\..+)/ , "_brain-#{self.run_id}#{$1}") : "#{output}_brain-#{self.run_id}" 
+    output << ".gz"
 
     cmd_bet = "bet #{self.full_cluster_workdir}/#{inputfile.name} #{output} -f #{f_option} -g #{g_option}"
     cmds    << "echo running #{cmd_bet}"
@@ -103,7 +104,7 @@ class CbrainTask::FslBet < ClusterTask
     inputfile_id = params[:inputfile_id].to_i
     inputfile    = Userfile.find(inputfile_id)
     
-    outputfile =  safe_userfile_find_or_new(SingleFile, :name => output_name )
+    outputfile =  safe_userfile_find_or_new(NiftiFile, :name => output_name )
     outputfile.save!
     outputfile.cache_copy_from_local_file(output_name)
 
