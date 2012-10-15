@@ -45,8 +45,11 @@
 #
 -%>
 
-<% input_collection = Userfile.find(params[:interface_userfile_ids]).first %>
-<% file_list = input_collection.list_files.map(&:name).reject {|f| f=~ /\/logs\//} %>
+<% 
+  input_collection = Userfile.find(params[:interface_userfile_ids]).first
+  file_list = input_collection.list_files.map(&:name).reject {|f| f=~ /\/logs\//} 
+  @task.params[:sample_basename] ||= file_list.find{ |f| f =~ /bedpostX/ }.to_s.sub(/bedpostX.+/, "bedpostX/") << "merged" 
+%>
 
 <%= form.params_hidden_field :collection_id %>
 
