@@ -122,6 +122,9 @@ class CbrainTask::FslProbtrackx < ClusterTask
     params       = self.params
     
     input_collection  = FileCollection.find(params[:collection_id])
+    unless File.exists?("output_directory")
+      cb_error("Output directory doesn't seem to exist!")
+    end
     
     now = Time.now
     output_name = "probtrackx-output-#{self.id}-#{self.bourreau.name}-#{self.run_number}-#{now.strftime("%Y-%m-%d")}-#{now.strftime("%H:%M:%S")}"
