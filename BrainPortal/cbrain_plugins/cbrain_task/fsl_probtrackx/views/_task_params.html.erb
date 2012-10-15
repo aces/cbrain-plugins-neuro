@@ -53,6 +53,15 @@
 <%= form.params_label  :mode, "Mode:" %>
 <%= form.params_select :mode, [ "simple", "two_mask_symm", "seedmask" ] %>
 <br>
+<%= form.params_label :curve_thresh, "Curvature threshold:" %>
+<%= form.params_text_field :curve_thresh, :size => 8 %>
+<br>
+<%= form.params_label :num_steps, "Number of steps per sample:" %>
+<%= form.params_text_field :num_steps, :size => 8 %>
+<br>
+<%= form.params_label :step_length, "Step length (mm):" %>
+<%= form.params_text_field :step_length, :size => 8 %>
+<br>
 <%= form.params_label :num_samples, "Number of samples:" %>
 <%= form.params_text_field :num_samples, :size => 8 %>
 <br>
@@ -60,16 +69,19 @@
 <%= form.params_select :seed_volume, file_list, :selected => file_list.find { |f| f =~ /seed/i } %>
 <br>
 <%= form.params_label  :stop_mask, "Stop mask:" %>
-<%= form.params_select :stop_mask, file_list, :selected => file_list.find { |f| f =~ /mask/i } %>
+<%= form.params_select :stop_mask, file_list, :selected => file_list.find { |f| f =~ /stop/i } %>
 <br>
 <%= form.params_label  :transform, "Seed to DTI space transform matrix:" %>
 <%= form.params_select :transform, file_list, :selected => file_list.find { |f| f =~ /.mat$/i } %>
 <br>
+<%= form.params_label :sample_basename, "Sample file basename:" %>
+<%= form.params_text_field :sample_basename, :size => 80 %>
+<br>
+<%= form.params_label  :binary_mask, "Binary mask in diffusion space:" %>
+<%= form.params_select :binary_mask, file_list, :selected => file_list.find { |f| f =~ /\/bedpostX\//i && f =~ /mask/i} %>
+<br>
 <%= form.params_label  :waypoints, "Waypoints:" %>
 <%= form.params_select :waypoints, file_list, :selected => file_list.find { |f| f =~ /.list$/i } %>
-<br>
-<%= form.params_label :opd, "Output path distribution:" %>
-<%= form.params_check_box :opd %>
 <br>
 <%= form.params_label :rseed, "Random seed:" %>
 <%= form.params_text_field :rseed, :size => 3 %>
