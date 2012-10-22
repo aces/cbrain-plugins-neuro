@@ -152,17 +152,21 @@ class CbrainTask::FslProbtrackx < ClusterTask
     true
   end
 
+  def job_walltime_estimate #:nodoc:
+    96.hours
+  end
+
   # Add here the optional error-recovery and restarting
   # methods described in the documentation if you want your
   # task to have such capabilities. See the methods
   # recover_from_setup_failure(), restart_at_setup() and
   # friends, described in CbrainTask_Recovery_Restart.txt.
 
-  def recover_from_post_processing_failure
+  def recover_from_post_processing_failure #:nodoc:
     true
   end
   
-  def restart_at_post_processing
+  def restart_at_post_processing #:nodoc:
     true
   end        
 
