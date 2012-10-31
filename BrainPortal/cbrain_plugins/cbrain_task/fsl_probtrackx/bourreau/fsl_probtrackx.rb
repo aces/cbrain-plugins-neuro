@@ -153,7 +153,7 @@ class CbrainTask::FslProbtrackx < ClusterTask
   end
 
   def job_walltime_estimate #:nodoc:
-    96.hours
+    2.days.to_i
   end
 
   # Add here the optional error-recovery and restarting
