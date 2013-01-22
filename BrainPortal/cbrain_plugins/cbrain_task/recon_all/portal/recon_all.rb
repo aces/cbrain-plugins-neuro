@@ -87,7 +87,7 @@ class CbrainTask::ReconAll < PortalTask
       task_list << self 
     else
       ids.each do |id|
-        task = self.clone
+        task = self.dup # not .clone, as of Rails 3.1.10
         task.params[:interface_userfile_ids] = [ id ]
         task_list << task
       end
