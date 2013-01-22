@@ -190,7 +190,7 @@ class CbrainTask::FslFeat < PortalTask
     
     mytasklist = []
     ids.each do |id|
-      task=self.clone
+      task=self.dup # not .clone, as of Rails 3.1.10
       task.params[:interface_userfile_ids] = [ id ]
       task.params[:inputfile_id]           = id
       task.description = Userfile.find(id).name if task.description.blank?
