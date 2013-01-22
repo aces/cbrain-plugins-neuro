@@ -58,7 +58,7 @@ class CbrainTask::Dcm2nii < PortalTask
     file_ids = params[:interface_userfile_ids]
     task_list = []
     file_ids.each do |col_id|
-      task = self.clone
+      task = self.dup # not .clone, as of Rails 3.1.10
       task.params[:dicom_colid]            = col_id
       task.params[:interface_userfile_ids] = [ col_id ]
       task_list << task

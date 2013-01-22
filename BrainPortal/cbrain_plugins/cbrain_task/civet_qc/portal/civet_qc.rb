@@ -52,7 +52,7 @@ class CbrainTask::CivetQc < PortalTask
 
     file_ids.each do |id|
       civetstudy = CivetStudy.find(id)
-      task = self.clone
+      task = self.dup # not .clone, as of Rails 3.1.10
       task.description ||= civetstudy.name
       task.params[:study_id]               = civetstudy.id
       task.params[:interface_userfile_ids] = [ civetstudy.id ]
