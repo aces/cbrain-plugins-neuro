@@ -56,7 +56,7 @@ class CbrainTask::Mnc2nii < PortalTask
      
     task_list = []
     file_ids.each do |id|
-      task = self.clone
+      task = self.dup # not .clone, as of Rails 3.1.10
       task.params[:mincfile_id]            = id
       task.params[:interface_userfile_ids] = [ id ]
       task_list << task

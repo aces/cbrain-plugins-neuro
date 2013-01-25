@@ -107,7 +107,7 @@ class CbrainTask::MincConvert < PortalTask
     valid_ids = params[:valid_ids] || []
     task_list  = []
     valid_ids.each do |id|
-      task=self.clone
+      task=self.dup # not .clone, as of Rails 3.1.10
       task.params[:inputfile_id]           = id
       task.params[:interface_userfile_ids] = [ id ]
       task.description = Userfile.find(id).name if task.description.blank?

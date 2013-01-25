@@ -460,7 +460,7 @@ class CbrainTask::Civet < PortalTask
   def create_civet_for_slice(file_slice) #:nodoc:
 
     # Create the new object
-    civ             = self.clone
+    civ             = self.dup # not .clone, as of Rails 3.1.10
     civparams       = civ.params
 
     # Non-civet fields not needed so let's not polute the params output in show()

@@ -109,7 +109,7 @@ class CbrainTask::NuCorrect < PortalTask
       use_mask     = launch_entry[:use_mask] || "0"
       do_it        = launch_entry[:do_it]    || "0"
       next unless do_it == "1"
-      task    = self.clone
+      task    = self.dup # not .clone, as of Rails 3.1.10
       tparams = task.params
       tparams[:interface_userfile_ids] = [ in_id ]
       tparams[:launch_table]           = { "0" => { :in_id => in_id, :mk_id => mk_id, :use_mask => use_mask, :do_it => "1" } }
