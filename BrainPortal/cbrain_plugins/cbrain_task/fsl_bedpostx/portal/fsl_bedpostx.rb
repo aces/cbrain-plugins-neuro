@@ -60,7 +60,7 @@ class CbrainTask::FslBedpostx < PortalTask
     ids    = params[:interface_userfile_ids] || []
     mytasklist = []
     ids.each do |id|
-      task=self.clone
+      task=self.dup # not .clone, as of Rails 3.1.10
       task.params[:interface_userfile_ids] = [ id ]
       task.description = Userfile.find(id).name if task.description.blank?
       mytasklist << task
