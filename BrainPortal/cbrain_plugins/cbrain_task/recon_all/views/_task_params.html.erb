@@ -87,5 +87,29 @@ Workflow directives:<br/>
   <p>
 <% end %>
 
-<%= form.params_check_box :with_qcache %>Run with qcache.<br/>
-<%= form.params_check_box :with_mprage %>Run with mprage.<br/>
+<%= form.params_check_box :with_qcache %><%= form.params_label :with_qcache, "Run with qcache." %><br/>
+<%= form.params_check_box :with_mprage %><%= form.params_label :with_mprage, "Run with mprage." %><br/>
+
+<fieldset>
+<legend>Options for recon-all-LBL only</legend>
+
+  <small class="medium_paragraph">
+      These options apply only to the special variation of recon_all
+      that support the arguments:<br>
+
+      &nbsp;&nbsp;<em>-nuintensitycor-3T -N3-3T [number] -nuiterations-3T [number]</em><br>
+
+      Please leave these fields empty otherwise. If you do supply values here
+      and your version of recon-all does not support these arguments, it will
+      not run at all.
+  </small>
+
+<p>
+
+<%= form.params_label :n3_3t,  "Value for \"-N3-3T\" : " %><br>
+<%= form.params_text_field :n3_3t, :size => 4 %><br>
+<%= form.params_label :nui_3t, "Value for \"-nuiterations-3T\" : " %><br>
+<%= form.params_text_field :nui_3t, :size => 4 %><br>
+
+</fieldset>
+

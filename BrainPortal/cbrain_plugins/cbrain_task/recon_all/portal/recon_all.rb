@@ -67,8 +67,17 @@ class CbrainTask::ReconAll < PortalTask
 
     # Check output_name 
     self.params_errors.add(:output_name, "provided contains some unacceptable characters.")                          unless output_name.blank? || is_legal_output_name?(output_name)
+
     # Output name cannot be blank if multiple_subjects is Single
     self.params_errors.add(:output_name, "cannot be blank, if you run a single subject with multiple acquisitions.") if multiple_subjects == "Single" && with_multi_singlefile && output_name.blank?
+
+    # Check special recon-all-LBL options
+    n3_3t  = (params[:n3_3t]  || "").strip
+    nui_3t = (params[:nui_3t] || "").strip
+    self.params_errors.add(:n3_3t,  "must be an integer") if n3_3t.present?  && n3_3t  !~ /^\d+$/
+    self.params_errors.add(:nui_3t, "must be an integer") if nui_3t.present? && nui_3t !~ /^\d+$/
+    self.params_errors.add(:nui_3t, "must be supplied since -N3_3T is supplied.")          if   n3_3t.present? && ! nui_3t.present?
+    self.params_errors.add(:n3_3t,  "must be supplied since -nuiteration_3T is supplied.") if ! n3_3t.present? &&   nui_3t.present?
 
     ""
   end
@@ -118,7 +127,10 @@ class CbrainTask::ReconAll < PortalTask
   end
 
   def self.pretty_params_names #:nodoc:
-    { :output_name => 'Output name', :multiple_subjects => "Multiple subjects" }
+    { :output_name => 'Output name', :multiple_subjects => "Multiple subjects",
+      :n3_3t  => "N3-3T",
+      :nui_3t => "nuiterations-3T",
+    }
   end
 
   def untouchable_params_attributes #:nodoc:
