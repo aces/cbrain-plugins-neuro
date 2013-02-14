@@ -106,9 +106,8 @@ class CbrainTask::ReconAll < PortalTask
     task_list.each do |task|
 
       ids            = task.params[:interface_userfile_ids]
-      userfiles_name = Userfile.find(ids).map &:name
-      input_name     = userfiles_name[0]
-      userfile_list  = userfiles_name.join(", ")
+      userfile_names = Userfile.find(ids).map &:name
+      input_name     = userfile_names[0]
 
       # Verify output_name
       local_output_name   = task.params[:output_name]
@@ -119,8 +118,9 @@ class CbrainTask::ReconAll < PortalTask
 
       # Adjust description
       task.description  = (task.description.presence || "").strip
+      task.description  = "Recon-all on #{userfile_names.size} files" if task.description.blank? && userfile_names.size > 3
       task.description += "\n\n" if task.description.present?
-      task.description += userfile_list
+      task.description += userfile_names.join(", ") if userfile_names.size <= 3
     end
 
     task_list
