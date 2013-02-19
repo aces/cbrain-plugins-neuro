@@ -24,6 +24,15 @@
 DICOM collection: <%= link_to_userfile_if_accessible params[:dicom_colid] %>
 </p>
 
+<% if params[:orig_niifile_basenames].present? %>
+<strong>Filenames as originally generated (FYI):</strong>
+<ul>
+  <% params[:orig_niifile_basenames].each do |fn| %>
+    <li><%= fn %></li>
+  <% end %>
+</ul>
+<% end %>
+
 <strong>Outputs:</strong>
 <ul>
 <% if params[:created_niifile_ids] %>
