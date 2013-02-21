@@ -79,11 +79,13 @@ class CbrainTask::Dcm2mnc < ClusterTask
       end
     end
 
+    orig_basenames = relpaths.map { |relpath| File.basename(relpath) }                               
+    params[:orig_mincfile_basenames] = orig_basenames # to help user debug renaming problems          
+
     numfail = 0
     numok   = 0
 
     mincfiles      = []
-    orig_basenames = []
 
     FileUtils.remove_dir("renamed", true) rescue true
     safe_mkdir("renamed",0700)
@@ -101,7 +103,6 @@ class CbrainTask::Dcm2mnc < ClusterTask
         numok += 1
         self.addlog("Saved new MINC file #{basename}")
         mincfiles      << mincfile
-        orig_basenames << File.basename(relpath)
       else
         numfail += 1
         self.addlog("Could not save back result file '#{basename}'.")
@@ -122,7 +123,6 @@ class CbrainTask::Dcm2mnc < ClusterTask
     end
 
     params[:created_mincfile_ids]    = new_mincfile_ids
-    params[:orig_mincfile_basenames] = orig_basenames
 
     self.addlog_to_userfiles_these_created_these([dicom_col],mincfiles)
 

@@ -29,12 +29,21 @@ DICOM collection: <%= link_to_userfile_if_accessible params[:dicom_colid] %>
 Use coordinates? <%= params[:use_coordinates] == "1" ? "Yes" : "No" %>
 <P>
 File renaming pattern:
-<% if ! params[:output_filename_pattern].blank? %>
+<% if params[:output_filename_pattern].present? %>
   <%= h(params[:output_filename_pattern]) %>
 <% else %>
   (None. Output Minc filenames are chosen by Dcm2Minc)
 <% end %>
+<P>
 
+<% if params[:orig_mincfile_basenames].present? && params[:output_filename_pattern].present? %>
+<strong>Filenames as originally generated (FYI):</strong>
+<ul>
+  <% params[:orig_mincfile_basenames].each do |fn| %>
+    <li><%= fn %></li>
+  <% end %>
+</ul>
+<% end %>
 
 <P>
 <STRONG>Outputs:</STRONG>
