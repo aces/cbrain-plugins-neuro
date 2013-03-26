@@ -95,12 +95,13 @@ class CbrainTask::Dcm2nii < ClusterTask
       end
     end
 
+    orig_basenames = relpaths.map { |relpath| File.basename(relpath) }
+    params[:orig_niifile_basenames] = orig_basenames # to help user debug renaming problems
+
     numfail = 0
     numok   = 0
 
     niifiles       = []
-    orig_basenames = []
-
     FileUtils.remove_dir("renamed", true) rescue true
     safe_mkdir("renamed",0700)
 
@@ -117,7 +118,6 @@ class CbrainTask::Dcm2nii < ClusterTask
         numok += 1
         self.addlog("Saved new NIfTI file #{basename}")
         niifiles       << niifile
-        orig_basenames << File.basename(relpath)
       else
         numfail += 1
         self.addlog("Could not save back result file '#{basename}'.")
@@ -138,7 +138,6 @@ class CbrainTask::Dcm2nii < ClusterTask
     end
     
     params[:created_niifile_ids]    = new_niifile_ids
-    params[:orig_niifile_basenames] = orig_basenames
 
     self.addlog_to_userfiles_these_created_these([dicom_col],niifiles)
 

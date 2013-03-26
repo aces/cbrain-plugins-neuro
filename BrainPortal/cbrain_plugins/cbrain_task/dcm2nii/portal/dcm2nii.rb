@@ -61,6 +61,12 @@ class CbrainTask::Dcm2nii < PortalTask
       task = self.dup # not .clone, as of Rails 3.1.10
       task.params[:dicom_colid]            = col_id
       task.params[:interface_userfile_ids] = [ col_id ]
+
+      # Adjust description
+      task.description  = (task.description.presence || "").strip
+      task.description += "\n\n" if task.description.present?
+      task.description += Userfile.where(:id => col_id).raw_first_column(:name)[0].presence || ""
+
       task_list << task
     end
     
