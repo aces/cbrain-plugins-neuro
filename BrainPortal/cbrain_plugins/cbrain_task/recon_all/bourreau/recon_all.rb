@@ -93,8 +93,19 @@ class CbrainTask::ReconAll < ClusterTask
       step               = "-make all"
       message            = "Recovering Recon-all cross-sectional"
     end
+
+    # Special options for recon-all-LBL
+    #     -nuintensitycor-3T -N3-3T [number] -nuiterations-3T [number]
+    lbl_ext     = ""
+    lbl_options = ""
+    n3_3t  = (params[:n3_3t]  || "").strip
+    nui_3t = (params[:nui_3t] || "").strip
+    if n3_3t.present? && nui_3t.present? && n3_3t =~ /^\d+$/ && nui_3t =~ /^\d+$/
+       lbl_ext     = "-LBL"
+       lbl_options = "-nuintensitycor-3T -N3-3T #{n3_3t} -nuiterations-3T #{nui_3t}"
+    end
  
-    recon_all_command = "recon-all #{with_qcache} #{with_mprage} -sd . #{subjid_info} #{step}"
+    recon_all_command = "recon-all#{lbl_ext} #{with_qcache} #{with_mprage} -sd . #{subjid_info} #{step} #{lbl_options}"
 
     [
       "echo #{message}",
