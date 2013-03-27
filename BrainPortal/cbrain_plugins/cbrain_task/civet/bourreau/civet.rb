@@ -181,7 +181,11 @@ class CbrainTask::Civet < ClusterTask
   end
 
   def job_walltime_estimate #:nodoc:
-    15.hours # 4.5 normally
+    if self.tool_config.description.to_s =~ /\b1\.1\.12\b/
+      15.hours # 1.1.12 seems to take about 12
+    else  
+      7.hours # 4.5 normally
+    end
   end
 
   def cluster_commands
