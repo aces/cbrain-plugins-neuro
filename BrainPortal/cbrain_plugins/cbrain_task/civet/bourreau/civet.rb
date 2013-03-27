@@ -181,7 +181,7 @@ class CbrainTask::Civet < ClusterTask
   end
 
   def job_walltime_estimate #:nodoc:
-    10.hours # 4.5 normally
+    15.hours # 4.5 normally
   end
 
   def cluster_commands
