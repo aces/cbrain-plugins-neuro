@@ -316,15 +316,36 @@ class CbrainTask::Civet < ClusterTask
       FileUtils.cp_r(ccol_path,"civet_out/#{dsid}")
     end
 
+    # More validations of params that are substituted in commands
+    if params[:template].present?
+      raise "Bad template name."      unless params[:template]     =~ /^\s*[\d\.]+\s*$/
+    end
+    if params[:model].present?
+      raise "Bad model name."         unless params[:model]        =~ /^\s*[\w\.]+\s*$/
+    end
+    if params[:interp].present?
+      raise "Bad interp value."       unless params[:interp]       =~ /^\s*[\w]+\s*$/
+    end
+    if params[:N3_distance].present?
+      raise "Bad N3 distance value."  unless params[:N3_distance]  =~ /^\s*\d+\s*$/
+    end
+    if params[:headheight].present?
+      raise "Bad headheight value."  unless params[:headheight]    =~ /^\s*\d+\s*$/
+    end
+    if params[:lsq].present?
+      raise "Bad LSQ value."         unless params[:headheight]    =~ /^\s*\d\s*$/
+    end
+
     args = ""
 
     args += "-make-graph "                          if mybool(params[:make_graph])
     args += "-make-filename-graph "                 if mybool(params[:make_filename_graph])
     args += "-print-status-report "                 if mybool(params[:print_status_report])
-    args += "-template #{params[:template]} "       if ! params[:template].blank?
-    args += "-model #{params[:model]} "             if ! params[:model].blank?
-    args += "-interp #{params[:interp]} "           if ! params[:interp].blank?
-    args += "-N3-distance #{params[:N3_distance]} " if ! params[:N3_distance].blank?
+    args += "-template #{params[:template]} "       if params[:template].present?
+    args += "-model #{params[:model]} "             if params[:model].present?
+    args += "-interp #{params[:interp]} "           if params[:interp].present?
+    args += "-N3-distance #{params[:N3_distance]} " if params[:N3_distance].present?
+    args += "-headheight #{params[:headheight]} "   if params[:headheight].present?
     args += "-lsq#{params[:lsq]} "                  if params[:lsq] && params[:lsq].to_i != 9 # there is NO -lsq9 option!
     args += "-no-surfaces "                         if mybool(params[:no_surfaces])
     args += "-correct-pve "                         if mybool(params[:correct_pve])
@@ -335,24 +356,24 @@ class CbrainTask::Civet < ClusterTask
     args += "-spectral_mask "                       if mybool(file0[:spectral_mask])
 
     if ! params[:thickness_method].blank? && ! params[:thickness_kernel].blank?
-        args += "-thickness #{params[:thickness_method]} #{params[:thickness_kernel]} "
+        args += "-thickness #{params[:thickness_method].bash_escape} #{params[:thickness_kernel].bash_escape} "
     end
 
     if mybool(params[:VBM])
         args += "-VBM "
-        args += "-VBM-symmetry "                    if mybool(params[:VBM_symmetry])
-        args += "-VBM-cerebellum "                  if mybool(params[:VBM_cerebellum])
-        args += "-VBM-fwhm #{params[:VBM_fwhm]} "   if ! params[:VBM_fwhm].blank?
+        args += "-VBM-symmetry "                                if mybool(params[:VBM_symmetry])
+        args += "-VBM-cerebellum "                              if mybool(params[:VBM_cerebellum])
+        args += "-VBM-fwhm #{params[:VBM_fwhm].bash_escape} "   if params[:VBM_fwhm].present?
     end
 
     reset_from = params[:reset_from]
     if ! reset_from.blank?
       cb_error "Internal error: value for 'reset_from' is not a proper identifier?" unless reset_from =~ /^\w+$/;
-      args += "-reset-from #{reset_from} "
+      args += "-reset-from #{reset_from.bash_escape} "
     end
 
     mincfiles_dir = "mincfiles_#{arg_idx}"
-    civet_command = "CIVET_Processing_Pipeline -prefix #{prefix} -source #{mincfiles_dir} -target civet_out -spawn #{args} -run #{dsid}"
+    civet_command = "CIVET_Processing_Pipeline -prefix #{prefix.bash_escape} -source #{mincfiles_dir} -target civet_out -spawn #{args} -run #{dsid}"
 
     self.addlog("Full CIVET command:\n  #{civet_command.gsub(/ -/, "\n  -")}")
 

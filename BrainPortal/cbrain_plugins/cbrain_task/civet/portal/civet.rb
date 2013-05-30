@@ -96,6 +96,7 @@ class CbrainTask::Civet < PortalTask
       :interp              => "trilinear", # -interp
       :N3_distance         => "0",         # -N3-distance
       :lsq                 => "9",         # -lsq6, -lsq9, -lsq12
+      :headheight          => "",          # CIVET 1.1.12 or better only
       :no_surfaces         => "0",         # -no-surfaces
       :thickness_method    => "tlink",     # -thickness method kernel
       :thickness_kernel    => "20",        #             "
@@ -160,7 +161,7 @@ class CbrainTask::Civet < PortalTask
     end
 
     if params[:N3_distance].blank? || params[:N3_distance].to_i < 1
-      params_errors.add(:N3_distance, " value is bad. Suggested values are 200 for a 1.5T scanner, 25 for a 3T scanner.")
+      params_errors.add(:N3_distance, " value is bad. Suggested values are 200 for a 1.5T scanner, 100 to 125 for a 3T scanner.")
     end
 
     # Verify uniqueness of subject IDs
