@@ -99,7 +99,7 @@ class CbrainTask::Civet < PortalTask
       :headheight          => "",          # CIVET 1.1.12 or better only
       :no_surfaces         => "0",         # -no-surfaces
       :thickness_method    => "tlink",     # -thickness method kernel
-      :thickness_kernel    => "20",        #             "
+      :thickness_kernel    => "30",        #             "
       :resample_surfaces   => "1",         # -[no-]resample-surfaces
       :combine_surfaces    => "0",         # -[no-]combine-surfaces
 
