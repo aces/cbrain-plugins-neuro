@@ -333,7 +333,7 @@ class CbrainTask::Civet < ClusterTask
       raise "Bad headheight value."  unless params[:headheight]    =~ /^\s*\d+\s*$/
     end
     if params[:lsq].present?
-      raise "Bad LSQ value."         unless params[:lsq]           =~ /^\s*\d\s*$/
+      raise "Bad LSQ value."         unless params[:lsq]           =~ /^\s*(?:6|9|12)\s*$/
     end
 
     args = ""
