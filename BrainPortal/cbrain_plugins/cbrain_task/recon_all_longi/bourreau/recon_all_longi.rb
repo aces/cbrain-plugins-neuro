@@ -28,6 +28,7 @@ class CbrainTask::ReconAllLongi < ClusterTask
   Revision_info=CbrainFileRevision[__FILE__] #:nodoc:
 
   include RestartableTask
+  include RecoverableTask
 
   def setup #:nodoc:
     params = self.params
@@ -44,7 +45,7 @@ class CbrainTask::ReconAllLongi < ClusterTask
     true
   end
 
-  def job_walltime_estimate #:nodoc:
+  def job_walltime_estimate #:nodoc:            
     nb_cpu   = self.tool_config.ncpus || 1
     nb_input = self.params[:interface_userfile_ids].size
 
@@ -70,7 +71,7 @@ class CbrainTask::ReconAllLongi < ClusterTask
     end
 
     tpn_files = collections.map &:name
-    tp_list         = ""
+    tp_list   = ""
     tpn_files.each { |name| tp_list += " -tp \'#{name}\'" }
 
 
@@ -89,14 +90,14 @@ class CbrainTask::ReconAllLongi < ClusterTask
       echo ""
       echo Starting Recon-all -long.
 
-      if test -f #{recon_all_base_log} && grep -q -i -P "recon-all .+ finished without error at" #{recon_all_base_log} ; then
+      if test -f #{recon_all_base_log} && grep -q -i "recon-all .* finished without error at" #{recon_all_base_log} ; then
         echo Base file construction already performed.
       else
         echo Starting base file construction.
         recon-all -sd . -base '#{base_output_name}' #{tp_list} -all
       fi
       
-      if ! test -f #{recon_all_base_log} || ! grep -q -i -P "recon-all .+ finished without error at" #{recon_all_base_log} ; then
+      if ! test -f #{recon_all_base_log} || ! grep -q -i "recon-all .* finished without error at" #{recon_all_base_log} ; then 
         echo "Error: Recon-all base file construction FAILED"
         exit 20
       fi
@@ -125,7 +126,7 @@ class CbrainTask::ReconAllLongi < ClusterTask
       #
 
       echo ""
-      if test -f #{recon_all_long_log} && grep -q -i -P "recon-all .+ finished without error at" #{recon_all_long_log} ; then
+      if test -f #{recon_all_long_log} && grep -q -i "recon-all .* finished without error at" #{recon_all_long_log} ; then
         echo Longitudinal studies for #{collection.name} construction already performed.  
       else
         echo Starting longitudinal studies for #{collection.name} in background.
@@ -259,7 +260,15 @@ class CbrainTask::ReconAllLongi < ClusterTask
     true
   end
 
-  # Error-recovery and restarting methods described    
+  # Error-recovery and restarting methods described
+  def recover_from_cluster_failure #:nodoc:
+    params = self.params
+
+    remove_is_running_file()
+    
+    true
+  end
+  
   def restart_at_setup #:nodoc:
     Dir.glob('*').each do |file|
       FileUtils.rm_rf(file)
@@ -278,6 +287,17 @@ class CbrainTask::ReconAllLongi < ClusterTask
     return false unless File.exist?(file)
     file_contain = File.read(file)
     file_contain =~ grep_regex
+  end
+
+  def remove_is_running_file #:nodoc:
+    
+    # Remove IsRunning file
+    task_work = self.full_cluster_workdir
+    files    = Dir.glob("#{task_work}/*/scripts/IsRunning.*" )
+    files.each do |file|
+      FileUtils.rm_rf(file)
+    end
+    
   end
 
 end
