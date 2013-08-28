@@ -158,7 +158,6 @@ class CbrainTask::ReconAll < ClusterTask
 
     remove_is_running_file()
     
-    params[:to_recover] = "yes"
     true
   end
 
@@ -175,6 +174,7 @@ class CbrainTask::ReconAll < ClusterTask
 
     # Remove IsRunning file
     files = Dir.glob("#{subjectid}/scripts/IsRunning.*" )
+    params[:to_recover] = "yes" if files.size > 0
     files.each do |file|
       FileUtils.rm_rf(file)
     end
