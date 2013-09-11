@@ -67,7 +67,7 @@ class CbrainTask::FslBet < ClusterTask
     
     output  = inputfile.name
     output  = output =~ /(\..+)/ ? output.sub( /(\..+)/ , "_brain-#{self.run_id}#{$1}") : "#{output}_brain-#{self.run_id}" 
-    output << ".gz"
+    output << ".gz" if !(output =~ /\.gz$/)
 
     cmd_bet = "bet #{self.full_cluster_workdir}/#{inputfile.name} #{output} -f #{f_option} -g #{g_option}"
     cmds    << "echo running #{cmd_bet}"
