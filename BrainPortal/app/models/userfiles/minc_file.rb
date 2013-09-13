@@ -55,10 +55,6 @@ class MincFile < SingleFile
     end
   end
 
-  def to_s #:nodoc:
-    "Dimensions: \nxspace: #{@xspace[length]}\nyspace: #{@yspace[length]}\nzspace: #{@zspace[length]}\n"
-  end
-
   def minc_get_headers #:nodoc:
 
     return @headers if @headers
