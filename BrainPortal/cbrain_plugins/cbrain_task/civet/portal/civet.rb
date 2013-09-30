@@ -125,6 +125,10 @@ class CbrainTask::Civet < PortalTask
       userfiles << Userfile.find(id)
     end
 
+    # The params serialization is limited to 65000 bytes, so we need to set a limit of selected file.
+    limit = 200
+    cb_error "Error: Too many files selected, this task can only handle #{200} T1 files at a time." if userfiles.size > limit
+    
     # MODE A, we have a single FileCollection in argument
     if userfiles.size == 1 && userfiles[0].is_a?(FileCollection)
       collection = userfiles[0]
