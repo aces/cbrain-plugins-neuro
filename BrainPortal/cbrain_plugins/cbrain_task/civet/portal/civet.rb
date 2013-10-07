@@ -420,16 +420,24 @@ class CbrainTask::Civet < PortalTask
 
     user    = self.user
 
-    all_files_I_can_access = Userfile.find_all_accessible_by_user(user).all # TODO: Change! Really expensive!
-    index_of_my_files      = all_files_I_can_access.index_by(&:name)
-
     file_args_array = []
 
     userfiles.each do |t1|
 
       t1_name = t1.name
       t1_id   = t1.id
-      (t2_id, pd_id, mk_id) = find_t2_pd_mask(t1_name,index_of_my_files)
+
+      t2_id   = nil
+      pd_id   = nil
+      mk_id   = nil
+
+      # Find other userfiles with similar names, but with _t2, _pd or _mask instead of _t1
+      if t1_name =~ /_t1/i
+        all_access = SingleFile.find_all_accessible_by_user(user) # a relation
+        t2_id = all_access.where(:name => t1_name.sub("_t1","_t2")).limit(1).raw_first_column(:id)[0]
+        pd_id = all_access.where(:name => t1_name.sub("_t1","_pd")).limit(1).raw_first_column(:id)[0]
+        mk_id = all_access.where(:name => t1_name.sub("_t1","_mask")).limit(1).raw_first_column(:id)[0]
+      end
 
       if t1_name.match(/(\w+)_(\w+)_t1\b/i)
         prefix = Regexp.last_match[1]
@@ -574,22 +582,6 @@ class CbrainTask::Civet < PortalTask
   end
 
   private
-
-  def find_t2_pd_mask(t1_name,userfileindex) #:nodoc:
-      if ! t1_name.match(/_t1\b/)
-          return [nil,nil,nil]
-      end
-      t2 = userfileindex[t1_name.sub(/_t1/,"_t2")]
-      t2_id = t2 ? t2.id : nil
-
-      pd = userfileindex[t1_name.sub(/_t1/,"_pd")]
-      pd_id = pd ? pd.id : nil
-
-      mk = userfileindex[t1_name.sub(/_t1/,"_mask")]
-      mk_id = mk ? mk.id : nil
-
-      [t2_id,pd_id,mk_id]
-  end
 
   def extract_t2_pd_mask(t1,minclist)  #:nodoc:
     t2_name = nil
