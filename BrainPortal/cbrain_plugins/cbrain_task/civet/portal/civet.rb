@@ -25,6 +25,8 @@ class CbrainTask::Civet < PortalTask
 
   Revision_info=CbrainFileRevision[__FILE__] #:nodoc:
 
+  InterfaceUserfileIDsLimit = 200
+  
   StagesNames = %w(
     nuc_t1_native
     skull_masking_native
@@ -126,8 +128,7 @@ class CbrainTask::Civet < PortalTask
     end
 
     # The params serialization is limited to 65000 bytes, so we need to set a limit of selected file.
-    limit = 200
-    cb_error "Error: Too many files selected, this task can only handle #{200} T1 files at a time." if userfiles.size > limit
+    cb_error "Error: Too many files selected, this task can only handle #{InterfaceUserfileIDsLimit} T1 files at a time." if userfiles.size > InterfaceUserfileIDsLimit
     
     # MODE A, we have a single FileCollection in argument
     if userfiles.size == 1 && userfiles[0].is_a?(FileCollection)
