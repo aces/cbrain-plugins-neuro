@@ -59,6 +59,10 @@ class CbrainTask::Mnc2nii < PortalTask
       task = self.dup # not .clone, as of Rails 3.1.10
       task.params[:mincfile_id]            = id
       task.params[:interface_userfile_ids] = [ id ]
+      desc = (task.description.presence || "").strip
+      desc += "\n\n" if desc.present?
+      desc += Userfile.find(id).name
+      task.description = desc
       task_list << task
     end
     task_list
