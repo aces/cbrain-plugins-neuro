@@ -18,7 +18,7 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.  
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 -%>
 
@@ -112,8 +112,14 @@
 
   <br>
 
-  <%= form.params_label     :resample_surfaces, "Resample surfaces:", :title => "Resample cortical surfaces to obtain elemental vertex areas and volumes" %>
-  <%= form.params_check_box :resample_surfaces %>
+  <%= form.params_label      :resample_surfaces, "Resample surfaces:", :title => "Resample cortical surfaces to obtain elemental vertex areas and volumes" %>
+  <%= form.params_check_box  :resample_surfaces %>
+  <%= form.params_label      :resample_surfaces_kernel_areas, "and kernel size areas:", :title => "FWHM for resampled surface areas" %>
+  <%= form.params_text_field :resample_surfaces_kernel_areas, :size => 4 %>
+  <%= form.params_label      :resample_surfaces_kernel_volumes, "and kernel size volumes:", :title => "FWHM for resampled surface volumes" %>
+  <%= form.params_text_field :resample_surfaces_kernel_volumes, :size => 4 %>
+  <span class="field_explanation" style="max-width: 80em">(Note: kernel size areas and volumes are only for CIVET 1.1.11 or later; leave blank otherwise)</span>
+
 
   <br>
 
@@ -169,7 +175,7 @@
     <th title="Use T1, T2 and PD native files for tissue classification">Use multispectral?</th>
     <th>Use mask?</th>
   </tr>
-  <% 
+  <%
     keys = params[:file_args].keys
     keys = keys.sort_by{ |k| params[:file_args][k][:t1_name] || ""}
    %>

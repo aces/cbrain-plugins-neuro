@@ -17,7 +17,7 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.  
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
 # A subclass of PortalTask to launch civet.
@@ -26,7 +26,7 @@ class CbrainTask::Civet < PortalTask
   Revision_info=CbrainFileRevision[__FILE__] #:nodoc:
 
   InterfaceUserfileIDsLimit = 200
-  
+
   StagesNames = %w(
     nuc_t1_native
     skull_masking_native
@@ -94,7 +94,7 @@ class CbrainTask::Civet < PortalTask
 
       :template            => "1.00",      # -template
       :model               => "icbm152nl", # -model
-        
+
       :interp              => "trilinear", # -interp
       :N3_distance         => "0",         # -N3-distance
       :lsq                 => "9",         # -lsq6, -lsq9, -lsq12
@@ -129,7 +129,7 @@ class CbrainTask::Civet < PortalTask
 
     # The params serialization is limited to 65000 bytes, so we need to set a limit of selected file.
     cb_error "Error: Too many files selected, this task can only handle #{InterfaceUserfileIDsLimit} T1 files at a time." if userfiles.size > InterfaceUserfileIDsLimit
-    
+
     # MODE A, we have a single FileCollection in argument
     if userfiles.size == 1 && userfiles[0].is_a?(FileCollection)
       collection = userfiles[0]
@@ -144,7 +144,7 @@ class CbrainTask::Civet < PortalTask
       cb_error "Error: CIVET can only be launched on one FileCollection\n" +
                "or a set of T1 Minc files\n"
     end
-    
+
     file_args = old_get_default_args_for_t1list(userfiles)
     params[:collection_id] = nil
     params[:file_args]     = file_args
@@ -168,6 +168,20 @@ class CbrainTask::Civet < PortalTask
     if params[:N3_distance].blank? || params[:N3_distance].to_i < 1
       params_errors.add(:N3_distance, " value is bad. Suggested values are 200 for a 1.5T scanner, 100 to 125 for a 3T scanner.")
     end
+
+    # Verify thickness value
+    params_errors.add(:thickness_kernel,  " must be an integer") if params[:thickness_kernel].present?  && params[:thickness_kernel] !~ /^\d+$/
+
+    # Verify resample surfaces
+    params_errors.add(:resample_surfaces_kernel_areas,  " must be an integer") if
+      params[:resample_surfaces_kernel_areas].present?    && params[:resample_surfaces_kernel_areas]   !~ /^\d+$/
+    params_errors.add(:resample_surfaces_kernel_volumes,  " must be an integer") if
+      params[:resample_surfaces_kernel_volumes].present?  && params[:resample_surfaces_kernel_volumes] !~ /^\d+$/
+    if (params[:resample_surfaces_kernel_areas].present? || params[:resample_surfaces_kernel_volumes].present?) && params[:resample_surfaces]
+      params_errors.add(:resample_surfaces, " need to be checked if you want use '-area-fwhm' and '-volumes-fwhm option.")
+    end
+
+
 
     # Verify uniqueness of subject IDs
     dsid_counts = {}
@@ -375,7 +389,7 @@ class CbrainTask::Civet < PortalTask
       next if minc.match(/_(t2|pd|mask)\b/i)  # ignore spurious t2s, pds, and masks
       minc_groups << [ minc, nil, nil, nil ]
     end
-   
+
     # OK, build a arg structure for each minc group
     file_args_array = []
     minc_groups.each do |group|
@@ -405,7 +419,7 @@ class CbrainTask::Civet < PortalTask
 
         :prefix              => prefix,      # -prefix
         :dsid                => dsid,        #
-        
+
         :multispectral       => false,       # -multispectral for true
         :spectral_mask       => false,       # -spectral-mask for true
       }
@@ -460,7 +474,7 @@ class CbrainTask::Civet < PortalTask
 
         :prefix              => prefix,      # -prefix
         :dsid                => dsid,        #
-        
+
         :multispectral       => false,       # -multispectral for true
         :spectral_mask       => false,       # -spectral-mask for true
       }
@@ -514,11 +528,11 @@ class CbrainTask::Civet < PortalTask
 
     return civ
   end
-  
+
   def create_combiner(study_name,tids) #:nodoc:
 
     params = self.params
-    
+
     combiner = CbrainTask::CivetCombiner.new
     combiner.user_id          = self.user_id
     combiner.bourreau_id      = self.bourreau_id
@@ -591,13 +605,13 @@ class CbrainTask::Civet < PortalTask
 
     expect = t1.sub("_t1","_t2")
     t2_name = expect if minclist.include?(expect)
-      
+
     expect = t1.sub("_t1","_pd")
     pd_name = expect if minclist.include?(expect)
-      
+
     expect = t1.sub("_t1","_mask")
     mk_name = expect if minclist.include?(expect)
-      
+
     minclist = minclist - [ t2_name, pd_name, mk_name ]
 
     [ t2_name, pd_name, mk_name, minclist ]

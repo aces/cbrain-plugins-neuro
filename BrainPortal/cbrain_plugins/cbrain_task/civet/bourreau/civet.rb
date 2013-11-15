@@ -17,7 +17,7 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.  
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
 # This class runs the CIVET pipeline on one or several
@@ -183,7 +183,7 @@ class CbrainTask::Civet < ClusterTask
   def job_walltime_estimate #:nodoc:
     if self.tool_config.description.to_s =~ /\b1\.1\.12\b/
       15.hours # 1.1.12 seems to take about 12
-    else  
+    else
       7.hours # 4.5 normally
     end
   end
@@ -335,6 +335,14 @@ class CbrainTask::Civet < ClusterTask
     if params[:lsq].present?
       raise "Bad LSQ value."         unless params[:lsq]           =~ /^\s*(?:6|9|12)\s*$/
     end
+    if params[:resample_surfaces_kernel_areas].present?
+      raise "Bad area-FWHM value for resampled surface areas."  unless
+                         params[:resample_surfaces_kernel_areas]   =~ /^\s*\d+\s*$/
+    end
+    if params[:resample_surfaces_kernel_volumes].present?
+      raise "Bad volume-FWHM value for resampled surface volumes."  unless
+                         params[:resample_surfaces_kernel_volumes] =~ /^\s*\d+\s*$/
+    end
 
     args = ""
 
@@ -349,7 +357,6 @@ class CbrainTask::Civet < ClusterTask
     args += "-lsq#{params[:lsq]} "                  if params[:lsq] && params[:lsq].to_i != 9 # there is NO -lsq9 option!
     args += "-no-surfaces "                         if mybool(params[:no_surfaces])
     args += "-correct-pve "                         if mybool(params[:correct_pve])
-    args += "-resample-surfaces "                   if mybool(params[:resample_surfaces])
     args += "-combine-surfaces "                    if mybool(params[:combine_surfaces])
 
     args += "-multispectral "                       if mybool(file0[:multispectral])
@@ -357,6 +364,12 @@ class CbrainTask::Civet < ClusterTask
 
     if ! params[:thickness_method].blank? && ! params[:thickness_kernel].blank?
         args += "-thickness #{params[:thickness_method].bash_escape} #{params[:thickness_kernel].bash_escape} "
+    end
+
+    if mybool(params[:resample_surfaces])
+      args += "-resample-surfaces "
+      args += "-area-fwhm #{params[:resample_surfaces_kernel_areas].bash_escape} "     if params[:resample_surfaces_kernel_areas].present?
+      args += "-volume-fwhm #{params[:resample_surfaces_kernel_volumes].bash_escape} " if params[:resample_surfaces_kernel_volumes].present?
     end
 
     if mybool(params[:VBM])
