@@ -23,7 +23,7 @@
 -%>
 
 <%
-  default_models = [ "icbm152lin", "icbm152nl" ]
+  default_models = [ "icbm152lin", "icbm152nl", "icbm152nl_09s", "icbm152nl_09a", "ADNInl" ]
 
   # TODO Future Work
   # Add model names that are provided by the currently selected tool config (in env list)
@@ -50,6 +50,7 @@
 
   <%= form.params_label  :model, "Model:", :title => "Define the model for image-processing" %>
   <%= form.params_select :model, default_models %>
+  <span class="field_explanation" style="max-width: 80em">(Note: models ADNInl available only for CIVET 1.1.12 or later)</span>
   <!-- TODO future work
   <span class="field_explanation" style="max-width: 80em">(Note: If you changed the <em>Server &amp; Version</em> above, click < % = submit_tag 'Refresh' %> to get an updated list of available models)</span>
   -->
