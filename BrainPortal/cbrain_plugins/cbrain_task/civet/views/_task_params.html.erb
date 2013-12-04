@@ -22,21 +22,7 @@
 #
 -%>
 
-<%
-  default_models = [ "icbm152lin", "icbm152nl", "icbm152nl_09s", "icbm152nl_09a", "ADNInl" ]
 
-  # TODO Future Work
-  # Add model names that are provided by the currently selected tool config (in env list)
-  #envlist = @task.tool_config.try(:env_array) || []
-  #envlist = envlist.each do |pair|
-  #  envname, envvalue = pair[0],pair[1]
-  #  next unless envname  =~ /^CBRAIN_CIVET_PATH_MODEL_\w+$/   # CBRAIN_CIVET_PATH_MODEL_1 or _2 or _3 or _a or _b etc etc
-  #  next unless envvalue =~ /^(\w[\w\.\-]+):(.+)$/   #   modelname:/install/path
-  #  model = Regexp.last_match[1]
-  #  path  = Regexp.last_match[2]  # not used here
-  #  default_models.push(model)
-  #end
-%>
 
 <%= form.params_hidden_field :collection_id %> <!-- can be nil -->
 
@@ -48,20 +34,18 @@
 
   <br/>
 
+<%
+  default_models = [ "icbm152lin", "icbm152nl", "icbm152nl_09s", "icbm152nl_09a" ]
+  default_models << "ADNInl" if @tool_config.is_at_least_version("1.1.12")
+%>
+
   <%= form.params_label  :model, "Model:", :title => "Define the model for image-processing" %>
   <%= form.params_select :model, default_models %>
-  <span class="field_explanation" style="max-width: 80em">(Note: models ADNInl available only for CIVET 1.1.12 or later)</span>
-  <!-- TODO future work
-  <span class="field_explanation" style="max-width: 80em">(Note: If you changed the <em>Server &amp; Version</em> above, click < % = submit_tag 'Refresh' %> to get an updated list of available models)</span>
-  -->
 
   <% if ! @task.new_record? %>
-
     <br/>
-
     <%= form.params_label  :reset_from, "Restart from this stage:", :title => "Stage to restart from" %>
     <%= form.params_select :reset_from, [ "" ] + CbrainTask::Civet::StagesNames %>
-
   <% end %>
 
 </fieldset>
@@ -81,11 +65,11 @@
 
   <br>
 
-  <%= form.params_label      :headheight, "Head height:", :title => "Head height in mm (suggested values: 175 for adults; 165-170 for children)" %>
-  <%= form.params_text_field :headheight, :size => 4 %>
-  <span class="field_explanation" style="max-width: 80em">(Note: only for CIVET 1.1.12 or later; leave blank otherwise)</span>
-
-  <br>
+  <% if @tool_config.is_at_least_version("1.1.12") %>
+    <%= form.params_label      :headheight, "Head height:", :title => "Head height in mm (suggested values: 175 for adults; 165-170 for children)" %>
+    <%= form.params_text_field :headheight, :size => 4 %>
+    <br>
+  <% end %>
 
   <%= form.params_label  :lsq, "Degrees of freedom for linear registration:", :title => "Degrees of freedom for linear registration to stereotaxic space" %>
   <%= form.params_select :lsq, [ "6", "9", "12" ] %>
@@ -115,12 +99,13 @@
 
   <%= form.params_label      :resample_surfaces, "Resample surfaces:", :title => "Resample cortical surfaces to obtain elemental vertex areas and volumes" %>
   <%= form.params_check_box  :resample_surfaces %>
-  <%= form.params_label      :resample_surfaces_kernel_areas, "and kernel size areas:", :title => "FWHM for resampled surface areas" %>
-  <%= form.params_text_field :resample_surfaces_kernel_areas, :size => 4 %>
-  <%= form.params_label      :resample_surfaces_kernel_volumes, "and kernel size volumes:", :title => "FWHM for resampled surface volumes" %>
-  <%= form.params_text_field :resample_surfaces_kernel_volumes, :size => 4 %>
-  <span class="field_explanation" style="max-width: 80em">(Note: kernel size areas and volumes are only for CIVET 1.1.11 or later; leave blank otherwise)</span>
 
+  <% if @tool_config.is_at_least_version("1.1.11") %>
+    <%= form.params_label      :resample_surfaces_kernel_areas, "and kernel size areas:", :title => "FWHM for resampled surface areas" %>
+    <%= form.params_text_field :resample_surfaces_kernel_areas, :size => 4 %>
+    <%= form.params_label      :resample_surfaces_kernel_volumes, "and kernel size volumes:", :title => "FWHM for resampled surface volumes" %>
+    <%= form.params_text_field :resample_surfaces_kernel_volumes, :size => 4 %>
+  <% end %>
 
   <br>
 
