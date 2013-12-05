@@ -35,8 +35,13 @@
   <br/>
 
 <%
-  default_models = [ "icbm152lin", "icbm152nl", "icbm152nl_09s", "icbm152nl_09a" ]
-  default_models << "ADNInl" if @tool_config.is_at_least_version("1.1.12")
+  not_at_least_1_1_11 = !@tool_config || !@tool_config.is_at_least_version("1.1.11")
+  not_at_least_1_1_12 = !@tool_config || !@tool_config.is_at_least_version("1.1.12")
+
+  default_models  = [ "icbm152lin", "icbm152nl", "icbm152nl_09s", "icbm152nl_09a" ]
+  adninl_disabled = not_at_least_1_1_12 ? { :disabled => '1' } : {}
+  params[:model]  = nil if adninl_disabled.present? && params[:model] == 'ADNInl'
+  default_models << [ "ADNInl", "ADNInl", adninl_disabled ]
 %>
 
   <%= form.params_label  :model, "Model:", :title => "Define the model for image-processing" %>
@@ -65,11 +70,11 @@
 
   <br>
 
-  <% if @tool_config.is_at_least_version("1.1.12") %>
-    <%= form.params_label      :headheight, "Head height:", :title => "Head height in mm (suggested values: 175 for adults; 165-170 for children)" %>
-    <%= form.params_text_field :headheight, :size => 4 %>
-    <br>
-  <% end %>
+  <%= form.params_label      :headheight, "Head height:", :title => "Head height in mm (suggested values: 175 for adults; 165-170 for children)" %>
+  <%= form.params_text_field :headheight, :size => 4, :disabled => not_at_least_1_1_12 %>
+  <span class="field_explanation" style="max-width: 80em">(CIVET 1.1.12 or later; ignored otherwise)</span>
+
+  <br>
 
   <%= form.params_label  :lsq, "Degrees of freedom for linear registration:", :title => "Degrees of freedom for linear registration to stereotaxic space" %>
   <%= form.params_select :lsq, [ "6", "9", "12" ] %>
@@ -100,12 +105,12 @@
   <%= form.params_label      :resample_surfaces, "Resample surfaces:", :title => "Resample cortical surfaces to obtain elemental vertex areas and volumes" %>
   <%= form.params_check_box  :resample_surfaces %>
 
-  <% if @tool_config.is_at_least_version("1.1.11") %>
-    <%= form.params_label      :resample_surfaces_kernel_areas, "and kernel size areas:", :title => "FWHM for resampled surface areas" %>
-    <%= form.params_text_field :resample_surfaces_kernel_areas, :size => 4 %>
-    <%= form.params_label      :resample_surfaces_kernel_volumes, "and kernel size volumes:", :title => "FWHM for resampled surface volumes" %>
-    <%= form.params_text_field :resample_surfaces_kernel_volumes, :size => 4 %>
-  <% end %>
+
+  <%= form.params_label      :resample_surfaces_kernel_areas, "and kernel size areas:", :title => "FWHM for resampled surface areas" %>
+  <%= form.params_text_field :resample_surfaces_kernel_areas, :size => 4,   :disabled => not_at_least_1_1_11 %>
+  <%= form.params_label      :resample_surfaces_kernel_volumes, "and kernel size volumes:", :title => "FWHM for resampled surface volumes" %>
+  <%= form.params_text_field :resample_surfaces_kernel_volumes, :size => 4, :disabled => not_at_least_1_1_11 %>
+  <span class="field_explanation" style="max-width: 80em">(CIVET 1.1.11 or later; ignored otherwise)</span>
 
   <br>
 
