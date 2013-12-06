@@ -177,7 +177,7 @@ class CbrainTask::Civet < PortalTask
       params[:resample_surfaces_kernel_areas].present?    && params[:resample_surfaces_kernel_areas]   !~ /^\d+$/
     params_errors.add(:resample_surfaces_kernel_volumes,  " must be an integer") if
       params[:resample_surfaces_kernel_volumes].present?  && params[:resample_surfaces_kernel_volumes] !~ /^\d+$/
-    if (params[:resample_surfaces_kernel_areas].present? || params[:resample_surfaces_kernel_volumes].present?) && params[:resample_surfaces]
+    if (params[:resample_surfaces_kernel_areas].present? || params[:resample_surfaces_kernel_volumes].present?) && params[:resample_surfaces].blank?
       params_errors.add(:resample_surfaces, " need to be checked if you want use '-area-fwhm' and '-volumes-fwhm option.")
     end
 
