@@ -65,7 +65,7 @@
 
   <br>
 
-  <%= form.params_label      :N3_distance, "N3 distance:", :title => "N3 spline distance in mm (suggested values: 200 for 1.5T scan; 125 or 100 for 3T scan)" %>
+  <%= form.params_label      :N3_distance, "N3 distance:", :title => "N3 spline distance in mm (suggested values: 200 for 1.5T scan; 125 or 100 for 3T scan; 0 for MP2RAGE scan in later version than 1.1.12)" %>
   <%= form.params_text_field :N3_distance, :size => 4 %>
 
   <br>
@@ -97,7 +97,8 @@
      end
   %>
   <%= form.params_select     :thickness_method, tmethods %>
-  <%= form.params_label      :thickness_kernel, "and kernel size:", :title => "FWHM for surface blurring" %>
+  <%= form.params_label      :thickness_kernel, "and kernel size:",
+                             :title => "FWHM for surface blurring,\n default: 30 for version 1.1.11 and lower,\n default: 20 for version 1.1.12 and later" %>
   <%= form.params_text_field :thickness_kernel, :size => 4 %>
 
   <br>
