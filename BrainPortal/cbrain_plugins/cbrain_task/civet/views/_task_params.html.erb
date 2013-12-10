@@ -60,7 +60,7 @@
 <fieldset>
 <legend>CIVET options</legend>
 
-  <%= form.params_label  :interp, "Interpolation", :title => "Volume interpolation method from native to stereotaxic space (trilinear, tricubic, sinc) default trilinear" %>
+  <%= form.params_label  :interp, "Interpolation:", :title => "Volume interpolation method from native to stereotaxic space (trilinear, tricubic, sinc) default trilinear" %>
   <%= form.params_select :interp, [ "trilinear", "tricubic", "sinc" ] %>
 
   <br>
@@ -107,7 +107,7 @@
   <%= form.params_check_box  :resample_surfaces %>
 
 
-  <%= form.params_label      :resample_surfaces_kernel_areas, "and kernel size areas:", :title => "FWHM for resampled surface areas" %>
+  <%= form.params_label      :resample_surfaces_kernel_areas, "with kernel size areas:", :title => "FWHM for resampled surface areas" %>
   <%= form.params_text_field :resample_surfaces_kernel_areas, :size => 4,   :disabled => not_at_least_1_1_11 %>
   <%= form.params_label      :resample_surfaces_kernel_volumes, "and kernel size volumes:", :title => "FWHM for resampled surface volumes" %>
   <%= form.params_text_field :resample_surfaces_kernel_volumes, :size => 4, :disabled => not_at_least_1_1_11 %>
