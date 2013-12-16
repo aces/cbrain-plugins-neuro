@@ -18,16 +18,16 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.  
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 -%>
 
-<% 
+<%
   nb_input              = params[:interface_userfile_ids].size
   nb_singlefile         = @task.count_singlefiles_in_input_list
   only_singlefile       = nb_input == nb_singlefile             ? true : false
-  only_collection       = nb_input - nb_singlefile == nb_input  ? true : false 
-  with_multi_singlefile = nb_input > 1 && only_singlefile       ? true : false 
+  only_collection       = nb_input - nb_singlefile == nb_input  ? true : false
+  with_multi_singlefile = nb_input > 1 && only_singlefile       ? true : false
 %>
 
 Input volumes selected:<br/>
@@ -43,14 +43,14 @@ Input volumes selected:<br/>
 
 <!-- Single or Multiple -->
 <% if nb_input > 1 && only_singlefile && @task.new_record? %>
-  Run this set as multiple subjects? 
+  Run this set as multiple subjects?
   <%= form.params_select    :multiple_subjects, [ '', 'Single', 'Multiple' ] %><br/>
   <small class="medium_paragraph">
     You need to choose between :<br/>
     - Single: All the input volumes are considered as acquisitions of a single subject,
     which will launch a single recon-all task.<br/>
     - Multiple: All the input volumes are considered as independants acquisitions for many subjects,
-    which will launch one recon-all for each input file.<br/> 
+    which will launch one recon-all for each input file.<br/>
   </small>
 <% end %>
 <p>
@@ -71,7 +71,7 @@ Workflow directives:<br/>
 %>
 <%= select_tag :workflow_directives.to_la, options_for_select( options,  params[:workflow_directives] || "-all" ) %><br/>
 <small class="medium_paragraph">
-  The same workflow directives will be used for all yours subjects.  
+  The same workflow directives will be used for all yours subjects.
 </small>
 <p>
 
@@ -90,26 +90,10 @@ Workflow directives:<br/>
 <%= form.params_check_box :with_qcache %><%= form.params_label :with_qcache, "Run with qcache." %><br/>
 <%= form.params_check_box :with_mprage %><%= form.params_label :with_mprage, "Run with mprage." %><br/>
 
-<fieldset>
-<legend>Options for recon-all-LBL only</legend>
-
-  <small class="medium_paragraph">
-      These options apply only to the special variation of recon_all
-      that support the arguments:<br>
-
-      &nbsp;&nbsp;<em>-nuintensitycor-3T -N3-3T [number] -nuiterations-3T [number]</em><br>
-
-      Please leave these fields empty otherwise. If you do supply values here
-      and your version of recon-all does not support these arguments, it will
-      not run at all.
-  </small>
-
-<p>
-
-<%= form.params_label :n3_3t,  "Value for \"-N3-3T\" : " %><br>
-<%= form.params_text_field :n3_3t, :size => 4 %><br>
-<%= form.params_label :nui_3t, "Value for \"-nuiterations-3T\" : " %><br>
-<%= form.params_text_field :nui_3t, :size => 4 %><br>
-
-</fieldset>
-
+<% if @tool_config.version_name =~ /LBL/%>
+  <br/>
+  <%= form.params_label :n3_3t,  "Value for \"-N3-3T\" : " %>
+  <%= form.params_text_field :n3_3t, :size => 4 %><br>
+  <%= form.params_label :nui_3t, "Value for \"-nuiterations-3T\" : " %>
+  <%= form.params_text_field :nui_3t, :size => 4 %><br>
+<% end %>

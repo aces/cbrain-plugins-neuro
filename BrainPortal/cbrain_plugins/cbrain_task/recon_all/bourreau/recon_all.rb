@@ -17,7 +17,7 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.  
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
 # A subclass of ClusterTask to run Recon-all of FreeSurfer.
@@ -32,9 +32,9 @@ class CbrainTask::ReconAll < ClusterTask
 
   def setup #:nodoc:
     file_ids  = params[:interface_userfile_ids] || []
-    
+
     files = Userfile.find_all_by_id(file_ids)
-    files.each do |file|            
+    files.each do |file|
       self.addlog("Preparing input file '#{file.name}'")
       file.sync_to_cache
       if file.is_a?(MincFile)
@@ -46,7 +46,7 @@ class CbrainTask::ReconAll < ClusterTask
       cache_path = file.cache_full_path
       self.safe_symlink(cache_path, file.name)
     end
-    
+
     true
   end
 
@@ -57,7 +57,7 @@ class CbrainTask::ReconAll < ClusterTask
   def cluster_commands #:nodoc:
     params       = self.params
     to_recover   = params.delete(:to_recover)
-    
+
     # Command creation
     if !to_recover  # NORMAL EXECUTION MODE
 
@@ -82,7 +82,7 @@ class CbrainTask::ReconAll < ClusterTask
       end
       # For SingleFile or FileCollection
       subjid_info       += " -subjid #{subjectid}"
-      
+
       step               = params[:workflow_directives]
       message            = "Starting Recon-all cross-sectional"
     else # RECOVER FROM FAILURE MODE
@@ -96,15 +96,17 @@ class CbrainTask::ReconAll < ClusterTask
 
     # Special options for recon-all-LBL
     #     -nuintensitycor-3T -N3-3T [number] -nuiterations-3T [number]
-    lbl_ext     = ""
-    lbl_options = ""
-    n3_3t  = (params[:n3_3t]  || "").strip
-    nui_3t = (params[:nui_3t] || "").strip
-    if n3_3t.present? && nui_3t.present? && n3_3t =~ /^\d+$/ && nui_3t =~ /^\d+$/
-       lbl_ext     = "-LBL"
-       lbl_options = "-nuintensitycor-3T -N3-3T #{n3_3t} -nuiterations-3T #{nui_3t}"
+    if self.tool_config.version_name =~ /LBL/
+      lbl_ext     = ""
+      lbl_options = ""
+      n3_3t  = (params[:n3_3t]  || "").strip
+      nui_3t = (params[:nui_3t] || "").strip
+      if n3_3t.present? && nui_3t.present? && n3_3t =~ /^\d+$/ && nui_3t =~ /^\d+$/
+         lbl_ext     = "-LBL"
+         lbl_options = "-nuintensitycor-3T -N3-3T #{n3_3t} -nuiterations-3T #{nui_3t}"
+      end
     end
- 
+
     recon_all_command = "recon-all#{lbl_ext} #{with_qcache} #{with_mprage} -sd . #{subjid_info} #{step} #{lbl_options}"
 
     [
@@ -112,7 +114,7 @@ class CbrainTask::ReconAll < ClusterTask
       "echo Command: #{recon_all_command}",
       recon_all_command
     ]
-    
+
   end
 
   def save_results #:nodoc:
@@ -121,7 +123,7 @@ class CbrainTask::ReconAll < ClusterTask
     subjectid    = params[:subjectid]
     output_name  = params[:output_name]
 
-    # Define dp 
+    # Define dp
     file_ids = params[:interface_userfile_ids] || []
     files = Userfile.find_all_by_id(file_ids)
     self.results_data_provider_id ||= files[0].data_provider_id
@@ -129,7 +131,7 @@ class CbrainTask::ReconAll < ClusterTask
     # Check for error
     list_of_error_dir = []
     log_file          = "#{subjectid}/scripts/recon-all.log"
-    if !log_file_contains(log_file, /recon-all .+ finished without error at/) 
+    if !log_file_contains(log_file, /recon-all .+ finished without error at/)
       self.addlog("Recon-all exited with errors. See Standard Output.")
       return false
     end
@@ -151,13 +153,13 @@ class CbrainTask::ReconAll < ClusterTask
 
     true
   end
- 
+
   # Error-recovery and restarting methods described
   def recover_from_cluster_failure #:nodoc:
     params       = self.params
 
     remove_is_running_file()
-    
+
     true
   end
 
@@ -179,5 +181,5 @@ class CbrainTask::ReconAll < ClusterTask
       FileUtils.rm_rf(file)
     end
   end
-  
+
 end
