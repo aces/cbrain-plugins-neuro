@@ -322,6 +322,7 @@ class CbrainTask::Civet < ClusterTask
     end
     if params[:model].present?
       raise "Bad model name."         unless params[:model]        =~ /^\s*[\w\.]+\s*$/
+      raise "Model is not valid for this CIVET version" if params[:model] == "ADNInl" && !self.tool_config.is_at_least_version("1.1.12")
     end
     if params[:interp].present?
       raise "Bad interp value."       unless params[:interp]       =~ /^\s*[\w]+\s*$/
@@ -353,7 +354,7 @@ class CbrainTask::Civet < ClusterTask
     args += "-model #{params[:model]} "             if params[:model].present?
     args += "-interp #{params[:interp]} "           if params[:interp].present?
     args += "-N3-distance #{params[:N3_distance]} " if params[:N3_distance].present?
-    args += "-headheight #{params[:headheight]} "   if params[:headheight].present?
+    args += "-headheight #{params[:headheight]} "   if params[:headheight].present? && self.tool_config.is_at_least_version("1.1.12")
     args += "-lsq#{params[:lsq]} "                  if params[:lsq] && params[:lsq].to_i != 9 # there is NO -lsq9 option!
     args += "-no-surfaces "                         if mybool(params[:no_surfaces])
     args += "-correct-pve "                         if mybool(params[:correct_pve])
@@ -368,8 +369,10 @@ class CbrainTask::Civet < ClusterTask
 
     if mybool(params[:resample_surfaces])
       args += "-resample-surfaces "
-      args += "-area-fwhm #{params[:resample_surfaces_kernel_areas].bash_escape} "     if params[:resample_surfaces_kernel_areas].present?
-      args += "-volume-fwhm #{params[:resample_surfaces_kernel_volumes].bash_escape} " if params[:resample_surfaces_kernel_volumes].present?
+      if self.tool_config.is_at_least_version("1.1.11")
+        args += "-area-fwhm #{params[:resample_surfaces_kernel_areas].bash_escape} "     if params[:resample_surfaces_kernel_areas].present?
+        args += "-volume-fwhm #{params[:resample_surfaces_kernel_volumes].bash_escape} " if params[:resample_surfaces_kernel_volumes].present?
+      end
     end
 
     if mybool(params[:VBM])

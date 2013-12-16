@@ -22,21 +22,7 @@
 #
 -%>
 
-<%
-  default_models = [ "icbm152lin", "icbm152nl", "icbm152nl_09s", "icbm152nl_09a", "ADNInl" ]
 
-  # TODO Future Work
-  # Add model names that are provided by the currently selected tool config (in env list)
-  #envlist = @task.tool_config.try(:env_array) || []
-  #envlist = envlist.each do |pair|
-  #  envname, envvalue = pair[0],pair[1]
-  #  next unless envname  =~ /^CBRAIN_CIVET_PATH_MODEL_\w+$/   # CBRAIN_CIVET_PATH_MODEL_1 or _2 or _3 or _a or _b etc etc
-  #  next unless envvalue =~ /^(\w[\w\.\-]+):(.+)$/   #   modelname:/install/path
-  #  model = Regexp.last_match[1]
-  #  path  = Regexp.last_match[2]  # not used here
-  #  default_models.push(model)
-  #end
-%>
 
 <%= form.params_hidden_field :collection_id %> <!-- can be nil -->
 
@@ -48,20 +34,23 @@
 
   <br/>
 
+<%
+  not_at_least_1_1_11 = !@tool_config || !@tool_config.is_at_least_version("1.1.11")
+  not_at_least_1_1_12 = !@tool_config || !@tool_config.is_at_least_version("1.1.12")
+
+  default_models  = [ "icbm152lin", "icbm152nl", "icbm152nl_09s", "icbm152nl_09a" ]
+  adninl_disabled = not_at_least_1_1_12 ? { :disabled => '1' } : {}
+  params[:model]  = nil if adninl_disabled.present? && params[:model] == 'ADNInl'
+  default_models << [ "ADNInl", "ADNInl", adninl_disabled ]
+%>
+
   <%= form.params_label  :model, "Model:", :title => "Define the model for image-processing" %>
   <%= form.params_select :model, default_models %>
-  <span class="field_explanation" style="max-width: 80em">(Note: models ADNInl available only for CIVET 1.1.12 or later)</span>
-  <!-- TODO future work
-  <span class="field_explanation" style="max-width: 80em">(Note: If you changed the <em>Server &amp; Version</em> above, click < % = submit_tag 'Refresh' %> to get an updated list of available models)</span>
-  -->
 
   <% if ! @task.new_record? %>
-
     <br/>
-
     <%= form.params_label  :reset_from, "Restart from this stage:", :title => "Stage to restart from" %>
     <%= form.params_select :reset_from, [ "" ] + CbrainTask::Civet::StagesNames %>
-
   <% end %>
 
 </fieldset>
@@ -71,19 +60,19 @@
 <fieldset>
 <legend>CIVET options</legend>
 
-  <%= form.params_label  :interp, "Interpolation", :title => "Volume interpolation method from native to stereotaxic space (trilinear, tricubic, sinc) default trilinear" %>
+  <%= form.params_label  :interp, "Interpolation:", :title => "Volume interpolation method from native to stereotaxic space (trilinear, tricubic, sinc) default trilinear" %>
   <%= form.params_select :interp, [ "trilinear", "tricubic", "sinc" ] %>
 
   <br>
 
-  <%= form.params_label      :N3_distance, "N3 distance:", :title => "N3 spline distance in mm (suggested values: 200 for 1.5T scan; 125 or 100 for 3T scan)" %>
+  <%= form.params_label      :N3_distance, "N3 distance:", :title => "N3 spline distance in mm (suggested values: 200 for 1.5T scan; 125 or 100 for 3T scan; 0 for MP2RAGE scan in later version than 1.1.12)" %>
   <%= form.params_text_field :N3_distance, :size => 4 %>
 
   <br>
 
   <%= form.params_label      :headheight, "Head height:", :title => "Head height in mm (suggested values: 175 for adults; 165-170 for children)" %>
-  <%= form.params_text_field :headheight, :size => 4 %>
-  <span class="field_explanation" style="max-width: 80em">(Note: only for CIVET 1.1.12 or later; leave blank otherwise)</span>
+  <%= form.params_text_field :headheight, :size => 4, :disabled => not_at_least_1_1_12 %>
+  <span class="field_explanation" style="max-width: 80em">(CIVET 1.1.12 or later; ignored otherwise)</span>
 
   <br>
 
@@ -108,19 +97,21 @@
      end
   %>
   <%= form.params_select     :thickness_method, tmethods %>
-  <%= form.params_label      :thickness_kernel, "and kernel size:", :title => "FWHM for surface blurring" %>
+  <%= form.params_label      :thickness_kernel, "and kernel size:",
+                             :title => "FWHM for surface blurring,\n default: 30 for version 1.1.11 and lower,\n default: 20 for version 1.1.12 and later" %>
   <%= form.params_text_field :thickness_kernel, :size => 4 %>
 
   <br>
 
   <%= form.params_label      :resample_surfaces, "Resample surfaces:", :title => "Resample cortical surfaces to obtain elemental vertex areas and volumes" %>
   <%= form.params_check_box  :resample_surfaces %>
-  <%= form.params_label      :resample_surfaces_kernel_areas, "and kernel size areas:", :title => "FWHM for resampled surface areas" %>
-  <%= form.params_text_field :resample_surfaces_kernel_areas, :size => 4 %>
-  <%= form.params_label      :resample_surfaces_kernel_volumes, "and kernel size volumes:", :title => "FWHM for resampled surface volumes" %>
-  <%= form.params_text_field :resample_surfaces_kernel_volumes, :size => 4 %>
-  <span class="field_explanation" style="max-width: 80em">(Note: kernel size areas and volumes are only for CIVET 1.1.11 or later; leave blank otherwise)</span>
 
+
+  <%= form.params_label      :resample_surfaces_kernel_areas, "with kernel size areas:", :title => "FWHM for resampled surface areas" %>
+  <%= form.params_text_field :resample_surfaces_kernel_areas, :size => 4,   :disabled => not_at_least_1_1_11 %>
+  <%= form.params_label      :resample_surfaces_kernel_volumes, "and kernel size volumes:", :title => "FWHM for resampled surface volumes" %>
+  <%= form.params_text_field :resample_surfaces_kernel_volumes, :size => 4, :disabled => not_at_least_1_1_11 %>
+  <span class="field_explanation" style="max-width: 80em">(CIVET 1.1.11 or later; ignored otherwise)</span>
 
   <br>
 
