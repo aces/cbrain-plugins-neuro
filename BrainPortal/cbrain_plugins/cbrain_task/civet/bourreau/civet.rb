@@ -372,6 +372,7 @@ class CbrainTask::Civet < ClusterTask
       if self.tool_config.is_at_least_version("1.1.11")
         args += "-area-fwhm #{params[:resample_surfaces_kernel_areas].bash_escape} "     if params[:resample_surfaces_kernel_areas].present?
         args += "-volume-fwhm #{params[:resample_surfaces_kernel_volumes].bash_escape} " if params[:resample_surfaces_kernel_volumes].present?
+        args += "-surface-atlas $MNI_CIVET_ROOT/models/AAL_atlas_left.txt $MNI_CIVET_ROOT/models/AAL_atlas_right.txt " if mybool(params[:atlas])
       end
     end
 

@@ -47,6 +47,12 @@
   <%= form.params_label  :model, "Model:", :title => "Define the model for image-processing" %>
   <%= form.params_select :model, default_models %>
 
+  </br>
+
+  <%= form.params_label     :atlas, "Surface parcellation:", :title => "Atlas for surface parcellation" %>
+  <%= form.params_check_box :atlas, :disabled => not_at_least_1_1_11 %>
+  <span class="field_explanation" style="max-width: 80em">(CIVET 1.1.11 or later; ignored otherwise)</span>
+
   <% if ! @task.new_record? %>
     <br/>
     <%= form.params_label  :reset_from, "Restart from this stage:", :title => "Stage to restart from" %>
