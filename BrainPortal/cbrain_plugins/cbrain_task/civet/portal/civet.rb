@@ -176,7 +176,11 @@ class CbrainTask::Civet < PortalTask
     params_errors.add(:headheight,  " must be an integer") if params[:headheight].present?  && params[:headheight] !~ /^\d+$/
 
     # Verify thickness value
-    params_errors.add(:thickness_kernel,  " must be an integer") if params[:thickness_kernel].blank? || params[:thickness_kernel] !~ /^\d+$/
+    if params[:thickness_kernel].blank?
+      params[:thickness_kernel] = self.tool_config.is_at_least_version("1.1.12") ? "30" : "20"
+    end
+
+    params_errors.add(:thickness_kernel,  " must be an integer") if params[:thickness_kernel].present? && params[:thickness_kernel] !~ /^\d+$/
 
     # Verify resample surfaces
     params_errors.add(:resample_surfaces_kernel_areas,  " must be an integer") if
