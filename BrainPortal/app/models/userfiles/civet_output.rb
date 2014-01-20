@@ -31,11 +31,20 @@ class CivetOutput < FileCollection
   Revision_info=CbrainFileRevision[__FILE__] #:nodoc:
 
   reset_viewers
-  has_viewer    :civet_output
-  has_viewer    :partial => "civet_output/obj_viewer_launcher", :name => "Surface Viewer",  :if  => Proc.new { |u| u.is_locally_synced? }
+
+  has_viewer    :civet_output  
+  has_viewer    :partial => "surface_viewer", :name => "Surface Viewer",  :if  => Proc.new { |u| u.is_locally_synced? }
   
   def qc_images  #:nodoc:
     self.list_files("verify").select { |f| f.name =~ /\.png$/ }
   end
+
+  def surface_dir
+    "surfaces"
+  end 
+
+  def thickness_dir
+    "thickness"
+  end 
 
 end

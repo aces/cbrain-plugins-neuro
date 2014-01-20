@@ -30,7 +30,7 @@
 <legend>Pipeline Options</legend>
 
   <%= form.params_label  :template, "Template:", :title => "Define the template for image processing" %>
-  <%= form.params_select :template, [ "0.50", "0.75", "1.00", "1.50", "2.00", "3.00", "4.00", "6.00" ] %>
+  <%= form.params_select :template, [ "0.50", "0.75", "1.00" ] %>
 
   <br/>
 
@@ -46,6 +46,12 @@
 
   <%= form.params_label  :model, "Model:", :title => "Define the model for image-processing" %>
   <%= form.params_select :model, default_models %>
+
+  </br>
+
+  <%= form.params_label     :atlas, "Surface parcellation:", :title => "Atlas for surface parcellation" %>
+  <%= form.params_check_box :atlas, :disabled => not_at_least_1_1_11 %>
+  <span class="field_explanation" style="max-width: 80em">(CIVET 1.1.11 or later; ignored otherwise)</span>
 
   <% if ! @task.new_record? %>
     <br/>
@@ -87,6 +93,7 @@
   <br>
 
   <%= form.params_label      :thickness_method,  "Thickness method:", :title => "Thickness method" %>
+
   <%
      tmethods =  [ "tlink", "tlaplace" ]
      if !@task.new_record? && ! @task.params[:thickness_method].blank?
@@ -100,6 +107,12 @@
   <%= form.params_label      :thickness_kernel, "and kernel size:",
                              :title => "FWHM for surface blurring,\n default: 30 for version 1.1.11 and lower,\n default: 20 for version 1.1.12 and later" %>
   <%= form.params_text_field :thickness_kernel, :size => 4 %>
+
+  <% if not_at_least_1_1_12 %>
+    <span class="field_explanation" style="max-width: 80em">(20mm by default if left blank)</span>
+  <% else %>
+    <span class="field_explanation" style="max-width: 80em">(30mm by default if left blank)</span>
+  <% end %>
 
   <br>
 

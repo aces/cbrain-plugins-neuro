@@ -115,19 +115,19 @@ class CbrainTask::Civet < ClusterTask
       return false unless validate_minc_file(t1sym)
 
       if mybool(file0[:multispectral]) || mybool(file0[:spectral_mask])
-        if t2_name
+        if t2_name.prensent?
           t2ext = t2_name.match(/.gz$/i) ? ".gz" : ""
           t2sym = "#{mincfiles_dir}/#{prefix}_#{dsid}_t2.mnc#{t2ext}"
           safe_symlink("#{colpath}/#{t2_name}",t2sym)
           return false unless validate_minc_file(t2sym)
         end
-        if pd_name
+        if pd_name.present?
           pdext = pd_name.match(/.gz$/i) ? ".gz" : ""
           pdsym = "#{mincfiles_dir}/#{prefix}_#{dsid}_pd.mnc#{pdext}"
           safe_symlink("#{colpath}/#{pd_name}",pdsym)
           return false unless validate_minc_file(pdsym)
         end
-        if mk_name
+        if mk_name.present?
           mkext = mk_name.match(/.gz$/i) ? ".gz" : ""
           mksym = "#{mincfiles_dir}/#{prefix}_#{dsid}_mask.mnc#{mkext}"
           safe_symlink("#{colpath}/#{mk_name}",mksym)
@@ -145,7 +145,7 @@ class CbrainTask::Civet < ClusterTask
       return false unless validate_minc_file(t1sym)
 
       if mybool(file0[:multispectral]) || mybool(file0[:spectral_mask])
-        if t2_id
+        if t2_id.present?
           t2cachefile = Userfile.find(t2_id)
           t2cachefile.sync_to_cache
           t2cachename = t2cachefile.cache_full_path.to_s
@@ -155,7 +155,7 @@ class CbrainTask::Civet < ClusterTask
           return false unless validate_minc_file(t2sym)
         end
 
-        if pd_id
+        if pd_id.present?
           pdcachefile = Userfile.find(pd_id)
           pdcachefile.sync_to_cache
           pdcachename = pdcachefile.cache_full_path.to_s
@@ -165,7 +165,7 @@ class CbrainTask::Civet < ClusterTask
           return false unless validate_minc_file(pdsym)
         end
 
-        if mk_id
+        if mk_id.present?
           mkcachefile = Userfile.find(mk_id)
           mkcachefile.sync_to_cache
           mkcachename = mkcachefile.cache_full_path.to_s
@@ -372,6 +372,7 @@ class CbrainTask::Civet < ClusterTask
       if self.tool_config.is_at_least_version("1.1.11")
         args += "-area-fwhm #{params[:resample_surfaces_kernel_areas].bash_escape} "     if params[:resample_surfaces_kernel_areas].present?
         args += "-volume-fwhm #{params[:resample_surfaces_kernel_volumes].bash_escape} " if params[:resample_surfaces_kernel_volumes].present?
+        args += "-surface-atlas $MNI_CIVET_ROOT/models/AAL_atlas_left.txt $MNI_CIVET_ROOT/models/AAL_atlas_right.txt " if mybool(params[:atlas])
       end
     end
 
