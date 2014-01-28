@@ -17,25 +17,25 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.  
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
 # Model for a MINC file (either MINC1 or MINC2).
 class MincFile < SingleFile
 
   Revision_info=CbrainFileRevision[__FILE__] #:nodoc:
-  
-  #has_viewer :partial => "jiv_file",                                         :if  => Proc.new { |u| u.has_format?(:jiv) && u.get_format(:jiv).is_locally_synced? }
-  has_viewer :name => "Volume Viewer", :partial => "volume_viewer",      :if  => Proc.new { |u| u.class.has_minctools?([2,0,0]) && u.is_locally_synced? && u.size < 80.megabytes }
+
+  #has_viewer :partial => "jiv_file",                                        :if  => Proc.new { |u| u.has_format?(:jiv) && u.get_format(:jiv).is_locally_synced? }
+  has_viewer :name => "Volume Viewer", :partial => "volume_viewer",          :if  => Proc.new { |u| u.class.has_minctools?([2,0,0]) && u.is_locally_synced? && u.size < 80.megabytes }
   has_viewer :partial => "minc_file/info_header", :name => "Info & Headers", :if  => Proc.new { |u| u.class.has_minctools?([2,0,0],["mincinfo","mincheader","mincdump","mincexpand"]) && u.is_locally_synced? }
-  
+
   has_content :method => :get_headers_to_json, :type => :text
   has_content :method => :get_raw_data,        :type => :text
-  
+
   def format_name #:nodoc:
     "MINC"
   end
-  
+
   def self.file_name_pattern #:nodoc:
     /\.mi?nc(\.gz|\.Z|\.gz2)?$/i
   end
@@ -44,7 +44,7 @@ class MincFile < SingleFile
   # can invoke tools (default: 'mincinfo' and 'minctoraw').
   def self.has_minctools?(min_version, which_tools=["mincinfo", "minctoraw"])
     if which_tools.all? { |tool| system("bash","-c","which #{tool.to_s.bash_escape} >/dev/null 2>&1") }
-      IO.popen("mincinfo -version | grep \"program\" | cut -d \":\" -f 2") do |fh| 
+      IO.popen("mincinfo -version | grep \"program\" | cut -d \":\" -f 2") do |fh|
         version = fh.readlines.join.strip.split(".").map {|num| num.to_i}
         if (min_version[0] <= (version[0] || 0) && min_version[1] <= (version[1] || 0)  && min_version[2] <= (version[2] || 0))
           return true
@@ -59,15 +59,15 @@ class MincFile < SingleFile
 
     return @headers if @headers
     cb_error "Call to minc_get_headers() when minctools not installed!" unless self.class.has_minctools? [2,0,0]
- 
+
     cache_path   = self.cache_full_path
     escaped_path = cache_path.to_s.bash_escape
 
-    order = IO.popen("mincinfo -attval image:dimorder #{escaped_path}") {|fh| fh.readlines.join.strip.split(',')}        
+    order = IO.popen("mincinfo -attval image:dimorder #{escaped_path}") {|fh| fh.readlines.join.strip.split(',')}
     if !(order.size == 3 or order.size == 4)
-      order = IO.popen("mincinfo -dimnames #{escaped_path}") {|fh| fh.readlines.join.strip.split(' ')}        
+      order = IO.popen("mincinfo -dimnames #{escaped_path}") {|fh| fh.readlines.join.strip.split(' ')}
     end
-    
+
     #Gets the attributes in the minc file that we need
     @headers = {
       :xspace => {
@@ -88,22 +88,22 @@ class MincFile < SingleFile
 
       :order => order
     }
-    
-    if order.length == 4 
-      @headers[:time] = { 
+
+    if order.length == 4
+      @headers[:time] = {
         :start        => IO.popen("mincinfo -attval    time:start   #{escaped_path}") { |fh| fh.readlines.join.to_f },
         :space_length => IO.popen("mincinfo -dimlength time         #{escaped_path}") { |fh| fh.readlines.join.to_i }
       }
     end
-    
+
     @headers
   end
-  
+
   #For content
   def get_headers_to_json
     minc_get_headers.to_json
   end
-  
+
   # The raw binary data, in short integers
   def get_raw_data #:nodoc:
     cb_error "Call to raw_data() when minctools not installed!" unless self.class.has_minctools? [2,0,0]
@@ -116,7 +116,7 @@ class MincFile < SingleFile
   def minc_get_data #:nodoc:
     @data ||= self.raw_data.unpack('v*') #Unpack is used here to convert 4 byte(char) to a short unsigned integer
   end
-  
+
   def minc_get_data_string #:nodoc:
     @data_string ||= self.data.join(" ") #making a space delimited array of the data (useful to send to server)
   end
@@ -125,9 +125,9 @@ class MincFile < SingleFile
   #To do this, they invoke the command file, which is why it is necessary
   #that the file is synchronized when this method is called.
   #If it can't determine the type, it returns 'UNKNOWN'.
-  def which_minc_version  
+  def which_minc_version
     type = :unknown
-    return type unless File.exist?(self.cache_full_path) 
+    return type unless File.exist?(self.cache_full_path)
     IO.popen("file #{self.cache_full_path.to_s.bash_escape}") do |fh|
       first_line = fh.readline
       if first_line =~ /NetCDF/i
@@ -142,4 +142,4 @@ class MincFile < SingleFile
   end
 
 end
- 
+
