@@ -87,8 +87,9 @@ Workflow directives:<br/>
   <p>
 <% end %>
 
-<%= form.params_check_box :with_qcache %><%= form.params_label :with_qcache, "Run with qcache." %><br/>
-<%= form.params_check_box :with_mprage %><%= form.params_label :with_mprage, "Run with mprage." %><br/>
+<%= form.params_check_box :with_qcache  %><%= form.params_label :with_qcache , "Run with qcache."  %><br/>
+<%= form.params_check_box :with_mprage  %><%= form.params_label :with_mprage , "Run with mprage."  %><br/>
+<%= form.params_check_box :with_3T_data %><%= form.params_label :with_3T_data, "Run with 3T data." %><br/
 
 <% if @tool_config.version_name =~ /LBL/%>
   <br/>
