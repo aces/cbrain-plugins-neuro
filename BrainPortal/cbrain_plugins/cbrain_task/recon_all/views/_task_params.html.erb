@@ -89,7 +89,9 @@ Workflow directives:<br/>
 
 <%= form.params_check_box :with_qcache  %><%= form.params_label :with_qcache , "Run with qcache."  %><br/>
 <%= form.params_check_box :with_mprage  %><%= form.params_label :with_mprage , "Run with mprage."  %><br/>
-<%= form.params_check_box :with_3T_data %><%= form.params_label :with_3T_data, "Run with 3T data." %><br/
+<%= form.params_check_box :with_3T_data %><%= form.params_label :with_3T_data, "Run with 3T data." %><br/>
+<%= form.params_check_box :with_cw256   %><%= form.params_label :with_cw256,   "Run with -cw256 flag, for image with FOV > 256." %><br/
+
 
 <% if @tool_config.version_name =~ /LBL/%>
   <br/>

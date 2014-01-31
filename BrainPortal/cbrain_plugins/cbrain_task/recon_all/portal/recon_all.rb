@@ -17,7 +17,7 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.  
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
 # A subclass of CbrainTask to launch recon-all of FreeSurfer.
@@ -30,12 +30,12 @@ class CbrainTask::ReconAll < PortalTask
   def self.properties
     { :use_parallelizer => true }
   end
-  
+
   def self.default_launch_args #:nodoc:
     {
     }
   end
-  
+
   def before_form #:nodoc:
     params    = self.params
 
@@ -44,11 +44,11 @@ class CbrainTask::ReconAll < PortalTask
     files.each do |file|
       cb_error "Error: this task can only run on MGZ, MINC1, NifTi files
       or on a Recon-all Cross-Sectional Output (FreeSurfer subject directory)." unless
-         file.is_a?(MgzFile) || file.is_a?(NiftiFile) || 
+         file.is_a?(MgzFile) || file.is_a?(NiftiFile) ||
         (file.is_a?(MincFile) && file.which_minc_version != :minc2) ||
          file.is_a?(ReconAllCrossSectionalOutput)
-    end 
-    
+    end
+
     return ""
   end
 
@@ -60,12 +60,12 @@ class CbrainTask::ReconAll < PortalTask
     output_name           = params[:output_name]
     nb_singlefile         = self.count_singlefiles_in_input_list
     only_singlefile       = nb_input == nb_singlefile             ? true : false
-    with_multi_singlefile = nb_input > 1 && only_singlefile       ? true : false 
-      
+    with_multi_singlefile = nb_input > 1 && only_singlefile       ? true : false
+
     # Verification for multiple_subjects can't be blank
     self.params_errors.add(:multiple_subjects, "provided is blank. Choose between Single or Multiple.")              if multiple_subjects.blank? && (nb_input > 1)
 
-    # Check output_name 
+    # Check output_name
     self.params_errors.add(:output_name, "provided contains some unacceptable characters.")                          unless output_name.blank? || is_legal_output_name?(output_name)
 
     # Output name cannot be blank if multiple_subjects is Single
@@ -87,13 +87,13 @@ class CbrainTask::ReconAll < PortalTask
 
     output_name  = params[:output_name].presence   || ""
     mode         = params.delete(:multiple_subjects)
-    is_single    = mode == "Single" ? true : false 
+    is_single    = mode == "Single" ? true : false
     ids          = params[:interface_userfile_ids] || []
-    
+
     # Create X tasks if !is_single
     task_list  = []
     if is_single
-      task_list << self 
+      task_list << self
     else
       ids.each do |id|
         task = self.dup # not .clone, as of Rails 3.1.10

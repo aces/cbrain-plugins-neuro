@@ -64,6 +64,7 @@ class CbrainTask::ReconAll < ClusterTask
       # Simple option
       with_qcache        = params[:with_qcache] == "1" ? "-qcache"  : ""
       with_mprage        = params[:with_mprage] == "1" ? "-mprage"  : ""
+      with_cw256         = params[:with_cw256]  == "1" ? "-cw256"   : ""
       with_3T_data       = ""
       if params[:with_3T_data] == "1"
         if self.tool_config.is_version("5.1.0")
@@ -72,6 +73,7 @@ class CbrainTask::ReconAll < ClusterTask
           with_3T_data = "-3T"
         end
       end
+
 
       # Creation of command line
       file_ids           = params[:interface_userfile_ids] || []
@@ -115,7 +117,7 @@ class CbrainTask::ReconAll < ClusterTask
       end
     end
 
-    recon_all_command = "recon-all#{lbl_ext} #{with_qcache} #{with_mprage} #{with_3T_data} -sd . #{subjid_info} #{step} #{lbl_options}"
+    recon_all_command = "recon-all#{lbl_ext} #{with_qcache} #{with_mprage} #{with_3T_data} #{with_cw256} -sd . #{subjid_info} #{step} #{lbl_options}"
 
     [
       "echo #{message}",
