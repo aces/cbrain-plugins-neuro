@@ -181,10 +181,14 @@ class CbrainTask::Civet < ClusterTask
   end
 
   def job_walltime_estimate #:nodoc:
-    if self.tool_config.description.to_s =~ /\b1\.1\.12\b/
-      15.hours # 1.1.12 seems to take about 12
-    else
+    if !self.tool_config.is_at_least_version("1.1.12") # lower than 1.1.12
       7.hours # 4.5 normally
+    else
+      if mybool(params[:high_res_surfaces])
+        24.hours # seems to take 20
+      else
+        15.hours # 1.1.12 seems to take about 12
+      end
     end
   end
 
@@ -205,6 +209,10 @@ class CbrainTask::Civet < ClusterTask
       "echo ''"
     ]
 
+    # Clean option and set ignored option
+    self.clean_interdependent_params()
+    options_to_ignore = self.identify_options_to_ignore()
+
     # Compatibility code for pre-existing OLD civet tasks
     if file_args.size == 1 && File.exists?('mincfiles') && ! File.exists?('mincfiles_0')
       File.rename('mincfiles','mincfiles_0')
@@ -212,7 +220,7 @@ class CbrainTask::Civet < ClusterTask
 
     # Optimization if only one CIVET, just like the old code
     if file_args.size == 1
-      comms = self.cluster_commands_single("0")
+      comms = self.cluster_commands_single("0",options_to_ignore)
       return nil if comms.blank? || comms.empty?
       master_script += comms
       return master_script
@@ -231,7 +239,7 @@ class CbrainTask::Civet < ClusterTask
     outfiles     = []
     errfiles     = []
     file_args.each_key.sort { |a,b| a.to_i <=> b.to_i }.each do |arg_idx|
-      comms = self.cluster_commands_single(arg_idx)
+      comms = self.cluster_commands_single(arg_idx,options_to_ignore)
       next if comms.blank? || comms.empty?
       script_file = "civet_commands_#{arg_idx}.sh"
       File.open(script_file,"w") do |fh|
@@ -293,7 +301,7 @@ class CbrainTask::Civet < ClusterTask
     master_script
   end
 
-  def cluster_commands_single(arg_idx) #:nodoc:
+  def cluster_commands_single(arg_idx,options_to_ignore={}) #:nodoc:
     params = self.params
     file0  = params[:file_args][arg_idx] # we require this single entry for info on the data files
 
@@ -338,11 +346,11 @@ class CbrainTask::Civet < ClusterTask
     end
     if params[:resample_surfaces_kernel_areas].present?
       raise "Bad area-FWHM value for resampled surface areas."  unless
-                         params[:resample_surfaces_kernel_areas]   =~ /^\s*\d+\s*$/
+                         is_valid_integer_list(params[:resample_surfaces_kernel_areas])
     end
     if params[:resample_surfaces_kernel_volumes].present?
       raise "Bad volume-FWHM value for resampled surface volumes."  unless
-                         params[:resample_surfaces_kernel_volumes] =~ /^\s*\d+\s*$/
+                         is_valid_integer_list(params[:resample_surfaces_kernel_volumes])
     end
 
     args = ""
@@ -354,27 +362,31 @@ class CbrainTask::Civet < ClusterTask
     args += "-model #{params[:model]} "             if params[:model].present?
     args += "-interp #{params[:interp]} "           if params[:interp].present?
     args += "-N3-distance #{params[:N3_distance]} " if params[:N3_distance].present?
-    args += "-headheight #{params[:headheight]} "   if params[:headheight].present? && self.tool_config.is_at_least_version("1.1.12")
+    args += "-headheight #{params[:headheight]} "   if params[:headheight].present?         && !options_to_ignore.has_key?(:headheight)
+    args += "-mask-blood-vessels "                  if params[:mask_blood_vessels].present? && !options_to_ignore.has_key?(:mask_blood_vessels)
     args += "-lsq#{params[:lsq]} "                  if params[:lsq] && params[:lsq].to_i != 9 # there is NO -lsq9 option!
     args += "-no-surfaces "                         if mybool(params[:no_surfaces])
     args += "-correct-pve "                         if mybool(params[:correct_pve])
+    args += "-hi-res-surfaces "                     if mybool(params[:high_res_surfaces])   && !options_to_ignore.has_key?(:high_res_surfaces)
     args += "-combine-surfaces "                    if mybool(params[:combine_surfaces])
 
     args += "-multispectral "                       if mybool(file0[:multispectral])
     args += "-spectral_mask "                       if mybool(file0[:spectral_mask])
 
-    if ! params[:thickness_method].blank? && ! params[:thickness_kernel].blank?
+    if ! params[:thickness_method].blank? && ! params[:thickness_kernel].blank? && is_valid_integer_list(params[:thickness_kernel])
         args += "-thickness #{params[:thickness_method].bash_escape} #{params[:thickness_kernel].bash_escape} "
     end
 
     if mybool(params[:resample_surfaces])
       args += "-resample-surfaces "
-      if self.tool_config.is_at_least_version("1.1.11")
-        args += "-area-fwhm #{params[:resample_surfaces_kernel_areas].bash_escape} "     if params[:resample_surfaces_kernel_areas].present?
-        args += "-volume-fwhm #{params[:resample_surfaces_kernel_volumes].bash_escape} " if params[:resample_surfaces_kernel_volumes].present?
-        args += "-surface-atlas $MNI_CIVET_ROOT/models/AAL_atlas_left.txt $MNI_CIVET_ROOT/models/AAL_atlas_right.txt " if mybool(params[:atlas])
+      args += "-area-fwhm #{params[:resample_surfaces_kernel_areas].bash_escape} "     if ! params[:resample_surfaces_kernel_areas].blank? && !options_to_ignore.has_key?(:resample_surfaces_kernel_areas)
+      args += "-volume-fwhm #{params[:resample_surfaces_kernel_volumes].bash_escape} " if ! params[:resample_surfaces_kernel_volumes].blank? && !options_to_ignore.has_key?(:resample_surfaces_kernel_volumes)
+      if ! params[:atlas].blank? && ! options_to_ignore.has_key?(:atlas)
+        atlas_name = params[:atlas].bash_escape
+        args += "-surface-atlas $MNI_CIVET_ROOT/models/AAL_atlas_left.txt $MNI_CIVET_ROOT/models/AAL_atlas_right.txt " if atlas_name == "AAL"
       end
     end
+
 
     if mybool(params[:VBM])
         args += "-VBM "

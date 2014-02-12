@@ -47,4 +47,71 @@ class CbrainTask::Civet
     return 0  # everything is equal
   end
 
+  # Some options are interdependent for example
+  # when CIVET run with -no_surface all options
+  # for surface treatment are ignored
+  def clean_interdependent_params
+
+    if mybool(params[:no_surfaces])
+      params[:high_res_surfaces]                = ""
+      params[:combine_surfaces]                 = ""
+      params[:thickness_method]                 = ""
+      params[:thickness_kernel]                 = ""
+      params[:resample_surfaces]                = ""
+      params[:atlas]                            = ""
+      params[:resample_surfaces_kernel_areas]   = ""
+      params[:resample_surfaces_kernel_volumes] = ""
+    end
+
+    # If run without resample surfaces
+    if !mybool(params[:resample_surfaces])
+      params[:atlas]                            = ""
+      params[:resample_surfaces_kernel_areas]   = ""
+      params[:resample_surfaces_kernel_volumes] = ""
+    end
+
+    # If run without VBM
+    if !mybool(params[:VBM])
+      params[:VBM_fwhm]                         = ""
+      params[:VBM_symmetry]                     = ""
+      params[:VBM_cerebellum]                   = ""
+    end
+
+  end
+
+  def identify_options_to_ignore(ignored_options={}) #:nodoc:
+
+    if !self.tool_config.is_at_least_version("1.1.11")
+      ignored_options[:resample_surfaces_kernel_areas]   = true
+      ignored_options[:resample_surfaces_kernel_volumes] = true
+    end
+    if !self.tool_config.is_at_least_version("1.1.12")
+      ignored_options[:headheight]                       = true
+    end
+    if !self.tool_config.is_at_least_version("2.0.0")
+      ignored_options[:mask_blood_vessels]               = true
+      ignored_options[:high_res_surfaces]                = true
+    end
+
+    ignored_options
+  end
+
+  # My old convention was '1' for true, "" for false;
+  # the new form helpers send '1' for true and '0' for false.
+  def mybool(value) #:nodoc:
+    return false if value.blank?
+    return false if value.is_a?(String)  and value == "0"
+    return false if value.is_a?(Numeric) and value == 0
+    return true
+  end
+
+  # In order to validate some option that can accept
+  # an integer or a list of integer such as "1" or "1:2" or "4:32:78:2" etc
+  def is_valid_integer_list(param) #:nodoc:
+    return true if !param.present?
+    return true if param =~ /^\d+$/        && !self.tool_config.is_at_least_version("2.0.0")
+    return true if param =~ /^\d+(:\d+)*$/ &&  self.tool_config.is_at_least_version("2.0.0")
+    return false
+  end
+
 end
