@@ -163,6 +163,8 @@ class CbrainTask::Civet < PortalTask
     # clean some params according with other one.
     clean_interdependent_params()
 
+    return "" if ! self.tool_config
+
     # file_args is returned as a hash, so
     # transform it back into an array of records (in the values)
     file_args_hash  = params[:file_args] || {}
