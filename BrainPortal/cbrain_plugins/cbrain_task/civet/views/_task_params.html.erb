@@ -26,111 +26,155 @@
 
 <%= form.params_hidden_field :collection_id %> <!-- can be nil -->
 
-<fieldset>
-<legend>Pipeline Options</legend>
-
-  <%= form.params_label  :template, "Template:", :title => "Define the template for image processing" %>
-  <%= form.params_select :template, [ "0.50", "0.75", "1.00" ] %>
-
-  <br/>
-
 <%
   not_at_least_1_1_11 = !@tool_config || !@tool_config.is_at_least_version("1.1.11")
   not_at_least_1_1_12 = !@tool_config || !@tool_config.is_at_least_version("1.1.12")
+  not_at_least_2_0_0  = !@tool_config || !@tool_config.is_at_least_version("2.0.0")
 
   default_models  = [ "icbm152lin", "icbm152nl", "icbm152nl_09s", "icbm152nl_09a" ]
+  # Add ADNInl for version >= 1.1.12
   adninl_disabled = not_at_least_1_1_12 ? { :disabled => '1' } : {}
   params[:model]  = nil if adninl_disabled.present? && params[:model] == 'ADNInl'
   default_models << [ "ADNInl", "ADNInl", adninl_disabled ]
+  # Add ADNIhires for version >= 2.0.0
+  adnihires_disabled = not_at_least_2_0_0 ? { :disabled => '1' } : {}
+  params[:model]     = nil if adnihires_disabled.present? && params[:model] == 'ADNIhires'
+  default_models << [ "ADNIhires", "ADNIhires", adnihires_disabled ]
+
+
+  default_template = not_at_least_2_0_0 ? ["1.00"] : ["0.50","0.75","1.00"]
 %>
+
+
+<% if ! @task.new_record? %>
+  <fieldset>
+  <legend>Pipeline Options</legend>
+      <%= form.params_label  :reset_from, "Restart from this stage:", :title => "Stage to restart from" %>
+      <%= form.params_select :reset_from, [ "" ] + CbrainTask::Civet::StagesNames %>
+  </fieldset>
+<% end %>
+
+<P>
+
+<fieldset>
+<legend>Volume Options</legend>
 
   <%= form.params_label  :model, "Model:", :title => "Define the model for image-processing" %>
   <%= form.params_select :model, default_models %>
 
   </br>
 
-  <%= form.params_label     :atlas, "Surface parcellation:", :title => "Atlas for surface parcellation" %>
-  <%= form.params_check_box :atlas, :disabled => not_at_least_1_1_11 %>
-  <span class="field_explanation" style="max-width: 80em">(CIVET 1.1.11 or later; ignored otherwise)</span>
+  <%= form.params_label  :template, "Template:", :title => "Define the template for image processing" %>
+  <%= form.params_select :template, default_template %>
 
-  <% if ! @task.new_record? %>
-    <br/>
-    <%= form.params_label  :reset_from, "Restart from this stage:", :title => "Stage to restart from" %>
-    <%= form.params_select :reset_from, [ "" ] + CbrainTask::Civet::StagesNames %>
-  <% end %>
+  <br/>
 
-</fieldset>
+  <%= form.params_label  :lsq, "Degrees of freedom for linear registration:", :title => "Degrees of freedom for linear registration to stereotaxic space" %>
+  <%= form.params_select :lsq, [ "6", "9", "12" ] %>
 
-<P>
-
-<fieldset>
-<legend>CIVET options</legend>
+  </br>
 
   <%= form.params_label  :interp, "Interpolation:", :title => "Volume interpolation method from native to stereotaxic space (trilinear, tricubic, sinc) default trilinear" %>
   <%= form.params_select :interp, [ "trilinear", "tricubic", "sinc" ] %>
 
-  <br>
-
-  <%= form.params_label      :N3_distance, "N3 distance:", :title => "N3 spline distance in mm (suggested values: 200 for 1.5T scan; 125 or 100 for 3T scan; 0 for MP2RAGE scan in later version than 1.1.12)" %>
-  <%= form.params_text_field :N3_distance, :size => 4 %>
-
-  <br>
+  </br>
 
   <%= form.params_label      :headheight, "Head height:", :title => "Head height in mm (suggested values: 175 for adults; 165-170 for children)" %>
   <%= form.params_text_field :headheight, :size => 4, :disabled => not_at_least_1_1_12 %>
   <span class="field_explanation" style="max-width: 80em">(CIVET 1.1.12 or later; ignored otherwise)</span>
 
-  <br>
+  </br>
 
-  <%= form.params_label  :lsq, "Degrees of freedom for linear registration:", :title => "Degrees of freedom for linear registration to stereotaxic space" %>
-  <%= form.params_select :lsq, [ "6", "9", "12" ] %>
+  <%= form.params_label     :mask_blood_vessels, "Mask blood vessels:", :title => "Mask blood vessels" %>
+  <%= form.params_check_box :mask_blood_vessels, :disabled => not_at_least_2_0_0 %>
+  <span class="field_explanation" style="max-width: 80em">(CIVET 2.0.0 or later; ignored otherwise)</span>
 
-  <br>
+  </br>
 
-  <%= form.params_label     :no_surfaces, "Do NOT build surfaces:", :title => "Do NOT build surfaces" %>
-  <%= form.params_check_box :no_surfaces %>
+  <%= form.params_label      :N3_distance, "N3 distance:", :title => "N3 spline distance in mm (suggested values: 200 for 1.5T scan; 125 or 100 for 3T scan; 0 for MP2RAGE scan in later version than 1.1.12)" %>
+  <%= form.params_text_field :N3_distance, :size => 4 %>
+</fieldset>
 
-  <br>
+<P>
 
-  <%= form.params_label      :thickness_method,  "Thickness method:", :title => "Thickness method" %>
+<fieldset>
+<legend>Surface options</legend>
 
-  <%
-     tmethods =  [ "tlink", "tlaplace" ]
-     if !@task.new_record? && ! @task.params[:thickness_method].blank?
-       old_val = @task.params[:thickness_method].to_s
-       if old_val =~ /^(tnear|tnormal)$/ # old values no longer supported
-         tmethods << old_val
+  <b><%= form.params_label     :no_surfaces, "Do NOT build surfaces:", :title => "Do NOT build surfaces" %></b>
+  <%= show_hide_checkbox("#hide_if_not_build_surfaces", :checked => params[:no_surfaces] == "1" || params[:no_surfaces] == "on",
+                                                        :invert => true, :name => "cbrain_task[params][no_surfaces]" ) %>
+
+  </br>
+
+  <div id="hide_if_not_build_surfaces", style="padding-left: 10px" >
+    <%= form.params_label     :high_res_surfaces, "High resolution surface:", :title => "High resolution surface" %>
+    <%= form.params_check_box :high_res_surfaces, :disabled => not_at_least_2_0_0 %>
+    <span class="field_explanation" style="max-width: 80em">(CIVET 2.0.0 or later; ignored otherwise)</span>
+
+    </br>
+
+    <%= form.params_label     :combine_surfaces, "Combine left/right surfaces:", :title => "Combine left and right cortical surfaces" %>
+    <%= form.params_check_box :combine_surfaces, :value => "1" %>
+
+    </br>
+
+    <%= form.params_label      :thickness_method,  "Thickness method:", :title => "Thickness method" %>
+    <%
+       tmethods =  [ "tlink", "tlaplace", "tnear" ]
+       if !@task.new_record? && ! @task.params[:thickness_method].blank?
+         old_val = @task.params[:thickness_method].to_s
+         if old_val =~ /^(tnormal)$/ # old values no longer supported
+           tmethods << old_val
+         end
        end
-     end
-  %>
-  <%= form.params_select     :thickness_method, tmethods %>
-  <%= form.params_label      :thickness_kernel, "and kernel size:",
-                             :title => "FWHM for surface blurring,\n default: 30 for version 1.1.11 and lower,\n default: 20 for version 1.1.12 and later" %>
-  <%= form.params_text_field :thickness_kernel, :size => 4 %>
+       # Add tfs for version >= 2.0.0
+       tfs_disabled = not_at_least_2_0_0 ? { :disabled => '1' } : {}
+       params[:thickness_method] = nil if tfs_disabled.present? && params[:thickness_method] == 'tfs'
+       tmethods << [ "tfs", "tfs", tfs_disabled ]
+    %>
+    <%= form.params_select     :thickness_method, tmethods %>
+    <%= form.params_label      :thickness_kernel, "and kernel size:",
+                               :title => "FWHM for surface blurring,\n default: 20 for version 1.1.11 and lower,\n default: 30 for version 1.1.12 and later" %>
+    <%= form.params_text_field :thickness_kernel, :size => not_at_least_2_0_0 ? 4 : 12 %>
 
-  <% if not_at_least_1_1_12 %>
-    <span class="field_explanation" style="max-width: 80em">(20mm by default if left blank)</span>
-  <% else %>
-    <span class="field_explanation" style="max-width: 80em">(30mm by default if left blank)</span>
-  <% end %>
+    <% if not_at_least_1_1_12 %>
+      <span class="field_explanation" style="max-width: 80em">(20mm by default if left blank)</span>
+    <% else %>
+      <span class="field_explanation" style="max-width: 80em">(30mm by default if left blank)</span>
+    <% end %>
 
-  <br>
+    </br>
 
-  <%= form.params_label      :resample_surfaces, "Resample surfaces:", :title => "Resample cortical surfaces to obtain elemental vertex areas and volumes" %>
-  <%= form.params_check_box  :resample_surfaces %>
+    <b><%= form.params_label     :resample_surfaces, "Resample surfaces:", :title => "Resample cortical surfaces to obtain elemental vertex areas and volumes" %></b>
+    <%= show_hide_checkbox("#hide_if_not_resample_surfaces",
+        :checked => params[:resample_surfaces] == "1" || params[:resample_surfaces] == "on",
+        :invert => false, :name => "cbrain_task[params][resample_surfaces]" ) %>
 
+    <div id="hide_if_not_resample_surfaces", , style="padding-left: 10px" >
+      <%
+        default_atlas  = [ "Lobar" ]
+        # Add AAL for version >= 1.1.11
+        aal_disabled = not_at_least_1_1_11 ? { :disabled => '1' } : {}
+        params[:atlas]  = nil if aal_disabled.present? && params[:atlas] == 'AAL'
+        default_atlas << [ "AAL", "AAL", aal_disabled ]
+      %>
 
-  <%= form.params_label      :resample_surfaces_kernel_areas, "with kernel size areas:", :title => "FWHM for resampled surface areas" %>
-  <%= form.params_text_field :resample_surfaces_kernel_areas, :size => 4,   :disabled => not_at_least_1_1_11 %>
-  <%= form.params_label      :resample_surfaces_kernel_volumes, "and kernel size volumes:", :title => "FWHM for resampled surface volumes" %>
-  <%= form.params_text_field :resample_surfaces_kernel_volumes, :size => 4, :disabled => not_at_least_1_1_11 %>
-  <span class="field_explanation" style="max-width: 80em">(CIVET 1.1.11 or later; ignored otherwise)</span>
+      <%= form.params_label  :atlas, "Surface parcellation:", :title => "Atlas for surface parcellation" %>
+      <%= form.params_select :atlas, default_atlas %>
 
-  <br>
+      </br>
 
-  <%= form.params_label     :combine_surfaces, "Combine surfaces:", :title => "Combine left and right cortical surfaces" %>
-  <%= form.params_check_box :combine_surfaces %>
+      <%= form.params_label      :resample_surfaces_kernel_areas,   " With kernel size areas:",   :title => "FWHM for resampled surface areas" %>
+      <%= form.params_text_field :resample_surfaces_kernel_areas,   :size => not_at_least_2_0_0 ? 4 : 12, :disabled => not_at_least_1_1_11 %>
+      <span class="field_explanation" style="max-width: 80em">(only for CIVET 1.1.11 or later; ignored otherwise)</span>
 
+      </br>
+
+      <%= form.params_label      :resample_surfaces_kernel_volumes, " With kernel size volumes:", :title => "FWHM for resampled surface volumes" %>
+      <%= form.params_text_field :resample_surfaces_kernel_volumes, :size => not_at_least_2_0_0 ? 4 : 12, :disabled => not_at_least_1_1_11 %>
+      <span class="field_explanation" style="max-width: 80em">(only for CIVET 1.1.11 or later; ignored otherwise)</span>
+    </div>
+  </div>
 </fieldset>
 
 <P>
@@ -138,23 +182,23 @@
 <fieldset>
 <legend>VBM Options</legend>
 
-  <%= form.params_label :VBM, "Process VBM files:", :title => "Process VBM files" %>
-  <%= form.params_check_box :VBM %>
+  <b><%= form.params_label     :VBM, "Process VBM files:", :title => "Process VBM files" %></b>
+  <%= show_hide_checkbox("#hide_if_not_process_vbm", :checked => params[:VBM] == "1", :invert => false )%>
 
-  <br>
+  <div id="hide_if_not_process_vbm", , style="padding-left: 10px" >
+    <%= form.params_label :VBM_fwhm, "Blurring kernel size in mm for volume:", :title => "Blurring kernel size in mm for volume" %>
+    <%= form.params_text_field :VBM_fwhm, :size => 4 %>
 
-  <%= form.params_label :VBM_fwhm, "Blurring kernel size in mm for volume:", :title => "Blurring kernel size in mm for volume" %>
-  <%= form.params_text_field :VBM_fwhm, :size => 4 %>
+    <br>
 
-  <br>
+    <%= form.params_label :VBM_symmetry, "Run symmetry tools:", :title => "Run symmetry tools" %>
+    <%= form.params_check_box :VBM_symmetry %>
 
-  <%= form.params_label :VBM_symmetry, "Run symmetry tools:", :title => "Run symmetry tools" %>
-  <%= form.params_check_box :VBM_symmetry %>
+    <br>
 
-  <br>
-
-  <%= form.params_label :VBM_cerebellum, "Keep cerebellum in VBM maps:", :title => "Keep cerebellum in VBM maps" %>
-  <%= form.params_check_box :VBM_cerebellum %>
+    <%= form.params_label :VBM_cerebellum, "Keep cerebellum in VBM maps:", :title => "Keep cerebellum in VBM maps" %>
+    <%= form.params_check_box :VBM_cerebellum %>
+  </div>
 
 </fieldset>
 
@@ -249,13 +293,11 @@ then the actual prefix automatically created for you would be "K2-anonymous_10".
 </p>
 
 </div>
-
 </fieldset>
 
 <p/>
 
 <fieldset>
-
 <legend>Optional Output Renaming <%= show_hide_toggle "(Show)", "#output_renaming", :class  => 'action_link' %></legend>
 
 <div id="output_renaming" style="display: none">

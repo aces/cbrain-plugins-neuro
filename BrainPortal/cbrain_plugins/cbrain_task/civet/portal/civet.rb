@@ -92,18 +92,25 @@ class CbrainTask::Civet < PortalTask
 
       :reset_from          => "",          # -reset-from
 
-      :template            => "1.00",      # -template
+      # Volume option
       :model               => "icbm152nl", # -model
-
-      :interp              => "trilinear", # -interp
-      :N3_distance         => "",          # -N3-distance
+      :template            => "1.00",      # -template
       :lsq                 => "9",         # -lsq6, -lsq9, -lsq12
+      :interp              => "trilinear", # -interp
       :headheight          => "",          # CIVET 1.1.12 or better only
+      :mask_blood_vessels  => "0",         # -mask-blood-vessels
+      :N3_distance         => "",          # -N3-distance
+
+      # Surface option
       :no_surfaces         => "0",         # -no-surfaces
+      :high_res_surfaces   => "0",         # -hi-res-surfaces
+      :combine_surfaces    => "0",         # -[no-]combine-surfaces
       :thickness_method    => "tlink",     # -thickness method kernel
       :thickness_kernel    => "",          #             "
       :resample_surfaces   => "1",         # -[no-]resample-surfaces
-      :combine_surfaces    => "0",         # -[no-]combine-surfaces
+      :atlas               => "",          # -surface-atlas
+      :resample_surfaces_kernel_areas   => "", # -area-fwhm
+      :resample_surfaces_kernel_volumes => "", # -volume-fwhm
 
       # VBM options
       :VBM                 => "0",         # -[no-]VBM
@@ -153,6 +160,10 @@ class CbrainTask::Civet < PortalTask
 
   def after_form #:nodoc:
     params          = self.params
+    # clean some params according with other one.
+    clean_interdependent_params()
+
+    return "" if ! self.tool_config
 
     # file_args is returned as a hash, so
     # transform it back into an array of records (in the values)
@@ -164,9 +175,6 @@ class CbrainTask::Civet < PortalTask
       cb_error  "No CIVET started, as no T1 file selected for launch!" if self.new_record?
       cb_notice "Warning! No T1 file selected for processing!"
     end
-
-    # Resample surface should be set if atlas is checked.
-    params_errors.add(:resample_surfaces, " need to be checked if you want to run surface parcellation.") if params[:atlas].to_i == 1 && params[:resample_surfaces].to_i == 0
 
     # Verify N3_distance value
     params_errors.add(:N3_distance, " suggested values are 200 for a 1.5T scanner, 100 to 125 for a 3T scanner, 0 is acceptable for version later than 1.1.12 for MP2RAGE scanner.") if
@@ -180,18 +188,13 @@ class CbrainTask::Civet < PortalTask
       params[:thickness_kernel] = self.tool_config.is_at_least_version("1.1.12") ? "30" : "20"
     end
 
-    params_errors.add(:thickness_kernel,  " must be an integer") if params[:thickness_kernel].present? && params[:thickness_kernel] !~ /^\d+$/
-
+    params_errors.add(:thickness_kernel,  " must be an integer (version < 2.0.0) or a list of integer separate by a ':' (version >= 2.0.0)") if
+      !is_valid_integer_list(params[:thickness_kernel])
     # Verify resample surfaces
-    params_errors.add(:resample_surfaces_kernel_areas,  " must be an integer") if
-      params[:resample_surfaces_kernel_areas].present?    && params[:resample_surfaces_kernel_areas]   !~ /^\d+$/
-    params_errors.add(:resample_surfaces_kernel_volumes,  " must be an integer") if
-      params[:resample_surfaces_kernel_volumes].present?  && params[:resample_surfaces_kernel_volumes] !~ /^\d+$/
-    if (params[:resample_surfaces_kernel_areas].present? || params[:resample_surfaces_kernel_volumes].present?) && params[:resample_surfaces].to_i == 0
-      params_errors.add(:resample_surfaces, " need to be checked if you want use '-area-fwhm' and '-volumes-fwhm option.")
-    end
-
-
+    params_errors.add(:resample_surfaces_kernel_areas,  " must be an integer (version < 2.0.0) or a list of integer separate by a ':' (version >= 2.0.0)") if
+      !is_valid_integer_list(params[:resample_surfaces_kernel_areas])
+    params_errors.add(:resample_surfaces_kernel_volumes,  " must be an integer (version < 2.0.0) or a list of integer separate by a ':' (version >= 2.0.0)") if
+      !is_valid_integer_list(params[:resample_surfaces_kernel_volumes])
 
     # Verify uniqueness of subject IDs
     dsid_counts = {}
@@ -307,7 +310,7 @@ class CbrainTask::Civet < PortalTask
 
     messages = ""
     unless study_name.blank?
-      tids = task_list.map &:id
+      tids = task_list.map(&:id)
       combiner = create_combiner(study_name,tids)
       combiner.tool_config_id = params[:combiner_tool_config_id].to_i
       combiner.save!
@@ -541,8 +544,6 @@ class CbrainTask::Civet < PortalTask
 
   def create_combiner(study_name,tids) #:nodoc:
 
-    params = self.params
-
     combiner = CbrainTask::CivetCombiner.new
     combiner.user_id          = self.user_id
     combiner.bourreau_id      = self.bourreau_id
@@ -626,6 +627,5 @@ class CbrainTask::Civet < PortalTask
 
     [ t2_name, pd_name, mk_name, minclist ]
   end
-
 end
 

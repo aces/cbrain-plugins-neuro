@@ -1,7 +1,6 @@
 
 <!--
-#
-# CBRAIN Project
+3# CBRAIN Project
 #
 # Copyright (C) 2008-2012
 # The Royal Institution for the Advancement of Learning
@@ -30,25 +29,33 @@
 
 <b>Pipeline options</b>
 <ul>
-    <li><b>Template:</b> Define the voxel size in stereotaxic space.</li>
-    <li><b>Model:</b> Define the model for stereotaxic registration.</li>
-    <li><b>Surface parcellation:</b> Use AAL_atlas_left.txt and AAL_atlas_right.txt for parcellation.</li>
     <li><b>Restart from this stage:</b> Restart the pipeline from the specified stage. This option appears only when restarting a task.</li>
 </ul>
 
-<b>CIVET options</b>
+<b>Volume options</b>
 <ul>
-    <li><b>Interpolation:</b> Interpolation method from native to stereotaxic space.</li>
-    <li><b>N3 distance:</b> N3 spline distance in mm (suggested values: 200 for 1.5T scan; 50 for 3T scan).</li>
-    <li><b>Head height:</b> Head height in mm for neck cropping. Suggested value: 170. Only available for version 1.1.12 and later.</li>
+    <li><b>Model:</b> Define the model for stereotaxic registration.</li>
+    <li><b>Template:</b> Define the voxel size in stereotaxic space.</li>
     <li><b>Degrees of freedom for linear registration:</b> Transformation for linear registration.</li>
+    <li><b>Interpolation:</b> Interpolation method from native to stereotaxic space.</li>
+    <li><b>Head height:</b> Head height in mm for neck cropping. Suggested value: 170. Only available for version 1.1.12 and later.</li>
+    <li><b>Mask blood vessels:</b> Mask blood vessels prior to white surface extraction. Only available for version 2.0.0 and later.</li>
+    <li><b>N3 distance:</b> N3 spline distance in mm (suggested values: 200 for 1.5T scan; 50 for 3T scan).</li>
+</ul>
+
+
+<b>Surface options</b>
+<ul>
     <li><b>Do NOT build surfaces:</b> Don't build surfaces, if checked.</li>
+    <li><b>High resolution surface:</b> Build high resolution surfaces. Only available for version 2.0.0 and later.</li>
+    <li><b>Combine left/right surfaces:</b> Combine left and right cortical surfaces, if checked.</li>
     <li><b>Thickness method:</b> Compute cortical thickness and blur.
-    <li><b>Kernel size:</b> Default: 20mm for version 1.1.11 and lower and 30mm for version 1.1.12 and later.</li>
+    <li><b>Kernel size:</b> Default: 20mm for version 1.1.11 and lower and 30mm for version 1.1.12 and later.
+    List of integer separate by a ':' is accepted for version 2.0.0 and later, e.g. 10:20:30.</li>
     <li><b>Resample surfaces:</b> Resample cortical surfaces, if checked.</li>
-    <li><b>Kernel size areas:</b> Blurring kernel size in mm for resampled surface areas. Default: 40mm. Only available for version 1.1.11 and later.</li>
-    <li><b>Kernel size volumes:</b> Blurring kernel size in mm for resampled surface volumes. Default: 40mm. Only available for version 1.1.11 and later.</li>
-    <li><b>Combine surfaces:</b> Combine left and right cortical surfaces, if checked.</li>
+    <li><b>Surface parcellation:</b> Use atlas for parcellation.</li>
+    <li><b>Kernel size areas:</b> Blurring kernel size in mm for resampled surface areas. Default: 40mm. Only available for version 1.1.11 and later. List of integer separate by a ':' is accepted for version 2.0.0 and later, e.g. 10:20:30.</li>
+    <li><b>Kernel size volumes:</b> Blurring kernel size in mm for resampled surface volumes. Default: 40mm. Only available for version 1.1.11 and later. List of integer separate by a ':' is accepted for version 2.0.0 and later,  e.g. 10:20:30.</li>
 </ul>
 
 <b>VBM options</b>
