@@ -462,9 +462,9 @@ class CbrainTask::Civet < PortalTask
       # Find other userfiles with similar names, but with _t2, _pd or _mask instead of _t1
       if t1_name =~ /_t1/i
         all_access = SingleFile.find_all_accessible_by_user(user) # a relation
-        t2_id = all_access.where(:name => t1_name.sub("_t1","_t2")).limit(1).raw_first_column(:id)[0]
-        pd_id = all_access.where(:name => t1_name.sub("_t1","_pd")).limit(1).raw_first_column(:id)[0]
-        mk_id = all_access.where(:name => t1_name.sub("_t1","_mask")).limit(1).raw_first_column(:id)[0]
+        t2_id = all_access.where(:name => t1_name.sub("_t1","_t2")).limit(1).raw_first_column("#{Userfile.table_name}.id")[0]
+        pd_id = all_access.where(:name => t1_name.sub("_t1","_pd")).limit(1).raw_first_column("#{Userfile.table_name}.id")[0]
+        mk_id = all_access.where(:name => t1_name.sub("_t1","_mask")).limit(1).raw_first_column("#{Userfile.table_name}.id")[0]
       end
 
       if t1_name.match(/(\w+)_(\w+)_t1\b/i)
