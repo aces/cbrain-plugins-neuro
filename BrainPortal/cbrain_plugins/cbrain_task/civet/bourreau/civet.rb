@@ -363,7 +363,7 @@ class CbrainTask::Civet < ClusterTask
     args += "-interp #{params[:interp]} "           if params[:interp].present?
     args += "-N3-distance #{params[:N3_distance]} " if params[:N3_distance].present?
     args += "-headheight #{params[:headheight]} "   if params[:headheight].present?         && !options_to_ignore.has_key?(:headheight)
-    args += "-mask-blood-vessels "                  if params[:mask_blood_vessels].present? && !options_to_ignore.has_key?(:mask_blood_vessels)
+    args += "-mask-blood-vessels "                  if mybool(params[:mask_blood_vessels])  && !options_to_ignore.has_key?(:mask_blood_vessels)
     args += "-lsq#{params[:lsq]} "                  if params[:lsq] && params[:lsq].to_i != 9 # there is NO -lsq9 option!
     args += "-no-surfaces "                         if mybool(params[:no_surfaces])
     args += "-correct-pve "                         if mybool(params[:correct_pve])

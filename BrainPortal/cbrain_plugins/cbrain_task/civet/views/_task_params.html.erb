@@ -183,7 +183,8 @@
 <legend>VBM Options</legend>
 
   <b><%= form.params_label     :VBM, "Process VBM files:", :title => "Process VBM files" %></b>
-  <%= show_hide_checkbox("#hide_if_not_process_vbm", :checked => params[:VBM] == "1", :invert => false )%>
+  <%= show_hide_checkbox("#hide_if_not_process_vbm", :checked => params[:VBM] == "1" || params[:VBM] == "on",
+                                                     :invert => false, :name => "cbrain_task[params][VBM]" ) %>
 
   <div id="hide_if_not_process_vbm", , style="padding-left: 10px" >
     <%= form.params_label :VBM_fwhm, "Blurring kernel size in mm for volume:", :title => "Blurring kernel size in mm for volume" %>
