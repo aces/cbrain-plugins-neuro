@@ -87,9 +87,9 @@ class CbrainTask::Civet
     end
     if !self.tool_config.is_at_least_version("1.1.12")
       ignored_options[:headheight]                       = true
+      ignored_options[:mask_blood_vessels]               = true
     end
     if !self.tool_config.is_at_least_version("2.0.0")
-      ignored_options[:mask_blood_vessels]               = true
       ignored_options[:high_res_surfaces]                = true
     end
 

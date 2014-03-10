@@ -177,7 +177,7 @@ class CbrainTask::Civet < PortalTask
     end
 
     # Verify N3_distance value
-    params_errors.add(:N3_distance, " suggested values are 200 for a 1.5T scanner, 100 to 125 for a 3T scanner, 0 is acceptable for version later than 1.1.12 for MP2RAGE scanner.") if
+    params_errors.add(:N3_distance, " suggested values: 200 for 1.5T scan; 50-125 for 3T scan. For older 3T scans, low values nearer 50 may work best; for newer 3T scans, high values nearer 125 may work best. 0 is acceptable for version later than 1.1.12 for MP2RAGE scanner.") if
       params[:N3_distance].blank? || params[:N3_distance] !~ /^\d+$/
 
     # Verify headheight value
