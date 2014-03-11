@@ -18,36 +18,37 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.  
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 -%>
 
 <% if @userfile.is_locally_synced? %>
+  <%
+    png_files = Hash.new
+    @userfile.list_files("#{base_dir}").each do |f|
+      if f.name =~ /([a-z]+)\.png$/i
+        short_name = $1.capitalize
+        png_files[short_name] = f
+      end
+    end
+  %>
+
   <%= overlay_content_link "Show Displayable Contents", :class => "action_link" do %>
-    <% verify_file = @userfile.list_files("#{base_dir}").find { |f| f.name =~ /verify\.png$/} rescue nil %>
-    <% clasp_file  = @userfile.list_files("#{base_dir}").find { |f| f.name =~ /clasp\.png$/ } rescue nil %>
-    <% atlas_file  = @userfile.list_files("#{base_dir}").find { |f| f.name =~ /atlas\.png$/ } rescue nil%>
-
-    <% if verify_file %>
-       <h3>Verify</h3>
-       <%= image_tag url_for(:action  => :content, :content_loader => :collection_file, :arguments => verify_file.name) %>
+    <!-- Set anchor -->
+    <b>Go to:</b>
+    <% png_files.each do |short_name, file| %>
+      <a href="#<%= short_name %>"><%= short_name %></a>
+    <% end %>
+    <!-- Render png -->
+    <% png_files.each do |short_name, file| %>
+      <div id="<%= short_name %>">
+        <h3><%= short_name %><h3>
+        <%= image_tag url_for(:action  => :content, :content_loader => :collection_file, :arguments => file.name) %>
+      </div>
     <% end %>
 
-    <br>
+ <% end %>
 
-    <% if clasp_file %>
-       <h3>Clasp</h3>
-       <%= image_tag url_for(:action  => :content, :content_loader => :collection_file, :arguments => clasp_file.name) %>
-    <% end %>
- 
-    <br>
-
-    <% if atlas_file %>
-       <h3>Atlas</h3>
-       <%= image_tag url_for(:action  => :content, :content_loader => :collection_file, :arguments => atlas_file.name) %>
-    <% end %>
- 
-  <% end %>
 <% end %>
 <%= render :partial  => "userfiles/viewers/civet_directories_help" %>
 <br><br>

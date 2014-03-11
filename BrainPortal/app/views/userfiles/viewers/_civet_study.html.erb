@@ -18,13 +18,13 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.  
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 -%>
 
 <% if @userfile.is_locally_synced? %>
   <% if @userfile.list_files(".", :directory).find{ |dir| dir.name[-3, 3] == "/QC" } %>
-    <%= overlay_ajax_link "Show QC Data", url_for(:action  => :display, :viewer => "civet_study/qc_file", :qc_file  => "base"), :class => "action_link" %><br>
+    <%= link_to("Show QC Data", url_for(:action  => :display, :viewer => "civet_study/qc_file", :qc_file  => "base") , :class => "action_link", :target => "_blank") %><br>
     <%= overlay_ajax_link "Civet QC Legend", "/doc/userfiles/civetqc_results.html", :class => "action_link" %>
   <% end %>
 <% end %>
