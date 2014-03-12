@@ -17,7 +17,7 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.  
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
 # A subclass of ClusterTask to run Claude's CIVET QC PIPELINE
@@ -128,13 +128,20 @@ class CbrainTask::CivetQc < ClusterTask
       "env | sort",
       "echo \"\";echo Starting CIVET QC",
       "echo Command: #{civetqc_command}",
-      "#{civetqc_command}"
+      "#{civetqc_command}",
+      "touch has_run"
     ]
 
   end
-  
+
   def save_results #:nodoc:
     params       = self.params
+
+    unless File.exist? "has_run"
+      self.addlog("Error: it seems that QC havent't run.")
+      return false
+    end
+    File.unlink "has_run"
 
     # Check for some common error conditions.
     stderr = File.read(self.stderr_cluster_filename) rescue ""
@@ -149,6 +156,11 @@ class CbrainTask::CivetQc < ClusterTask
     # Find study object and mark it as changed.
     study_id = params[:study_id]
     study = CivetStudy.find(study_id)
+    study_path = study.cache_full_path
+    unless Dir.exist?("#{study_path}/QC")
+      self.addlog("Error: it seems that QC havent't run.")
+      return false
+    end
 
     # Save back study with QC report in it.
     self.addlog("Syncing study with QC reports back to data provider.")
