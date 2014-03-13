@@ -33,20 +33,23 @@
     end
   %>
 
-  <%= overlay_content_link "Show Displayable Contents", :class => "action_link" do %>
-    <!-- Set anchor -->
-    <b>Go to:</b>
-    <% png_files.each do |short_name, file| %>
-      <a href="#<%= short_name %>"><%= short_name %></a>
-    <% end %>
-    <!-- Render png -->
-    <% png_files.each do |short_name, file| %>
-      <div id="<%= short_name %>">
-        <h3><%= short_name %><h3>
-        <%= image_tag url_for(:action  => :content, :content_loader => :collection_file, :arguments => file.name) %>
-      </div>
-    <% end %>
 
+  <% if !png_files.empty? %>
+    <%= overlay_content_link "Show Displayable Contents", :class => "action_link" do %>
+      <!-- Set anchor -->
+      <a id="top"></a>
+      <b>Go to:</b>
+      <% png_files.each do |short_name, file| %>
+        <a href="#<%= short_name %>"><%= short_name %></a>
+      <% end %>
+      <!-- Render png -->
+      <% png_files.each do |short_name, file| %>
+        <div id="<%= short_name %>">
+          <h3><%= short_name %> <small>(<a href="#top">top</a>)</small><h3>
+          <%= image_tag url_for(:action  => :content, :content_loader => :collection_file, :arguments => file.name) %>
+        </div>
+      <% end %>
+   <% end %>
  <% end %>
 
 <% end %>
