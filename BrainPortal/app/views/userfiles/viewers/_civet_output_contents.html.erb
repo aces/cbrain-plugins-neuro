@@ -39,11 +39,17 @@
       <!-- Set anchor -->
       <a id="top"></a>
       <b>Go to:</b>
-      <% png_files.each do |short_name, file| %>
+      <% order = [ 'Verify', 'Clasp', 'Atlas', 'Surfsurf', 'Laplace' ] %>
+      <% order.each do |short_name| %>
+        <% file = png_files[short_name] %>
+        <% next unless file %>
+        <% file = png_files[short_name] %>
         <a href="#<%= short_name %>"><%= short_name %></a>
       <% end %>
       <!-- Render png -->
-      <% png_files.each do |short_name, file| %>
+      <% order.each do |short_name| %>
+        <% file = png_files[short_name] %>
+        <% next unless file %>
         <div id="<%= short_name %>">
           <h3><%= short_name %> <small>(<a href="#top">top</a>)</small><h3>
           <%= image_tag url_for(:action  => :content, :content_loader => :collection_file, :arguments => file.name) %>
