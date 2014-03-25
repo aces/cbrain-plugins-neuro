@@ -17,7 +17,7 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.  
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
 # A subclass of ClusterTask to run mnc2nii.
@@ -112,7 +112,7 @@ class CbrainTask::Mnc2nii < ClusterTask
     niifiles = []
     out_files.each do |file|
       self.addlog("Found raw output file '#{file}'.")
-      niifile = safe_userfile_find_or_new(SingleFile,
+      niifile = safe_userfile_find_or_new(NiftiFile,
         :name             => shortbase + File.extname(file),
         :data_provider_id => self.results_data_provider_id
       )
