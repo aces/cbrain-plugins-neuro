@@ -36,3 +36,11 @@ Fractional intensity threshold (-f): </br>
 Vertical gradient in fractional intensity threshold (-g): </br>
 <%= form.params_text_field :vertical_gradient %></br>
 
+<%= form.params_check_box :with_b  %><%= form.params_label :with_b , "Run with -B (bias field & neck cleanup, can be useful in SIENA)."  %><br/>
+<%= form.params_check_box :with_f  %><%= form.params_label :with_f , "Run with -F (apply to 4D FMRI data: uses -f 0.3 and dilates brain mask slightly)."  %><br/>
+
+
+<p>
+Output name:<br>
+<%= form.params_text_field :output_name %></br>
+</P>

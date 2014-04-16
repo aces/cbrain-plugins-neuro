@@ -33,6 +33,7 @@ class CbrainTask::FslBet < PortalTask
 
   def self.default_launch_args #:nodoc:
     {
+      :output_name => "brain",
       :fractional_intensity => 0.5,
       :vertical_gradient => 0.0,
     }

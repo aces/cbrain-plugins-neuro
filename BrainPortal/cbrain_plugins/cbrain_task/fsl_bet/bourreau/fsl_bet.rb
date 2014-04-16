@@ -48,13 +48,16 @@ class CbrainTask::FslBet < ClusterTask
   end
 
   def job_walltime_estimate #:nodoc:
-    (0.1 * params[:interface_userfile_ids].count).hours
+     params[:with_b] == "1" ? (0.2 * params[:interface_userfile_ids].count).hours : (0.1 * params[:interface_userfile_ids].count).hours
   end
 
   def cluster_commands #:nodoc:
     params    = self.params
     f_option  = params[:fractional_intensity].blank? ? 0.5 : params[:fractional_intensity].to_f
     g_option  = params[:vertical_gradient].blank?    ? 0.0 : params[:vertical_gradient].to_f 
+
+    with_b        = params[:with_b] == "1" ? "-B"  : ""
+    with_f        = params[:with_f] == "1" ? "-F"  : ""
 
     cmds      = []
     cmds      << "echo Starting BET"
@@ -66,10 +69,10 @@ class CbrainTask::FslBet < ClusterTask
     task_work     = self.full_cluster_workdir
     
     output  = inputfile.name
-    output  = output =~ /(\..+)/ ? output.sub( /(\..+)/ , "_brain-#{self.run_id}#{$1}") : "#{output}_brain-#{self.run_id}" 
+    output  = output =~ /(\..+)/ ? output.sub( /(\..+)/ , "_#{params[:output_name]}-#{self.run_id}#{$1}") : "#{output}_brain-#{self.run_id}" 
     output << ".gz" if !(output =~ /\.gz$/)
 
-    cmd_bet = "bet #{self.full_cluster_workdir}/#{inputfile.name} #{output} -f #{f_option} -g #{g_option}"
+    cmd_bet = "bet #{self.full_cluster_workdir}/#{inputfile.name} #{output} -f #{f_option} -g #{g_option} #{with_b} #{with_f}"
     cmds    << "echo running #{cmd_bet}"
     cmds    << cmd_bet
     
