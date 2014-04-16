@@ -1,0 +1,51 @@
+
+<%-
+#
+# CBRAIN Project
+#
+# Copyright (C) 2008-2012
+# The Royal Institution for the Advancement of Learning
+# McGill University
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.  
+#
+-%>
+
+<STRONG>Design file:</STRONG>
+</p>
+<ul>
+  <li><%= link_to_userfile_if_accessible(params[:design_file_id]) %> <%= form.params_hidden_field "design_file_id" %></li>
+</ul>
+
+<p>
+<STRONG>Data files:</STRONG>
+<table>
+<tr><th>Task</th><th>Functional files</th><th>Structural files</th></tr>
+<% (0..params[:sorted_functional_file_ids].size-1).each do |i| %>
+<tr><td><%="#{i}"%></td><td><%= link_to_userfile_if_accessible(params[:sorted_functional_file_ids][i]) %><%= form.params_hidden_field "sorted_functional_file_ids[#{i}]" %></td>
+  <% if !params[:sorted_structural_file_ids].blank? %>
+   <td><%= link_to_userfile_if_accessible(params[:sorted_structural_file_ids][i])  %><%= form.params_hidden_field "sorted_structural_file_ids[#{i}]" %></td>
+  <% end %>
+</tr>
+<% end %>
+</table>
+Note: only single-session ICA is supported: every (functional,structural) pairs will be processed in a separate task.
+</p>
+
+<p>
+Output name:<br>
+<%= form.params_text_field :output_name %></br>
+</P>
+
+
