@@ -93,10 +93,10 @@ class CbrainTask::ReconAll < ClusterTask
       # For SingleFile or FileCollection
       subjid_info       += " -subjid #{subjectid}"
 
-      step               = params[:workflow_directives]
+      step               = params[:workflow_directives].bash_escape
       message            = "Starting Recon-all cross-sectional"
     else # RECOVER FROM FAILURE MODE
-      subjectid          = params[:subjectid]
+      subjectid          = params[:subjectid].bash_escape
       with_qcache        = ""
       with_mprage        = ""
       subjid_info        = "-s #{subjectid}"
@@ -109,8 +109,8 @@ class CbrainTask::ReconAll < ClusterTask
     if self.tool_config.version_name =~ /LBL/
       lbl_ext     = ""
       lbl_options = ""
-      n3_3t  = (params[:n3_3t]  || "").strip
-      nui_3t = (params[:nui_3t] || "").strip
+      n3_3t  = (params[:n3_3t].bash_escape  || "").strip
+      nui_3t = (params[:nui_3t].bash_escape || "").strip
       if n3_3t.present? && nui_3t.present? && n3_3t =~ /^\d+$/ && nui_3t =~ /^\d+$/
          lbl_ext     = "-LBL"
          lbl_options = "-nuintensitycor-3T -N3-3T #{n3_3t} -nuiterations-3T #{nui_3t}"
