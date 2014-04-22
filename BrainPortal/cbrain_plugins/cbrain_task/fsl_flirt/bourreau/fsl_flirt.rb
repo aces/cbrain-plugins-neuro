@@ -32,11 +32,11 @@ class CbrainTask::FslFlirt < ClusterTask
 
   def setup #:nodoc:
     params       = self.params
-      
+
     file_ids  =  params[:interface_userfile_ids] || []
-    
+
     files = Userfile.find_all_by_id(file_ids)
-    files.each do |file|            
+    files.each do |file|
       self.addlog("Preparing input file '#{file.name}'")
       file.sync_to_cache
       cache_path = file.cache_full_path
@@ -50,28 +50,29 @@ class CbrainTask::FslFlirt < ClusterTask
   def job_walltime_estimate #:nodoc:
     (0.5 * params[:interface_userfile_ids].count).hours
   end
-  
+
   def cluster_commands #:nodoc:
     params            = self.params
 
     run_subdir        = "Flirt-Out-#{self.run_id}/"
     safe_mkdir(run_subdir,0700)
-                                                          
+
     ref_id            = params[:ref]
     reference_name    = Userfile.find(ref_id.to_i).name
     output_name       = run_subdir
-    output_name      += params[:out].presence  || "Flirt"
-    output_name.sub!(/\.nii(\.gz)?$/i, '') 
-    bins              = params[:bins]
-    cost              = params[:cost]
-    searchx           = "#{params[:searchx_min]} #{params[:searchx_max]}"
-    searchy           = "#{params[:searchy_min]} #{params[:searchy_max]}"
-    searchz           = "#{params[:searchz_min]} #{params[:searchz_max]}"
+    output_name      += params[:out].presence || "Flirt"
+    output_name.sub!(/\.nii(\.gz)?$/i, '')
+    output_name       = output_name.bash_escape
+    bins              = params[:bins].bash_escape
+    cost              = params[:cost].bash_escape
+    searchx           = "#{params[:searchx_min].bash_escape} #{params[:searchx_max].bash_escape}"
+    searchy           = "#{params[:searchy_min].bash_escape} #{params[:searchy_max].bash_escape}"
+    searchz           = "#{params[:searchz_min].bash_escape} #{params[:searchz_max].bash_escape}"
     two_d             = params[:model].to_i == 2 ? "-2D" : ""
-    dof               = params[:dof]
-    interp            = params[:interp]
+    dof               = params[:dof].bash_escape
+    interp            = params[:interp].bash_escape
     input_to_ref_mode = true if params[:mode] == "input_ref"
-    
+
 
     # create cmd array
     cmd = []
@@ -88,10 +89,10 @@ class CbrainTask::FslFlirt < ClusterTask
       cmd << flirt_cmd
       params[:output_list] << output_name
       remaining_file_ids = file_ids - [input_id] - [ref_id]
-    # Treat high -> low -> ref case  
+    # Treat high -> low -> ref case
     else
       # Treat high resolution file
-      high_id   = params[:high]
+      high_id   = params[:high].bash_escape
       high_name = Userfile.find(high_id.to_i).name
       high_mat  = "#{output_name}1.mat"
       flirt_cmd = "flirt -in #{high_name} -ref #{reference_name} -omat #{high_mat} -bins #{bins} -cost #{cost} -searchrx #{searchx} -searchry #{searchy} -searchrz #{searchz} #{two_d} -dof #{dof}"
@@ -99,7 +100,7 @@ class CbrainTask::FslFlirt < ClusterTask
       cmd << flirt_cmd
       params[:output_list] << high_mat
       # Treat low resolution file
-      low_id    = params[:low]
+      low_id    = params[:low].bash_escape
       low_name  = Userfile.find(low_id.to_i).name
       low_mat   = "#{output_name}2.mat"
       flirt_cmd = "flirt -in #{low_name} -ref #{reference_name} -omat #{low_mat} -bins #{bins} -cost #{cost} -searchrx #{searchx} -searchry #{searchy} -searchrz #{searchz} #{two_d} -dof #{dof}"
@@ -125,36 +126,36 @@ class CbrainTask::FslFlirt < ClusterTask
     remaining_file_ids.each do |id|
       secondary_image_input  = secondary_image_no_ext = Userfile.find(id.to_i).name
 
-      # Create secondary output name 
-      secondary_image_no_ext.sub!(/\.nii(\.gz)?$/i, '') 
-      secondary_output_name  = "#{output_name}_shadowreg_#{secondary_image_no_ext}" 
+      # Create secondary output name
+      secondary_image_no_ext.sub!(/\.nii(\.gz)?$/i, '')
+      secondary_output_name  = "#{output_name}_shadowreg_#{secondary_image_no_ext}"
 
       # Create command
       secondary_cmd          = "flirt -in #{secondary_image_input} -ref #{reference_name} -out #{secondary_output_name} -applyxfm -init #{output_name}.mat -interp #{interp}"
       cmd << "echo Command: #{secondary_cmd}"
       cmd << secondary_cmd
-      
+
       params[:output_list] << secondary_output_name
     end
 
     cmd
   end
-  
+
   def save_results #:nodoc:
     params            = self.params
     run_subdir        = "Flirt-Out-#{self.run_id}"
     input_to_ref_mode = true if params[:mode] == "input_ref"
-    
+
     output_name  = params[:out].presence  || "Flirt"
     cb_error("Sorry, but the output name provided contains some unacceptable characters.") unless Userfile.is_legal_filename?(output_name)
 
-    if input_to_ref_mode 
+    if input_to_ref_mode
       input_file = Userfile.find(params[:in])
     else
       input_file = Userfile.find(params[:high])
     end
     self.results_data_provider_id ||= input_file.data_provider_id
-    
+
     # Verify if flirt exited without error. Check foreach output
     output_list  = params[:output_list]
     count_failed = 0
@@ -166,7 +167,7 @@ class CbrainTask::FslFlirt < ClusterTask
     if count_failed > 0
       self.addlog(" #{count_failed} on #{output_list.count} Flirt command failed (see Standard Error)")
       failed = params[:failed_restriction]
-      self.addlog("failed_restriction #{failed}") 
+      self.addlog("failed_restriction #{failed}")
       return false if (count_failed == output_list.count) || (params[:failed_restriction] == "1" && count_failed > 0)
     end
 
@@ -180,10 +181,10 @@ class CbrainTask::FslFlirt < ClusterTask
 
     self.addlog_to_userfiles_these_created_these( [ input_file ], [ outfile ] )
     self.addlog("Saved result file #{output_name}")
-    
+
     params[:outfile_id] = outfile.id
     outfile.move_to_child_of(input_file)
-    
+
     true
   end
 
