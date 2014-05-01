@@ -94,7 +94,7 @@ Workflow directives:<br/>
 <%= form.params_check_box :with_cw256   %><%= form.params_label :with_cw256,   "Run with -cw256 flag, for image with FOV > 256." %><br/
 
 
-<% if @tool_config.version_name =~ /LBL/%>
+<% if @tool_config.present? && @tool_config.version_name =~ /LBL/%>
   <br/>
   <%= form.params_label :n3_3t,  "Value for \"-N3-3T\" : " %>
   <%= form.params_text_field :n3_3t, :size => 4 %><br>
