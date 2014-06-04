@@ -115,7 +115,7 @@ class CbrainTask::Civet < ClusterTask
       return false unless validate_minc_file(t1sym)
 
       if mybool(file0[:multispectral]) || mybool(file0[:spectral_mask])
-        if t2_name.prensent?
+        if t2_name.present?
           t2ext = t2_name.match(/.gz$/i) ? ".gz" : ""
           t2sym = "#{mincfiles_dir}/#{prefix}_#{dsid}_t2.mnc#{t2ext}"
           safe_symlink("#{colpath}/#{t2_name}",t2sym)
