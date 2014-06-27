@@ -66,7 +66,7 @@ class CbrainTask::FslMelodic < PortalTask
         end
       end
     end
-    cb_error "Error: you must select a design file." unless params[:design_file_id] != 1
+    cb_error "Error: you must select a design file." unless params[:design_file_id] != -1
     cb_error "Error: you must select at least 1 functional Nifti file." unless params[:functional_file_ids].size > 0
     cb_error "Error: you must select an equal number of structural and functional files." unless params[:structural_file_ids].blank? || (params[:structural_file_ids].size == params[:functional_file_ids].size)
     params[:sorted_structural_file_ids] = params[:structural_file_ids].sort_by {|id| u = Userfile.find(id); u.name;}
@@ -83,10 +83,10 @@ class CbrainTask::FslMelodic < PortalTask
     
     mytasklist = []
     
-    params[:sorted_functional_file_ids].each do |func_id|
+    params[:sorted_functional_file_ids].each do |n,func_id|
       
       task=self.dup # not .clone, as of Rails 3.1.10
-      task.params[:functional_file_id] = func_id[1]
+      task.params[:functional_file_id] = func_id
       task.params[:structural_file_id] = params[:sorted_structural_file_ids].blank? ? nil : params[:sorted_structural_file_ids]["#{mytasklist.size}"]
       task.params[:task_file_ids] = task.params[:structural_file_id].blank? ? [ params[:design_file_id], task.params[:functional_file_id] ] : [ params[:design_file_id], task.params[:functional_file_id], task.params[:structural_file_id] ]
       task.description = Userfile.find(task.params[:functional_file_id]).name if task.description.blank?

@@ -46,7 +46,7 @@ class CbrainTask::FslMelodic < ClusterTask
   end
 
   def job_walltime_estimate #:nodoc:
-    4.hours
+    1.hours
   end
 
   def cluster_commands #:nodoc:
@@ -63,12 +63,17 @@ class CbrainTask::FslMelodic < ClusterTask
     functional_file = Userfile.find(params[:functional_file_id]).cache_full_path.to_s
     structural_file = Userfile.find(params[:structural_file_id]).cache_full_path.to_s
 
-    # put data files into design file
+    # modify design files according to local context (paths)
     modified_design_file=Tempfile.new(["design",".fsf"],".").path
-    sed_command = 'sed s/^set\ feat_files.*/\#\ LINE\ REMOVED\ BY\ CBRAIN/g '"#{design_file}"' | sed s/^set\ highres_files.*/\#\ LINE\ REMOVED\ BY\ CBRAIN/g | sed s/^set\ fmri\(outputdir\)/\#\ LINE\ REMOVED\ BY\ CBRAIN/g'" > #{modified_design_file}"
-    self.addlog(sed_command)
-    raise "Cannot sed design file" unless system(sed_command)
-    File.open(modified_design_file, 'a') {|f| f.write("#LINES ADDED BY CBRAIN\n"); f.write("set feat_files(1) \"#{functional_file}\"\n") ; f.write("set highres_files(1) \"#{structural_file}\"\n") unless self.params[:structural_file_id].blank? ; f.write("set fmri(outputdir) \"#{output}\"\n")}
+ 
+    sed_command = 'sed s/^set\ feat_files.*/\#\ LINE\ REMOVED\ BY\ CBRAIN/g '"#{design_file}"' | sed s/^set\ highres_files.*/\#\ LINE\ REMOVED\ BY\ CBRAIN/g | sed s/^set\ fmri\(outputdir\)/\#\ LINE\ REMOVED\ BY\ CBRAIN/g | sed s/^set\ fmri\(multiple\)/\#\ LINE\ REMOVED\ BY\\ CBRAIN/g | sed s,\"\.*/data/standard,\"${FSLDIR}/data/standard,g'" > #{modified_design_file}"
+    cmds << sed_command
+
+    cmds << "echo \"#LINES ADDED BY CBRAIN\" >> #{modified_design_file} \n"   
+    cmds << "echo \"set feat_files\(1\) \\\"#{functional_file}\\\"\" >> #{modified_design_file}\n"
+    cmds << "echo \"set highres_files\(1\) \\\"#{structural_file}\\\"\" >> #{modified_design_file}\n" unless self.params[:structural_file_id].blank?
+    cmds << "echo \"set fmri\(outputdir\) \\\"#{output}\\\"\" >> #{modified_design_file}\n"
+    cmds << "echo \"set fmri\(multiple\) 1\" >> #{modified_design_file}\n"
 
     cmd_melodic = "feat #{modified_design_file}"
     cmds    << "echo running #{cmd_melodic.bash_escape}"
@@ -97,17 +102,26 @@ class CbrainTask::FslMelodic < ClusterTask
       return false
     end
 
-    outputfile =  safe_userfile_find_or_new(FslMelodicOutput, :name => params[:output_dir_name])
-    outputfile.save!
-    outputfile.cache_copy_from_local_file(params[:output_dir_name])
-    
-    inputfile_id = params[:inputfile_id].to_i
-    inputfile    = Userfile.find(inputfile_id)
+    functional_file_id = params[:functional_file_id].to_i
+    structural_file_id = params[:structural_file_id].to_i
 
-    self.addlog_to_userfiles_these_created_these( [ inputfile ], [ outputfile ] )
+    functional_file    = Userfile.find(functional_file_id)
+    structural_file    = Userfile.find(structural_file_id)
+
+    functional_name = functional_file.name.sub(".gz","").sub(".nii","")
+    
+    outputname      = "#{params[:output_dir_name]}.ica"
+    outputname_new      = "#{functional_name}-#{outputname}"
+    raise "Cannot rename output file" unless File.rename(outputname,outputname_new)
+
+    outputfile      =  safe_userfile_find_or_new(FslMelodicOutput, :name => outputname_new)
+    outputfile.save!
+    outputfile.cache_copy_from_local_file(outputname_new)
+    
+    self.addlog_to_userfiles_these_created_these( [ functional_file,structural_file ], [ outputfile ] )
     self.addlog("Saved result file #{params[:output_dir_name]}")
     params[:outfile_id] = outputfile.id
-    outputfile.move_to_child_of(inputfile)
+    outputfile.move_to_child_of(functional_file)
 
     true
   end
