@@ -395,6 +395,11 @@ class CbrainTask::Civet < ClusterTask
         args += "-VBM-fwhm #{params[:VBM_fwhm].bash_escape} "   if params[:VBM_fwhm].present?
     end
 
+    if mybool(params[:ANIMAL])
+        args += "-animal "
+        args += "-lobe_atlas "
+    end
+
     reset_from = params[:reset_from]
     if ! reset_from.blank?
       cb_error "Internal error: value for 'reset_from' is not a proper identifier?" unless reset_from =~ /^\w+$/;
