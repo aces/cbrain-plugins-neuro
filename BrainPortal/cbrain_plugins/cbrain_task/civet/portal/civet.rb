@@ -25,7 +25,7 @@ class CbrainTask::Civet < PortalTask
 
   Revision_info=CbrainFileRevision[__FILE__] #:nodoc:
 
-  InterfaceUserfileIDsLimit = 200
+  InterfaceUserfileIDsLimit = 1000
 
   StagesNames = %w(
     nuc_t1_native
