@@ -27,7 +27,7 @@
 
 <UL>
   <% params[:interface_userfile_ids].each do |id| %>
-  <LI><%= h(Userfile.find(id).name) %></LI>
+  <LI><%= link_to_userfile_if_accessible id %></LI>
   <% end %>
 </UL>
 

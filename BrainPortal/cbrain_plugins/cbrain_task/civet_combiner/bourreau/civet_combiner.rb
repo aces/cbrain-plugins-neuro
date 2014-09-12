@@ -17,7 +17,7 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.  
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
 # CbrainTask subclass for combining a set of partial
@@ -74,10 +74,10 @@ class CbrainTask::CivetCombiner < ClusterTask
 
     # Synchronize them all
     self.addlog("Synchronizing collections to local cache")
-    cols.each do |col|
-      self.addlog("Synchronizing '#{col.name}'")
-      self.save # so log messages appear as syncs happen
+    cols.each_with_index do |col,idx|
+      self.addlog("Synchronizing '#{col.name}'") unless cols.size > 50
       col.sync_to_cache
+      self.addlog("Synchronized #{idx+1}/#{cols.size} collections...") if cols.size > 50 && (idx % 50 == 49 || idx == cols.size - 1)
     end
     self.addlog("Synchronization finished.")
 
@@ -141,10 +141,9 @@ class CbrainTask::CivetCombiner < ClusterTask
 
   def cluster_commands #:nodoc:
     params       = self.params
-
     nil   # Special case: no cluster job.
   end
-  
+
   def save_results #:nodoc:
     params       = self.params
     provid       = self.results_data_provider_id
@@ -182,12 +181,14 @@ class CbrainTask::CivetCombiner < ClusterTask
 
       # Issue rsync commands to combine the files
       subjects = []
-      cols.each do |col|
+      cols.each_with_index do |col,idx|
         col_id = col.id
         dsid   = tcol_to_dsid["C#{col_id}"]
         subjects << dsid
-        self.addlog("Adding #{col.class.to_s} '#{col.name}'")
-        newstudy.addlog("Adding #{col.class.to_s} '#{col.name}'")
+        if cols.size <= 50
+          self.addlog("Adding #{col.class.to_s} '#{col.name}'")
+          #newstudy.addlog("Adding #{col.class.to_s} '#{col.name}'")
+        end
         colpath  = col.cache_full_path.to_s
         dsid_dir = (coldir + dsid).to_s
         Dir.mkdir(dsid_dir) unless File.directory?(dsid_dir)
@@ -196,6 +197,12 @@ class CbrainTask::CivetCombiner < ClusterTask
         end
         unless rsyncout.blank?
           cb_error "Error running rsync; rsync returned '#{rsyncout}'"
+        end
+        if cols.size > 50 && (idx % 50 == 49 || idx == cols.size - 1)  # group the log entries by batches of 50
+          subjslice_start = 50*(idx/50)
+          subjslice_names = subjects[subjslice_start,50].join(", ")
+          self.addlog("Added #{subjslice_names}")
+          #newstudy.addlog("Adding #{subjslice_names}'")
         end
       end
 

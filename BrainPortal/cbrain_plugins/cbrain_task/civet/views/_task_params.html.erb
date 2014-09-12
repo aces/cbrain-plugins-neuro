@@ -208,7 +208,7 @@
 <fieldset>
 
 <% if ! params[:collection_id].blank? %>
- <legend>MINC file input list for collection <em><%= Userfile.find(params[:collection_id]).name %></em></legend>
+ <legend>MINC file input list for collection <em><%= link_to_userfile_if_accessible params[:collection_id] %></em></legend>
 <% else %>
  <legend>MINC file input list</legend>
 <% end %>
