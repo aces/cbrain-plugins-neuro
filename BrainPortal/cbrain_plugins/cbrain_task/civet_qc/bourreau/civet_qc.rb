@@ -105,7 +105,7 @@ class CbrainTask::CivetQc < ClusterTask
   end
 
   def job_walltime_estimate #:nodoc:
-    2.hours
+    15.minutes + (2.minutes * (params[:dsid_names] || {}).size)
   end
 
   def cluster_commands #:nodoc:
