@@ -17,7 +17,7 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.  
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
 # A subclass of ClusterTask to run dcm2mnc.
@@ -35,11 +35,6 @@ class CbrainTask::Dcm2mnc < ClusterTask
 
     unless dicom_col
       self.addlog("Could not find active record entry for file collection #{dicom_colid}")
-      return false
-    end
-
-    unless dicom_col.is_a?(FileCollection)
-      self.addlog("Error: ActiveRecord entry #{dicom_colid} is not a file collection.")
       return false
     end
 
@@ -79,8 +74,8 @@ class CbrainTask::Dcm2mnc < ClusterTask
       end
     end
 
-    orig_basenames = relpaths.map { |relpath| File.basename(relpath) }                               
-    params[:orig_mincfile_basenames] = orig_basenames # to help user debug renaming problems          
+    orig_basenames = relpaths.map { |relpath| File.basename(relpath) }
+    params[:orig_mincfile_basenames] = orig_basenames # to help user debug renaming problems
 
     numfail = 0
     numok   = 0
