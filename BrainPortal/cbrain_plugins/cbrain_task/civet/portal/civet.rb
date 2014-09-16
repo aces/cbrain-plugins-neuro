@@ -119,7 +119,7 @@ class CbrainTask::Civet < PortalTask
       :VBM_cerebellum      => "1",         # -[no-]VBM-cerebellum
 
       # ANIMAL options
-      :ANIMAL              => "0",         # -[no-]ANIMAL
+      :animal              => "0",         # -[no-]ANIMAL
 
       # CBRAIN output renaming
       :output_filename_pattern => '{subject}-{cluster}-{task_id}-{run_number}'
