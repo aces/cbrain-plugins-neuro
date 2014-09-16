@@ -170,7 +170,7 @@
 
     <div id="hide_if_not_resample_surfaces", , style="padding-left: 10px" >
       <%
-        default_atlas  = [ "Lobar" ]
+        default_atlas  = [ ["Lobar", "lobes"] ]
         # Add AAL for version >= 1.1.11
         aal_disabled = not_at_least_1_1_11 ? { :disabled => '1' } : {}
         params[:atlas]  = nil if aal_disabled.present? && params[:atlas] == 'AAL'
