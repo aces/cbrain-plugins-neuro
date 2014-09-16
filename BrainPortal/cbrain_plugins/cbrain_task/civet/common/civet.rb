@@ -91,6 +91,9 @@ class CbrainTask::Civet
     end
     if !self.tool_config.is_at_least_version("2.0.0")
       ignored_options[:high_res_surfaces]                = true
+      ignored_options[:surfreg_model]                    = true
+      ignored_options[:animal]                           = true
+      ignored_options[:lobe_atlas]                       = true
     end
 
     ignored_options

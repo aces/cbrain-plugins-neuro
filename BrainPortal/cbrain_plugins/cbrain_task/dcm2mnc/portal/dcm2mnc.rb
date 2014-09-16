@@ -17,7 +17,7 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.  
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
 # A subclass of PortalTask to launch dcm2mnc.
@@ -28,17 +28,16 @@ class CbrainTask::Dcm2mnc < PortalTask
   def self.properties #:nodoc:
     { :no_presets => true, :use_parallelizer => true }
   end
-  
+
   def before_form #:nodoc:
     params   = self.params
     file_ids = params[:interface_userfile_ids]
     file_ids.each do |col_id|
       col = Userfile.find(col_id)
-      cb_error "This program can only run on FileCollections." unless col && col.is_a?(FileCollection)
     end
     ""
   end
-    
+
   def final_task_list #:nodoc:
     params   = self.params
     file_ids = params[:interface_userfile_ids]
