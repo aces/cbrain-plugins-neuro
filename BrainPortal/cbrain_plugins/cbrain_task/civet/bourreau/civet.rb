@@ -330,7 +330,8 @@ class CbrainTask::Civet < ClusterTask
     end
     if params[:model].present?
       raise "Bad model name."         unless params[:model]        =~ /^\s*[\w\.]+\s*$/
-      raise "Model is not valid for this CIVET version" if params[:model] == "ADNInl" && !self.tool_config.is_at_least_version("1.1.12")
+      raise "Model is not valid for this CIVET version" if params[:model] == "ADNInl" && !self.tool_config.is_version("1.1.12")
+      raise "Model is not valid for this CIVET version" if params[:model] == "icbm152nl_09a" && !self.tool_config.is_at_least_version("2.0.0")
     end
     if params[:interp].present?
       raise "Bad interp value."       unless params[:interp]       =~ /^\s*[\w]+\s*$/
@@ -355,23 +356,24 @@ class CbrainTask::Civet < ClusterTask
 
     args = ""
 
-    args += "-make-graph "                          if mybool(params[:make_graph])
-    args += "-make-filename-graph "                 if mybool(params[:make_filename_graph])
-    args += "-print-status-report "                 if mybool(params[:print_status_report])
-    args += "-template #{params[:template]} "       if params[:template].present?
-    args += "-model #{params[:model]} "             if params[:model].present?
-    args += "-interp #{params[:interp]} "           if params[:interp].present?
-    args += "-N3-distance #{params[:N3_distance]} " if params[:N3_distance].present?
-    args += "-headheight #{params[:headheight]} "   if params[:headheight].present?         && !options_to_ignore.has_key?(:headheight)
-    args += "-mask-blood-vessels "                  if mybool(params[:mask_blood_vessels])  && !options_to_ignore.has_key?(:mask_blood_vessels)
-    args += "-lsq#{params[:lsq]} "                  if params[:lsq] && params[:lsq].to_i != 9 # there is NO -lsq9 option!
-    args += "-no-surfaces "                         if mybool(params[:no_surfaces])
-    args += "-correct-pve "                         if mybool(params[:correct_pve])
-    args += "-hi-res-surfaces "                     if mybool(params[:high_res_surfaces])   && !options_to_ignore.has_key?(:high_res_surfaces)
-    args += "-combine-surfaces "                    if mybool(params[:combine_surfaces])
+    args += "-make-graph "                              if mybool(params[:make_graph])
+    args += "-make-filename-graph "                     if mybool(params[:make_filename_graph])
+    args += "-print-status-report "                     if mybool(params[:print_status_report])
+    args += "-template #{params[:template]} "           if params[:template].present?
+    args += "-model #{params[:model]} "                 if params[:model].present?
+    args += "-surfreg-model #{params[:surfreg_model]} " if params[:surfreg_model].present?     && !options_to_ignore.has_key?(:surfreg_model)
+    args += "-interp #{params[:interp]} "               if params[:interp].present?
+    args += "-N3-distance #{params[:N3_distance]} "     if params[:N3_distance].present?
+    args += "-headheight #{params[:headheight]} "       if params[:headheight].present?        && !options_to_ignore.has_key?(:headheight)
+    args += "-mask-blood-vessels "                      if mybool(params[:mask_blood_vessels]) && !options_to_ignore.has_key?(:mask_blood_vessels)
+    args += "-lsq#{params[:lsq]} "                      if params[:lsq] && params[:lsq].to_i != 9 # there is NO -lsq9 option!
+    args += "-no-surfaces "                             if mybool(params[:no_surfaces])
+    args += "-correct-pve "                             if mybool(params[:correct_pve])
+    args += "-hi-res-surfaces "                         if mybool(params[:high_res_surfaces])   && !options_to_ignore.has_key?(:high_res_surfaces)
+    args += "-combine-surfaces "                        if mybool(params[:combine_surfaces])
 
-    args += "-multispectral "                       if mybool(file0[:multispectral])
-    args += "-spectral_mask "                       if mybool(file0[:spectral_mask])
+    args += "-multispectral "                           if mybool(file0[:multispectral])
+    args += "-spectral_mask "                           if mybool(file0[:spectral_mask])
 
     if ! params[:thickness_method].blank? && ! params[:thickness_kernel].blank? && is_valid_integer_list(params[:thickness_kernel])
         args += "-thickness #{params[:thickness_method].bash_escape} #{params[:thickness_kernel].bash_escape} "
@@ -383,7 +385,11 @@ class CbrainTask::Civet < ClusterTask
       args += "-volume-fwhm #{params[:resample_surfaces_kernel_volumes].bash_escape} " if ! params[:resample_surfaces_kernel_volumes].blank? && !options_to_ignore.has_key?(:resample_surfaces_kernel_volumes)
       if ! params[:atlas].blank? && ! options_to_ignore.has_key?(:atlas)
         atlas_name = params[:atlas].bash_escape
-        args += "-surface-atlas $MNI_CIVET_ROOT/models/AAL_atlas_left.txt $MNI_CIVET_ROOT/models/AAL_atlas_right.txt " if atlas_name == "AAL"
+        if self.tool_config.is_at_least_version("2.0.0")
+          args += "-surface-atlas #{atlas_name} "
+        else
+          args += "-surface-atlas $MNI_CIVET_ROOT/models/AAL_atlas_left.txt $MNI_CIVET_ROOT/models/AAL_atlas_right.txt " if atlas_name == "AAL"
+        end
       end
     end
 
@@ -393,6 +399,11 @@ class CbrainTask::Civet < ClusterTask
         args += "-VBM-symmetry "                                if mybool(params[:VBM_symmetry])
         args += "-VBM-cerebellum "                              if mybool(params[:VBM_cerebellum])
         args += "-VBM-fwhm #{params[:VBM_fwhm].bash_escape} "   if params[:VBM_fwhm].present?
+    end
+
+    if mybool(params[:animal])
+        args += "-animal "
+        args += "-lobe_atlas #{params[:lobe_atlas]} "
     end
 
     reset_from = params[:reset_from]

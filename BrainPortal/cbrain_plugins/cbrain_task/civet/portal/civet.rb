@@ -118,6 +118,9 @@ class CbrainTask::Civet < PortalTask
       :VBM_symmetry        => "0",         # -[no-]VBM-symmetry
       :VBM_cerebellum      => "1",         # -[no-]VBM-cerebellum
 
+      # ANIMAL options
+      :animal              => "0",         # -[no-]ANIMAL
+
       # CBRAIN output renaming
       :output_filename_pattern => '{subject}-{cluster}-{task_id}-{run_number}'
 
@@ -125,9 +128,9 @@ class CbrainTask::Civet < PortalTask
   end
 
   def before_form #:nodoc:
-    params           = self.params
+    params    = self.params
 
-    file_ids         = params[:interface_userfile_ids]
+    file_ids  = params[:interface_userfile_ids]
 
     userfiles = []
     file_ids.each do |id|
@@ -140,7 +143,7 @@ class CbrainTask::Civet < PortalTask
     # MODE A, we have a single FileCollection in argument
     if userfiles.size == 1 && userfiles[0].is_a?(FileCollection)
       collection = userfiles[0]
-      file_args = old_get_default_args_for_collection(collection)
+      file_args  = old_get_default_args_for_collection(collection)
       params[:collection_id] = collection.id
       params[:file_args]     = file_args
       return ""
@@ -159,11 +162,11 @@ class CbrainTask::Civet < PortalTask
   end
 
   def after_form #:nodoc:
-    params          = self.params
+    params = self.params
     # clean some params according with other one.
     clean_interdependent_params()
 
-    return "" if ! self.tool_config
+    return "" if !self.tool_config
 
     # file_args is returned as a hash, so
     # transform it back into an array of records (in the values)
