@@ -38,7 +38,7 @@
   params[:model]  = nil if adni152nl_09a_disabled.present? && params[:model] == 'icbm152nl_09a'
   default_models << [ "icbm152nl_09a", "icbm152nl_09a", adni152nl_09a_disabled ]
   # Add ADNInl for version == 1.1.12
-  adninl_disabled = !@tool_config.is_version("1.1.12") ? { :disabled => '1' } : {}
+  adninl_disabled = !@tool_config || !@tool_config.is_version("1.1.12") ? { :disabled => '1' } : {}
   params[:model]  = nil if adninl_disabled.present? && params[:model] == 'ADNInl'
   default_models << [ "ADNInl", "ADNInl", adninl_disabled ]
   # Add ADNIhires for version >= 2.0.0
@@ -64,46 +64,37 @@
 <fieldset>
 <legend>Volume Options</legend>
 
-  <%= form.params_label  :model, "Model:", :title => "Define the model for image-processing" %>
+  <%= form.params_label  :model, "Model for volume registration:", :title => "Define the model for image-processing" %>
   <%= form.params_select :model, default_models %>
 
-  </br>
-
-  <%= form.params_label  :surfreg_model, "Model for surface registration:", :title => "Define the model for surface registration" %>
-  <%= form.params_select :surfreg_model, [["icbm152MCsym", "icbm152MCsym", not_at_least_2_0_0 ? { :disabled => '1' } : {}],
-                                          ["colinMCasym",  "colinMCasym",  not_at_least_2_0_0 ? { :disabled => '1' } : {}],
-                                          ["samirMCasym",  "samirMCasym",  not_at_least_2_0_0 ? { :disabled => '1' } : {}]] %>
-  <span class="field_explanation" style="max-width: 80em">(CIVET 2.0.0 or later; ignored otherwise)</span>
-
-
-  </br>
+  <br>
 
   <%= form.params_label  :template, "Template:", :title => "Define the template for image processing" %>
   <%= form.params_select :template, default_template %>
 
-  </br>
+  <br>
 
   <%= form.params_label  :lsq, "Degrees of freedom for linear registration:", :title => "Degrees of freedom for linear registration to stereotaxic space" %>
   <%= form.params_select :lsq, [ "6", "9", "12" ] %>
 
-  </br>
+  <br>
 
   <%= form.params_label  :interp, "Interpolation:", :title => "Volume interpolation method from native to stereotaxic space (trilinear, tricubic, sinc) default trilinear" %>
   <%= form.params_select :interp, [ "trilinear", "tricubic", "sinc" ] %>
 
-  </br>
+  <br>
 
   <%= form.params_label      :headheight, "Head height:", :title => "Head height in mm (suggested values: 175 for adults; 165-170 for children)" %>
   <%= form.params_text_field :headheight, :size => 4, :disabled => not_at_least_1_1_12 %>
   <span class="field_explanation" style="max-width: 80em">(CIVET 1.1.12 or later; ignored otherwise)</span>
 
-  </br>
+  <br>
 
   <%= form.params_label     :mask_blood_vessels, "Mask blood vessels:", :title => "Mask blood vessels" %>
   <%= form.params_check_box :mask_blood_vessels, :disabled => not_at_least_1_1_12 %>
   <span class="field_explanation" style="max-width: 80em">(CIVET 1.1.12 or later; ignored otherwise)</span>
 
-  </br>
+  <br>
 
   <%= form.params_label      :N3_distance, "N3 distance:", :title => "N3 spline distance in mm (suggested values: 200 for 1.5T scan; 125 or 100 for 3T scan; 0 for MP2RAGE scan in later version than 1.1.12)" %>
   <%= form.params_text_field :N3_distance, :size => 4 %>
@@ -114,23 +105,31 @@
 <fieldset>
 <legend>Surface options</legend>
 
+  <%= form.params_label  :surfreg_model, "Model for surface registration:", :title => "Define the model for surface registration" %>
+  <%= form.params_select :surfreg_model, [["icbm152MCsym", "icbm152MCsym", not_at_least_2_0_0 ? { :disabled => '1' } : {}],
+                                          ["colinMCasym",  "colinMCasym",  not_at_least_2_0_0 ? { :disabled => '1' } : {}],
+                                          ["samirMCasym",  "samirMCasym",  not_at_least_2_0_0 ? { :disabled => '1' } : {}]] %>
+  <span class="field_explanation" style="max-width: 80em">(CIVET 2.0.0 or later; ignored otherwise)</span>
+
+  <br>
+
   <b><%= form.params_label     :no_surfaces, "Do NOT build surfaces:", :title => "Do NOT build surfaces" %></b>
   <%= show_hide_checkbox("#hide_if_not_build_surfaces", :checked => params[:no_surfaces] == "1" || params[:no_surfaces] == "on",
                                                         :invert => true, :name => "cbrain_task[params][no_surfaces]" ) %>
 
-  </br>
+  <br>
 
   <div id="hide_if_not_build_surfaces", style="padding-left: 10px" >
     <%= form.params_label     :high_res_surfaces, "High resolution surface:", :title => "High resolution surface" %>
     <%= form.params_check_box :high_res_surfaces, :disabled => not_at_least_2_0_0 %>
     <span class="field_explanation" style="max-width: 80em">(CIVET 2.0.0 or later; ignored otherwise)</span>
 
-    </br>
+    <br>
 
     <%= form.params_label     :combine_surfaces, "Combine left/right surfaces:", :title => "Combine left and right cortical surfaces" %>
     <%= form.params_check_box :combine_surfaces, :value => "1" %>
 
-    </br>
+    <br>
 
     <%= form.params_label      :thickness_method,  "Thickness method:", :title => "Thickness method" %>
     <%
@@ -161,7 +160,7 @@
       <span class="field_explanation" style="max-width: 80em">(30mm by default if left blank)</span>
     <% end %>
 
-    </br>
+    <br>
 
     <b><%= form.params_label     :resample_surfaces, "Resample surfaces:", :title => "Resample cortical surfaces to obtain elemental vertex areas and volumes" %></b>
     <%= show_hide_checkbox("#hide_if_not_resample_surfaces",
@@ -184,13 +183,13 @@
       <%= form.params_label  :atlas, "Surface parcellation:", :title => "Atlas for surface parcellation" %>
       <%= form.params_select :atlas, default_atlas %>
 
-      </br>
+      <br>
 
       <%= form.params_label      :resample_surfaces_kernel_areas,   " With kernel size areas:",   :title => "FWHM for resampled surface areas" %>
       <%= form.params_text_field :resample_surfaces_kernel_areas,   :size => not_at_least_2_0_0 ? 4 : 12, :disabled => not_at_least_1_1_11 %>
       <span class="field_explanation" style="max-width: 80em">(only for CIVET 1.1.11 or later; ignored otherwise)</span>
 
-      </br>
+      <br>
 
       <%= form.params_label      :resample_surfaces_kernel_volumes, " With kernel size volumes:", :title => "FWHM for resampled surface volumes" %>
       <%= form.params_text_field :resample_surfaces_kernel_volumes, :size => not_at_least_2_0_0 ? 4 : 12, :disabled => not_at_least_1_1_11 %>
@@ -211,6 +210,7 @@
   <div id="hide_if_not_process_vbm", , style="padding-left: 10px" >
     <%= form.params_label :VBM_fwhm, "Blurring kernel size in mm for volume:", :title => "Blurring kernel size in mm for volume" %>
     <%= form.params_text_field :VBM_fwhm, :size => 4 %>
+    <span class="field_explanation" style="max-width: 80em">(CIVET default if left blank)</span>
 
     <br>
 
@@ -265,8 +265,8 @@
     <th>T2 found?</th>
     <th>PD found?</th>
     <th>Mask found?</th>
-    <th title="Use T1, T2 and PD native files for tissue classification">Use multispectral?</th>
-    <th>Use mask?</th>
+    <th title="Use T1, T2 and PD native files for tissue classification"><%= select_all_checkbox 'use_multispectral' %>Use multispectral?</th>
+    <th title="Use T1, T2 and PD native files for brain masking"><%= select_all_checkbox 'use_spectral_mask' %>Use mask?</th>
   </tr>
   <%
     keys = params[:file_args].keys
