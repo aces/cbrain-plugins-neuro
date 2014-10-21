@@ -402,42 +402,50 @@ job's output doesn't crush another job's output!</strong>.
 </fieldset>
 
 
-<% bourreau_ids = @tool_configs.collect { |tc| tc.bourreau }.compact.map(&:id).uniq %>
-<% combiner_tool_configs = ToolConfig.where( :bourreau_id => bourreau_ids, :tool_id => CbrainTask::CivetCombiner.tool.id ) %>
-<% combiner_tool_configs.reject! { |tc| ! tc.can_be_accessed_by?(@task.user) } %>
 
-<% qc_tool_configs       = ToolConfig.where( :bourreau_id => bourreau_ids, :tool_id => CbrainTask::CivetQc.tool.id ) %>
-<% qc_tool_configs.reject! { |tc| ! tc.can_be_accessed_by?(@task.user) } %>
+<% if @task.new_record? %>
+  <%
+    bourreau_ids          = @tool_configs.collect { |tc| tc.bourreau }.compact.map(&:id).uniq
+    combiner_tool_configs = ToolConfig.where( :bourreau_id => bourreau_ids, :tool_id => CbrainTask::CivetCombiner.tool.id )
+    combiner_tool_configs.reject! { |tc| ! tc.can_be_accessed_by?(@task.user) }
+    params[:combiner_tool_config_id] ||= (@tool_config && combiner_tool_configs.where(:bourreau_id => @tool_config.bourreau_id).first.try(:id))
+  %>
 
-<% if @task.new_record? && combiner_tool_configs.size > 0 %>
+  <% if combiner_tool_configs.size > 0 %>
 
-<P>
+    <%
+      qc_tool_configs       = ToolConfig.where( :bourreau_id => bourreau_ids, :tool_id => CbrainTask::CivetQc.tool.id )
+      qc_tool_configs.reject! { |tc| ! tc.can_be_accessed_by?(@task.user) }
+      params[:qc_tool_config_id]       ||= (@tool_config && qc_tool_configs.where(:version_name => @tool_config.version_name, :bourreau_id => @tool_config.bourreau_id).first.try(:id))
+    %>
 
-<fieldset>
-<legend>Optional post-CIVET operations <%= show_hide_toggle "(Show)", "#combiner_qc_panel", :class  => 'action_link' %></legend>
+    <P>
 
-<div id="combiner_qc_panel" style="display: none">
+    <fieldset>
+      <legend>Optional post-CIVET operations <%= show_hide_toggle "(Show)", "#combiner_qc_panel", :class  => 'action_link' %></legend>
 
-<ul>
+      <div id="combiner_qc_panel" style="display: none">
 
-<li>
-  Combine CIVET results into a CivetStudy named: <%= form.params_text_field :study_name %>
-  using CivetCombiner version: <%= tool_config_select :combiner_tool_config_id.to_la, { :tool_configs => combiner_tool_configs, :selector => params[:combiner_tool_config_id] } %>
-</li>
+      <ul>
 
-<% if qc_tool_configs.size > 0 %>
-<li>
-  Launch <%= form.params_check_box :qc_study %> Claude's QC script on that CivetStudy
-  using CivetQc version: <%= tool_config_select :qc_tool_config_id.to_la, { :tool_configs => qc_tool_configs, :selector => params[:qc_tool_config_id] } %>
-</li>
-<% end %>
+      <li>
+        Combine CIVET results into a CivetStudy named: <%= form.params_text_field :study_name %>
+        using CivetCombiner version: <%= tool_config_select :combiner_tool_config_id.to_la, { :tool_configs => combiner_tool_configs, :selector => params[:combiner_tool_config_id] } %>
+      </li>
 
-</ul>
+      <% if qc_tool_configs.size > 0 %>
+        <li>
+          Launch <%= form.params_check_box :qc_study %> Claude's QC script on that CivetStudy
+          using CivetQc version: <%= tool_config_select :qc_tool_config_id.to_la, { :tool_configs => qc_tool_configs, :selector => params[:qc_tool_config_id] } %>
+        </li>
+      <% end %>
 
-</div>
+      </ul>
 
-</fieldset>
+      </div>
 
+    </fieldset>
+  <% end %>
 <% end %>
 
 
