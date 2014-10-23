@@ -18,14 +18,24 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.  
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 -->
 
 <h1>Civet QC Legend</h1>
 
+<h4>For CIVET 2.0.0 see directly the CIVET QC file</h4>
+
+<h4>Options available for previous versions</h4>
+
 <dl>
-    <dt>NatMaskErr</dt>
+    <dt>x-step</dt>
+        <dd>x-voxel size in native space (mm)</dd>
+    <dt>y-step</dt>
+        <dd>y-voxel size in native space (mm)</dd>
+    <dt>z-step</dt>
+        <dd>z-voxel size in native space (mm)</dd>
+    <dt>NatMaskErr <small>(only for CIVET 1.1.10 and 1.1.11)</small></dt>
         <dd>native space brain masking error</dd>
     <dt>StxMaskErr</dt>
         <dd>stereotaxic space brain masking error</dd>
@@ -35,6 +45,8 @@
         <dd>% of classified grey matter in the brain</dd>
     <dt>WMcls</dt>
         <dd>% of classified white matter in the brain</dd>
+    <dt>GMCortical <small>(only for CIVET 1.1.12)</small></dt>
+        <dd>Volume of total cortical gray matter (without sub-cortical gray)</dd>
     <dt>WMsurf</dt>
         <dd>% error in extraction of white surface</dd>
     <dt>GMsurf</dt>
@@ -43,6 +55,22 @@
         <dd>number of self intersections left hemisphere</dd>
     <dt>SRRight</dt>
         <dd>number of self intersections right hemisphere</dd>
+    <dt>SSLeft <small>(only for CIVET 1.1.12)</small></dt>
+        <dd>Number of surface-surface intersections between wm-gm left surfaces</dd>
+    <dt>SSRight <small>(only for CIVET 1.1.12)</small></dt>
+        <dd>Number of surface-surface intersections between wm-gm right surfaces</dd>
+    <dt>MeanCTLeft <small>(only for CIVET 1.1.12)</small></dt>
+        <dd>Mean cortical thickness for left hemispheres</dd>
+    <dt>MeanCTRight <small>(only for CIVET 1.1.12)</small></dt>
+        <dd>Mean cortical thickness for right hemispheres</dd>
+    <dt>MeanWM-T1 <small>(only for CIVET 1.1.12)</small></dt>
+        <dd>Mean T1 intensity for classified white matter</dd>
+    <dt>StdDevWM-T1 <small>(only for CIVET 1.1.12)</small></dt>
+        <dd>StdDev T1 intensity for classified white matter</dd>
+    <dt>MeanGM-T1 <small>(only for CIVET 1.1.12)</small></dt>
+        <dd>Mean T1 intensity for classified grey matter</dd>
+    <dt>StdDevGM-T1 <small>(only for CIVET 1.1.12)</small></dt>
+        <dd>StdDev T1 intensity for classified grey matter</dd>
     <dt>GIleft</dt>
         <dd>Gyrification index for left hemisphere</dd>
     <dt>GIright</dt>

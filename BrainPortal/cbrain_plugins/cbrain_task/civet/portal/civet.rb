@@ -82,6 +82,7 @@ class CbrainTask::Civet < PortalTask
     lobe_thickness_right
     lobe_thickness_left
     verify_clasp
+    verify_civet
   )
 
   # Returns the scientific parameters common to all the CIVET
