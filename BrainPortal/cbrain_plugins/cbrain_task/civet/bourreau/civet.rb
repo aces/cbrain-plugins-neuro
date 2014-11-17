@@ -185,9 +185,9 @@ class CbrainTask::Civet < ClusterTask
       7.hours # 4.5 normally
     else
       if mybool(params[:high_res_surfaces])
-        if params[:template] == "1.00" ? 14.hours : 20.hours
+        params[:template] == "1.00" ? 14.hours : 20.hours
       else
-        if params[:template] == "1.00" ? 8.hours : 10.hours
+        params[:template] == "1.00" ? 8.hours : 10.hours
       end
     end
   end
