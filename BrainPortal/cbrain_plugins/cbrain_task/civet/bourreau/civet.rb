@@ -185,9 +185,9 @@ class CbrainTask::Civet < ClusterTask
       7.hours # 4.5 normally
     else
       if mybool(params[:high_res_surfaces])
-        24.hours # seems to take 20
+        params[:template] == "1.00" ? 14.hours : 20.hours
       else
-        15.hours # 1.1.12 seems to take about 12
+        params[:template] == "1.00" ? 8.hours : 10.hours
       end
     end
   end
@@ -332,6 +332,8 @@ class CbrainTask::Civet < ClusterTask
       raise "Bad model name."         unless params[:model]        =~ /^\s*[\w\.]+\s*$/
       raise "Model is not valid for this CIVET version" if params[:model] == "ADNInl" && !self.tool_config.is_version("1.1.12")
       raise "Model is not valid for this CIVET version" if params[:model] == "icbm152nl_09a" && !self.tool_config.is_at_least_version("2.0.0")
+      raise "Model is not valid for this CIVET version" if params[:model] == "icbm152nl_09s" && !self.tool_config.is_at_least_version("2.0.0")
+      raise "Model is not valid for this CIVET version" if params[:model] == "ADNIhires" && !self.tool_config.is_at_least_version("2.0.0")
     end
     if params[:interp].present?
       raise "Bad interp value."       unless params[:interp]       =~ /^\s*[\w]+\s*$/
@@ -356,6 +358,7 @@ class CbrainTask::Civet < ClusterTask
 
     args = ""
 
+    args += "-no-mpi "                                  if self.tool_config.is_version("2.0.0")
     args += "-make-graph "                              if mybool(params[:make_graph])
     args += "-make-filename-graph "                     if mybool(params[:make_filename_graph])
     args += "-print-status-report "                     if mybool(params[:print_status_report])

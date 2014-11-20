@@ -131,6 +131,8 @@ class CbrainTask::Civet < PortalTask
   def before_form #:nodoc:
     params    = self.params
 
+    params[:model] = "icbm152nl_09s" if self.tool_config && self.tool_config.is_version("2.0.0")
+
     file_ids  = params[:interface_userfile_ids]
 
     userfiles = []

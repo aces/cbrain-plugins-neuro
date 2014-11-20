@@ -32,15 +32,15 @@
   not_at_least_2_0_0  = !@tool_config || !@tool_config.is_at_least_version("2.0.0")
 
   # Models
-  default_models  = [ "icbm152lin", "icbm152nl", "icbm152nl_09s" ]
-  # Add icbm152nl_09a for version < 2.0.0
-  adni152nl_09a_disabled = not_at_least_2_0_0 ? {} : { :disabled => '1' }
-  params[:model]  = nil if adni152nl_09a_disabled.present? && params[:model] == 'icbm152nl_09a'
-  default_models << [ "icbm152nl_09a", "icbm152nl_09a", adni152nl_09a_disabled ]
+  default_models  = [ "icbm152nl", "icbm152lin" ]
   # Add ADNInl for version == 1.1.12
   adninl_disabled = !@tool_config || !@tool_config.is_version("1.1.12") ? { :disabled => '1' } : {}
   params[:model]  = nil if adninl_disabled.present? && params[:model] == 'ADNInl'
   default_models << [ "ADNInl", "ADNInl", adninl_disabled ]
+  # Add icbm152nl_09sfor version >= 2.0.0
+  adni152nl_09s_disabled = not_at_least_2_0_0 ? { :disabled => '1' } : {}
+  params[:model]  = nil if adni152nl_09s_disabled.present? && params[:model] == 'icbm152nl_09s'
+  default_models << [ "icbm152nl_09s", "icbm152nl_09s", adni152nl_09s_disabled ]
   # Add ADNIhires for version >= 2.0.0
   adnihires_disabled = not_at_least_2_0_0 ? { :disabled => '1' } : {}
   params[:model]     = nil if adnihires_disabled.present? && params[:model] == 'ADNIhires'
@@ -151,7 +151,7 @@
     %>
     <%= form.params_select     :thickness_method, tmethods %>
     <%= form.params_label      :thickness_kernel, "and kernel size:",
-                               :title => "FWHM for surface blurring,\n default: 20 for version 1.1.11 and lower,\n default: 30 for version 1.1.12 and later" %>
+                               :title => "FWHM for surface blurring,\n default: 20 for version 1.1.11 and lower,\n default: 30 for version 1.1.12 and later\nList of integers separated by a ':' is accepted for version 2.0.0 and later" %>
     <%= form.params_text_field :thickness_kernel, :size => not_at_least_2_0_0 ? 4 : 12 %>
 
     <% if not_at_least_1_1_12 %>
@@ -185,13 +185,13 @@
 
       <br>
 
-      <%= form.params_label      :resample_surfaces_kernel_areas,   " With kernel size areas:",   :title => "FWHM for resampled surface areas" %>
+      <%= form.params_label      :resample_surfaces_kernel_areas,   " With kernel size areas:",   :title => "FWHM for resampled surface areas\nList of integers separated by a ':' is accepted for version 2.0.0 and later" %>
       <%= form.params_text_field :resample_surfaces_kernel_areas,   :size => not_at_least_2_0_0 ? 4 : 12, :disabled => not_at_least_1_1_11 %>
       <span class="field_explanation" style="max-width: 80em">(only for CIVET 1.1.11 or later; ignored otherwise)</span>
 
       <br>
 
-      <%= form.params_label      :resample_surfaces_kernel_volumes, " With kernel size volumes:", :title => "FWHM for resampled surface volumes" %>
+      <%= form.params_label      :resample_surfaces_kernel_volumes, " With kernel size volumes:", :title => "FWHM for resampled surface volumes\nList of integers separated by a ':' is accepted for version 2.0.0 and later" %>
       <%= form.params_text_field :resample_surfaces_kernel_volumes, :size => not_at_least_2_0_0 ? 4 : 12, :disabled => not_at_least_1_1_11 %>
       <span class="field_explanation" style="max-width: 80em">(only for CIVET 1.1.11 or later; ignored otherwise)</span>
     </div>
