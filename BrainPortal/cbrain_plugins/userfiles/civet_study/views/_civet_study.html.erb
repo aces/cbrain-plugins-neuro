@@ -1,0 +1,59 @@
+
+<%-
+#
+# CBRAIN Project
+#
+# Copyright (C) 2008-2012
+# The Royal Institution for the Advancement of Learning
+# McGill University
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+-%>
+
+<% if @userfile.is_locally_synced? %>
+  <% if @userfile.list_files(".", :directory).any? { |dir| dir.name[-3, 3] == "/QC" } %>
+    <%= link_to("Show QC Data",
+                display_userfile_path(@userfile,
+                            :viewer  => "qc_file",
+                            :qc_file => "base"
+                           ),
+                :class => "action_link",
+                :target => "_blank") %>
+    <br>
+    <%= overlay_ajax_link "Civet QC Legend", display_userfile_path(@userfile, :viewer => :civetqc_legend), :class => "action_link" %>
+  <% end %>
+<% end %>
+
+<P>
+
+<strong>CIVET Outputs By Subject</strong>
+
+<% @userfile.subject_ids.each do |subject_id| %>
+  <fieldset>
+    <legend>Subject: <%= subject_id %></legend>
+    <%= on_click_ajax_replace(
+          { :url     => display_userfile_path(@userfile, :action  => :display, :viewer => "study_subject", :subject_id => subject_id),
+            :replace => "#{subject_id}_files",
+            :before  => "<span class='loading_message'>Loading...</span>"
+          },
+          { :id => subject_id }
+        ) do %>
+      <span class="ajax_onclick_show_child small warning">Show files</span>
+      <span class="ajax_onclick_hide_child small warning" style="display:none">Hide files</span>
+    <% end %>
+    <span id="<%= subject_id %>_files"></span>
+  </fieldset>
+<% end %>
+

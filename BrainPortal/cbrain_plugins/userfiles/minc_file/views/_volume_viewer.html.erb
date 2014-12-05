@@ -1,0 +1,407 @@
+
+<%-
+#
+# CBRAIN Project
+#
+# Copyright (C) 2008-2012
+# The Royal Institution for the Advancement of Learning
+# McGill University
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+-%>
+
+<div id="brainbrowser-wrapper">
+  <div id="volume-viewer">
+    <div id="global-controls" class="volume-viewer-controls">
+      <span id="capture-slices" class="button">Capture Slices</span>
+    </div>
+    <div id="brainbrowser"></div>
+    <div class="volume-viewer-controls volume-controls">
+
+      <div class="coords">
+        <div class="control-heading" id="world-coordinates-heading">
+          World Coordinates:
+        </div>
+        <div class="world-coords">
+          X:<input id="world-x" class="control-inputs">
+          Y:<input id="world-y" class="control-inputs">
+          Z:<input id="world-z" class="control-inputs">
+        </div>
+        <div class="control-heading" id="voxel-coordinates-heading">
+          Voxel Coordinates:
+        </div>
+        <div class="voxel-coords">
+          X:<input id="voxel-x" class="control-inputs">
+          Y:<input id="voxel-y" class="control-inputs">
+          Z:<input id="voxel-z" class="control-inputs">
+        </div>
+      </div>
+
+      <div id="color-map">
+        <span class="control-heading" id="color-map-heading">
+          Color Map:
+        </span>
+        <select class="color-map-select">
+          <option value="0" selected="">Spectral</option>
+          <option value="1">Gray</option>
+        </select>
+      </div>
+
+      <div class="threshold-div">
+        <div class="control-heading">
+          Threshold:
+        </div>
+        <div class="thresh-inputs">
+          <input id="min-threshold" class="control-inputs thresh-input-left" value="0"/>
+          <input id="max-threshold" class="control-inputs thresh-input-right" value="255"/>
+        </div>
+        <div class="slider volume-viewer-threshold" id="threshold-slider"></div>
+      </div>
+
+      <div id="time" class="time-div" style="display:none">
+        <span class="control-heading">Time:</span>
+        <input class="control-inputs" value="0" id="time-val"/>
+        <div class="slider volume-viewer-threshold" id="threshold-time-slider"></div>
+        <input type="checkbox" class="button" id="play"><label for="play">Play</label>
+      </div>
+
+      <div id="slice-series" class="slice-series-div">
+        <div class="control-heading" id="slice-series-heading">All slices: </div>
+        <span class="slice-series-button button" data-axis="xspace">Sagittal</span>
+        <span class="slice-series-button button" data-axis="yspace">Coronal</span>
+        <span class="slice-series-button button" data-axis="zspace">Transverse</span>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<%= stylesheet_link_tag  "braincanvas", :media => "all" %>
+<%= javascript_include_tag "brainbrowser.volume-viewer.min.js" %>
+<%= javascript_include_tag "brainbrowser.config.js" %>
+
+<script type="text/javascript">
+  BrainBrowser.VolumeViewer.start("brainbrowser", function(viewer) {
+
+    viewer.addEventListener("ready", function() {
+      var volume = viewer.volumes[0];
+
+      $(".button").button();
+
+
+      // Should cursors in all panels be synchronized?
+      $("#sync-volumes").change(function() {
+        viewer.synced = $(this).is(":checked");
+      });
+
+      // This will create an image of all the display panels
+      // currently being shown in the viewer.
+      $("#capture-slices").click(function() {
+        var width = viewer.displays[0][0].canvas.width;
+        var height = viewer.displays[0][0].canvas.height;
+        var active_canvas = viewer.active_canvas;
+
+        // Create a canvas on which we'll draw the images.
+        var canvas = document.createElement("canvas");
+        var context = canvas.getContext("2d");
+        var img = new Image();
+
+        canvas.width = width * viewer.displays.length;
+        canvas.height = height * 3;
+        context.fillStyle = "#000000";
+        context.fillRect(0, 0, canvas.width, canvas.height);
+
+        // The active canvas is highlighted by the viewer,
+        // so we set it to null and redraw the highlighting
+        // isn't shown in the image.
+        viewer.active_canvas = null;
+        viewer.draw();
+        viewer.displays.forEach(function(display, x) {
+          display.forEach(function(panel, y) {
+            context.drawImage(panel.canvas, x * width, y * height);
+          });
+        });
+
+        // Restore the active canvas.
+        viewer.active_canvas = active_canvas;
+        viewer.draw();
+
+        // Show the created image in a dialog box.
+        img.onload = function() {
+          $("<div></div>").append(img).dialog({
+            title: "Slices",
+            height: img.height,
+            width: img.width
+          });
+        };
+
+        img.src = canvas.toDataURL();
+      });
+
+      // The world coordinate input fields.
+      $(".world-coords").change(function() {
+        var div = $(this);
+
+        var x = parseFloat(div.find("#world-x").val());
+        var y = parseFloat(div.find("#world-y").val());
+        var z = parseFloat(div.find("#world-z").val());
+
+        // Make sure the values are numeric.
+        if (!BrainBrowser.utils.isNumeric(x)) {
+          x = 0;
+        }
+        if (!BrainBrowser.utils.isNumeric(y)) {
+          y = 0;
+        }
+        if (!BrainBrowser.utils.isNumeric(z)) {
+          z = 0;
+        }
+
+        // Set coordinates and redraw.
+        volume.setWorldCoords(x, y, z);
+
+        viewer.redrawVolumes();
+      });
+
+      // Change the color map currently being used to display data.
+      $(".color-map-select").change(function(event) {
+        volume.color_map = BrainBrowser.VolumeViewer.color_maps[+$(event.target).val()];
+        viewer.redrawVolumes();
+      });
+
+      // Change the range of intensities that will be displayed.
+      $(".threshold-div").each(function() {
+        var div = $(this);
+
+        // Input fields to input min and max thresholds directly.
+        var min_input = div.find("#min-threshold");
+        var max_input = div.find("#max-threshold");
+
+        // Slider to modify min and max thresholds.
+        var slider = div.find(".slider");
+
+        slider.slider({
+          range: true,
+          min: 0,
+          max: 255,
+          values: [0, 255],
+          step: 1,
+          slide: function(event, ui){
+            var values = ui.values;
+
+            // Update the input fields.
+            min_input.val(values[0]);
+            max_input.val(values[1]);
+
+            // Update the volume and redraw.
+            volume.min = values[0];
+            volume.max = values[1];
+            viewer.redrawVolumes();
+          },
+          stop: function() {
+            $(this).find("a").blur();
+          }
+        });
+
+        // Input field for minimum threshold.
+        min_input.change(function() {
+          var value = parseFloat(this.value);
+
+          // Make sure input is numeric and in range.
+          if (!BrainBrowser.utils.isNumeric(value)) {
+            value = 0;
+          }
+          value = Math.max(0, Math.min(value, 255));
+          this.value = value;
+
+          // Update the slider.
+          slider.slider("values", 0, value);
+
+          // Update the volume and redraw.
+          volume.min = value;
+          viewer.redrawVolumes();
+        });
+
+        max_input.change(function() {
+          var value = parseFloat(this.value);
+
+          // Make sure input is numeric and in range.
+          if (!BrainBrowser.utils.isNumeric(value)) {
+            value = 255;
+          }
+          value = Math.max(0, Math.min(value, 255));
+          this.value = value;
+
+          // Update the slider.
+          slider.slider("values", 1, value);
+
+          // Update the volume and redraw.
+          volume.max = value;
+          viewer.redrawVolumes();
+        });
+
+      });
+
+      if (volume.data.time) {
+
+        $(".time-div").each(function() {
+          var div = $(this);
+
+          var slider = div.find(".slider");
+          var time_input = div.find("#time-val");
+          var play_button = div.find("#play");
+
+          var min = 0;
+          var max = volume.data.time.space_length - 1;
+          var play_interval;
+
+          div.show();
+
+          slider.slider({
+            min: min,
+            max: max,
+            value: 0,
+            step: 1,
+            slide: function(event, ui) {
+              var value = +ui.value;
+              time_input.val(value);
+              volume.current_time = value;
+              viewer.redrawVolumes();
+            },
+            stop: function() {
+              $(this).find("a").blur();
+            }
+          });
+
+          time_input.change(function() {
+            var value = parseInt(this.value, 10);
+            if (!BrainBrowser.utils.isNumeric(value)) {
+              value = 0;
+            }
+
+            value = Math.max(min, Math.min(value, max));
+
+            this.value = value;
+            time_input.val(value);
+            slider.slider("value", value);
+            volume.current_time = value;
+            viewer.redrawVolumes();
+          });
+
+          play_button.change(function() {
+            if(play_button.is(":checked")){
+              clearInterval(play_interval);
+              play_interval = setInterval(function() {
+                var value = volume.current_time + 1;
+                value = value > max ? 0 : value;
+                volume.current_time = value;
+                time_input.val(value);
+                slider.slider("value", value);
+                viewer.redrawVolumes();
+              }, 200);
+            } else {
+              clearInterval(play_interval);
+            }
+          });
+
+        });
+      }
+
+      // Create an image of all slices in a certain
+      // orientation.
+      $(".slice-series-div").each(function() {
+        var div = $(this);
+
+        var space_names = {
+          xspace: "Sagittal",
+          yspace: "Coronal",
+          zspace: "Transverse"
+        };
+
+        div.find(".slice-series-button").click(function() {
+          var axis_name = $(this).data("axis");
+          var axis = volume.data[axis_name];
+          var space_length = axis.space_length;
+          var time = volume.current_time;
+          var per_column = 10;
+          var zoom = 0.5;
+          var i, x, y;
+
+          // Canvas on which to draw the images.
+          var canvas = document.createElement("canvas");
+          var context = canvas.getContext("2d");
+
+          // Get first slice to set dimensions of the canvas.
+          var image_data = volume.slice(axis_name, 0, time).getImage(zoom);
+          var img = new Image();
+          canvas.width = per_column * image_data.width;
+          canvas.height = Math.ceil(space_length / per_column) * image_data.height;
+          context.fillStyle = "#000000";
+          context.fillRect(0, 0, canvas.width, canvas.height);
+
+          // Draw the slice on the canvas.
+          context.putImageData(image_data, 0, 0);
+
+          // Draw the rest of the slices on the canvas.
+          for (i = 1; i < space_length; i++) {
+            image_data = volume.slice(axis_name, i, time).getImage(zoom);
+            x = i % per_column * image_data.width;
+            y = Math.floor(i / per_column) * image_data.height;
+            context.putImageData(image_data, x, y);
+          }
+
+          // Retrieve image from canvas and display it
+          // in a dialog box.
+          img.onload = function() {
+            $("<div></div>").append(img).dialog({
+              title: space_names[axis_name] + " Slices",
+              height: 600,
+              width: img.width
+            });
+          };
+
+          img.src = canvas.toDataURL();
+        });
+      });
+
+    });
+
+    // Update coordinate display as slices are updated
+    // by the user.
+    viewer.addEventListener("sliceupdate", function() {
+      viewer.volumes.forEach(function(volume) {
+        var world_coords = volume.getWorldCoords();
+        var voxel_coords = volume.getVoxelCoords();
+        $("#world-x").val(world_coords.x.toPrecision(6));
+        $("#world-y").val(world_coords.y.toPrecision(6));
+        $("#world-z").val(world_coords.z.toPrecision(6));
+
+        $("#voxel-x").val(voxel_coords.x.toPrecision(6));
+        $("#voxel-y").val(voxel_coords.y.toPrecision(6));
+        $("#voxel-z").val(voxel_coords.z.toPrecision(6));
+      });
+    });
+
+    viewer.loadVolumes({
+      volumes: [
+        {
+          type: 'minc',
+          header_url: "<%= content_userfile_path(@userfile) + "?content_loader=get_headers_to_json" %>",
+          raw_data_url: "<%= content_userfile_path(@userfile) + "?content_loader=get_raw_data" %>"
+        }
+      ]
+    });
+  });
+</script>

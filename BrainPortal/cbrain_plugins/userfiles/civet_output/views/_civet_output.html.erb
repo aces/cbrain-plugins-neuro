@@ -22,17 +22,21 @@
 #
 -%>
 
+<%
+    base_dir = (base_directory || params[:base_directory]) rescue ""  # might be unset
+%>
+
 <% if @userfile.is_locally_synced? %>
   <%
-    png_files = Hash.new
-    @userfile.list_files("#{base_dir}").each do |f|
+    png_files  = Hash.new
+    verify_dir = base_dir.present? ? "#{base_dir}/verify" : "verify"
+    @userfile.list_files(verify_dir).each do |f|
       if f.name =~ /([a-z]+)\.png$/i
         short_name = $1.capitalize
         png_files[short_name] = f
       end
     end
   %>
-
 
   <% if !png_files.empty? %>
     <%= overlay_content_link "Show Displayable Contents", :class => "action_link" do %>
@@ -59,8 +63,16 @@
  <% end %>
 
 <% end %>
-<%= render :partial  => "userfiles/viewers/civet_directories_help" %>
-<br><br>
 
-<%= render :partial  => "userfiles/viewers/file_collection_form", :locals  => {:collection_partial  => "file_collection_plain_file_list"} %>
+<%= overlay_ajax_link "CIVET Directories Explained",
+                      display_userfile_path(@userfile,
+                          :viewer                => :civet_directories_explained,
+                          :viewer_userfile_class => :CivetOutput
+                      ),
+                      :class => "action_link"
+%>
+
+<%= render :file    => FileCollection.find_viewer(:file_collection).partial_path,
+           :locals  => { :base_directory => base_dir }
+%>
 

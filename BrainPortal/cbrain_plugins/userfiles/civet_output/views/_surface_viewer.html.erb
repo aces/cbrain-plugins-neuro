@@ -1,0 +1,661 @@
+
+<%-
+#
+# CBRAIN Project
+#
+# Copyright (C) 2008-2012
+# The Royal Institution for the Advancement of Learning
+# McGill University
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+-%>
+
+<%= stylesheet_link_tag  "brainbrowser", :media => "all" %>
+
+<div id="surface_choice" class="controls">
+  <h4>Files: </h4>
+
+  <form id="datafile-form" method="POST"  action="/upload/minc" enctype="multipart/form-data">
+    <%-
+      surface_dir     = @userfile.try(:surface_dir) || "surfaces"
+      surfaces        = @userfile.list_files(surface_dir).map(&:name).select { |n| n =~ /\.obj$/ }
+      rsl_surfaces    = surfaces.select { |name| name =~ /_rsl_/ }
+      no_rsl_surfaces = surfaces - rsl_surfaces
+      surfaces        = no_rsl_surfaces.sort + rsl_surfaces.sort
+      surfaces        = surfaces.map { |file| Pathname.new(file).basename }
+    -%>
+    Surface File:
+    <select id="objfile" name="surface" class="surface">
+      <%= options_for_select   surfaces %>
+    </select>
+    <%-
+      thickness_dir    = @userfile.try(:thickness_dir) || "thickness"
+      thickness        = @userfile.list_files(thickness_dir).map(&:name).select { |n| n =~ /\.txt$/ }
+      rsl_thickness    = thickness.select { |name| name =~ /_rsl_/ }
+      no_rsl_thickness = thickness - rsl_thickness
+      thickness        = no_rsl_thickness.sort + rsl_thickness.sort
+      thickness        = thickness.map { |file| Pathname.new(file).basename }
+    %>
+    <BR>
+    Thickness File:
+    <select id="datafile" name="thickness" class="thickness">
+      <%= options_for_select   thickness %>
+    </select>
+    <BR>
+    Color Bar: <input type="file" name="spectrum" id="spectrum"><br />
+  </form>
+</div>
+
+<div id="display">
+  <div id="loading" style="display: none"><img src="/images/brainbrowser-loader.gif" /></div>
+  <div id="surface-viewer"></div>
+</div>
+
+<div id="data-range-box" class="controls">
+  <h4>Thresholding</h4>
+  <div id="data-range"></div>
+  <div id="blend-box"></div>
+</div>
+<div class="controls">
+  <h4>View:</h4>
+  <div id="color-map-box" class="control-element">
+    Color Map:
+  </div>
+  <div class="control-element">
+    Background Color:
+    <select id="clear_color">
+      <option value="0x000000">Black</option>
+      <option value="0x888888">Gray</option>
+      <option value="0xffffff">White</option>
+      <option value="0xff0000">Red</option>
+      <option value="0x00ff00">Green</option>
+      <option value="0x0000ff">Blue</option>
+      <option value="0x00ffff">Cyan</option>
+      <option value="0xff00ff">Magenta</option>
+      <option value="0xffff00">Yellow</option>
+      <optgroup label="----------"></optgroup>
+      <option value="0xf0f8ff">Alice Blue</option>
+      <option value="0xfaebd7">Antique White</option>
+      <option value="0x7fffd4">Aquamarine</option>
+      <option value="0xf0ffff">Azure</option>
+      <option value="0xf5f5dc">Beige</option>
+      <option value="0xffe4c4">Bisque</option>
+      <option value="0xffebcd">Blanched Almond</option>
+      <option value="0x8a2be2">Blue Violet</option>
+      <option value="0xa52a2a">Brown</option>
+      <option value="0xdeb887">Burlywood</option>
+      <option value="0x5f9ea0">Cadet Blue</option>
+      <option value="0x98f5ff">Cadet Blue</option>
+      <option value="0x7fff00">Chartreuse</option>
+      <option value="0xd2691e">Chocolate</option>
+      <option value="0xff7f50">Coral</option>
+      <option value="0x6495ed">Cornflower Blue</option>
+      <option value="0xfff8dc">Cornsilk</option>
+      <option value="0xb8860b">Dark Goldenrod</option>
+      <option value="0x006400">Dark Green</option>
+      <option value="0xbdb76b">Dark Khaki</option>
+      <option value="0x556b2f">Dark Olive Green</option>
+      <option value="0xff8c00">Dark Orange</option>
+      <option value="0x9932cc">Dark Orchid</option>
+      <option value="0xe9967a">Dark Salmon</option>
+      <option value="0x8fbc8f">Dark Sea Green</option>
+      <option value="0x483d8b">Dark Slate Blue</option>
+      <option value="0x2f4f4f">Dark Slate Gray</option>
+      <option value="0x00ced1">Dark Turquoise</option>
+      <option value="0x9400d3">Dark Violet</option>
+      <option value="0xff1493">Deep Pink</option>
+      <option value="0x00bfff">Deep Sky Blue</option>
+      <option value="0x696969">Dim Gray</option>
+      <option value="0x1e90ff">Dodger Blue</option>
+      <option value="0xb22222">Firebrick</option>
+      <option value="0xfffaf0">Floral White</option>
+      <option value="0x228b22">Forest Green</option>
+      <option value="0xdcdcdc">Gainsboro</option>
+      <option value="0xf8f8ff">Ghost White</option>
+      <option value="0xffd700">Gold</option>
+      <option value="0xdaa520">Goldenrod</option>
+      <option value="0xadff2f">Green Yellow</option>
+      <option value="0xf0fff0">Honeydew</option>
+      <option value="0xff69b4">Hot Pink</option>
+      <option value="0xcd5c5c">Indian Red</option>
+      <option value="0xfffff0">Ivory</option>
+      <option value="0xf0e68c">Khaki</option>
+      <option value="0xe6e6fa">Lavender</option>
+      <option value="0xfff0f5">Lavender Blush</option>
+      <option value="0x7cfc00">Lawn Green</option>
+      <option value="0xfffacd">Lemon Chiffon</option>
+      <option value="0xeedd82">Light</option>
+      <option value="0xadd8e6">Light Blue</option>
+      <option value="0xf08080">Light Coral</option>
+      <option value="0xe0ffff">Light Cyan</option>
+      <option value="0xffec8b">Light Goldenrod</option>
+      <option value="0xfafad2">Light Goldenrod Yellow</option>
+      <option value="0xd3d3d3">Light Gray</option>
+      <option value="0xffb6c1">Light Pink</option>
+      <option value="0xffa07a">Light Salmon</option>
+      <option value="0x20b2aa">Light Sea Green</option>
+      <option value="0x87cefa">Light Sky Blue</option>
+      <option value="0x8470ff">Light Slate Blue</option>
+      <option value="0x778899">Light Slate Gray</option>
+      <option value="0xb0c4de">Light Steel Blue</option>
+      <option value="0xffffe0">Light Yellow</option>
+      <option value="0x32cd32">Lime Green</option>
+      <option value="0xfaf0e6">Linen</option>
+      <option value="0xb03060">Maroon</option>
+      <option value="0x66cdaa">Medium</option>
+      <option value="0x66cdaa">Medium Aquamarine</option>
+      <option value="0x0000cd">Medium Blue</option>
+      <option value="0xba55d3">Medium Orchid</option>
+      <option value="0x9370db">Medium Purple</option>
+      <option value="0x3cb371">Medium Sea Green</option>
+      <option value="0x7b68ee">Medium Slate Blue</option>
+      <option value="0x00fa9a">Medium Spring Green</option>
+      <option value="0x48d1cc">Medium Turquoise</option>
+      <option value="0xc71585">Medium Violet Red</option>
+      <option value="0x191970">Midnight Blue</option>
+      <option value="0xf5fffa">Mint Cream</option>
+      <option value="0xffe4e1">Misty Rose</option>
+      <option value="0xffe4b5">Moccasin</option>
+      <option value="0xffdead">Navajo White</option>
+      <option value="0x000080">Navy Blue</option>
+      <option value="0xfdf5e6">Old Lace</option>
+      <option value="0x6b8e23">Olive Drab</option>
+      <option value="0xffa500">Orange</option>
+      <option value="0xff4500">Orange Red</option>
+      <option value="0xda70d6">Orchid</option>
+      <option value="0xdb7093">Pale</option>
+      <option value="0xeee8aa">Pale Goldenrod</option>
+      <option value="0x98fb98">Pale Green</option>
+      <option value="0xafeeee">Pale Turquoise</option>
+      <option value="0xdb7093">Pale Violet Red</option>
+      <option value="0xffefd5">Papaya Whip</option>
+      <option value="0xffdab9">Peach Puff</option>
+      <option value="0xffc0cb">Pink</option>
+      <option value="0xdda0dd">Plum</option>
+      <option value="0xb0e0e6">Powder Blue</option>
+      <option value="0xa020f0">Purple</option>
+      <option value="0xbc8f8f">Rosy Brown</option>
+      <option value="0x4169e1">Royal Blue</option>
+      <option value="0x8b4513">Saddle Brown</option>
+      <option value="0xfa8072">Salmon</option>
+      <option value="0xf4a460">Sandy Brown</option>
+      <option value="0x54ff9f">Sea Green</option>
+      <option value="0xfff5ee">Seashell</option>
+      <option value="0xa0522d">Sienna</option>
+      <option value="0x87ceeb">Sky Blue</option>
+      <option value="0x6a5acd">Slate Blue</option>
+      <option value="0x708090">Slate Gray</option>
+      <option value="0xfffafa">Snow</option>
+      <option value="0x00ff7f">Spring Green</option>
+      <option value="0x4682b4">Steel Blue</option>
+      <option value="0xd2b48c">Tan</option>
+      <option value="0xd8bfd8">Thistle</option>
+      <option value="0xff6347">Tomato</option>
+      <option value="0x40e0d0">Turquoise</option>
+      <option value="0xee82ee">Violet</option>
+      <option value="0xd02090">Violet Red</option>
+      <option value="0xf5deb3">Wheat</option>
+      <option value="0xf5f5f5">White Smoke</option>
+      <option value="0x9acd32">Yellow Green</option>
+    </select>
+  </div>
+  <div class="control-element">
+    Autorotate:
+    <span id="autorotate-controls" class="buttonset">
+      <input type="checkbox"  id="autorotateX"><label for="autorotateX">X</label>
+      <input type="checkbox"  id="autorotateY"><label for="autorotateY">Y</label>
+      <input type="checkbox"  id="autorotateZ"><label for="autorotateZ">Z</label>
+    </span>
+  </div>
+  <div class="control-element">
+    <a class="button" id="resetview">Reset View</a>
+    <input type="checkbox" class="button" id="meshmode"><label for="meshmode">Mesh Mode</label>
+    <span id="openImage" class="button">Screenshot</span>
+  </div>
+</div>
+<div id="shapes" class="controls">
+</div>
+
+<script type="text/javascript">
+
+  $("#surface-viewer").load("https://brainbrowser.cbrain.mcgill.ca/surface-viewer-widget?version=1.5.2&height=600&width=600&viewer_callback=init");
+
+  function init(viewer) {
+    "use strict";
+
+    var controls = $("#controls");
+    var loading_div = $("#loading");
+    var color_maps = [
+      {
+        name: "Spectral",
+        url: "/color_maps/spectral_spectrum.txt",
+      },
+      {
+        name: "Gray",
+        url: "/color_maps/gray_scale.txt",
+      }
+    ];
+
+    function loadStart() {
+      loading_div.show();
+    }
+
+    function loadEnd() {
+      loading_div.hide();
+    }
+
+    if (!BrainBrowser.utils.webglEnabled()) {
+      $("#brainbrowser").html(BrainBrowser.utils.webGLErrorMessage());
+      return;
+    }
+
+    $(".button").button();
+    $(".buttonset").buttonset();
+    $("#data-range-box").hide();
+
+    loadStart();
+
+    // Set up some defaults
+    viewer.setAttribute("clamp_colors", true); // By default clamp range.
+    viewer.setAttribute("flip_colors", false); // Don't flip intensity-color relationship.
+
+    ///////////////////////////////////
+    // Event Listeners
+    ///////////////////////////////////
+
+    // If something goes wrong while loading, we don't
+    // want the loading icon to stay on the screen.
+    viewer.addEventListener("error", loadEnd);
+
+    // When a new color map is loaded display a spectrum representing
+    // the color mapping.
+    viewer.addEventListener("loadcolormap", function(color_map) {
+      var canvas = color_map.createCanvasWithScale(0, 100);
+      var spectrum_div = document.getElementById("color-bar");
+
+      canvas.id = "spectrum-canvas";
+      if (!spectrum_div) {
+        $("<div id=\"color-bar\"></div>").html(canvas).appendTo("#data-range-box");
+      } else {
+        $(spectrum_div).html(canvas);
+      }
+    });
+
+    // When a new model is added to the viewer, create a transparancy slider
+    // for each shape that makes up the model.
+    viewer.addEventListener("displaymodel", function(object) {
+      var slider, slider_div;
+      var children = object.children;
+      var current_count = $("#shapes").children().length;
+
+      if(children.length - current_count > 0 ) {
+        children.slice(current_count).forEach(function(shape, i) {
+          slider_div = $("<div id=\"shape_" + i + "\" class=\"shape\">" +
+            "<h4>Shape "+ (i + 1 + current_count) + "</h4>" +
+            "Name: " + shape.name + "<br />" +
+            "Opacity: " +
+            "</div>");
+          slider = $("<div class=\"opacity-slider slider\" data-shape-name=\"" + shape.name + "\"></div>");
+          slider.slider({
+            value: 100,
+            min: -1,
+            max: 101,
+            slide: function(event) {
+              var target = event.target;
+              var shape_name = $(target).attr('data-shape-name');
+              var alpha = $(target).slider('value');
+              alpha = Math.min(100, Math.max(0, alpha)) / 100.0;
+
+              viewer.setTransparency(shape_name, alpha);
+            }
+          });
+          slider.appendTo(slider_div);
+          slider_div.appendTo("#shapes");
+        });
+      }
+    });
+
+    // When the screen is cleared, remove all UI related
+    // to the displayed models.
+    viewer.addEventListener("clearscreen", function() {
+      $("#shapes").html("");
+      $("#data-range-box").hide();
+      $("#color-map-box").hide();
+    });
+
+    // When the intensity range changes, adjust the displayed spectrum.
+    viewer.addEventListener("rangechange", function(intensity_data) {
+      var canvas = viewer.color_map.createCanvasWithScale(intensity_data.range_min, intensity_data.range_max);
+      canvas.id = "spectrum-canvas";
+      $("#color-bar").html(canvas);
+    });
+
+    // When new intensity data is loaded, create all UI related to
+    // controlling the relationship between the instensity data and
+    // the color mapping (range, flip colors, clamp colors, fix range).
+    viewer.addEventListener("loadintensitydata", function(intensity_data) {
+      var container = $("#data-range");
+      var headers = '<div id="data-range-multiple"><ul>';
+      var controls = "";
+      var i, count;
+      var data_set = Array.isArray(intensity_data) ? intensity_data : [intensity_data];
+
+      container.html("");
+      for(i = 0, count = data_set.length; i < count; i++) {
+        headers += '<li><a href="#data-file' + i + '">' + data_set[i].filename + '</a></li>';
+        controls += '<div id="data-file' + i + '" class="box range-controls">';
+        controls += 'Min: <input class="range-box" id="data-range-min" type="text" name="range_min" size="5" >';
+        controls += '<div id="range-slider' + i + '" data-blend-index="' + i + '" class="slider"></div>';
+        controls += 'Max: <input class="range-box" id="data-range-max" type="text" name="range_max" size="5">';
+        controls += '<input type="checkbox" class="button" id="fix_range"' +
+                    (viewer.getAttribute("fix_color_range") ? ' checked="true"' : '') +
+                    '><label for="fix_range">Fix Range</label>';
+        controls += '<input type="checkbox" class="button" id="clamp_range"' +
+                    (viewer.getAttribute("clamp_colors") ? ' checked="true"' : '') +
+                    '><label for="clamp_range">Clamp range</label>';
+        controls += '<input type="checkbox" class="button" id="flip_range"' +
+                    (viewer.getAttribute("flip_colors") ? ' checked="true"' : '') +
+                    '><label for="flip_range">Flip Colors</label>';
+        controls += '</div>';
+      }
+      headers += "</ul>";
+
+
+      container.html(headers + controls + "</div>");
+      $("#data-range-box").show();
+      $("#color-map-box").show();
+      container.find("#data-range-multiple").tabs();
+
+      container.find(".range-controls").each(function(index, element) {
+        var controls = $(element);
+        var intensity_data = data_set[index];
+
+        var data_min = BrainBrowser.utils.min(intensity_data.values);
+        var data_max = BrainBrowser.utils.max(intensity_data.values);
+        var range_min = intensity_data.range_min;
+        var range_max = intensity_data.range_max;
+
+        var min_input = controls.find("#data-range-min");
+        var max_input = controls.find("#data-range-max");
+        var slider = controls.find(".slider");
+
+        slider.slider({
+          range: true,
+          min: data_min,
+          max: data_max,
+          values: [range_min, range_max],
+          step: (range_max - range_min) / 100.0,
+          slide: function(event, ui) {
+            var min = ui.values[0];
+            var max = ui.values[1];
+            min_input.val(min);
+            max_input.val(max);
+            intensity_data.range_min = min;
+            intensity_data.range_max = max;
+            viewer.model_data.intensity_data = intensity_data;
+            viewer.setIntensityRange(min, max);
+          }
+        });
+
+        slider.slider('values', 0, parseFloat(range_min));
+        slider.slider('values', 1, parseFloat(range_max));
+        min_input.val(range_min);
+        max_input.val(range_max);
+
+        function inputRangeChange() {
+          var min = parseFloat(min_input.val());
+          var max = parseFloat(max_input.val());
+
+          slider.slider('values', 0, min);
+          slider.slider('values', 1, max);
+          viewer.setIntensityRange(min, max, controls.find("#clamp_range").is(":checked"));
+        }
+
+        $("#data-range-min").change(inputRangeChange);
+        $("#data-range-max").change(inputRangeChange);
+
+        $("#fix_range").click(function() {
+          viewer.setAttribute("fix_color_range", $(this).is(":checked"));
+        });
+
+        $("#clamp_range").change(function() {
+          var min = parseFloat(min_input.val());
+          var max = parseFloat(max_input.val());
+
+          viewer.setAttribute("clamp_colors", $(this).is(":checked"));
+
+          viewer.setIntensityRange(min, max);
+        });
+
+
+        $("#flip_range").change(function() {
+          var min = parseFloat(min_input.val());
+          var max = parseFloat(max_input.val());
+
+          viewer.setAttribute("flip_colors", $(this).is(":checked"));
+
+          viewer.setIntensityRange(min, max);
+        });
+
+        viewer.triggerEvent("rangechange", intensity_data);
+      });
+
+    }); // end loadintensitydata listener
+
+    // If two color maps are loaded to be blended, create
+    // slider to control the blending ratios.
+    viewer.addEventListener("blendcolormaps", function(){
+      var div = $("#blend-box");
+      div.html("Blend Ratio: ");
+      $("<span id=\"blend_value\">0.5</span>").appendTo(div);
+      $("<div class=\"blend_slider\" id=\"blend_slider\" width=\"100px\" + height=\"10\"></div>").slider({
+        min: 0.1,
+        max: 0.99,
+        value: 0.5,
+        step: 0.01,
+        slide: function() {
+          viewer.blend($(this).slider("value"));
+        }
+      }).appendTo(div);
+    });
+
+    ////////////////////////////////////
+    //  START RENDERING
+    ////////////////////////////////////
+
+    viewer.loadModelFromURL(
+      "<%= content_userfile_path(@userfile) %>?content_loader=collection_file&arguments=<%= @userfile.name %>/surfaces/" + "<%= surfaces[0]%>",
+      {
+        complete: function() {
+          viewer.loadColorMapFromURL(color_maps[0].url);
+          viewer.loadIntensityDataFromURL(
+            "<%= content_userfile_path(@userfile) %>?content_loader=collection_file&arguments=<%= @userfile.name  + "/" + thickness_dir %>/" + "<%= thickness[0] %>",
+            {
+              name: "<%= thickness[0] %>",
+              complete: loadEnd
+            }
+          );
+        }
+      }
+    );
+
+    viewer.render();
+
+    ///////////////////////////////////
+    // UI
+    ///////////////////////////////////
+
+    // Some keyboard controls for the viewer.
+    $("body").keydown(function(e) {
+      var key_code = e.keyCode;
+      var keys = {
+        // Space
+        32: function() { viewer.separateHalves(); },
+        // Up arrow
+        38: function() { viewer.zoom(1.1); },
+        // Down arrow
+        40: function() { viewer.zoom(1/1.1); }
+      };
+
+      if (keys.hasOwnProperty(key_code)) {
+        keys[key_code]();
+        return false;
+      }
+
+    });
+
+    // Set the background color.
+    $("#clear_color").change(function(e){
+      viewer.setClearColor(parseInt($(e.target).val(), 16));
+    });
+
+    // Reset to the default view.
+    $("#resetview").click(function() {
+      // Setting the view to its current view type will
+      // automatically reset its position.
+      viewer.setView($("[name=hem_view]:checked").val());
+    });
+
+    // Set the visibility of the currently loaded model.
+    $(".visibility").change(function() {
+      var input  = $(this);
+      var hemisphere = input.data("hemisphere");
+      var shape = viewer.model.getObjectByName(hemisphere);
+
+      if (!shape) return;
+
+      // If the shapes wireframe is currently being displayed,
+      // set the wireframe's visibility.
+      if (shape.wireframe_active) {
+        shape = shape.getObjectByName("__wireframe__") || shape;
+      }
+
+      shape.visible = input.is(":checked");
+    });
+
+    // Set the view type (medial, lateral,
+    // inferior, anterior, posterior).
+    $("[name=hem_view]").change(function() {
+      viewer.setView($("[name=hem_view]:checked").val());
+    });
+
+    // Toggle wireframe.
+    $("#meshmode").change(function() {
+      viewer.setWireframe($(this).is(":checked"));
+    });
+
+    // Grab a screenshot of the canvas.
+    $("#openImage").click(function() {
+      var view_window = viewer.view_window;
+      var canvas = document.createElement("canvas");
+      var spectrum_canvas = document.getElementById("spectrum-canvas");
+      var context = canvas.getContext("2d");
+      var viewer_image = new Image();
+
+      canvas.width = view_window.offsetWidth;
+      canvas.height = view_window.offsetHeight;
+
+      // Display the final image in a dialog box.
+      function displayImage() {
+        var result_image = new Image();
+
+        result_image.onload = function() {
+          $("<div></div>").append(result_image).dialog({
+            title: "Screenshot",
+            height: result_image.height,
+            width: result_image.width
+          });
+        };
+
+        result_image.src = canvas.toDataURL();
+      }
+
+      // Grab the spectrum canvas to display with the
+      // image.
+      function getSpectrumImage() {
+        var spectrum_image = new Image();
+        spectrum_image.onload = function(){
+          context.drawImage(spectrum_image, 0, 0);
+          displayImage();
+        };
+        spectrum_image.src = spectrum_canvas.toDataURL();
+      }
+
+      // Draw an image of the viewer area, add the spectrum
+      // image it its available, and display everything
+      // in a dialog box.
+      viewer_image.onload = function(){
+        context.drawImage(viewer_image, 0, 0);
+        if ($(spectrum_canvas).is(":visible")) {
+          getSpectrumImage();
+        } else {
+          displayImage();
+        }
+      };
+
+      viewer_image.src = viewer.canvasDataURL();
+    });
+
+    // Control autorotation.
+    $("#autorotate-controls").children().change(function() {
+      viewer.autorotate.x = $("#autorotateX").is(":checked");
+      viewer.autorotate.y = $("#autorotateY").is(":checked");
+      viewer.autorotate.z = $("#autorotateZ").is(":checked");
+    });
+
+    $("#objfile").change(function(event) {
+      viewer.clearScreen();
+      loadStart();
+      viewer.loadModelFromURL(
+        "<%= content_userfile_path(@userfile) %>?content_loader=collection_file&arguments=<%= @userfile.name + "/" + surface_dir %>/" + $(event.target).val(),
+        {
+          complete: loadEnd
+        }
+      );
+    });
+
+    $("#datafile").change(function(event) {
+      loadStart();
+      var filename = $(event.target).val()
+      viewer.loadIntensityDataFromURL(
+        "<%= content_userfile_path(@userfile) %>?content_loader=collection_file&arguments=<%= @userfile.name  + "/" + thickness_dir %>/" + filename,
+        {
+          name: filename,
+          complete: loadEnd
+        }
+      );
+    });
+
+    var color_map_select = $('<select id="color-map-select"></select>').change(function() {
+      viewer.loadColorMapFromURL($(this).val());
+    });
+
+    color_maps.forEach(function(map) {
+      color_map_select.append('<option value="' + map.url + '">' + map.name +'</option>');
+    });
+
+    $("#color-map-box").append(color_map_select);
+
+    // Remove currently loaded models.
+    $('#clearshapes').click(function() {
+      viewer.clearScreen();
+      current_request = 0;
+      current_request_name = "";
+      loading_div.hide();
+    });
+
+  }
+
+</script>

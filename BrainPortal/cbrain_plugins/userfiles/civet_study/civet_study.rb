@@ -1,5 +1,4 @@
 
-<%-
 #
 # CBRAIN Project
 #
@@ -18,9 +17,22 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.  
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
--%>
 
-<%= overlay_ajax_link "Civet Directories Explained", "/doc/userfiles/civet_directories.html", :class => "action_link" %>
+# This class represents a FileCollection meant specifically
+# to represent the output of several *CIVET* runs (see CbrainTask::Civet).
+#
+# API to come later.
+class CivetStudy < FileCollection
 
+  Revision_info=CbrainFileRevision[__FILE__] #:nodoc:
+
+  has_viewer :name => 'CIVET Study', :partial => :civet_study
+
+  #Returns a list of the ids of the subjects contained in this study.
+  def subject_ids
+    @subject_id ||= self.list_files(".", :directory).map{ |s| s.name.sub(/^#{self.name}\//, "") }.reject{ |s_id| s_id == "QC" }
+  end
+
+end

@@ -1,4 +1,5 @@
 
+<%-
 #
 # CBRAIN Project
 #
@@ -17,22 +18,29 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.  
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
+-%>
 
-# This class represents a FileCollection meant specifically
-# to represent the output of several *CIVET* runs (see CbrainTask::Civet).
-#
-# API to come later.
-class CivetStudy < FileCollection
+<%
+cache_path   = @userfile.cache_full_path
+escaped_path = cache_path.to_s.bash_escape
 
-  Revision_info=CbrainFileRevision[__FILE__] #:nodoc:
-  
-  has_viewer :civet_study
-  
-  #Returns a list of the ids of the subjects contained in this study.
-  def subject_ids
-    @subject_id ||= self.list_files(".", :directory).map{ |s| s.name.sub(/^#{self.name}\//, "") }.reject{ |s_id| s_id == "QC" }
-  end
-  
+minc_info = IO.popen("mincinfo #{escaped_path}", "r") do |fh|
+  fh.read rescue "Cannot run mincinfo ?!?"
 end
+
+minc_head = IO.popen("mincheader #{escaped_path}", "r") do |fh|
+  fh.read rescue "Cannot run mincheader ?!?"
+end
+%>
+
+<%= build_tabs do |tb| %>
+  <%= tb.tab("Minc Info") do %>
+    <pre><%= minc_info -%></pre>
+  <% end %>
+  <%= tb.tab("Minc Headers") do %>
+    <pre><%= minc_head -%></pre>
+  <% end %>
+<% end %>
+

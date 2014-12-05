@@ -25,8 +25,11 @@ class MincFile < SingleFile
 
   Revision_info=CbrainFileRevision[__FILE__] #:nodoc:
 
-  has_viewer :name => "Volume Viewer", :partial => "volume_viewer",          :if  => Proc.new { |u| u.class.has_minctools?([2,0,0]) && u.is_locally_synced? && u.size < 80.megabytes }
-  has_viewer :partial => "minc_file/info_header", :name => "Info & Headers", :if  => Proc.new { |u| u.class.has_minctools?([2,0,0],["mincinfo","mincheader","mincdump","mincexpand"]) && u.is_locally_synced? }
+  has_viewer :name => "Volume Viewer",  :partial => :volume_viewer,           :if =>
+             Proc.new { |u| u.class.has_minctools?([2,0,0]) && u.is_locally_synced? && u.size < 80.megabytes }
+
+  has_viewer :name => "Info & Headers", :partial => :info_header,             :if =>
+             Proc.new { |u| u.class.has_minctools?([2,0,0],["mincinfo","mincheader","mincdump","mincexpand"]) && u.is_locally_synced? }
 
   has_content :method => :get_headers_to_json, :type => :text
   has_content :method => :get_raw_data,        :type => :text

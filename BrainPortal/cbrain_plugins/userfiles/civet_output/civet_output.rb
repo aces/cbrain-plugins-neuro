@@ -17,34 +17,34 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.  
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
 # Civet output model
 # Essentially a file collection with some methods for handling civet output
 #
 # This class represents a FileCollection meant specifically to represent the output
-# of a *civet* run (see CbrainTask::Civet). The instance methods are all meant to 
+# of a *civet* run (see CbrainTask::Civet). The instance methods are all meant to
 # provide simple access to the contents of particular directories in the
 # directory tree produced by *civet*.
 class CivetOutput < FileCollection
+
   Revision_info=CbrainFileRevision[__FILE__] #:nodoc:
 
-  reset_viewers
+  reset_viewers # we invoke the FileCollection's viewer directly inside civet_output
+  has_viewer    :name => "CIVET Output",   :partial => :civet_output
+  has_viewer    :name => "Surface Viewer", :partial => :surface_viewer, :if  => Proc.new { |u| u.is_locally_synced? }
 
-  has_viewer    :civet_output  
-  has_viewer    :partial => "surface_viewer", :name => "Surface Viewer",  :if  => Proc.new { |u| u.is_locally_synced? }
-  
   def qc_images  #:nodoc:
     self.list_files("verify").select { |f| f.name =~ /\.png$/ }
   end
 
   def surface_dir
     "surfaces"
-  end 
+  end
 
   def thickness_dir
     "thickness"
-  end 
+  end
 
 end
