@@ -435,7 +435,7 @@ job's output doesn't crush another job's output!</strong>.
 
       <% if qc_tool_configs.size > 0 %>
         <li>
-          Launch <%= form.params_check_box :qc_study %> Claude's QC script on that CivetStudy
+          Launch <%= form.params_check_box :qc_study %> Civet QC script on that CivetStudy
           using CivetQc version: <%= tool_config_select :qc_tool_config_id.to_la, { :tool_configs => qc_tool_configs, :selector => params[:qc_tool_config_id] } %>
         </li>
       <% end %>
