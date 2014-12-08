@@ -17,7 +17,7 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.  
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
 # A subclass of CbrainTask to launch FslBet.
@@ -38,7 +38,7 @@ class CbrainTask::FslBet < PortalTask
       :vertical_gradient => 0.0,
     }
   end
-  
+
  def before_form #:nodoc:
     params   = self.params
 
@@ -64,13 +64,13 @@ class CbrainTask::FslBet < PortalTask
     params[:vertical_gradient] = vertical_gradient.to_s
     self.params_errors.add(:vertical_gradient, "in fractional intensity threshold mut be between -1 and 1.") unless
       vertical_gradient.present? && vertical_gradient.to_f >= -1 && vertical_gradient.to_f <= 1
-    
+
     ""
   end
-  
+
   def final_task_list #:nodoc:
     ids    = params[:interface_userfile_ids] || []
-    
+
     mytasklist = []
     ids.each do |id|
       task=self.dup # not .clone, as of Rails 3.1.10
@@ -79,12 +79,12 @@ class CbrainTask::FslBet < PortalTask
       task.description = Userfile.find(id).name if task.description.blank?
       mytasklist << task
     end
-    
+
     mytasklist
   end
-  
+
   def untouchable_params_attributes #:nodoc:
-    { :inputfile_id => true, :output_name => true, :outfile_id => true}
+    { :inputfile_id => true, :final_output_name => true, :outfile_id => true}
   end
 
 end
