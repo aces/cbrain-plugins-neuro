@@ -36,24 +36,30 @@
 <h1>QC</h1>
 
 <% if File.file?(@userfile.cache_full_path.parent + qc_file) %>
-  <%
-  doc = Nokogiri::HTML.fragment(File.read(@userfile.cache_full_path.parent + qc_file))
+  <div id="fragment-wrapper"></div>
+  
+  <%= javascript_include_tag "jquery" %>
+  <script>
+    (function() {
+      var fragment = $(<%= html_for_js(File.read(@userfile.cache_full_path.parent + qc_file)).html_safe %>);
+      var base_link_url = "/userfiles/" + <%= @userfile.id %> + "/display?apply_div=false&viewer=qc_file&qc_file=";
+      var base_image_url = "/userfiles/" + <%= @userfile.id %> + "/content?content_loader=collection_file&arguments=";
+      var file_list = [<%= @userfile.list_files.map {|f| "\"#{f.name}\"" }.join(",").html_safe %>];
 
-  doc.search("a").each do |link|
-    link['href'] = display_userfile_path(@userfile,
-                               :viewer    => :qc_file,
-                               :qc_file   => link['href'],
-                               :apply_div => false,
-                              )
-  end
+      fragment.find("a").each(function() {
+        this.href = base_link_url + $(this).attr("href");
+      });
 
-  # THIS IS ALL HORRIBLE! REDO!
-  doc.search("img").each {|img| img['src'] = "/userfiles/#{@userfile.id}/content?content_loader=collection_file&arguments=#{@userfile.list_files.map(&:name).find{ |file| file =~ /#{img['src'].sub(/^\.+\//, "")}$/ }}" }
+      fragment.find("img, image").each(function() {
+        var image = this;
+        var image_src = $(this).attr("src");
+        var image_name = file_list.filter(function(f) { return f.match(new RegExp(image_src + "$")); })[0];
+        image.src = base_image_url + image_name;
+      });
 
-  doc.search("image").each {|img| img['src'] = "/userfiles/#{@userfile.id}/content?content_loader=collection_file&arguments=#{@userfile.list_files.map(&:name).find{ |file| file =~ /#{img['src'].sub(/^\.+\//, "")}$/ }}" }
-
-  %>
-  <%= doc.to_html.html_safe %>
+      $("#fragment-wrapper").append(fragment);
+    })();
+  </script>
 <% else %>
   Error: the QC report seems to be missing in this study. Maybe the QC task did
   not complete successfully.
