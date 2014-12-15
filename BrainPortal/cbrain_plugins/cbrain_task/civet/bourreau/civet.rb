@@ -543,7 +543,7 @@ class CbrainTask::Civet < ClusterTask
       end
       self.addlog("Error: not all processing stages of this CIVET completed successfully.")
       self.addlog("We found these files in 'logs' : #{badnews.sort.join(', ')}")
-      return false if ! mybool(params[:save_partial_results] # Failed On Cluster
+      return false if ! mybool(params[:save_partial_results]) # Failed On Cluster
       self.addlog("This result set might therefore be only partial, but we'll proceed in saving it.")
     end
 
