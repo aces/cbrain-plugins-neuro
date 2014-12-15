@@ -123,7 +123,10 @@ class CbrainTask::Civet < PortalTask
       :animal              => "0",         # -[no-]ANIMAL
 
       # CBRAIN output renaming
-      :output_filename_pattern => '{subject}-{cluster}-{task_id}-{run_number}'
+      :output_filename_pattern => '{subject}-{cluster}-{task_id}-{run_number}',
+
+      # Control options
+      :save_partial_results => "0",
 
     }
   end

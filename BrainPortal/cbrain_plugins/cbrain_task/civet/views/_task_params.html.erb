@@ -51,6 +51,8 @@
 %>
 
 
+<!-- #################################################################### -->
+
 <% if ! @task.new_record? %>
   <fieldset>
   <legend>Pipeline Options</legend>
@@ -60,6 +62,10 @@
 <% end %>
 
 <P>
+
+
+
+<!-- #################################################################### -->
 
 <fieldset>
 <legend>Volume Options</legend>
@@ -101,6 +107,10 @@
 </fieldset>
 
 <P>
+
+
+
+<!-- #################################################################### -->
 
 <fieldset>
 <legend>Surface options</legend>
@@ -200,6 +210,10 @@
 
 <P>
 
+
+
+<!-- #################################################################### -->
+
 <fieldset>
 <legend>VBM Options</legend>
 
@@ -225,6 +239,12 @@
 
 </fieldset>
 
+<p>
+
+
+
+<!-- #################################################################### -->
+
 <fieldset>
 <legend>ANIMAL Options</legend>
 
@@ -247,6 +267,10 @@
 </fieldset>
 
 <P>
+
+
+
+<!-- #################################################################### -->
 
 <fieldset>
 
@@ -341,6 +365,10 @@ then the actual prefix automatically created for you would be "K2-anonymous_10".
 
 <p/>
 
+
+
+<!-- #################################################################### -->
+
 <fieldset>
 <legend>Optional Output Renaming <%= show_hide_toggle "(Show)", "#output_renaming", :class  => 'action_link' %></legend>
 
@@ -401,7 +429,28 @@ job's output doesn't crush another job's output!</strong>.
 
 </fieldset>
 
+<p>
 
+
+
+<!-- #################################################################### -->
+
+<fieldset>
+<legend>Other control options <%= show_hide_toggle "(Show)", "#other_control_options", :class  => 'action_link' %></legend>
+
+<div id="other_control_options" style="display: none">
+  <%= form.params_label     :save_partial_results, "Save results despite partial failures:" %>
+  <%= form.params_check_box :save_partial_results %>
+  <span class="field_explanation" style="max-width: 80em">(When checked, a CivetOuput will be created even if some intermediate CIVET stages have not completed successfully. Use with care!)</span>
+</div>
+
+</fieldset>
+
+<p>
+
+
+
+<!-- #################################################################### -->
 
 <% if @task.new_record? %>
   <%
@@ -450,6 +499,7 @@ job's output doesn't crush another job's output!</strong>.
 
 
 
+<!-- #################################################################### -->
 
 <% if current_user.has_role?(:admin_user) %>
  <hr>
