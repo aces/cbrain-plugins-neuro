@@ -20,7 +20,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-# A subclass of ClusterTask to run Claude's CIVET QC PIPELINE
+# A subclass of ClusterTask to run CIVET QC PIPELINE
 class CbrainTask::CivetQc < ClusterTask
 
   Revision_info=CbrainFileRevision[__FILE__] #:nodoc:

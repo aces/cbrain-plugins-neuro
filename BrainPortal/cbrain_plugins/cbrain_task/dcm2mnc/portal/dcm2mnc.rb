@@ -29,6 +29,12 @@ class CbrainTask::Dcm2mnc < PortalTask
     { :no_presets => true, :use_parallelizer => true }
   end
 
+  # Returns the scientific parameters common to all the CIVET
+  # jobs we're about to launch
+  def self.default_launch_args #:nodoc:
+    { :use_coordinates => "1" }
+  end
+
   def before_form #:nodoc:
     params   = self.params
     file_ids = params[:interface_userfile_ids]
