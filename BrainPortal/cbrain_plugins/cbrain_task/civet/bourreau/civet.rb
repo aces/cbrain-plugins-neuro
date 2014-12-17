@@ -541,8 +541,9 @@ class CbrainTask::Civet < ClusterTask
          self.addlog("The input file is probably not a proper MINC file, there's not much we can do.")
          return false # Failed On Cluster
       end
-      self.addlog("Warning: not all subtasks of this CIVET completed successfully.")
+      self.addlog("Error: not all processing stages of this CIVET completed successfully.")
       self.addlog("We found these files in 'logs' : #{badnews.sort.join(', ')}")
+      return false if ! mybool(params[:save_partial_results]) # Failed On Cluster
       self.addlog("This result set might therefore be only partial, but we'll proceed in saving it.")
     end
 
