@@ -22,17 +22,17 @@
 #
 -%>
 
-<div id="display">
-  <div id="loading" style="display: none"><img src="/images/brainbrowser-loader.gif" /></div>
-  <div id="surface-viewer"></div>
-</div>
-
 <div id="brainbrowser-wrapper">
   <div id="volume-viewer">
     <div id="global-controls" class="volume-viewer-controls">
       <span id="brainbrowser_volume_screenshot" class="button">Screenshot</span>
     </div>
-    <div id="brainbrowser"></div>
+
+    <div id="brainbrowser-volume"></div>
+    <div id="display">
+      <div id="loading" style="display: none"><img src="/images/brainbrowser-loader.gif" /></div>
+    </div>
+
     <div class="volume-viewer-controls volume-controls">
 
       <div class="coords">
@@ -89,13 +89,25 @@
   </div>
 </div>
 
-<%= stylesheet_link_tag  "braincanvas", :media => "all" %>
+<%= stylesheet_link_tag    "braincanvas", :media => "all" %>
 <%= javascript_include_tag "brainbrowser.volume-viewer.min.js" %>
-<%= javascript_include_tag "brainbrowser.volume-viewer.config.js" %>
 
 <script type="text/javascript">
-  BrainBrowser.VolumeViewer.start("brainbrowser", function(viewer) {
+  BrainBrowser.VolumeViewer.start("brainbrowser-volume", function(viewer) {
     var loading_div = $("#loading");
+
+    BrainBrowser.config.set("color_maps", [
+      {
+        name: "Gray",
+        url: "/color_maps/gray-scale.txt",
+        cursor_color: "#FF0000"
+      },
+      {
+        name: "Spectral",
+        url: "/color_maps/spectral-brainview.txt",
+        cursor_color: "#FFFFFF"
+      },
+    ]);
 
     $("#brainbrowser_volume_screenshot").click(function() {
       var width        = 0;
