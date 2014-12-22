@@ -25,60 +25,61 @@
 <div id="brainbrowser-wrapper">
   <div id="volume-viewer">
     <div id="global-controls" class="volume-viewer-controls">
-      <span id="capture-slices" class="button">Capture Slices</span>
+      <span id="brainbrowser_volume_screenshot" class="button">Screenshot</span>
     </div>
-    <div id="brainbrowser"></div>
+
+    <div id="brainbrowser-volume"></div>
+    <div id="display">
+      <div id="loading" style="display: none"><img src="/images/brainbrowser-loader.gif" /></div>
+    </div>
+
     <div class="volume-viewer-controls volume-controls">
 
       <div class="coords">
-        <div class="control-heading" id="world-coordinates-heading">
-          World Coordinates:
-        </div>
-        <div class="world-coords">
-          X:<input id="world-x" class="control-inputs">
-          Y:<input id="world-y" class="control-inputs">
-          Z:<input id="world-z" class="control-inputs">
-        </div>
-        <div class="control-heading" id="voxel-coordinates-heading">
+        <div class="control-heading" id="voxel-coordinates-heading-{{VOLID}}">
           Voxel Coordinates:
         </div>
-        <div class="voxel-coords">
-          X:<input id="voxel-x" class="control-inputs">
-          Y:<input id="voxel-y" class="control-inputs">
-          Z:<input id="voxel-z" class="control-inputs">
+        <div class="voxel-coords" data-volume-id="0">
+          I:<input id="voxel-i-0" class="control-inputs">
+          J:<input id="voxel-j-0" class="control-inputs">
+          K:<input id="voxel-k-0" class="control-inputs">
+        </div>
+        <div class="control-heading" id="world-coordinates-heading-0">
+          World Coordinates:
+        </div>
+        <div class="world-coords" data-volume-id="0">
+          X:<input id="world-x-0" class="control-inputs">
+          Y:<input id="world-y-0" class="control-inputs">
+          Z:<input id="world-z-0" class="control-inputs">
         </div>
       </div>
 
-      <div id="color-map">
-        <span class="control-heading" id="color-map-heading">
+      <div id="color-map-0">
+        <span class="control-heading" id="color-map-heading-0">
           Color Map:
         </span>
-        <select class="color-map-select">
-          <option value="0" selected="">Spectral</option>
-          <option value="1">Gray</option>
-        </select>
       </div>
 
-      <div class="threshold-div">
+      <div class="threshold-div" data-volume-id="0">
         <div class="control-heading">
           Threshold:
         </div>
         <div class="thresh-inputs">
-          <input id="min-threshold" class="control-inputs thresh-input-left" value="0"/>
-          <input id="max-threshold" class="control-inputs thresh-input-right" value="255"/>
+          <input id="min-threshold-0" class="control-inputs thresh-input-left" value="0"/>
+          <input id="max-threshold-0" class="control-inputs thresh-input-right" value="255"/>
         </div>
-        <div class="slider volume-viewer-threshold" id="threshold-slider"></div>
+        <div class="slider volume-viewer-threshold" id="threshold-slider-0"></div>
       </div>
 
-      <div id="time" class="time-div" style="display:none">
+      <div id="time-0" class="time-div" data-volume-id="0" style="display:none">
         <span class="control-heading">Time:</span>
-        <input class="control-inputs" value="0" id="time-val"/>
-        <div class="slider volume-viewer-threshold" id="threshold-time-slider"></div>
-        <input type="checkbox" class="button" id="play"><label for="play">Play</label>
+        <input class="control-inputs" value="0" id="time-val-0"/>
+        <div class="slider volume-viewer-threshold" id="threshold-time-slider-0"></div>
+        <input type="checkbox" class="button" id="play-0"><label for="play-0">Play</label>
       </div>
 
-      <div id="slice-series" class="slice-series-div">
-        <div class="control-heading" id="slice-series-heading">All slices: </div>
+      <div id="slice-series-0" class="slice-series-div" data-volume-id="0">
+        <div class="control-heading" id="slice-series-heading-0">All slices: </div>
         <span class="slice-series-button button" data-axis="xspace">Sagittal</span>
         <span class="slice-series-button button" data-axis="yspace">Coronal</span>
         <span class="slice-series-button button" data-axis="zspace">Transverse</span>
@@ -88,75 +89,95 @@
   </div>
 </div>
 
-<%= stylesheet_link_tag  "braincanvas", :media => "all" %>
+<%= stylesheet_link_tag    "braincanvas", :media => "all" %>
 <%= javascript_include_tag "brainbrowser.volume-viewer.min.js" %>
-<%= javascript_include_tag "brainbrowser.config.js" %>
 
 <script type="text/javascript">
-  BrainBrowser.VolumeViewer.start("brainbrowser", function(viewer) {
+  BrainBrowser.VolumeViewer.start("brainbrowser-volume", function(viewer) {
+    var loading_div = $("#loading");
 
-    viewer.addEventListener("ready", function() {
-      var volume = viewer.volumes[0];
+    BrainBrowser.config.set("color_maps", [
+      {
+        name: "Gray",
+        url: "/color_maps/gray-scale.txt",
+        cursor_color: "#FF0000"
+      },
+      {
+        name: "Spectral",
+        url: "/color_maps/spectral-brainview.txt",
+        cursor_color: "#FFFFFF"
+      },
+    ]);
+
+    $("#brainbrowser_volume_screenshot").click(function() {
+      var width        = 0;
+      var height       = 0;
+      var active_panel = viewer.active_panel;
+
+      // Create a canvas on which we'll draw the images.
+      var canvas  = document.createElement("canvas");
+      var context = canvas.getContext("2d");
+      var img     = new Image();
+
+      viewer.volumes.forEach(function(volume) {
+        volume.display.forEach(function(panel) {
+          width   = Math.max(width, panel.canvas.width);
+          height  = Math.max(height, panel.canvas.height);
+        });
+      });
+
+      canvas.width      = width * viewer.volumes.length;
+      canvas.height     = height * 3;
+      context.fillStyle = "#000000";
+      context.fillRect(0, 0, canvas.width, canvas.height);
+
+      // The active canvas is highlighted by the viewer,
+      // so we set it to null and redraw the highlighting
+      // isn't shown in the image.
+      if (active_panel) {
+        active_panel.updated = true;
+        viewer.active_panel  = null;
+        viewer.draw();
+      }
+
+      viewer.volumes.forEach(function(volume, x) {
+        volume.display.forEach(function(panel, axis_name, y) {
+          context.drawImage(panel.canvas, x * width, y * height);
+        });
+      });
+
+      // Restore the active canvas.
+      if (active_panel) {
+        active_panel.updated = true;
+        viewer.active_panel  = active_panel;
+        viewer.draw();
+      }
+
+      // Show the created image in a dialog box.
+      img.onload = function() {
+        $("<div></div>").append(img).dialog({
+          title: "Slices",
+          height: img.height,
+          width:  img.width
+        });
+      };
+
+      img.src = canvas.toDataURL();
+    });
+
+    viewer.addEventListener("volumeuiloaded", function(event) {
+      var volume    = event.volume;
+      var vol_id    = event.volume_id;
 
       $(".button").button();
 
-
-      // Should cursors in all panels be synchronized?
-      $("#sync-volumes").change(function() {
-        viewer.synced = $(this).is(":checked");
-      });
-
-      // This will create an image of all the display panels
-      // currently being shown in the viewer.
-      $("#capture-slices").click(function() {
-        var width = viewer.displays[0][0].canvas.width;
-        var height = viewer.displays[0][0].canvas.height;
-        var active_canvas = viewer.active_canvas;
-
-        // Create a canvas on which we'll draw the images.
-        var canvas = document.createElement("canvas");
-        var context = canvas.getContext("2d");
-        var img = new Image();
-
-        canvas.width = width * viewer.displays.length;
-        canvas.height = height * 3;
-        context.fillStyle = "#000000";
-        context.fillRect(0, 0, canvas.width, canvas.height);
-
-        // The active canvas is highlighted by the viewer,
-        // so we set it to null and redraw the highlighting
-        // isn't shown in the image.
-        viewer.active_canvas = null;
-        viewer.draw();
-        viewer.displays.forEach(function(display, x) {
-          display.forEach(function(panel, y) {
-            context.drawImage(panel.canvas, x * width, y * height);
-          });
-        });
-
-        // Restore the active canvas.
-        viewer.active_canvas = active_canvas;
-        viewer.draw();
-
-        // Show the created image in a dialog box.
-        img.onload = function() {
-          $("<div></div>").append(img).dialog({
-            title: "Slices",
-            height: img.height,
-            width: img.width
-          });
-        };
-
-        img.src = canvas.toDataURL();
-      });
-
-      // The world coordinate input fields.
+     // The world coordinate input fields.
       $(".world-coords").change(function() {
         var div = $(this);
 
-        var x = parseFloat(div.find("#world-x").val());
-        var y = parseFloat(div.find("#world-y").val());
-        var z = parseFloat(div.find("#world-z").val());
+        var x = parseFloat(div.find("#world-x-" + vol_id).val());
+        var y = parseFloat(div.find("#world-y-" + vol_id).val());
+        var z = parseFloat(div.find("#world-z-" + vol_id).val());
 
         // Make sure the values are numeric.
         if (!BrainBrowser.utils.isNumeric(x)) {
@@ -170,24 +191,63 @@
         }
 
         // Set coordinates and redraw.
-        volume.setWorldCoords(x, y, z);
+        viewer.volumes[vol_id].setWorldCoords(x, y, z);
 
         viewer.redrawVolumes();
       });
 
-      // Change the color map currently being used to display data.
-      $(".color-map-select").change(function(event) {
-        volume.color_map = BrainBrowser.VolumeViewer.color_maps[+$(event.target).val()];
+      // The voxel coordinate input fields.
+      $(".voxel-coords").change(function() {
+        var div = $(this);
+
+        var i = parseInt(div.find("#voxel-i-" + vol_id).val(), 10);
+        var j = parseInt(div.find("#voxel-j-" + vol_id).val(), 10);
+        var k = parseInt(div.find("#voxel-k-" + vol_id).val(), 10);
+
+        // Make sure the values are numeric.
+        if (!BrainBrowser.utils.isNumeric(i)) {
+          i = 0;
+        }
+        if (!BrainBrowser.utils.isNumeric(j)) {
+          j = 0;
+        }
+        if (!BrainBrowser.utils.isNumeric(k)) {
+          k = 0;
+        }
+
+        // Set coordinates and redraw.
+        viewer.volumes[vol_id].setVoxelCoords(i, j, k);
+
         viewer.redrawVolumes();
       });
+
+      // Color map URLs are read from the config file and added to the
+      // color map select box.
+      var color_map_select = $('<select id="color-map-select"></select>').change(function() {
+        var selection = $(this).find(":selected");
+        viewer.loadVolumeColorMapFromURL(vol_id, selection.val(), selection.data("cursor-color"), function() {
+          console.log("kjdls")
+          viewer.redrawVolumes();
+        });
+      });
+
+      BrainBrowser.config.get("color_maps").forEach(function(color_map) {
+        color_map_select.append('<option value="' + color_map.url +
+          '" data-cursor-color="' + color_map.cursor_color + '">' +
+          color_map.name +'</option>'
+        );
+      });
+
+      $("#color-map-" + vol_id).append(color_map_select);
+
 
       // Change the range of intensities that will be displayed.
       $(".threshold-div").each(function() {
         var div = $(this);
 
         // Input fields to input min and max thresholds directly.
-        var min_input = div.find("#min-threshold");
-        var max_input = div.find("#max-threshold");
+        var min_input = div.find("#min-threshold-" + vol_id);
+        var max_input = div.find("#max-threshold-" + vol_id);
 
         // Slider to modify min and max thresholds.
         var slider = div.find(".slider");
@@ -254,20 +314,25 @@
 
       });
 
+
       if (volume.data.time) {
 
         $(".time-div").each(function() {
           var div = $(this);
 
+          if (volume.data.time) {
+            div.show();
+          } else {
+            return;
+          }
+
           var slider = div.find(".slider");
-          var time_input = div.find("#time-val");
-          var play_button = div.find("#play");
+          var time_input = div.find("#time-val-" + vol_id);
+          var play_button = div.find("#play-" + vol_id);
 
           var min = 0;
           var max = volume.data.time.space_length - 1;
           var play_interval;
-
-          div.show();
 
           slider.slider({
             min: min,
@@ -317,6 +382,7 @@
           });
 
         });
+
       }
 
       // Create an image of all slices in a certain
@@ -340,14 +406,14 @@
           var i, x, y;
 
           // Canvas on which to draw the images.
-          var canvas = document.createElement("canvas");
+          var canvas  = document.createElement("canvas");
           var context = canvas.getContext("2d");
 
           // Get first slice to set dimensions of the canvas.
           var image_data = volume.slice(axis_name, 0, time).getImage(zoom);
-          var img = new Image();
-          canvas.width = per_column * image_data.width;
-          canvas.height = Math.ceil(space_length / per_column) * image_data.height;
+          var img        = new Image();
+          canvas.width   = per_column * image_data.width;
+          canvas.height  = Math.ceil(space_length / per_column) * image_data.height;
           context.fillStyle = "#000000";
           context.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -378,30 +444,80 @@
 
     });
 
-    // Update coordinate display as slices are updated
-    // by the user.
-    viewer.addEventListener("sliceupdate", function() {
-      viewer.volumes.forEach(function(volume) {
-        var world_coords = volume.getWorldCoords();
-        var voxel_coords = volume.getVoxelCoords();
-        $("#world-x").val(world_coords.x.toPrecision(6));
-        $("#world-y").val(world_coords.y.toPrecision(6));
-        $("#world-z").val(world_coords.z.toPrecision(6));
+    /////////////////////////////////////////////////////
+    // UI updates to be performed after each slice update.
+    //////////////////////////////////////////////////////
+    viewer.addEventListener("sliceupdate", function(event) {
+      var panel  = event.target;
+      var volume = event.volume;
+      var vol_id = panel.volume_id;
+      var value;
 
-        $("#voxel-x").val(voxel_coords.x.toPrecision(6));
-        $("#voxel-y").val(voxel_coords.y.toPrecision(6));
-        $("#voxel-z").val(voxel_coords.z.toPrecision(6));
-      });
+      if (BrainBrowser.utils.isFunction(volume.getWorldCoords)) {
+        world_coords = volume.getWorldCoords();
+        $("#world-x-" + vol_id).val(world_coords.x.toPrecision(6));
+        $("#world-y-" + vol_id).val(world_coords.y.toPrecision(6));
+        $("#world-z-" + vol_id).val(world_coords.z.toPrecision(6));
+      }
+
+      if (BrainBrowser.utils.isFunction(volume.getVoxelCoords)) {
+        voxel_coords = volume.getVoxelCoords();
+        $("#voxel-i-" + vol_id).val(parseInt(voxel_coords.i, 10));
+        $("#voxel-j-" + vol_id).val(parseInt(voxel_coords.j, 10));
+        $("#voxel-k-" + vol_id).val(parseInt(voxel_coords.k, 10));
+      }
+
+      value = volume.getIntensityValue();
+      $("#intensity-value-" + vol_id)
+      .css("background-color", "#" + volume.color_map.colorFromValue(value, {
+        hex: true,
+        min: volume.min,
+        max: volume.max,
+        contrast: panel.contrast,
+        brightness: panel.brightness
+      }))
+      .html(Math.floor(value));
+
+      if (volume.data && volume.data.time) {
+        $("#time-slider-" + vol_id).slider("option", "value", volume.current_time);
+        $("#time-val-" + vol_id).val(volume.current_time);
+      }
     });
 
+    var color_map_config = BrainBrowser.config.get("color_maps")[0];
+
+    loading_div.show();
+
+    //////////////////////////////
+    // Load the default color map.
+    //////////////////////////////
+    viewer.loadDefaultColorMapFromURL(color_map_config.url, color_map_config.cursor_color);
+
+    ////////////////////////////////////////
+    // Set the size of slice display panels.
+    ////////////////////////////////////////
+    viewer.setDefaultPanelSize(256, 256);
+
+    ///////////////////
+    // Start rendering.
+    ///////////////////
+    viewer.render();
+
+    /////////////////////
+    // Load the volumes.
+    /////////////////////
     viewer.loadVolumes({
       volumes: [
         {
-          type: 'minc',
-          header_url: "<%= content_userfile_path(@userfile) + "?content_loader=get_headers_to_json" %>",
-          raw_data_url: "<%= content_userfile_path(@userfile) + "?content_loader=get_raw_data" %>"
-        }
-      ]
+          type: "minc",
+          header_url:   "<%= content_userfile_path(@userfile) + "?content_loader=get_headers_to_json" %>",
+          raw_data_url: "<%= content_userfile_path(@userfile) + "?content_loader=get_raw_data" %>",
+        },
+      ],
+      complete: function() {
+        loading_div.hide();
+        $("#brainbrowser-wrapper").slideDown({duration: 600});
+      }
     });
   });
 </script>
