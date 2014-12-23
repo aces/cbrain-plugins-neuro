@@ -36,7 +36,7 @@
     <div class="volume-viewer-controls volume-controls">
 
       <div class="coords">
-        <div class="control-heading" id="voxel-coordinates-heading-{{VOLID}}">
+        <div class="control-heading" id="voxel-coordinates-heading-0">
           Voxel Coordinates:
         </div>
         <div class="voxel-coords" data-volume-id="0">
@@ -226,7 +226,6 @@
       var color_map_select = $('<select id="color-map-select"></select>').change(function() {
         var selection = $(this).find(":selected");
         viewer.loadVolumeColorMapFromURL(vol_id, selection.val(), selection.data("cursor-color"), function() {
-          console.log("kjdls")
           viewer.redrawVolumes();
         });
       });
@@ -266,8 +265,8 @@
             max_input.val(values[1]);
 
             // Update the volume and redraw.
-            volume.min = values[0];
-            volume.max = values[1];
+            volume.intensity_min = values[0];
+            volume.intensity_max = values[1];
             viewer.redrawVolumes();
           },
           stop: function() {
@@ -398,7 +397,7 @@
 
         div.find(".slice-series-button").click(function() {
           var axis_name = $(this).data("axis");
-          var axis = volume.data[axis_name];
+          var axis = volume.header[axis_name];
           var space_length = axis.space_length;
           var time = volume.current_time;
           var per_column = 10;
@@ -406,14 +405,14 @@
           var i, x, y;
 
           // Canvas on which to draw the images.
-          var canvas  = document.createElement("canvas");
+          var canvas = document.createElement("canvas");
           var context = canvas.getContext("2d");
 
           // Get first slice to set dimensions of the canvas.
-          var image_data = volume.slice(axis_name, 0, time).getImage(zoom);
-          var img        = new Image();
-          canvas.width   = per_column * image_data.width;
-          canvas.height  = Math.ceil(space_length / per_column) * image_data.height;
+          var image_data = volume.getSliceImage(volume.slice(axis_name, 0, time), zoom);
+          var img = new Image();
+          canvas.width = per_column * image_data.width;
+          canvas.height = Math.ceil(space_length / per_column) * image_data.height;
           context.fillStyle = "#000000";
           context.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -422,7 +421,7 @@
 
           // Draw the rest of the slices on the canvas.
           for (i = 1; i < space_length; i++) {
-            image_data = volume.slice(axis_name, i, time).getImage(zoom);
+            image_data = volume.getSliceImage(volume.slice(axis_name, i, time), zoom);
             x = i % per_column * image_data.width;
             y = Math.floor(i / per_column) * image_data.height;
             context.putImageData(image_data, x, y);
