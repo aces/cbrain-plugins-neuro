@@ -90,7 +90,7 @@
 </div>
 
 <%= stylesheet_link_tag    "braincanvas", :media => "all" %>
-<%= javascript_include_tag "brainbrowser.volume-viewer.min.js" %>
+<%= javascript_include_tag @userfile.public_path("javascripts/brainbrowser.volume-viewer.min.js").to_s %>
 
 <script type="text/javascript">
   BrainBrowser.VolumeViewer.start("brainbrowser-volume", function(viewer) {
@@ -99,12 +99,12 @@
     BrainBrowser.config.set("color_maps", [
       {
         name: "Gray",
-        url: "/color_maps/gray-scale.txt",
+        url: "<%= @userfile.public_path("color_maps/gray-scale.txt") %>",
         cursor_color: "#FF0000"
       },
       {
         name: "Spectral",
-        url: "/color_maps/spectral-brainview.txt",
+        url: "<%= @userfile.public_path("color_maps/spectral-brainview.txt") %>",
         cursor_color: "#FFFFFF"
       },
     ]);
@@ -121,7 +121,7 @@
 
       viewer.volumes.forEach(function(volume) {
         volume.display.forEach(function(panel) {
-          width   = Math.max(width, panel.canvas.width);
+          width   = Math.max(width,  panel.canvas.width);
           height  = Math.max(height, panel.canvas.height);
         });
       });
