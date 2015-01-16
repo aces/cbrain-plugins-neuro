@@ -1,0 +1,45 @@
+.control-heading {
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.control-heading:not(:first-child) {
+  margin-top: 12px;
+}
+
+.slider {
+  margin-top: 1em!important;
+}
+
+.thresh-inputs {
+  position: relative;
+  height: 1em;
+}
+
+.thresh-input-left {
+  position: absolute;
+  left: 3px;
+}
+
+.thresh-input-right {
+  position: absolute;
+  right: 10px;
+}
+
+
+.volume-controls {
+  width: 700px;
+}
+
+.volume-viewer-controls {
+  font-size: 12px;
+  padding: 10px;
+  margin: 3px 5px;
+  padding-bottom: 18px; 
+}
+
+.volume-viewer-controls > div {
+  margin-bottom: 10px;
+}
+
+

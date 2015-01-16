@@ -1,0 +1,52 @@
+
+.display_userfile #loading {
+  z-index: 999;
+  position: absolute;
+  top: 83px;
+  left: 55px;
+  font-size: 3em;
+}
+
+.display_userfile h4 {
+  font-size: 16px;
+}
+
+.display_userfile .controls {
+  margin-top: 20px;
+}
+
+.display_userfile .control-element {
+  margin: 5px;
+}
+
+.display_userfile #display {
+  position: relative;
+  height: 100%;
+}
+
+.display_userfile #shapes {
+  max-height: 200px;
+  overflow: auto;
+}
+
+.display_userfile .slider {
+  display: inline-block;
+  width: 320px;
+  margin: 10px 15px 0 15px;
+}
+
+.display_userfile input[type=file] {
+  margin-bottom: 0.4em;
+}
+
+.display_userfile #color-map {
+  margin-bottom: 5px;
+}
+
+.display_userfile canvas#spectrum-canvas {
+  display: block;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+

@@ -22,6 +22,9 @@
 #
 -%>
 
+<%= stylesheet_link_tag    MincFile.public_path("stylesheets/volume_viewer.css").to_s, :media => "all" %>
+<%= javascript_include_tag MincFile.public_path("javascripts/brainbrowser.volume-viewer.min.js").to_s %>
+
 <div id="brainbrowser-wrapper">
   <div id="volume-viewer">
     <div id="global-controls" class="volume-viewer-controls">
@@ -88,9 +91,6 @@
     </div>
   </div>
 </div>
-
-<%= stylesheet_link_tag    "braincanvas", :media => "all" %>
-<%= javascript_include_tag @userfile.public_path("javascripts/brainbrowser.volume-viewer.min.js").to_s %>
 
 <script type="text/javascript">
   BrainBrowser.VolumeViewer.start("brainbrowser-volume", function(viewer) {
