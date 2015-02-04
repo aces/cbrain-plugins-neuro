@@ -17,7 +17,7 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.  
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
 # A subclass of CbrainTask to launch Nii2mnc.
@@ -37,14 +37,11 @@ class CbrainTask::Nii2mnc < PortalTask
     :voxel_int_signity   => "",    # signed, unsigned, default
     :noscan              => 0,     # -noscanrange
     :space_ordering      => "",    # transverse, sagittal, coronal, xyz, zxy, yxz, default
-    #:flipx               => 0,     # -flipx DEPRECATED
-    #:flipy               => 0,     # -flipy DEPRECATED
-    #:flipz               => 0,     # -flipz DEPRECATED
     :flip_order          => "",    # Order of -flip[xyz] options, one of "xyz", "xzy" etc etc.
     :rectify_cosines     => 0,     # run minc_modify_header -dinsert xspace:direction_cosines=1,0,0 (y and z too)
     }
   end
-  
+
   # Updates the old flip options :flipx, :flipy and :flipz into the new :flip_order
   # when reloading an old task
   def after_find_update_flip_params #:nodoc:
@@ -77,7 +74,7 @@ class CbrainTask::Nii2mnc < PortalTask
   def after_form #:nodoc:
     params = self.params
     cb_error "Missing voxel type"     if params[:voxel_type].blank?
-    cb_error "Missing space ordering" if params[:space_ordering].blank?
+    cb_error "Missing space ordering" if params[:space_ordering].blank?    && !self.tool_config.is_at_least_version("2.0.0")
     cb_error "Missing voxel int sign" if params[:voxel_int_signity].blank? && params[:voxel_type] =~ /^(byte|short|int)$/
     ""
   end

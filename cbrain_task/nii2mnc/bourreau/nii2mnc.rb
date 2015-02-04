@@ -17,7 +17,7 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.  
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
 # A subclass of ClusterTask to run Nii2mnc.
@@ -33,8 +33,8 @@ class CbrainTask::Nii2mnc < ClusterTask
     params       = self.params
     file_ids     = params[:interface_userfile_ids] || []
     cb_error "Expected a single NIfTY file id." unless file_ids.size == 1
-    id = file_ids[0]
-    u = Userfile.find(id)
+    id           = file_ids[0]
+    u            = Userfile.find(id)
     u.sync_to_cache
     safe_symlink(u.cache_full_path,u.cache_full_path.basename)
     self.results_data_provider_id ||= u.data_provider_id
@@ -49,36 +49,43 @@ class CbrainTask::Nii2mnc < ClusterTask
   def cluster_commands #:nodoc:
     params       = self.params
     file_ids     = params[:interface_userfile_ids] || []
-    id = file_ids[0]
-    u = Userfile.find(id)
-    basename = u.cache_full_path.basename.to_s
-    mincbase = basename.sub(/\.nii$/i,"")
-    mincbase += ".mnc"
+    id           = file_ids[0]
+    u            = Userfile.find(id)
+    basename     = u.cache_full_path.basename.to_s
+    mincbase     = basename.sub(/\.nii$/i,"")
+    mincbase    += ".mnc"
     params[:mincbase] = mincbase
 
-    voxel_type   = params[:voxel_type]        || ""
-    int_sign     = params[:voxel_int_signity] || ""
-    order        = params[:space_ordering]    || ""
+    # Ignore some option for some version
+    options_to_ignore = self.identify_options_to_ignore()
 
+    voxel_type   = params[:voxel_type]        || ""
     cb_error "Unexpected voxel type"     if voxel_type !~ /^(byte|short|int|float|double|default)$/
+
+    int_sign     = params[:voxel_int_signity] || ""
     cb_error "Unexpected voxel int sign" if int_sign   !~ /^(signed|unsigned|default)$/
-    cb_error "Unexpected space ordering" if order      !~ /^(sagittal|transverse|coronal|xyz|yxz|zxy|default)$/
+
+    if !options_to_ignore.has_key?(:space_ordering)
+      order        = params[:space_ordering]  || ""
+      cb_error "Unexpected space ordering" if order    !~ /^(sagittal|transverse|coronal|xyz|yxz|zxy|default)$/
+    end
 
     command  = "nii2mnc"
     command += " -#{voxel_type}" if voxel_type != "default"
     command += " -#{int_sign}"   if voxel_type =~ /^(short|word|int)$/ && int_sign != "default"
-    command += " -noscanrange"   if params[:noscan] == "1"
-    command += " -#{order}"      if order != "default"
 
-    flip_order = params[:flip_order] # will check for nil later on
+    command += " -noscanrange"   if params[:noscan] == "1" && !options_to_ignore.has_key?(:noscan)
+    command += " -#{order}"      if order != "default"     if !options_to_ignore.has_key?(:space_ordering)
+
+    flip_order = params[:flip_order]                       if !options_to_ignore.has_key?(:flip_order) # will check for nil later on
 
     # Compatibility adjustment with old tasks which used :flipx etc.
     # instead of :flip_order
     if flip_order.nil?  # not blank, NIL! It is important as "" is acceptable for flip_order
       flip_order = ""
-      flip_order += "x" if params[:flipx].to_s == "1"   # old arg API
-      flip_order += "y" if params[:flipy].to_s == "1"   # old arg API
-      flip_order += "z" if params[:flipz].to_s == "1"   # old arg API
+      flip_order += "x" if params[:flipx].to_s == "1" # old arg API
+      flip_order += "y" if params[:flipy].to_s == "1" # old arg API
+      flip_order += "z" if params[:flipz].to_s == "1" # old arg API
     end
 
     # The new flip_order will place the command line options
@@ -98,7 +105,7 @@ class CbrainTask::Nii2mnc < ClusterTask
       command
     ]
 
-    if params[:rectify_cosines] == "1"
+    if params[:rectify_cosines] == "1" && !options_to_ignore.has_key?(:rectify_cosines)
       commands += [
         "",
         "# Rectify cosines",
@@ -111,7 +118,7 @@ class CbrainTask::Nii2mnc < ClusterTask
 
     return commands
   end
-  
+
   # See CbrainTask.txt
   def save_results #:nodoc:
     params       = self.params

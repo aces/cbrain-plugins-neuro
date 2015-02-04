@@ -18,9 +18,11 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.  
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 -%>
+
+<% before_2_0_0  = !@tool_config || !@tool_config.is_at_least_version("2.0.0") %>
 
 <STRONG>Input:</STRONG>
 
@@ -38,20 +40,23 @@ Voxel type: <%= h(params[:voxel_type]) %>
 <%= h(params[:voxel_int_signity]) %>
 <% end %>
 <P>
-Space ordering: <%= h(params[:space_ordering]) %>
 
-<% flip_order = params[:flip_order] || "" %>
-<% flipped = flip_order.each_char.select { |c| c =~ /[xyz]/i } %>
-<% if flipped.size > 0 %>
-with these axis flipper in order: <%= flipped.map(&:upcase).join(", ") %>.
-<% else %>
-with no flipping of any axis.
+<% if before_2_0_0 %>
+  Space ordering: <%= h(params[:space_ordering]) %>
+
+  <% flip_order = params[:flip_order] || "" %>
+  <% flipped = flip_order.each_char.select { |c| c =~ /[xyz]/i } %>
+  <% if flipped.size > 0 %>
+  with these axis flipper in order: <%= flipped.map(&:upcase).join(", ") %>.
+  <% else %>
+  with no flipping of any axis.
+  <% end %>
+
+  <P>
+  Cosines rectified with <em>minc_modify_header</em>: <%= params[:rectify_cosines] == "1" ? "Yes" : "No" %>
+
+  <P>
 <% end %>
-
-<P>
-Cosines rectified with <em>minc_modify_header</em>: <%= params[:rectify_cosines] == "1" ? "Yes" : "No" %>
-
-<P>
 
 <STRONG>Output Minc File:</STRONG>
 <%= link_to_userfile_if_accessible params[:output_mincfile_id] %></LI>
