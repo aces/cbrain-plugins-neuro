@@ -40,6 +40,19 @@
 <%= params[:vertical_gradient].to_s %>
 
 <P/>
+<STRONG>Extra options used: </STRONG>
+<% if params[:with_b] || params[:with_f] || params[:with_f] || params[:with_f]%>
+  <% params_array = [] %>
+  <% params_array << "-B" if params[:with_b] == "1" %>
+  <% params_array << "-F" if params[:with_f] == "1" %>
+  <% params_array << "-S" if params[:with_s] == "1" %>
+  <% params_array << "-R" if params[:with_r] == "1" %>
+  <%= params_array.join(",")%>
+<% else %>
+  None
+<% end %>
+
+<P/>
 <STRONG>Output name:</STRONG>
 </p>
 <UL>
