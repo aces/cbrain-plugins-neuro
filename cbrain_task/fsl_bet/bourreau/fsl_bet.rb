@@ -49,7 +49,7 @@ class CbrainTask::FslBet < ClusterTask
 
   def job_walltime_estimate #:nodoc:
      job_wallttime_estimate = params[:with_b] == "1" ? (0.2 * params[:interface_userfile_ids].count).hours : (0.1 * params[:interface_userfile_ids].count).hours
-     job_wallttime_estimate = job_wallttime_estimate * 2 if params[:with_r]
+     job_wallttime_estimate = job_wallttime_estimate * 2.5 if params[:with_r].presence == "1"
      job_wallttime_estimate
   end
 
