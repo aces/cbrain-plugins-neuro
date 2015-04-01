@@ -38,7 +38,7 @@ so installing this package is of little utility for most installations.
 | CivetCombiner | Combines several CivetOutputs into a single CivetStudy                           |
 | CivetQc       | To run CIVET QC pipeline on a CivetStudy                                         |
 | Dcm2mnc       | To run [dcm2mnc](http://www.bic.mni.mcgill.ca/~mferre/fmri/dcm2mnc_help.html)    |
-| Dcm2nii       | To rum [dcm2nii](http://www.mccauslandcenter.sc.edu/mricro/mricron/dcm2nii.html) |
+| Dcm2nii       | To run [dcm2nii](http://www.mccauslandcenter.sc.edu/mricro/mricron/dcm2nii.html) |
 | MincConvert   | To run minc_convert, in order to convert MINC1 to MINC2 or MINC2 to MINC1        |
 | Mnc2nii       | To run mnc2nii, in order to convert MINC to NIfTI                                |
 | Nii2mnc       | To run nii2mnc, in order to convert NIfTI to MINC                                |
