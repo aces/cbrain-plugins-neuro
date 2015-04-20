@@ -17,7 +17,7 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.  
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
 # A subclass of ClusterTask to run FslFeat.
@@ -32,7 +32,7 @@ class CbrainTask::FslFeat < ClusterTask
   class FeatFsfEvaluator #:nodoc:
     Revision_info=CbrainFileRevision[__FILE__] #:nodoc:
   end
-  
+
   def setup #:nodoc:
     params       = self.params
     inputfile_id = params[:inputfile_id].to_i
@@ -48,12 +48,12 @@ class CbrainTask::FslFeat < ClusterTask
     safe_symlink(cache_path, "#{inputfile.name}")
 
     self.results_data_provider_id ||= inputfile.data_provider_id
-    
-    true
+
+    return true
   end
 
   def job_walltime_estimate #:nodoc:
-    4.hours
+    return 4.hours
   end
 
 
@@ -67,17 +67,17 @@ class CbrainTask::FslFeat < ClusterTask
     inputfile_id = params[:inputfile_id].to_i
     inputfile    = Userfile.find(inputfile_id)
     cache_path   = inputfile.cache_full_path
-    
+
     # Extract nb volumes if is 0
     if params[:data][:npts] == "0"
       fslhd = "fslhd #{cache_path.to_s.bash_escape} | grep -w 'dim4'"
-      npts,ignorederr = tool_config_system(fslhd)
-      
+      npts = tool_config_system(fslhd).first
+
       npts.gsub!(/dim4/, "")
       npts.strip!
       if npts.blank?
         self.addlog("Could not find number of volumes.")
-        return false  
+        return false
       end
       params[:data][:npts] = npts
     end
@@ -91,7 +91,7 @@ class CbrainTask::FslFeat < ClusterTask
 
     self.addlog("Building FEAT structure file")
 
-    fsf_template   = "" 
+    fsf_template   = ""
     plain_name     = self.name.underscore
     full_path      = "#{Rails.root.to_s}/cbrain_plugins/cbrain_task/#{plain_name}/bourreau/design.fsf.erb"
     if File.exists?(full_path)
@@ -99,7 +99,7 @@ class CbrainTask::FslFeat < ClusterTask
     else
       cb_error "FEAT structure file template not found: '#{full_path}'"
     end
-    
+
     fsf_erb        = ERB.new(fsf_template,0,">")
 
     fsf_erb.def_method(FeatFsfEvaluator, 'render(input_path, params, output_path )', "(FEAT structure file)")
@@ -115,9 +115,9 @@ class CbrainTask::FslFeat < ClusterTask
       fh.write fsf_filled
     end
 
-    
+
     cmd_feat =  "feat design.fsf"
-    
+
     cmds     = []
     cmds     << "echo Starting FEAT"
     cmds     << "echo running #{cmd_feat}"
@@ -125,14 +125,14 @@ class CbrainTask::FslFeat < ClusterTask
 
     cmds
   end
-  
+
   def save_results #:nodoc:
     params  = self.params
-    user_id = self.user_id
+    # user_id = self.user_id
 
     inputfile_id = params[:inputfile_id].to_i
     inputfile    = Userfile.find(inputfile_id)
-    
+
     # Verify if all feat exit without error. HOW ??
     output_name = params[:output_name]
     unless File.directory?(output_name)
@@ -143,7 +143,7 @@ class CbrainTask::FslFeat < ClusterTask
     inputfile_id = params[:inputfile_id].to_i
     inputfile    = Userfile.find(inputfile_id)
 
-    outputfile =  safe_userfile_find_or_new(FileCollection, :name => output_name )
+    outputfile   =  safe_userfile_find_or_new(FileCollection, :name => output_name )
     outputfile.save!
     outputfile.cache_copy_from_local_file(output_name)
 
@@ -152,7 +152,7 @@ class CbrainTask::FslFeat < ClusterTask
     params[:outfile_id] = outputfile.id
     outputfile.move_to_child_of(inputfile)
 
-    true
+    return true
   end
 
 end

@@ -17,7 +17,7 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.  
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
 # A subclass of CbrainTask to launch FslBet.
@@ -28,7 +28,9 @@ class CbrainTask::FslFirst < PortalTask
   Revision_info=CbrainFileRevision[__FILE__] #:nodoc:
 
   def self.properties #:nodoc:
-    { :use_parallelizer => true }
+    {
+      :use_parallelizer => true
+    }
   end
 
   def self.default_launch_args #:nodoc:
@@ -36,7 +38,7 @@ class CbrainTask::FslFirst < PortalTask
       :output_name => "first-output"
     }
   end
-  
+
   def before_form #:nodoc:
     params   = self.params
 
@@ -46,17 +48,17 @@ class CbrainTask::FslFirst < PortalTask
       cb_error "Error: the input file for this task doesn't exist." unless u
       cb_error "Error: '#{u.name}' does not seem to be a single file." unless u.is_a?(SingleFile)
     end
-    ""
+    return ""
   end
-  
+
   def after_form #:nodoc:
-    output_name = (params[:output_name].strip.eql? "") ? output_name : params[:output_name].strip 
-    ""
+    output_name = (params[:output_name].strip.eql? "") ? output_name : params[:output_name].strip
+    return ""
   end
-  
+
   def final_task_list #:nodoc:
-    ids    = params[:interface_userfile_ids] || []
-    
+    ids = params[:interface_userfile_ids] || []
+
     mytasklist = []
     ids.each do |id|
       task=self.dup # not .clone, as of Rails 3.1.10
@@ -65,13 +67,17 @@ class CbrainTask::FslFirst < PortalTask
       task.description = Userfile.find(id).name if task.description.blank?
       mytasklist << task
     end
-    
-    mytasklist
+
+    return mytasklist
   end
-  
+
   def untouchable_params_attributes #:nodoc:
-    { :inputfile_id => true, :output_name => true, :outfile_id => true}
+    {
+      :inputfile_id => true,
+      :output_name  => true,
+      :outfile_id   => true
+    }
   end
-  
+
 end
 

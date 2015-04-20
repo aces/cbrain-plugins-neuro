@@ -39,7 +39,7 @@ class CbrainTask::FslBet < PortalTask
     }
   end
 
- def before_form #:nodoc:
+  def before_form #:nodoc:
     params   = self.params
 
     ids    = params[:interface_userfile_ids]
@@ -48,7 +48,7 @@ class CbrainTask::FslBet < PortalTask
       cb_error "Error: the input file for this task doesn't exist anymore." unless u
       cb_error "Error: '#{u.name}' does not seem to be a single file." unless u.is_a?(SingleFile)
     end
-    ""
+    return ""
   end
 
   def after_form #:nodoc:
@@ -65,11 +65,11 @@ class CbrainTask::FslBet < PortalTask
     self.params_errors.add(:vertical_gradient, "in fractional intensity threshold mut be between -1 and 1.") unless
       vertical_gradient.present? && vertical_gradient.to_f >= -1 && vertical_gradient.to_f <= 1
 
-    ""
+    return ""
   end
 
   def final_task_list #:nodoc:
-    ids    = params[:interface_userfile_ids] || []
+    ids = params[:interface_userfile_ids] || []
 
     mytasklist = []
     ids.each do |id|
@@ -84,7 +84,11 @@ class CbrainTask::FslBet < PortalTask
   end
 
   def untouchable_params_attributes #:nodoc:
-    { :inputfile_id => true, :final_output_name => true, :outfile_id => true}
+    {
+      :inputfile_id      => true,
+      :final_output_name => true,
+      :outfile_id        => true
+    }
   end
 
 end

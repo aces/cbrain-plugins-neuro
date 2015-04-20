@@ -17,7 +17,7 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.  
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
 # A subclass of ClusterTask to run FslBedpostx.
@@ -28,7 +28,6 @@ class CbrainTask::FslBedpostx < ClusterTask
   include RestartableTask
   include RecoverableTask
 
-  # See CbrainTask.txt
   def setup #:nodoc:
     params       = self.params
     input_colid  = params[:interface_userfile_ids][0]
@@ -55,7 +54,6 @@ class CbrainTask::FslBedpostx < ClusterTask
     12.hours
   end
 
-  # See CbrainTask.txt
   def cluster_commands #:nodoc:
     params       = self.params
     fibres       = params[:fibres]
@@ -73,8 +71,7 @@ class CbrainTask::FslBedpostx < ClusterTask
       command
     ]
   end
-  
-  # See CbrainTask.txt
+
   def save_results #:nodoc:
     params       = self.params
     input_colid  = params[:interface_userfile_ids][0]

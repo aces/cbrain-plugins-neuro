@@ -17,7 +17,7 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.  
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
 # A subclass of CbrainTask to launch FslFeat.
@@ -28,55 +28,57 @@ class CbrainTask::FslFeat < PortalTask
   Revision_info=CbrainFileRevision[__FILE__] #:nodoc:
 
   def self.properties #:nodoc:
-    { :use_parallelizer => true }
+    {
+      :use_parallelizer => true
+    }
   end
-    
+
   def self.default_launch_args #:nodoc:
-    { 
-      :level                          => "1",      
-      :analysis                       => "1",      
+    {
+      :level                          => "1",
+      :analysis                       => "1",
 
       :misc => {
-        :brain_thresh                  => "0",    
-        :noise                         => "0.66", 
-        :noisear                       => "0.34", 
-        :critical_z                    => "5.3"   
+        :brain_thresh                  => "0",
+        :noise                         => "0.66",
+        :noisear                       => "0.34",
+        :critical_z                    => "5.3"
       },
 
       :data => {
-        :npts                          => "0",    
-        :ndelete                       => "0",    
-        :tr                            => "3.0",  
-        :paradigm_hp                   => "100"   
+        :npts                          => "0",
+        :ndelete                       => "0",
+        :tr                            => "3.0",
+        :paradigm_hp                   => "100"
       },
 
       :pre_stats => {
-        :mc                            => "none", 
-        :regunwarp_yn                  => "0",    
-        :st                            => "none", 
-        :bet_yn                        => "0",    
-        :smooth                        => "5.0",  
-        :norm_yn                       => "0",    
-        :perfsub_yn                    => "0",    
-        :tagfirst                      => "1",    
-        :temphp_yn                     => "0",    
-        :melodic_yn                    => "0"     
+        :mc                            => "none",
+        :regunwarp_yn                  => "0",
+        :st                            => "none",
+        :bet_yn                        => "0",
+        :smooth                        => "5.0",
+        :norm_yn                       => "0",
+        :perfsub_yn                    => "0",
+        :tagfirst                      => "1",
+        :temphp_yn                     => "0",
+        :melodic_yn                    => "0"
       },
 
       :registration => {
-        :regstandard_search            => "normal", 
-        :regstandard_dof               => "12",     
+        :regstandard_search            => "normal",
+        :regstandard_dof               => "12",
         :regstandard_nonlinear_yn      => "0",
-        :regstandard_nonlinear_warpres => "10" 
+        :regstandard_nonlinear_warpres => "10"
       }
 
     }
-    
+
   end
 
-   def self.pretty_params_names #:nodoc:
+  def self.pretty_params_names #:nodoc:
     {
-      'level'                                       => "Analysis level", 
+      'level'                                       => "Analysis level",
       'analysis'                                    => "Analysis part",
 
       'misc[brain_thresh]'                          => "Brain/background threshold %",
@@ -104,25 +106,24 @@ class CbrainTask::FslFeat < PortalTask
       'registration[regstandard_dof]'               => "DOF for standard space in registration",
       'registration[regstandard_nonlinear_yn]'      => "Non linear for standard space in registration",
       'registration[regstandard_nonlinear_warpres]' => "Warp resolution (mm) for standard space in registration"
-      
     }
   end
-  
+
   def before_form #:nodoc:
     params   = self.params
 
     ids    = params[:interface_userfile_ids]
-    
+
     ids.each do |id|
       u = Userfile.find(id) rescue nil
       cb_error "Error: the input file for this task doesn't exist anymore."       unless u
       cb_error "Error: '#{u.name}' does not seem to be a single file."            unless u.is_a?(SingleFile)
-      cb_error "Error: Some of your files have not extension '.nii' or '.nii.gz'" unless u.name =~  /\.nii(\.gz)?$/i  
+      cb_error "Error: Some of your files have not extension '.nii' or '.nii.gz'" unless u.name =~  /\.nii(\.gz)?$/i
     end
-    ""
+    return ""
   end
 
-  def after_form #:nodoc: 
+  def after_form #:nodoc:
     params = self.params
 
     # Only one mode for the moment
@@ -130,7 +131,7 @@ class CbrainTask::FslFeat < PortalTask
     self.params_errors.add(:level, "has invalid value. #{lvl}") unless
       params[:level].present? && ["1","2"].include?(params[:level]);
 
-    # Only on analysis level for the moment  
+    # Only on analysis level for the moment
     self.params_errors.add(:analysis, "has invalid value.") unless
       params[:analysis].present? && ["7","1","3","2","6","4"].include?(params[:analysis]);
 
@@ -138,7 +139,7 @@ class CbrainTask::FslFeat < PortalTask
     mc = params[:pre_stats][:mc] || ""
     self.params_errors.add("pre_stats[mc]", "has invalid value.") unless
       mc.present? && ["0","1"].include?(mc)
-    
+
     # Check pre_stats[st]
     st = params[:pre_stats][:st] || ""
     self.params_errors.add("pre_stats[st]", "has invalid value.") unless
@@ -154,7 +155,7 @@ class CbrainTask::FslFeat < PortalTask
     self.params_errors.add('registration[regstandard_dof]', "has invalid value.") unless
     regstandard_dof.present? && ["3","6","7","9","12"].include?(regstandard_dof)
 
-      
+
     # Check all 'float' and 'integer' params
     float_regex = '\d*\.?\d+([eE][-+]?\d+)?'
     params_errors.add("misc[brain_thresh]",     "must be include between 0 and 100") if params[:misc][:brain_thresh].to_i < 0 || params[:misc][:brain_thresh].to_i > 100
@@ -168,7 +169,7 @@ class CbrainTask::FslFeat < PortalTask
     params_errors.add("data[paradigm_hp]",      "is not a float.")    unless  params[:data][:paradigm_hp]    =~ /^#{float_regex}$/io
     params_errors.add("pre_stats[smooth]",      "is not a float.")    unless  params[:pre_stats][:smooth] =~ /^#{float_regex}$/io
     # params_errors.add("registration[registration[regstandard_nonlinear_warpres]", "is not a float") unless  params[:registration][:regstandard_nonlinear_warpres] =~ /^#{float_regex}$/io
-    
+
     # Check value of check_box
     # pre_stats[regunwarp_yn] && registration[regstandard_nonlinear_yn]
     # not yet implemented
@@ -178,16 +179,16 @@ class CbrainTask::FslFeat < PortalTask
         pre_stats[tagfirst]
         pre_stats[temphp_yn]
         pre_stats[melodic_yn] ).each do |param_name|
-      value = self.params_path_value(param_name) 
-      params_errors.add(param_name, "invalid") unless value != "0" || value != "1" 
+      value = self.params_path_value(param_name)
+      params_errors.add(param_name, "invalid") unless value != "0" || value != "1"
     end
-    
-    ""
+
+    return ""
   end
 
   def final_task_list #:nodoc:
     ids    = params[:interface_userfile_ids] || []
-    
+
     mytasklist = []
     ids.each do |id|
       task=self.dup # not .clone, as of Rails 3.1.10
@@ -196,12 +197,16 @@ class CbrainTask::FslFeat < PortalTask
       task.description = Userfile.find(id).name if task.description.blank?
       mytasklist << task
     end
-    
-    mytasklist
+
+    return mytasklist
   end
 
   def untouchable_params_attributes #:nodoc:
-    { :inputfile_id => true, :output_name => true, :outfile_id => true }
+    {
+      :inputfile_id => true,
+      :output_name  => true,
+      :outfile_id   => true
+    }
   end
 
 end
