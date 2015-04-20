@@ -140,7 +140,6 @@ class CbrainTask::CivetCombiner < ClusterTask
   end
 
   def cluster_commands #:nodoc:
-    params       = self.params
     nil   # Special case: no cluster job.
   end
 

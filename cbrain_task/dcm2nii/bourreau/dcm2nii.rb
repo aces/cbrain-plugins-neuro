@@ -15,7 +15,7 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.  
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
 # A subclass of ClusterTask to run dcm2nii.
@@ -43,7 +43,7 @@ class CbrainTask::Dcm2nii < ClusterTask
 
     self.results_data_provider_id ||= dicom_col.data_provider_id
 
-    dicom_col.sync_to_cache   
+    dicom_col.sync_to_cache
     cachename = dicom_col.cache_full_path.to_s
     safe_symlink(cachename, dicom_col.name)
 
@@ -53,7 +53,7 @@ class CbrainTask::Dcm2nii < ClusterTask
   def job_walltime_estimate #:nodoc:
     1.hours
   end
-  
+
   def cluster_commands #:nodoc:
     params      = self.params
 
@@ -78,7 +78,7 @@ class CbrainTask::Dcm2nii < ClusterTask
 
     cmds
   end
-  
+
   def save_results #:nodoc:
     params      = self.params
     dicom_colid = params[:dicom_colid]  # the ID of a FileCollection
@@ -88,7 +88,7 @@ class CbrainTask::Dcm2nii < ClusterTask
     IO.popen("find #{result_dir.to_s.bash_escape} -type f -print","r") do |io|
       io.each_line do |relpath|
         relpath.strip!
-        next unless relpath.match(/\.nii(.gz)?$/i) || 
+        next unless relpath.match(/\.nii(.gz)?$/i) ||
                     relpath.match(/\.bval$/i)      ||
                     relpath.match(/\.bvec$/i)
         relpaths << relpath
@@ -125,7 +125,7 @@ class CbrainTask::Dcm2nii < ClusterTask
     end
 
     old_niifile_ids = params[:created_niifile_ids] || []
-    new_niifile_ids = niifiles.map &:id
+    new_niifile_ids = niifiles.map(&:id)
 
     if params[:erase_old_results] == "1" && numok > 0 && numfail == 0
       old_niifile_ids -= new_niifile_ids
@@ -136,7 +136,7 @@ class CbrainTask::Dcm2nii < ClusterTask
         self.addlog("Erasing old result niifile '#{u.name}'")
       end
     end
-    
+
     params[:created_niifile_ids]    = new_niifile_ids
 
     self.addlog_to_userfiles_these_created_these([dicom_col],niifiles)
@@ -186,7 +186,7 @@ class CbrainTask::Dcm2nii < ClusterTask
     extension = orig_nii_relpath.scan(/\.[^\.]+$/).last
     if orig_nii_relpath =~ /\.nii\.gz$/i
       final += ".nii.gz"
-    else 
+    else
       final += "#{extension}"
     end
 

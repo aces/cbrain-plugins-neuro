@@ -28,7 +28,6 @@ class CbrainTask::Nii2mnc < ClusterTask
   include RecoverableTask
   include RestartableTask
 
-  # See CbrainTask.txt
   def setup #:nodoc:
     params       = self.params
     file_ids     = params[:interface_userfile_ids] || []
@@ -45,7 +44,6 @@ class CbrainTask::Nii2mnc < ClusterTask
     1.hours
   end
 
-  # See CbrainTask.txt
   def cluster_commands #:nodoc:
     params       = self.params
     file_ids     = params[:interface_userfile_ids] || []
@@ -119,7 +117,6 @@ class CbrainTask::Nii2mnc < ClusterTask
     return commands
   end
 
-  # See CbrainTask.txt
   def save_results #:nodoc:
     params       = self.params
 

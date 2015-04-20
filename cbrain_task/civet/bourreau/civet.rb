@@ -482,7 +482,6 @@ class CbrainTask::Civet < ClusterTask
     params           = self.params
     file0            = params[:file_args][arg_idx] # we require this single entry for info on the data files
 
-    prefix           = file0[:prefix] || "unkpref"  # not used in this method
     dsid             = file0[:dsid]   || "unkdsid"
 
     unless mybool(file0[:launch])
@@ -615,7 +614,6 @@ class CbrainTask::Civet < ClusterTask
   def recover_from_cluster_failure_single(arg_idx) #:nodoc:
     params       = self.params || {}
     file0        = params[:file_args][arg_idx] # we require this single entry for info on the data files
-    prefix       = file0[:prefix] || "unkpref"
     dsid         = file0[:dsid]   || "unkdsid"
 
     # Where we find this subject's results

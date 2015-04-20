@@ -126,7 +126,7 @@ class CbrainTask::Mnc2nii < ClusterTask
       end
     end
 
-    params[:niifile_ids] = niifiles.map &:id
+    params[:niifile_ids] = niifiles.map(&:id)
     self.addlog_to_userfiles_these_created_these( [ mincfile ], niifiles )
 
     true

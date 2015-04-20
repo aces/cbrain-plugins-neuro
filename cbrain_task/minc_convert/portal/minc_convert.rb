@@ -17,7 +17,7 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.  
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
 # A subclass of CbrainTask to launch Mnc22mnc1.
@@ -29,16 +29,18 @@ class CbrainTask::MincConvert < PortalTask
 
 
   def self.properties #:nodoc:
-    { :use_parallelizer => true }
+    {
+      :use_parallelizer => true
+    }
   end
- 
+
   def self.default_launch_args #:nodoc:
     {
       :conv_direction => "minc1",
     }
   end
 
-  
+
   def self.pretty_params_names #:nodoc:
     {
       :conv_direction => "Convertion direction",
@@ -47,12 +49,12 @@ class CbrainTask::MincConvert < PortalTask
       :chunk          => "Target block size for chunking",
     }
   end
-  
+
   def before_form #:nodoc:
-    params   = self.params
+    params = self.params
     ids    = params[:interface_userfile_ids]
-    
-    ids.each do |id|                                
+
+    ids.each do |id|
       u = Userfile.find(id) rescue nil
       cb_error "Error: the input file for this task doesn't exist anymore." unless u
       cb_error "Error: '#{u.name}' does not seem to be a Minc file."        unless u.is_a?(MincFile)
@@ -67,45 +69,44 @@ class CbrainTask::MincConvert < PortalTask
     compress = params[:compress].to_i
     self.params_errors.add(:compress , "must be between -1 and 9" ) unless
       compress.present? && (compress >= -1 && compress <= 9 )
-    
-    
+
+
     # Checks chunk
     chunk = params[:chunk].to_i
     self.params_errors.add(:chunk , "must be greater or equal to -1" ) unless
       chunk.present? && chunk >= -1
 
-    # Checks files types.  
+    # Checks files types.
     minc_direction = params[:conv_direction]
     self.params_errors.add(:conv_direction , "must be 'minc2' for 'MINC2 -> MINC1' or 'minc2' for 'MINC1 -> MINC2'") unless
-      minc_direction.present? && (minc_direction == "minc1" || minc_direction == "minc2") 
-    
-    ids       = params[:interface_userfile_ids] || []
+      minc_direction.present? && (minc_direction == "minc1" || minc_direction == "minc2")
 
-    invalid_ids   = []
-    ids.each do |id|                                        
+    ids = params[:interface_userfile_ids] || []
+
+    invalid_ids = []
+    ids.each do |id|
       file = Userfile.find(id)
       if ( (file.is_a?(Minc2File) && minc_direction == "minc2") || (file.is_a?(Minc1File) && minc_direction == "minc1"))
         invalid_ids << file.id.to_s
       end
     end
-    
+
     valid_ids = ids - invalid_ids
     params[:valid_ids] = valid_ids
     invalid_files = ""
     if invalid_ids.size > 0
       invalid_files += "\nThe following files are ignored they seem to already be in the right format:\n"
-      invalid_files += (Userfile.find(invalid_ids).map &:name).join(", ")
+      invalid_files += (Userfile.find(invalid_ids).map(&:name)).join(", ")
       invalid_files += "."
     end
-    
+
     "#{invalid_files}"
   end
 
   def final_task_list #:nodoc:
-    params = self.params
-    ids    = params[:interface_userfile_ids] || []
+    params    = self.params
     valid_ids = params[:valid_ids] || []
-    task_list  = []
+    task_list = []
     valid_ids.each do |id|
       task=self.dup # not .clone, as of Rails 3.1.10
       task.params[:inputfile_id]           = id
@@ -117,8 +118,13 @@ class CbrainTask::MincConvert < PortalTask
   end
 
   def untouchable_params_attributes #:nodoc:
-    { :inputfile_id => true, :valid_ids => true, :outfile_id => true, :output_name => true }
+    {
+      :inputfile_id => true,
+      :valid_ids    => true,
+      :outfile_id   => true,
+      :output_name  => true
+    }
   end
-  
+
 end
 
