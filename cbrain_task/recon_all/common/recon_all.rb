@@ -55,8 +55,8 @@ class CbrainTask::ReconAll
     raise "Cannot extract version number for comparison" if
       v1.blank? || v2.blank?
 
-    v1 = v1.split(".").map &:to_i
-    v2 = v2.split(".").map &:to_i
+    v1 = v1.split(".").map(&:to_i)
+    v2 = v2.split(".").map(&:to_i)
 
     while (v1.size < v2.size) do v1.push(0) end
     while (v2.size < v1.size) do v2.push(0) end

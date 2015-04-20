@@ -139,7 +139,6 @@ class CbrainTask::ReconAll < ClusterTask
     self.results_data_provider_id ||= files[0].data_provider_id
 
     # Check for error
-    list_of_error_dir = []
     log_file          = "#{subjectid}/scripts/recon-all.log"
     if !log_file_contains(log_file, /recon-all .+ finished without error at/)
       self.addlog("Recon-all exited with errors. See Standard Output.")
@@ -166,8 +165,6 @@ class CbrainTask::ReconAll < ClusterTask
 
   # Error-recovery and restarting methods described
   def recover_from_cluster_failure #:nodoc:
-    params       = self.params
-
     remove_is_running_file()
 
     true
