@@ -17,7 +17,7 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.  
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
 # A subclass of ClusterTask to run NuCorrect.
@@ -28,7 +28,6 @@ class CbrainTask::NuCorrect < ClusterTask
   include RestartableTask
   include RecoverableTask
 
-  # See CbrainTask.txt
   def setup #:nodoc:
     params     = self.params || {}
     lt         = params[:launch_table]["0"]
@@ -52,7 +51,6 @@ class CbrainTask::NuCorrect < ClusterTask
     true
   end
 
-  # See CbrainTask.txt
   def cluster_commands #:nodoc:
     params     = self.params || {}
     lt         = params[:launch_table]["0"]
@@ -80,8 +78,7 @@ class CbrainTask::NuCorrect < ClusterTask
       "#{command}\n"
     ]
   end
-  
-  # See CbrainTask.txt
+
   def save_results #:nodoc:
     params     = self.params || {}
     lt         = params[:launch_table]["0"]

@@ -105,7 +105,7 @@ class CbrainTask::Dcm2mnc < ClusterTask
     end
 
     old_mincfile_ids = params[:created_mincfile_ids] || []
-    new_mincfile_ids = mincfiles.map &:id
+    new_mincfile_ids = mincfiles.map(&:id)
 
     if params[:erase_old_results] == "1" && numok > 0 && numfail == 0
       old_mincfile_ids -= new_mincfile_ids

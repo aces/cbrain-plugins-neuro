@@ -39,7 +39,7 @@ class CbrainTask::Dcm2mnc < PortalTask
     params   = self.params
     file_ids = params[:interface_userfile_ids]
     file_ids.each do |col_id|
-      col = Userfile.find(col_id)
+      Userfile.find(col_id)
     end
     ""
   end
