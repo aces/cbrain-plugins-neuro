@@ -17,7 +17,7 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.  
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
 # A subclass of ClusterTask to run ReconAllLongi.
@@ -32,32 +32,32 @@ class CbrainTask::ReconAllLongi < ClusterTask
 
   def setup #:nodoc:
     params = self.params
-    
+
     collection_ids  = params[:interface_userfile_ids] || []
     collections     = Userfile.find_all_by_id(collection_ids)
-    collections.each do |collection|            
+    collections.each do |collection|
       self.addlog("Preparing input file '#{collection.name}'")
       collection.sync_to_cache
       cache_path = collection.cache_full_path
       self.safe_symlink(cache_path, collection.name)
     end
-    
+
     true
   end
 
-  def job_walltime_estimate #:nodoc:            
+  def job_walltime_estimate #:nodoc:
     nb_cpu   = self.tool_config.ncpus || 1
     nb_input = self.params[:interface_userfile_ids].size
 
     # Calculate time
     # First 1 is for base creation
     if nb_input % nb_cpu == 0
-      ((1 + ( nb_input / nb_cpu )) * 24).hours   
+      ((1 + ( nb_input / nb_cpu )) * 24).hours
     else
-      ((1 + ( (nb_input / nb_cpu) + 1 )) * 24).hours   
+      ((1 + ( (nb_input / nb_cpu) + 1 )) * 24).hours
     end
   end
-  
+
 
   def cluster_commands #:nodoc:
     params            = self.params
@@ -70,7 +70,7 @@ class CbrainTask::ReconAllLongi < ClusterTask
       cb_error("Sorry, but #{collection.name} is not of type #{ReconAllCrossSectionalOutput.pretty_type}.") unless collection.is_a?(ReconAllCrossSectionalOutput)
     end
 
-    tpn_files = collections.map &:name
+    tpn_files = collections.map(&:name)
     tp_list   = ""
     tpn_files.each { |name| tp_list += " -tp \'#{name}\'" }
 
@@ -78,7 +78,6 @@ class CbrainTask::ReconAllLongi < ClusterTask
     # Check base_output_name
     base_output_name = params[:base_output_name].presence || "Base"
     cb_error("Sorry, but the base output name provided contains some unacceptable characters.") unless is_legal_base_name?(base_output_name)
-    task_work        = self.full_cluster_workdir
 
     # Create within subject
     recon_all_base_log = "#{base_output_name}/scripts/recon-all.log"
@@ -96,12 +95,12 @@ class CbrainTask::ReconAllLongi < ClusterTask
         echo Starting base file construction.
         recon-all -sd . -base '#{base_output_name}' #{tp_list} -all
       fi
-      
-      if ! test -f #{recon_all_base_log} || ! grep -q -i "recon-all .* finished without error at" #{recon_all_base_log} ; then 
+
+      if ! test -f #{recon_all_base_log} || ! grep -q -i "recon-all .* finished without error at" #{recon_all_base_log} ; then
         echo "Error: Recon-all base file construction FAILED"
         exit 20
       fi
-      
+
     RECON_SCRIPT
 
     # Longitudinal runs
@@ -119,7 +118,7 @@ class CbrainTask::ReconAllLongi < ClusterTask
       cmd_string = "recon-all -sd . -long '#{collection.name}' '#{base_output_name}' -all"
       out_file   = "out#{idx}"
       err_file   = "err#{idx}"
-      cmd_out_err_list   << [ cmd_string , out_file, err_file ] 
+      cmd_out_err_list   << [ cmd_string , out_file, err_file ]
       recon_all_long_cmd = <<-RECON_SCRIPT
       #
       # Processing longitudinal studies for #{collection.name}
@@ -127,21 +126,21 @@ class CbrainTask::ReconAllLongi < ClusterTask
 
       echo ""
       if test -f #{recon_all_long_log} && grep -q -i "recon-all .* finished without error at" #{recon_all_long_log} ; then
-        echo Longitudinal studies for #{collection.name} construction already performed.  
+        echo Longitudinal studies for #{collection.name} construction already performed.
       else
         echo Starting longitudinal studies for #{collection.name} in background.
         #{cmd_string} > #{out_file} 2> #{err_file}  &
       fi
-      
+
       test `jobs | wc -l` -ge #{nb_cpu} && wait
 
       RECON_SCRIPT
-      
+
       recon_all_long_cmds << recon_all_long_cmd
     end
 
     recon_all_long_cmds << <<-WAIT_SCRIPT
-    
+
       # Wait for all subprocesses.
 
       echo ""
@@ -151,7 +150,7 @@ class CbrainTask::ReconAllLongi < ClusterTask
       echo ""
       echo "Compiling output and error files."
       echo ""
-      
+
     WAIT_SCRIPT
 
     # Cat in STDOUT and STDERR
@@ -159,7 +158,7 @@ class CbrainTask::ReconAllLongi < ClusterTask
     cmd_out_err_list.each do |sub_list|
       cmd_string, out_file, err_file = sub_list
       cat_cmds  << <<-CAT_SCRIPT
-    
+
       echo ""
       echo "**********************************************"
       echo "* Standard Output for #{cmd_string}:"
@@ -169,7 +168,7 @@ class CbrainTask::ReconAllLongi < ClusterTask
       else
         cat '#{out_file}'
       fi
-        
+
       echo "" 1>&2
       echo "**********************************************"  1>&2
       echo "* Standard Error for #{cmd_string}:"             1>&2
@@ -185,16 +184,16 @@ class CbrainTask::ReconAllLongi < ClusterTask
 
     [ recon_all_base_cmd ] + recon_all_long_cmds + cat_cmds
   end
-  
+
   def save_results #:nodoc:
     params             = self.params
 
     collection_ids     = params[:interface_userfile_ids] || []
     collections        = Userfile.find_all_by_id(collection_ids)
     first_coll         = collections[0]
-    
+
     self.results_data_provider_id ||= first_coll.data_provider_id
-    
+
     # Verify if recon-all for base and foreach longitudinal studies.
     base_output_name   = params[:base_output_name].presence   || "Base"
     long_outputs_names = params[:long_outputs_names].presence || []
@@ -207,7 +206,7 @@ class CbrainTask::ReconAllLongi < ClusterTask
     list_of_error_dir = []
     outputs_name.each do |name|
       log_file = "#{name}/scripts/recon-all.log"
-      if !log_file_contains(log_file, /recon-all .+ finished without error at/) 
+      if !log_file_contains(log_file, /recon-all .+ finished without error at/)
         list_of_error_dir << name
       end
     end
@@ -235,7 +234,7 @@ class CbrainTask::ReconAllLongi < ClusterTask
     else
       cb_error("Could not save back result file #{base_userfile.name}")
     end
-    
+
     # Save long output(s).
     params[:long_outputs_ids] = []
     long_outputs_names.each do |name|
@@ -262,25 +261,22 @@ class CbrainTask::ReconAllLongi < ClusterTask
 
   # Error-recovery and restarting methods described
   def recover_from_cluster_failure #:nodoc:
-    params = self.params
-
     remove_is_running_file()
-    
-    true
+    return true
   end
-  
+
   def restart_at_setup #:nodoc:
     Dir.glob('*').each do |file|
       FileUtils.rm_rf(file)
     end
-    true
+    return true
   end
-  
+
   def restart_at_cluster #:nodoc:
     self.restart_at_setup
     self.setup
   end
-  
+
   private
 
   def log_file_contains(file, grep_regex) #:nodoc:
@@ -290,14 +286,14 @@ class CbrainTask::ReconAllLongi < ClusterTask
   end
 
   def remove_is_running_file #:nodoc:
-    
+
     # Remove IsRunning file
     task_work = self.full_cluster_workdir
     files    = Dir.glob("#{task_work}/*/scripts/IsRunning.*" )
     files.each do |file|
       FileUtils.rm_rf(file)
     end
-    
+
   end
 
 end

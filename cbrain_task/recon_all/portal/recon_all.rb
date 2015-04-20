@@ -27,8 +27,10 @@ class CbrainTask::ReconAll < PortalTask
 
   Revision_info=CbrainFileRevision[__FILE__] #:nodoc:
 
-  def self.properties
-    { :use_parallelizer => true }
+  def self.properties #:nodoc:
+    {
+      :use_parallelizer => true
+    }
   end
 
   def self.default_launch_args #:nodoc:
@@ -85,7 +87,6 @@ class CbrainTask::ReconAll < PortalTask
   def final_task_list #:nodoc:
     params       = self.params
 
-    output_name  = params[:output_name].presence   || ""
     mode         = params.delete(:multiple_subjects)
     is_single    = mode == "Single" ? true : false
     ids          = params[:interface_userfile_ids] || []
@@ -106,7 +107,7 @@ class CbrainTask::ReconAll < PortalTask
     task_list.each do |task|
 
       ids            = task.params[:interface_userfile_ids]
-      userfile_names = Userfile.find(ids).map &:name
+      userfile_names = Userfile.find(ids).map(&:name)
       input_name     = userfile_names[0]
 
       # Verify output_name
