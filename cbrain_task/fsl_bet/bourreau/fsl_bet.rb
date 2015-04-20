@@ -70,7 +70,7 @@ class CbrainTask::FslBet < ClusterTask
     inputfile_id  = params[:inputfile_id] || []
     inputfile     = Userfile.find(inputfile_id)
 
-    task_work     = self.full_cluster_workdir
+    # task_work     = self.full_cluster_workdir
 
     output  = inputfile.name
     output  = output =~ /(\..+)/ ? output.sub( /(\..+)/ , "_#{params[:output_name]}-#{self.run_id}#{$1}") : "#{output}_brain-#{self.run_id}"
@@ -87,7 +87,6 @@ class CbrainTask::FslBet < ClusterTask
 
   def save_results #:nodoc:
     params  = self.params
-    user_id = self.user_id
 
     # Verify if all bet exit without error.
     stderr = File.read(self.stderr_cluster_filename) rescue ""
