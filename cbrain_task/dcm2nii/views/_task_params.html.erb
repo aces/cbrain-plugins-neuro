@@ -18,7 +18,7 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.  
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 -%>
 
@@ -31,7 +31,7 @@ Input files selected:<BR>
   <% params[:interface_userfile_ids].each do |id| %>
   <LI><%= link_to_userfile_if_accessible(id) %></LI>
   <% end %>
-</UL> 
+</UL>
 
 <fieldset class="groupentry">
 
@@ -41,7 +41,7 @@ Input files selected:<BR>
 <%= form.params_check_box :events %><%= form.params_label(:events, "-e events (series/acq) in filename [filename.dcm -> s002a003.nii]") %></br>
 <%= form.params_check_box :gzip %><%= form.params_label(:gzip, "-g gzip output, filename.nii.gz") %></br>
 <%= form.params_check_box :id %><%= form.params_label(:id, "-i ID in filename [filename.dcm -> johndoe.nii]") %></br>
-<%= form.params_check_box :protocol %><%= form.params_label(:protocol, "-p Protocol in filename [filename.dcm -> TFE_T1.nii]") %></br> 
+<%= form.params_check_box :protocol %><%= form.params_label(:protocol, "-p Protocol in filename [filename.dcm -> TFE_T1.nii]") %></br>
 
 </fieldset>
 
@@ -91,7 +91,7 @@ automatically. The supported keywords are:
         <li>{dicom-5} = "dicom"</li>
       </ul>
   </dd>
- 
+
   <dt>{nii-1}, {nii-2}, {nii-3} etc</dt>
   <dd>Just like for <em>{dicom-1}</em> etc, these string components are
       extracted from the NIfTI filenames normally created by dcm2nii.<br>
@@ -112,7 +112,7 @@ automatically. The supported keywords are:
       original NIfTI filenames even if you've chosen to rename<br>
       them with this pattern mechanism.
   </dd>
-  
+
 </dl>
 
 <p>
@@ -123,7 +123,7 @@ automatically. The supported keywords are:
   previous_minc_ids = params[:created_mincfile_ids] || []
   previous_mincs = []
   previous_minc_ids.each do |id|
-    u = Userfile.find(id) rescue nil
+    u = Userfile.find_by_id(id)
     previous_mincs << u if u
   end
 %>
@@ -137,7 +137,7 @@ automatically. The supported keywords are:
   <legend>Auto-cleanup of previous runs</legend>
 
   <p>
- 
+
   Upon successful completion of this task,
   erase these mincfiles created by a previous run:
   <%= form.params_check_box :erase_old_results %>
