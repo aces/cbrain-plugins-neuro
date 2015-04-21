@@ -18,7 +18,7 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.  
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 -%>
 
@@ -123,7 +123,7 @@ automatically. The supported keywords are:
   previous_minc_ids = params[:created_mincfile_ids] || []
   previous_mincs = []
   previous_minc_ids.each do |id|
-    u = Userfile.find(id) rescue nil
+    u = Userfile.find_by_id(id)
     previous_mincs << u if u
   end
 %>
@@ -137,7 +137,7 @@ automatically. The supported keywords are:
   <legend>Auto-cleanup of previous runs</legend>
 
   <p>
- 
+
   Upon successful completion of this task,
   erase these mincfiles created by a previous run:
   <%= form.params_check_box :erase_old_results %>

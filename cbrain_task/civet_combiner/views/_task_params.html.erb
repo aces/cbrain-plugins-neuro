@@ -18,7 +18,7 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.  
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 -%>
 
@@ -32,11 +32,11 @@
   </tr>
 <% params[:interface_userfile_ids].each do |id| %>
   <tr>
-    <% u = Userfile.find(id) %>
+    <% u = Userfile.find_by_id(id) %>
     <% if u.is_a?(CivetOutput) || u.is_a?(CivetStudy) %>
-      <td>OK: <%= h(u.class.to_s) %> <%= h(u.name) %> <%= hidden_field_tag 'cbrain_task[params][civet_collection_ids][]', id %></td>
+      <td>OK: <%= h(u.class.to_s) %> <%= link_to_userfile_if_accessible u %> <%= hidden_field_tag 'cbrain_task[params][civet_collection_ids][]', id %></td>
     <% else %>
-      <td>Error: <%= h(u.name) %> is NOT a CivetOutput or CivetStudy.</td>
+      <td>Error: <%= link_to_userfile_if_accessible u %> is NOT a CivetOutput or CivetStudy.</td>
     <% end %>
   </tr>
 <% end %>
