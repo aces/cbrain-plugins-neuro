@@ -1,0 +1,152 @@
+
+<%
+#
+# CBRAIN Project
+#
+# Copyright (C) 2008-2012
+# The Royal Institution for the Advancement of Learning
+# McGill University
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+-%>
+
+
+<fieldset>
+  <legend>Generic Options:</legend>
+
+  <%= form.params_label :n_perm, "Number of permtation (-n):", :title => "Number of permutations (default 5000, set to 0 for exhaustive)" %>
+  <%= form.params_text_field :n_perm, :size => 4 %>
+
+  <br>
+
+  <%= form.params_label :cluster_based_tresh, "Cluster-based thresholding (-c):", :title => "Carry out cluster-based thresholding" %>
+  <%= form.params_text_field :cluster_based_tresh, :size => 4 %>
+
+  <br>
+
+  <%= form.params_check_box :carry_t %>
+  <%= form.params_label     :carry_t, "Threshold-Free Cluster Enhancement (-T)", :title => "Carry out Threshold-Free Cluster Enhancement" %>
+
+  <br>
+
+  <%= form.params_check_box :carry_f %>
+  <%= form.params_label     :carry_f, "f cluster thresholding (-F)", :title => "Carry out f cluster thresholding" %>
+
+  <br>
+
+  <%= form.params_check_box :output_voxelwise %>
+  <%= form.params_label     :output_voxelwise, "Output voxelwise (-x)", :title => "Output voxelwise (corrected and uncorrected) p-value images" %>
+
+  <br>
+
+  <%= form.params_check_box :output_raw %>
+  <%= form.params_label     :output_raw, "output raw (-R)", :title => "Output raw ( unpermuted ) statistic images" %>
+
+</fieldset>
+
+<fieldset>
+  <legend>Matrix and mask options:</legend>
+
+  <%= form.params_hidden_field :matrix_id %>
+  Design matrix file (-d): <%= link_to_userfile_if_accessible(params[:matrix_id]) %>
+
+  <br>
+
+  <%= form.params_hidden_field :t_contrasts_id %>
+  t contrasts file (-t): <%= link_to_userfile_if_accessible(params[:t_contrasts_id]) %>
+
+  <br>
+
+  <%
+    left_ids    = params[:interface_userfile_ids].reject do  |id|
+                    id == params[:matrix_id] ||   id == params[:t_contrasts_id]
+                  end
+    nifti_list  = NiftiFile.where(:id =>  params[:interface_userfile_ids]).all.map {|u| [u.name,u.id.to_s] }
+    left_ids    = left_ids - nifti_list.map {|x| x[1].to_i}.compact
+    left_matrix = Userfile.where(:id => left_ids).all.map {|u| [u.name,u.id.to_s] }
+    left_matrix.unshift(["None", ""])
+  %>
+
+  <%= form.params_label  :f_contrasts_id, "f contrasts file (-f):" %>
+  <%= form.params_select :f_contrasts_id, left_matrix %>
+
+  <br>
+
+  <%= form.params_label  :exchangeability_matrix_id, "Exchangeability block labels file (-e):" %>
+  <%= form.params_select :exchangeability_matrix_id, left_matrix %>
+
+</fieldset>
+
+
+<fieldset>
+
+  <legend>Inputs and mask:</legend>
+    <%= form.params_label  :mask_id, "Mask image (-m):" %>
+    <%= form.params_select :mask_id, nifti_list %>
+
+    <br><br>
+
+    Inputs list (-i):
+    <br>
+    <small>A task will be create foreach input file.</small>
+
+    <!-- The content of this list is updated by javascript (see below) -->
+    <ul id="mylist_input"></ul>
+
+    <!-- Example: TWIN_106_NOI${i}_${test}_${permutes} -->
+    Output test name (-o): <%= form.params_text_field "output_name" %></br>
+    <small><b>Note:</b> Results will always be stored in a directory named "Randomise-Out-{task_number}-{run_number}/"<br>and the '-o' will be  "Randomise-Out-{task_number}-run_number}/{input_name}_{test}_{num_permutes}". </small>
+
+</fieldset>
+
+<script>
+
+var list_of_ids = [
+<% nifti_list.each do |pair| %>
+  <%= pair[1] %> ,
+<% end %>
+];
+
+var list_of_links = [
+<% nifti_list.each do |pair| %>
+  '<%= link_to_userfile_if_accessible(pair[1]) %>',
+<% end %>
+];
+
+var list_of_hidden_fields = [
+<% nifti_list.each_with_index do |pair,idx| %>
+  '<%= hidden_field_tag "input_ids[]".to_la, pair[1], :id => "input_ids[#{idx}]".to_la_id %>' ,
+<% end %>
+];
+
+function updateList() {
+  var mask_id = $("#cbrain_task_params_mask_id").val();
+  var my_ul   = $("#mylist_input");
+  var lielem;
+  var id, current_id_value;
+  my_ul.empty();
+  for (idx in list_of_ids) {
+    current_id_value = list_of_ids[idx];
+    if (parseInt(current_id_value) === parseInt(mask_id)) { continue; }
+    lielem = $('<li>').html(list_of_links[idx]);
+    my_ul.append(lielem);
+    my_ul.append($(list_of_hidden_fields[idx]));
+  };
+};
+
+updateList();
+$("#cbrain_task_params_mask_id").change(updateList);
+
+</script>
