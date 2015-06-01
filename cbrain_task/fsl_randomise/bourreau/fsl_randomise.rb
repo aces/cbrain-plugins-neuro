@@ -115,8 +115,16 @@ class CbrainTask::FslRandomise < ClusterTask
     inputfile_id = params[:inputfile_id].to_i
     inputfile    = Userfile.find(inputfile_id)
 
+    # Check STDERR
+    stderr = File.read(self.stderr_cluster_filename) rescue ""
+    if stderr =~ /ERROR:/
+      self.addlog("randomise task failed (see Standard Error)")
+      return false
+    end
+
+    # File should contain something.
     output_dir = params[:output_dir]
-    unless File.directory?(output_dir)
+    if !File.directory?(output_dir) || Dir["#{output_dir}/*"].empty?
       self.addlog("The cluster job did not produce our 'randomise' output?!?")
       return false
     end

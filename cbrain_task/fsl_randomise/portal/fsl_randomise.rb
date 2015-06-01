@@ -27,7 +27,7 @@ class CbrainTask::FslRandomise < PortalTask
 
   def self.default_launch_args #:nodoc:
     {
-      :n_perm              => "10",
+      :n_perm              => "5000",
       :carry_t             => "1",
       :output_voxelwise    => "1",
       :cluster_based_tresh => "2.3",
@@ -104,7 +104,8 @@ class CbrainTask::FslRandomise < PortalTask
 
   def untouchable_params_attributes #:nodoc:
     {
-      :output_dir  => true,
+      :output_dir   => true,
+      :inputfile_id => true,
     }
   end
 
