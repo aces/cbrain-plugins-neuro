@@ -59,6 +59,14 @@
 <fieldset>
   <legend>Matrix and mask options:</legend>
 
+  <strong>All the matrices are in a collection:</strong>
+  <br>
+  FSL design collection: <%= link_to_userfile_if_accessible(params[:design_collection_id]) %>
+
+  <br><br>
+
+  <strong>All the matrices are register as a single file:</strong>
+  <br>
   <%= form.params_hidden_field :matrix_id %>
   Design matrix file (-d): <%= link_to_userfile_if_accessible(params[:matrix_id]) %>
 
@@ -87,6 +95,16 @@
   <%= form.params_label  :exchangeability_matrix_id, "Exchangeability block labels file (-e):" %>
   <%= form.params_select :exchangeability_matrix_id, left_matrix %>
 
+  <br><br>
+  <small><b>Note:</b> If a collection is choosen, the files in the collection will be used as matrix.</small>
+
+  <!-- Some hidden field -->
+  <%= form.params_hidden_field :design_collection_id %>
+  <%= form.params_hidden_field :matrix_name %>
+  <%= form.params_hidden_field :t_contrasts_name %>
+  <%= form.params_hidden_field :f_contrasts_name %>
+  <%= form.params_hidden_field :exchangeability_matrix_name %>
+
 </fieldset>
 
 
@@ -98,9 +116,8 @@
 
     <br><br>
 
-    Inputs list (-i):
-    <br>
-    <small>A task will be create foreach input file.</small>
+    Inputs list (-i)
+    <small>(A task will be create foreach input file.)</small>:
 
     <!-- The content of this list is updated by javascript (see below) -->
     <ul id="mylist_input"></ul>

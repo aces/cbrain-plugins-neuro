@@ -60,6 +60,8 @@ class CbrainTask::FslRandomise < ClusterTask
   def cluster_commands #:nodoc:
     params       = self.params
 
+    cmds = []
+
     n_option = params[:n_perm].blank? ? 5000 : params[:n_perm].to_i
     c_option = params[:cluster_based_tresh].blank? ? 0.01 : params[:vertical_gradient].to_f
 
@@ -67,10 +69,18 @@ class CbrainTask::FslRandomise < ClusterTask
     # All files options
     inputfile = params[:inputfile_id].present?              ? Userfile.find(params[:inputfile_id]).name : ""
     mask      = params[:mask_id].present?                   ? Userfile.find(params[:mask_id]).name : ""
-    mat       = params[:matrix_id].present?                 ? Userfile.find(params[:matrix_id]).name : ""
-    con       = params[:t_contrasts_id].present?            ? Userfile.find(params[:t_contrasts_id]).name : ""
-    fts       = params[:f_contrasts_id].present?            ? Userfile.find(params[:f_contrasts_id]).name : ""
-    grp       = params[:exchangeability_matrix_id].present? ? Userfile.find(params[:exchangeability_matrix_id]).name : ""
+
+    if params[:design_collection_id]
+      mat     = params[:matrix_name]                 || ""
+      con     = params[:t_contrasts_name]            || ""
+      fts     = params[:f_contrasts_name]            || ""
+      grp     = params[:exchangeability_matrix_name] || ""
+    else
+      mat     = params[:matrix_id].present?                 ? Userfile.find(params[:matrix_id]).name                 : ""
+      con     = params[:t_contrasts_id].present?            ? Userfile.find(params[:t_contrasts_id]).name            : ""
+      fts     = params[:f_contrasts_id].present?            ? Userfile.find(params[:f_contrasts_id]).name            : ""
+      grp     = params[:exchangeability_matrix_id].present? ? Userfile.find(params[:exchangeability_matrix_id]).name : ""
+    end
 
     output_dir    = "Randomise-Out-#{self.run_id}"
     params[:output_dir] = output_dir
@@ -101,7 +111,6 @@ class CbrainTask::FslRandomise < ClusterTask
     cmd  += " -m #{mask}"
     cmd  += " #{with_T} #{with_F} #{with_x} #{with_R}"
 
-    cmds = []
     cmds << "echo Starting Randomise"
     cmds << "echo running #{cmd}"
     cmds << cmd

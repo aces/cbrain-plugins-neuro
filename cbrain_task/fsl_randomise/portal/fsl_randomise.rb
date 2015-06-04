@@ -27,10 +27,15 @@ class CbrainTask::FslRandomise < PortalTask
 
   def self.default_launch_args #:nodoc:
     {
-      :n_perm              => "5000",
-      :carry_t             => "1",
-      :output_voxelwise    => "1",
-      :cluster_based_tresh => "2.3",
+      :n_perm                      => "5000",
+      :carry_t                     => "1",
+      :output_voxelwise            => "1",
+      :cluster_based_tresh         => "2.3",
+      :design_collection_id        => nil, # no form element for this one
+      :matrix_name                 => nil, # no form element for this one
+      :t_contrasts_name            => nil, # no form element for this one
+      :f_contrasts_name            => nil, # no form element for this one
+      :exchangeability_matrix_name => nil, # no form element for this one
     }
   end
 
@@ -44,17 +49,28 @@ class CbrainTask::FslRandomise < PortalTask
     cb_error "Error: this task should have in input at least one 4D input file, one mask, one #{FslMatrixFile.pretty_type}, one #{FslTContrastFile.pretty_type}" if
       files.count < 4
 
-    # Should be launch with one design matrix file (option: -d)
-    cb_error "Error: this task can only run with a #{FslMatrixFile.pretty_type}" if
-      files.count { |u| u.is_a?(FslMatrixFile) } != 1
-    params[:matrix_id] =
-      FslMatrixFile.where(:id => ids).raw_first_column(:id).first
+    fsl_design_collection = FslDesignCollection.where(:id => ids).first
+    if (fsl_design_collection)
+      params[:design_collection_id]        = fsl_design_collection.id
+      params[:matrix_name]                 = fsl_design_collection.design_matrix_file     || ""
+      params[:t_contrasts_name]            = fsl_design_collection.t_contrasts_file       || ""
+      params[:f_contrasts_name]            = fsl_design_collection.f_contrasts_file       || ""
+      params[:exchangeability_matrix_name] = fsl_design_collection.exchangeability_matrix || ""
+      cb_error "Error: this task can only run with a file *.mat" if params[:matrix_name].blank?
+      cb_error "Error: this task can only run with a file *.con" if params[:t_contrasts_name].blank?
+    else
+      # Should be launch with one design matrix file (option: -d)
+      cb_error "Error: this task can only run with a #{FslMatrixFile.pretty_type}" if
+        files.count { |u| u.is_a?(FslMatrixFile) } != 1
+      params[:matrix_id] =
+        FslMatrixFile.where(:id => ids).raw_first_column(:id).first
 
-    # Should be launch with one FslTContrastFile or one FslTContrastCollection (option: -t)
-    cb_error "Error: this task can only run with a #{FslTContrastFile.pretty_type}" if
-      files.count { |u| u.is_a?(FslTContrastFile) } != 1
-    params[:t_contrasts_id] =
-      (FslTContrastFile.where(:id => ids).raw_first_column(:id)).first
+      # Should be launch with one FslTContrastFile (option: -t)
+      cb_error "Error: this task can only run with a #{FslTContrastFile.pretty_type}" if
+        files.count { |u| u.is_a?(FslTContrastFile) } != 1
+      params[:t_contrasts_id] =
+        (FslTContrastFile.where(:id => ids).raw_first_column(:id)).first
+    end
 
     # Should be launch with 2 Nifti file at least
     cb_error "Error: this task can only run with at least 2 #{NiftiFile.pretty_type}" if
@@ -104,8 +120,8 @@ class CbrainTask::FslRandomise < PortalTask
 
   def untouchable_params_attributes #:nodoc:
     {
-      :output_dir   => true,
-      :inputfile_id => true,
+      :output_dir                  => true,
+      :inputfile_id                => true,
     }
   end
 
