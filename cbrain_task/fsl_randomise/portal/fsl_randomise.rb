@@ -46,8 +46,9 @@ class CbrainTask::FslRandomise < PortalTask
     files  = Userfile.find_all_by_id(ids)
 
     # Should have at least 4 entries
-    cb_error "Error: this task should have in input at least one 4D input file, one mask, one #{FslMatrixFile.pretty_type}, one #{FslTContrastFile.pretty_type}" if
-      files.count < 4
+    cb_error "Error: this task should have in input at least one 4D input file, one mask,
+              one #{FslMatrixFile.pretty_type} and one #{FslTContrastFile.pretty_type} or
+              a #{FslDesignCollection.pretty_type}" if files.count < 3
 
     fsl_design_collection = FslDesignCollection.where(:id => ids).first
     if (fsl_design_collection)
