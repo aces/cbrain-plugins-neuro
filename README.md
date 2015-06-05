@@ -9,6 +9,10 @@ This repository is a package containing a set of plugins for the
 This package provides some tasks and models supporting
 parts of the [FreeSurfer](http://freesurfer.net/) suite.
 
+**Important Note** : Because this package required the NiftiFile userfile model, you must
+also install the [MNI plugin package for CBRAIN](https://github.com/aces/cbrain-plugins-mni).
+This can be done separately, before or after this package is installed.
+
 #### 1. Userfile models
 
 | Name                         | Description                                                                                     |
@@ -32,6 +36,9 @@ proceeding.
 
 This package must be installed once on the BrainPortal side of a
 CBRAIN installation, and once more on each Bourreau side.
+
+**Important** : The prerequisite [MNI plugin package for CBRAIN](https://github.com/aces/cbrain-plugins-mni)
+must also be installed.
 
 #### 1. Installation on the BrainPortal side:
 
