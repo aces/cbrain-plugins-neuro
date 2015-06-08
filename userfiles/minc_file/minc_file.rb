@@ -34,10 +34,6 @@ class MincFile < SingleFile
   has_content :method => :get_headers_to_json, :type => :text
   has_content :method => :get_raw_data,        :type => :text
 
-  def format_name #:nodoc:
-    "MINC"
-  end
-
   def self.file_name_pattern #:nodoc:
     /\.mi?nc(\.gz|\.Z|\.gz2)?$/i
   end

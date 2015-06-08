@@ -17,7 +17,7 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.  
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
 # Model for MINC files in MINC2 format.
@@ -33,13 +33,9 @@ class Minc2File < MincFile
     "Minc2 File"
   end
 
-  def format_name #:nodoc:
-    "MINC2"
-  end
-
   def has_minctools?(min_version=[2,0,0],which_tools=["mincinfo", "minctoraw"])  #:nodoc:
     super
   end
-  
+
 end
- 
+
