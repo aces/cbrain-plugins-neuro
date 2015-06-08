@@ -71,27 +71,37 @@ class CbrainTask::FslRandomise < ClusterTask
     mask      = params[:mask_id].present?                   ? Userfile.find(params[:mask_id]).name : ""
 
     if params[:design_collection_id]
-      mat     = params[:matrix_name]                 || ""
-      con     = params[:t_contrasts_name]            || ""
-      fts     = params[:f_contrasts_name]            || ""
-      grp     = params[:exchangeability_matrix_name] || ""
+      mat      = params[:matrix_name]                 || ""
+      mat_name = File.basename(params[:matrix_name])
+      con      = params[:t_contrasts_name]            || ""
+      fts      = params[:f_contrasts_name]            || ""
+      grp      = params[:exchangeability_matrix_name] || ""
     else
-      mat     = params[:matrix_id].present?                 ? Userfile.find(params[:matrix_id]).name                 : ""
-      con     = params[:t_contrasts_id].present?            ? Userfile.find(params[:t_contrasts_id]).name            : ""
-      fts     = params[:f_contrasts_id].present?            ? Userfile.find(params[:f_contrasts_id]).name            : ""
-      grp     = params[:exchangeability_matrix_id].present? ? Userfile.find(params[:exchangeability_matrix_id]).name : ""
+      mat      = params[:matrix_id].present?                 ? Userfile.find(params[:matrix_id]).name                 : ""
+      mat_name = mat
+      con      = params[:t_contrasts_id].present?            ? Userfile.find(params[:t_contrasts_id]).name            : ""
+      fts      = params[:f_contrasts_id].present?            ? Userfile.find(params[:f_contrasts_id]).name            : ""
+      grp      = params[:exchangeability_matrix_id].present? ? Userfile.find(params[:exchangeability_matrix_id]).name : ""
     end
-
-    output_dir    = "Randomise-Out-#{self.run_id}"
-    params[:output_dir] = output_dir
-    safe_mkdir(output_dir,0700)
 
     # Create output name for -o option
     input_wo_ext   = inputfile.sub(/\..*/,"")
-    output_option  = "#{output_dir}/"
-    output_option += "#{input_wo_ext}"
-    output_option += "_#{params[:output_name].bash_escape}" if params[:output_name]
-    output_option += "_#{n_option}"
+    matrix_wo_ext  = mat_name.sub(/\..*/,"")
+    common_string  = "#{input_wo_ext}_"
+    common_string += params[:output_name].blank? ?
+                    "#{matrix_wo_ext}_#{n_option}"
+                  : "#{params[:output_name].bash_escape}"
+
+    # Output directory
+    output_dir     = "Randomise_"
+    output_dir    += common_string
+    output_dir    += "_#{self.run_id}"
+
+
+    params[:output_dir] = output_dir
+    safe_mkdir(output_dir,0700)
+
+    output_option = "#{output_dir}/#{common_string}"
 
     # All boolean options
     with_T    = params[:carry_t]          == "1" ? "-T"  : ""
