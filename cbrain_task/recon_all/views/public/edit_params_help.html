@@ -18,7 +18,7 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.  
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 -->
 
@@ -32,9 +32,31 @@ This tool will performs all the FreeSurfer cortical reconstruction.
 <br>
 <b>Options</b>:
 <ul>
-    <li><b>Subject name</b>: the subject data upon which to operate </li>
-    <li><b>Output name</b>: dummy output name will be used if this field is not set</li>
+  <li><b>Input volumes selected:</b> the subject data upon which to operate </li>
+  <li><b>Workflow directives:</b></li>
+  <ul>
+    <li>Process all steps, including subcortical segmentation, all (-all)</li>
+    <li>Process steps   1-5, autorecon1        (-autorecon1)</li>
+    <li>Process steps  6-23, autorecon2        (-autorecon2)</li>
+    <li>Process steps  6-23, autorecon2-noaseg (-autorecon2-noaseg)</li>
+    <li>Process steps 12-23, autorecon2-cp     (-autorecon2-cp)</li>
+    <li>Process steps 15-23, autorecon2-wm     (-autorecon2-wm)</li>
+    <li>Process steps 21-23, autorecon2-pial   (-autorecon2-pial)</li>
+    <li>Process steps 24-31, autorecon3        (-autorecon3)</li>
+  </ul>
+  <li><b>Output name:</b> If you don't fill this option, the output name will have the following format {input_name_without_extension}-{task_number}-{run_number}.<br>
+  Otherwise, the output name will have the following format {output_name}-{task_number}-{run_number}</li>
+  <li><b>Run with qcache (-qcache):</b>Produce the pre-cached files required by the Qdec utility, allowing rapid
+  analysis of group data.  These files are created by running mris_preproc,
+  which creates smoothed surface data files sampled to the 'fsaverage'
+  common-space surface. By default, the surface data for thickness, curv, sulc,
+  area and jacobian_white are smoothed at 0, 5, 10, 15, 20, and 25 mm FWHM.</li>
+  <li><b>Run with mprage (-mprage):</b>assume scan parameters are MGH MP-RAGE protocol</li>
+  <li><b>Run with 3T data (-nuintensitycor-3T (v:5.1.0) || -3T (v:5.3.0)): Enables the two 3T specific options that recon-all supports: nu intensity correction params, and the special schwartz atlas </b></li>
+  <li><b>Run with -cw256 flag (-cw256):</b>Include this flag after -autorecon1 if images have a FOV > 256.  The
+  flag causes mri_convert to conform the image to dimensions of 256^3.</li>
 </ul>
+
 <br>
 For more information about recon-all in FreeSurfer, see the
 <a target="_blank" href="https://surfer.nmr.mgh.harvard.edu/fswiki/recon-all">Recon-all Wiki</a>
