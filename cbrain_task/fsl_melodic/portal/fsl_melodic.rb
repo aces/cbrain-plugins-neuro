@@ -33,7 +33,7 @@ class CbrainTask::FslMelodic < PortalTask
 
   def self.default_launch_args #:nodoc:
     {
-      :sorted_structural_file_ids => {}, :sorted_functional_file_ids => {}, :output_name => "melodic-output"
+      :output_name => "melodic-output"
     }
   end
   
@@ -42,35 +42,51 @@ class CbrainTask::FslMelodic < PortalTask
     params   = self.params
 
     ids    = params[:interface_userfile_ids]
-    params[:design_file_id] = -1
-    
-    params[:structural_file_ids] = []
-    params[:functional_file_ids] = []
 
+    params[:structural_file_ids] = Array.new
+    params[:functional_file_ids] = Array.new
+
+    # Checks input files
     ids.each do |id|
       u = Userfile.find(id) rescue nil
       cb_error "Error: input file #{id} doesn't exist." unless u
       cb_error "Error: '#{u.name}' does not seem to be a single file." unless u.is_a?(SingleFile)
-      cb_error "Error: you must select only Nifti or design file (found a #{u.type})." unless ( u.is_a?(NiftiFile) || u.is_a?(FSLDesignFile) )
-      if u.is_a?(FSLDesignFile)
-        cb_error "Error: you may select only 1 design file." unless params[:design_file_id] == -1
+      cb_error "Error: you must select a design file and a CSV file containing pairs of functional/structural Nifti file names, separated by commas (found a #{u.type})." unless ( u.is_a?(CSVFile) || u.is_a?(FSLDesignFile) || u.name.end_with?(".csv") || u.name.end_with?(".fsf") )
+      if u.is_a?(FSLDesignFile) or u.name.end_with?(".fsf")
+        cb_error "Error: you may select only 1 design file." unless params[:design_file_id].nil?
         params[:design_file_id] = id
       end
-      if u.is_a?(NiftiFile)
-        cb_error "Error: Nifti files must be functional or structural." unless u.is_a?(StructuralNiftiFile) || u.is_a?(FunctionalNiftiFile)
-        if u.is_a?(StructuralNiftiFile)
-          params[:structural_file_ids] << id
-        end
-        if u.is_a?(FunctionalNiftiFile)
-          params[:functional_file_ids] << id
-        end
+      if u.is_a?(CSVFile) or u.name.end_with?(".csv")
+        cb_error "Error: you may select only 1 CSV file." unless params[:csv_file_id].nil?
+        params[:csv_file_id] = id
       end
     end
-    cb_error "Error: you must select a design file." unless params[:design_file_id] != -1
-    cb_error "Error: you must select at least 1 functional Nifti file." unless params[:functional_file_ids].size > 0
-    cb_error "Error: you must select an equal number of structural and functional files." unless params[:structural_file_ids].blank? || (params[:structural_file_ids].size == params[:functional_file_ids].size)
-    params[:sorted_structural_file_ids] = params[:structural_file_ids].sort_by {|id| u = Userfile.find(id); u.name;}
-    params[:sorted_functional_file_ids] = params[:functional_file_ids].sort_by {|id| u = Userfile.find(id); u.name;}
+    cb_error "Error: you must select a design file and a CSV file containing pairs of functional/structural Nifti file names, separated by commas (design file missing)." if params[:design_file_id].nil?
+    cb_error "Error: you must select a design file and a CSV file containing pairs of functional/structural Nifti file names, separated by commas (CSV file missing)." if params[:csv_file_id].nil?
+
+    # Parses CSV file
+    csv_file = Userfile.find(params[:csv_file_id])
+    csv_file.sync_to_cache unless csv_file.is_locally_synced?
+    lines = CSVFile.new.create_csv_array("\"",",",csv_file) # third parameter needed when csv_file is not a CSVFile. Might be cleaner to define create_csv_array as a class method of CSVFile.
+    lines.each do |line|
+      cb_error "Error: lines in CSV file must contain two elements separated by a comma (wrong format: #{line})." unless line.size == 2
+      line.each_with_index do |file_name,index|
+        file_name.strip!
+        # Checks files in line
+        cb_error "Error: file #{file_name} (present in #{csv_file.name}) doesn't look like a Nifti file (must have a .nii or .nii.gz extension)" unless file_name.end_with? ".nii" or file_name.end_with? ".nii.gz"
+        file_array = Userfile.where(:name => file_name)
+        cb_error "Error: file #{file_name} (present in #{csv_file.name}) not found!" unless file_array.size > 0
+        cb_error "Error: multiple files found for #{file_name} (present in #{csv_file.name})" if file_array.size > 1 # this shouldn't happen.
+        # Assigns files
+        file_id = file_array.first.id
+        if index == 0
+          params[:functional_file_ids] << file_id
+        else
+          params[:structural_file_ids] << file_id
+        end
+      end
+      
+    end
     ""
   end
   
@@ -80,22 +96,21 @@ class CbrainTask::FslMelodic < PortalTask
   end
   
   def final_task_list #:nodoc:
-    
     mytasklist = []
-    
-    params[:sorted_functional_file_ids].each do |n,func_id|
-      
+    n_tasks    = params[:functional_file_ids].size-1
+    (0..n_tasks).each do |i|
       task=self.dup # not .clone, as of Rails 3.1.10
-      task.params[:functional_file_id] = func_id
-      task.params[:structural_file_id] = params[:sorted_structural_file_ids].blank? ? nil : params[:sorted_structural_file_ids]["#{mytasklist.size}"]
-      task.params[:task_file_ids] = task.params[:structural_file_id].blank? ? [ params[:design_file_id], task.params[:functional_file_id] ] : [ params[:design_file_id], task.params[:functional_file_id], task.params[:structural_file_id] ]
+      task.params[:functional_file_id] = params[:functional_file_ids]["#{i}"]
+      task.params[:structural_file_id] = params[:structural_file_ids]["#{i}"]
+      task.params[:task_file_ids] = [ params[:design_file_id], task.params[:functional_file_id], task.params[:structural_file_id] ]
       task.description = Userfile.find(task.params[:functional_file_id]).name if task.description.blank?
+      # clean task parameters
+      task.params.delete :functional_file_ids
+      task.params.delete :structural_file_ids
+      task.params.delete :interface_userfile_ids
       mytasklist << task
-      
     end
-    
-    mytasklist
-    
+    return mytasklist
   end
   
   def untouchable_params_attributes #:nodoc:
