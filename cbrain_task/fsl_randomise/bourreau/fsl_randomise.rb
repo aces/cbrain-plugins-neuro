@@ -60,6 +60,8 @@ class CbrainTask::FslRandomise < ClusterTask
   def cluster_commands #:nodoc:
     params       = self.params
 
+    cmds = []
+
     n_option = params[:n_perm].blank? ? 5000 : params[:n_perm].to_i
     c_option = params[:cluster_based_tresh].blank? ? 0.01 : params[:vertical_gradient].to_f
 
@@ -67,21 +69,39 @@ class CbrainTask::FslRandomise < ClusterTask
     # All files options
     inputfile = params[:inputfile_id].present?              ? Userfile.find(params[:inputfile_id]).name : ""
     mask      = params[:mask_id].present?                   ? Userfile.find(params[:mask_id]).name : ""
-    mat       = params[:matrix_id].present?                 ? Userfile.find(params[:matrix_id]).name : ""
-    con       = params[:t_contrasts_id].present?            ? Userfile.find(params[:t_contrasts_id]).name : ""
-    fts       = params[:f_contrasts_id].present?            ? Userfile.find(params[:f_contrasts_id]).name : ""
-    grp       = params[:exchangeability_matrix_id].present? ? Userfile.find(params[:exchangeability_matrix_id]).name : ""
 
-    output_dir    = "Randomise-Out-#{self.run_id}"
-    params[:output_dir] = output_dir
-    safe_mkdir(output_dir,0700)
+    if params[:design_collection_id]
+      mat      = params[:matrix_name]                 || ""
+      mat_name = File.basename(params[:matrix_name])
+      con      = params[:t_contrasts_name]            || ""
+      fts      = params[:f_contrasts_name]            || ""
+      grp      = params[:exchangeability_matrix_name] || ""
+    else
+      mat      = params[:matrix_id].present?                 ? Userfile.find(params[:matrix_id]).name                 : ""
+      mat_name = mat
+      con      = params[:t_contrasts_id].present?            ? Userfile.find(params[:t_contrasts_id]).name            : ""
+      fts      = params[:f_contrasts_id].present?            ? Userfile.find(params[:f_contrasts_id]).name            : ""
+      grp      = params[:exchangeability_matrix_id].present? ? Userfile.find(params[:exchangeability_matrix_id]).name : ""
+    end
 
     # Create output name for -o option
     input_wo_ext   = inputfile.sub(/\..*/,"")
-    output_option  = "#{output_dir}/"
-    output_option += "#{input_wo_ext}"
-    output_option += "_#{params[:output_name].bash_escape}" if params[:output_name]
-    output_option += "_#{n_option}"
+    matrix_wo_ext  = mat_name.sub(/\..*/,"")
+    common_string  = "#{input_wo_ext}_"
+    common_string += params[:output_name].blank? ?
+                    "#{matrix_wo_ext}_#{n_option}"
+                  : "#{params[:output_name].bash_escape}"
+
+    # Output directory
+    output_dir     = "Randomise_"
+    output_dir    += common_string
+    output_dir    += "_#{self.run_id}"
+
+
+    params[:output_dir] = output_dir
+    safe_mkdir(output_dir,0700)
+
+    output_option = "#{output_dir}/#{common_string}"
 
     # All boolean options
     with_T    = params[:carry_t]          == "1" ? "-T"  : ""
@@ -101,7 +121,6 @@ class CbrainTask::FslRandomise < ClusterTask
     cmd  += " -m #{mask}"
     cmd  += " #{with_T} #{with_F} #{with_x} #{with_R}"
 
-    cmds = []
     cmds << "echo Starting Randomise"
     cmds << "echo running #{cmd}"
     cmds << cmd

@@ -29,13 +29,15 @@
 </ul>
 
 <p>
-<STRONG>Data files:</STRONG>
+  <STRONG>Data files:</STRONG>
+  <br/>
+  Make sure that the CSV file was correctly parsed (first column: functional files, second column: structural files).
 <table>
 <tr><th>Task</th><th>Functional files</th><th>Structural files</th></tr>
-<% (0..params[:sorted_functional_file_ids].size-1).each do |i| %>
-<tr><td><%="#{i}"%></td><td><%= link_to_userfile_if_accessible(params[:sorted_functional_file_ids][i]) %><%= form.params_hidden_field "sorted_functional_file_ids[#{i}]" %></td>
-  <% if !params[:sorted_structural_file_ids].blank? %>
-   <td><%= link_to_userfile_if_accessible(params[:sorted_structural_file_ids][i])  %><%= form.params_hidden_field "sorted_structural_file_ids[#{i}]" %></td>
+<% (0..params[:functional_file_ids].size-1).each do |i| %>
+<tr><td><%="#{i}"%></td><td><%= link_to_userfile_if_accessible(params[:functional_file_ids][i]) %><%= form.params_hidden_field "functional_file_ids[#{i}]" %></td>
+  <% if !params[:structural_file_ids].blank? %>
+   <td><%= link_to_userfile_if_accessible(params[:structural_file_ids][i])  %><%= form.params_hidden_field "structural_file_ids[#{i}]" %></td>
   <% end %>
 </tr>
 <% end %>

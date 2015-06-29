@@ -57,17 +57,7 @@
 </fieldset>
 
 <fieldset>
-  <legend>Matrix and mask options:</legend>
-
-  <%= form.params_hidden_field :matrix_id %>
-  Design matrix file (-d): <%= link_to_userfile_if_accessible(params[:matrix_id]) %>
-
-  <br>
-
-  <%= form.params_hidden_field :t_contrasts_id %>
-  t contrasts file (-t): <%= link_to_userfile_if_accessible(params[:t_contrasts_id]) %>
-
-  <br>
+  <legend>GLM design matrix:</legend>
 
   <%
     left_ids    = params[:interface_userfile_ids].reject do  |id|
@@ -79,35 +69,72 @@
     left_matrix.unshift(["None", ""])
   %>
 
-  <%= form.params_label  :f_contrasts_id, "f contrasts file (-f):" %>
-  <%= form.params_select :f_contrasts_id, left_matrix %>
+  <!-- If a collection with Matrices is selected -->
+  <% if params[:design_collection_id] %>
+    <strong>All the matrices are in a collection:</strong>
+    <br>
+    FSL design collection: <%= link_to_userfile_if_accessible(params[:design_collection_id]) %>
+    <%= form.params_hidden_field :design_collection_id %>
 
-  <br>
+    <!-- Some hidden fields -->
+    <br><br>
+    Contains:
+    <br>
+    Design matrix file (-d): <%= params[:matrix_name].blank? ? "(None)" : File.basename(params[:matrix_name]) %>
+    <%= form.params_hidden_field :matrix_name %>
+    <br>
+    T-test contrast matrix (-t): <%= params[:t_contrasts_name].blank? ? "(None)" : File.basename(params[:t_contrasts_name]) %>
+    <%= form.params_hidden_field :t_contrasts_name %>
+    <br>
+    F-test contrast matrix (-t): <%= params[:f_contrasts_name].blank? ? "(None)" : File.basename(params[:f_contrasts_name]) %>
+    <%= form.params_hidden_field :f_contrasts_name %>
+    <br>
+    Exchangeability block labels file (-e): <%= params[:exchangeability_matrix_name].blank? ? "(None)" : File.basename(params[:exchangeability_matrix_name]) %>
+    <%= form.params_hidden_field :exchangeability_matrix_name %>
+  <!-- If a Single files are selected -->
+  <% else %>
+    <strong>All the matrices are register as a single file:</strong>
+    <br>
+    <%= form.params_hidden_field :matrix_id %>
+    Design matrix file (-d): <%= link_to_userfile_if_accessible(params[:matrix_id]) %>
+    <br>
+    <%= form.params_hidden_field :t_contrasts_id %>
+    T-test contrast matrix (-t): <%= link_to_userfile_if_accessible(params[:t_contrasts_id]) %>
+    <br>
+    <%= form.params_label  :f_contrasts_id, "F-test contrast matrix(-f):" %>
+    <%= form.params_select :f_contrasts_id, left_matrix %>
+    <br>
+    <%= form.params_label  :exchangeability_matrix_id, "Exchangeability block labels file (-e):" %>
+    <%= form.params_select :exchangeability_matrix_id, left_matrix %>
+  <% end %>
 
-  <%= form.params_label  :exchangeability_matrix_id, "Exchangeability block labels file (-e):" %>
-  <%= form.params_select :exchangeability_matrix_id, left_matrix %>
+  <br><br>
+  <small><b>Note:</b> If a collection is choosen, the files in the collection will be used as matrix.</small>
 
 </fieldset>
 
 
 <fieldset>
 
-  <legend>Inputs and mask:</legend>
+  <legend>Data and Mask files:</legend>
     <%= form.params_label  :mask_id, "Mask image (-m):" %>
     <%= form.params_select :mask_id, nifti_list %>
 
     <br><br>
 
-    Inputs list (-i):
-    <br>
-    <small>A task will be create foreach input file.</small>
+    Inputs list (-i)
+    <small>(A task will be create foreach input file.)</small>:
 
     <!-- The content of this list is updated by javascript (see below) -->
     <ul id="mylist_input"></ul>
 
     <!-- Example: TWIN_106_NOI${i}_${test}_${permutes} -->
     Output test name (-o): <%= form.params_text_field "output_name" %></br>
-    <small><b>Note:</b> Results will always be stored in a directory named "Randomise-Out-{task_number}-{run_number}/"<br>and the '-o' will be  "Randomise-Out-{task_number}-run_number}/{input_name}_{test}_{num_permutes}". </small>
+    <small><b>Note:</b><br>
+    By default, results will be stored in a directory named:<br>
+      - 'Randomise_{input_name}_{design_matrix}_{#permutation}_{task_number}_{run_number})/{input_name}_{design_matrix}_{#permutation}*.'<br>
+    If you provide the -o option then the default file naming will be overwritten and your files will be stored in:<br>
+      - 'Randomise_{input_name}_{user-provided-output}_{task_number}_{run_number}/{input_name}_{user-provided-output}*'.</small>
 
 </fieldset>
 
