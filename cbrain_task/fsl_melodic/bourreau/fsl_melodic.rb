@@ -165,6 +165,9 @@ class CbrainTask::FslMelodic < ClusterTask
     modified_design_file_content = set_option_in_design_file_content modified_design_file_content, "fmri(thresh_yn)"                 , params[:thresh_yn]
     modified_design_file_content = set_option_in_design_file_content modified_design_file_content, "fmri(mmthresh)"                  , params[:mmthresh]
     modified_design_file_content = set_option_in_design_file_content modified_design_file_content, "fmri(ostats)"                    , params[:ostats]
+    modified_design_file_content = set_option_in_design_file_content modified_design_file_content, "fmri(st)"                        , params[:st]
+    modified_design_file_content = set_option_in_design_file_content modified_design_file_content, "fmri(icaopt)"                    , params[:icaopt]
+    modified_design_file_content = set_option_in_design_file_content modified_design_file_content, "fmri(analysis)"                  , params[:analysis]
     
     
     # fixes path of the standard brain in design file
