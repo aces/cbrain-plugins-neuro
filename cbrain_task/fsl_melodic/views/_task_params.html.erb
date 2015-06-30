@@ -1,53 +1,142 @@
 
 <%-
-#
-# CBRAIN Project
-#
-# Copyright (C) 2008-2012
-# The Royal Institution for the Advancement of Learning
-# McGill University
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.  
-#
--%>
+   #
+   # CBRAIN Project
+   #
+   # Copyright (C) 2008-2012
+   # The Royal Institution for the Advancement of Learning
+   # McGill University
+   #
+   # This program is free software: you can redistribute it and/or modify
+   # it under the terms of the GNU General Public License as published by
+   # the Free Software Foundation, either version 3 of the License, or
+   # (at your option) any later version.
+   #
+   # This program is distributed in the hope that it will be useful,
+   # but WITHOUT ANY WARRANTY; without even the implied warranty of
+   # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   # GNU General Public License for more details.
+   #
+   # You should have received a copy of the GNU General Public License
+   # along with this program.  If not, see <http://www.gnu.org/licenses/>.  
+   #
+   -%>
 
-<STRONG>Design file:</STRONG>
-</p>
-<ul>
-  <li><%= link_to_userfile_if_accessible(params[:design_file_id]) %> <%= form.params_hidden_field "design_file_id" %></li>
-</ul>
-
+<h2>Files</h2>
 <p>
-  <STRONG>Data files:</STRONG>
-  <br/>
+  <b>Design file:</b> <%= link_to_userfile_if_accessible(params[:design_file_id]) %> <%= form.params_hidden_field "design_file_id" %>
+</p>
+<p>
   Make sure that the CSV file was correctly parsed (first column: functional files, second column: structural files).
+</p>
 <table>
-<tr><th>Task</th><th>Functional files</th><th>Structural files</th></tr>
-<% (0..params[:functional_file_ids].size-1).each do |i| %>
-<tr><td><%="#{i}"%></td><td><%= link_to_userfile_if_accessible(params[:functional_file_ids][i]) %><%= form.params_hidden_field "functional_file_ids[#{i}]" %></td>
-  <% if !params[:structural_file_ids].blank? %>
-   <td><%= link_to_userfile_if_accessible(params[:structural_file_ids][i])  %><%= form.params_hidden_field "structural_file_ids[#{i}]" %></td>
-  <% end %>
-</tr>
-<% end %>
+  <tr><th>Task</th><th>Functional files</th><th>Structural files</th></tr>
+  <% (0..params[:functional_file_ids].size-1).each do |i| %>
+  <tr><td><%="#{i}"%></td><td><%= link_to_userfile_if_accessible(params[:functional_file_ids][i]) %><%= form.params_hidden_field "functional_file_ids[#{i}]" %></td>
+    <% if !params[:structural_file_ids].blank? %>
+    <td><%= link_to_userfile_if_accessible(params[:structural_file_ids][i])  %><%= form.params_hidden_field "structural_file_ids[#{i}]" %></td>
+    <% end %>
+  </tr>
+    <% end %>
 </table>
+<p>
 Note: only single-session ICA is supported: every (functional,structural) pairs will be processed in a separate task.
 </p>
 
-<p>
-Output name:<br>
-<%= form.params_text_field :output_name %></br>
-</P>
+<h2>Parameters</h2>
+<style>
+  label {
+  width: 500px;
+  display: inline-block;
+  font-weight: bold;
+  }
+</style>
+
+<ul>
+  <h4>General</h4>
+  <li>  <label>Type of analysis</label>
+    <%= form.params_select :analysis, ["0","7","1","3","2","6","4"] %>
+    <ul>
+      <li>0 : No first-level analysis (registration and/or group stats only)</li>
+      <li>7 : Full first-level analysis</li>
+      <li>1 : Pre-Stats</li>
+      <li>3 : Pre-Stats + Stats</li>
+      <li>2 :             Stats</li>
+      <li>6 :             Stats + Post-stats</li>
+      <li>4 :                     Post-stats</li>
+    </ul>
+  </li>
+  <li><label>Output name:</label>                              <%= form.params_text_field :output_name %>  </li>
+  <br/>
+  <h4>Data</h4>
+  <li><label>TR (s):</label>                                   <%= form.params_text_field :tr %>           </li>
+  <li><label>EPI TE (s):</label>                               <%= form.params_text_field :te %>           </li>
+<br/>
+  <h4>Pre-processing</h4>
+  <li><label>ndelete:</label>                                  <%= form.params_text_field :ndelete %>      </li>
+  <li><label>Filtering:</label>                                <%= form.params_check_box :filtering_yn %>  </li>
+  <li><label>Brain/background threshold:</label>               <%= form.params_text_field :brain_thresh %> </li>
+  <li><label>Motion correction:</label>                        <%= form.params_check_box :mc %>            </li>
+  <li><label>Add motion parameters to model:</label>           <%= form.params_check_box :motion_evs %>
+    <br/>
+    Warning: this is not very well tested (see Power, et al. Neuroimage)
+  </li>
+  
+  <li><label>BET brain extraction:</label>                     <%= form.params_check_box :bet_yn %>        </li>
+  <li><label>Spatial smoothing FWHM (mm):</label>              <%= form.params_text_field :smooth %>       </li>
+  <li><label>Slice timing correction:</label>                  <%= form.params_select :st, ["0","1","2","3","4","5"] %>
+    <br/>
+    0 : None, 1 : Regular up (0, 1, 2, 3, ...), 2 : Regular down, 3 : Use slice order file, 4 : Use slice timings file (if selected, user has to provide a .csv file called slice_timing.csv), 5 : Interleaved (0, 2, 4 ... 1, 3, 5 ... ).
+  </li>
+  <li><label>Intensity normalization:</label>                  <%= form.params_check_box:norm_yn %>       </li>
+  <li><label>Highpass temporal filtering:</label>              <%= form.params_check_box :temphp_yn %>     </li>
+  <li><label>Lowpass temporal filtering:</label>               <%= form.params_check_box :templp_yn %>     </li>
+  <li><label>Registration?</label>                             <%= form.params_check_box :reg_yn %>        </li>
+<br/>
+  <h4>Registration to initial structural</h4>
+  <li><label>Registration to initial structural:</label>                               <%= form.params_check_box :reginitial_highres_yn %>                  </li>
+  <li><label>Search space for registration to initial structural:</label>              <%= form.params_select :reginitial_highres_search, ["0","90","180"] %>
+    <br/>
+    0   : No search, 90  : Normal search (default), 180 : Full search.
+  </li>
+  <li><label>Degrees of Freedom for registration to initial structural:</label>        <%= form.params_select :reginitial_highres_dof, ["3","6","9","12"] %></li>
+<br/>
+  <h4>Registration to main structural</h4>
+  <li><label>Registration to main structural:</label>                                  <%= form.params_check_box :reghighres_yn %>                         </li>
+  <li><label>Search space for registration to main structural:</label>                 <%= form.params_select :reghighres_search, ["0","90","180"] %>
+    <br/>
+    0   : No search, 90  : Normal search (default), 180 : Full search.
+  </li>
+  <li><label>Degrees of Freedom for registration to main structural:</label>           <%= form.params_select :reghighres_dof, ["3","6","9","12"] %>       </li>
+<br/>
+  <h4>Registration to standard image</h4>
+  <li><label>Registration to standard image:</label>                                   <%= form.params_check_box :regstandard_yn %>                        </li>
+  <li><label>Search space for registration to standard space:</label>                  <%= form.params_select :regstandard_search, ["0","90","180"] %>
+      <br/>
+    0   : No search, 90  : Normal search (default), 180 : Full search.
+    </li>
+  <li><label>Degrees of Freedom for registration to standard space:</label>            <%= form.params_select :regstandard_dof, ["6","9","12"] %>           </li>
+  <li><label>Do nonlinear registration from structural to standard space?:</label>     <%= form.params_check_box :regstandard_non_linear_yn %>              </li>
+  <li><label>Control nonlinear warp field resolution:</label>                          <%= form.params_text_field :regstandard_nonlinear_warpres %>          </li>
+  <li><label>Resampling resolution:</label>                                            <%= form.params_text_field :regstandard_res %>                        </li>
+<br/>    
+  <h4>Stats</h4>
+  <li><label>Type of ICA:</label>                  <%= form.params_select :icaopt, ["1","2","3"] %>
+    <br/>
+    1 : Single-session ICA, 2 : Multi-session temporal concatenation, 3 : Multi-session tensor TICA.
+  </li>
+  <li><label>Background image for higher-level stats overlays:</label>                 <%= form.params_select :bgimage, ["1","2","3","4","5"]%>
+    <br/>
+    1 : Mean highres, 2 : First highres, 3 : Mean functional, 4 : First functional, 5 : Standard space template.
+  </li>
+  <li><label>Variance-normalise timecourses:</label>                                   <%= form.params_check_box :varnorm %>                                  </li>
+  <li><label>Automatic dimensionality estimation:</label>                              <%= form.params_check_box :dim_yn %>                                   </li>
+  <li><label>Output components:</label>                                                <%= form.params_text_field :dim %>                                     </li>
+  <li><label>Threshold IC maps:</label>                                                <%= form.params_check_box :thresh_yn %>                                </li>
+  <li><label>Mixture model threshold:</label>                                          <%= form.params_text_field :mmthresh %>                                </li>
+  <li><label>Output full stats folder:</label>                                         <%= form.params_check_box :ostats %>                                   </li>
+    
+</ul>
+
 
 

@@ -85,9 +85,61 @@ class CbrainTask::FslMelodic < PortalTask
           params[:structural_file_ids] << file_id
         end
       end
-      
     end
+
+    # Parses design file
+    design_file = Userfile.find(params[:design_file_id])
+    design_file.sync_to_cache unless design_file.is_locally_synced?
+    design_file_content = File.read(design_file.cache_full_path)
+
+    params[:tr] = get_option_value_from_design_file_content design_file_content,"tr"
+    params[:ndelete] = get_option_value_from_design_file_content design_file_content,"ndelete"
+    params[:filtering_yn] = get_option_value_from_design_file_content design_file_content,"filtering_yn"
+    params[:brain_thresh] = get_option_value_from_design_file_content design_file_content,"brain_thresh"
+    params[:mc] = get_option_value_from_design_file_content design_file_content,"mc"
+    params[:te] = get_option_value_from_design_file_content design_file_content,"te"
+    params[:bet_yn] = get_option_value_from_design_file_content design_file_content,"bet_yn"
+    params[:smooth] = get_option_value_from_design_file_content design_file_content,"smooth"
+    params[:st] = get_option_value_from_design_file_content design_file_content,"st"
+    params[:norm_yn] = get_option_value_from_design_file_content design_file_content,"norm_yn"
+    params[:temphp_yn] = get_option_value_from_design_file_content design_file_content,"temphp_yn"
+    params[:templp_yn] = get_option_value_from_design_file_content design_file_content,"templp_yn"
+    params[:motionevs] = get_option_value_from_design_file_content design_file_content,"motionevs"
+    params[:bgimage] = get_option_value_from_design_file_content design_file_content,"bgimage"
+    params[:reg_yn] = get_option_value_from_design_file_content design_file_content,"reg_yn"
+    params[:reginitial_highres_yn] = get_option_value_from_design_file_content design_file_content,"reginitial_highres_yn"
+    params[:reginitial_highres_search] = get_option_value_from_design_file_content design_file_content,"reginitial_highres_search"
+    params[:reginitial_highres_dof] = get_option_value_from_design_file_content design_file_content,"reginitial_highres_dof"
+    params[:reghighres_yn] = get_option_value_from_design_file_content design_file_content,"reghighres_yn"
+    params[:reghighres_search] = get_option_value_from_design_file_content design_file_content,"reghighres_search"
+    params[:reghighres_dof] = get_option_value_from_design_file_content design_file_content,"reghighres_dof"
+    params[:regstandard_yn] = get_option_value_from_design_file_content design_file_content,"regstandard_yn"
+    params[:regstandard_search] = get_option_value_from_design_file_content design_file_content,"regstandard_search"
+    params[:regstandard_dof] = get_option_value_from_design_file_content design_file_content,"regstandard_dof"
+    params[:regstandard_nonlinear_yn] = get_option_value_from_design_file_content design_file_content,"regstandard_nonlinear_yn"
+    params[:regstandard_nonlinear_warpres] = get_option_value_from_design_file_content design_file_content,"regstandard_nonlinear_warpres"
+    params[:regstandard_res] = get_option_value_from_design_file_content design_file_content,"regstandard_res"
+    params[:varnorm] = get_option_value_from_design_file_content design_file_content,"varnorm"
+    params[:dim_yn] = get_option_value_from_design_file_content design_file_content,"dim_yn"
+    params[:dim] = get_option_value_from_design_file_content design_file_content,"dim"
+    params[:thresh_yn] = get_option_value_from_design_file_content design_file_content,"thresh_yn"
+    params[:mmthresh] = get_option_value_from_design_file_content design_file_content,"mmthresh"
+    params[:ostats] = get_option_value_from_design_file_content design_file_content,"ostats"
+    params[:icaopt] = get_option_value_from_design_file_content design_file_content,"icaopt"
+    params[:analysis] = get_option_value_from_design_file_content design_file_content,"analysis"
+    
+    
     ""
+  end
+  def get_option_value_from_design_file_content design_file_content,option
+    design_file_content.each_line do |line|
+      line.strip!
+      line.downcase!
+      next if line.start_with? "#"
+      tokens = line.split(" ")
+      return tokens[2]      if tokens[0] == "set" and tokens[1] == "fmri(#{option})"
+    end
+    return nil
   end
   
   def after_form #:nodoc:
