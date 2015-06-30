@@ -100,6 +100,7 @@ class CbrainTask::FslMelodic < PortalTask
     params[:te] = get_option_value_from_design_file_content design_file_content,"te"
     params[:bet_yn] = get_option_value_from_design_file_content design_file_content,"bet_yn"
     params[:smooth] = get_option_value_from_design_file_content design_file_content,"smooth"
+    params[:st] = get_option_value_from_design_file_content design_file_content,"st"
     params[:norm_yn] = get_option_value_from_design_file_content design_file_content,"norm_yn"
     params[:temphp_yn] = get_option_value_from_design_file_content design_file_content,"temphp_yn"
     params[:templp_yn] = get_option_value_from_design_file_content design_file_content,"templp_yn"
@@ -124,6 +125,8 @@ class CbrainTask::FslMelodic < PortalTask
     params[:thresh_yn] = get_option_value_from_design_file_content design_file_content,"thresh_yn"
     params[:mmthresh] = get_option_value_from_design_file_content design_file_content,"mmthresh"
     params[:ostats] = get_option_value_from_design_file_content design_file_content,"ostats"
+    params[:icaopt] = get_option_value_from_design_file_content design_file_content,"icaopt"
+    params[:analysis] = get_option_value_from_design_file_content design_file_content,"analysis"
     
     
     ""
