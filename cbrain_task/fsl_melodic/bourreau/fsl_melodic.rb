@@ -49,6 +49,25 @@ class CbrainTask::FslMelodic < ClusterTask
     return 1.hours
   end
 
+  # modifies the design file to change an option
+  def set_option_in_design_file_content design_file_content,option,value
+    return design_file_content if value.nil? or value.blank?
+    modified_design_file_content = []
+    # Remove existing option line(s)
+    design_file_content.each_line do |line|
+      if line.gsub(" ","").downcase.include? option.gsub(" ","").downcase
+        new_line = "# Line commented by CBRAIN: #{line}"
+      else
+        new_line = line
+      end
+      modified_design_file_content << new_line
+    end
+    # Add new option line
+    modified_design_file_content << "set #{option} #{value} # Line added by CBRAIN \n"
+
+    return modified_design_file_content.join
+  end
+  
   # Returns the conversion command from MINC to NIFTI.
   def mnc_to_nifti_command minc_file_name    
     raise "Error: this doesn't look like a MINC file" unless is_minc_file_name? minc_file_name
@@ -107,19 +126,58 @@ class CbrainTask::FslMelodic < ClusterTask
     design_file_id = params[:design_file_id] || []
     design_file = Userfile.find(design_file_id).cache_full_path.to_s
 
-    # modify design files according to local context (paths)
-    modified_design_file=Tempfile.new(["design",".fsf"],".").path
+    
+    # modifies options in the design file
+    modified_design_file_content = File.read(design_file)
+    modified_design_file_content = set_option_in_design_file_content modified_design_file_content, "feat_files(1)"                   ,"#{functional_file}"
+    modified_design_file_content = set_option_in_design_file_content modified_design_file_content, "highres_files(1)"                ,"#{structural_file}" 
+    modified_design_file_content = set_option_in_design_file_content modified_design_file_content, "fmri(outputdir)"                 ,"#{output}"
+    modified_design_file_content = set_option_in_design_file_content modified_design_file_content, "fmri(multiple)"                  ,"1"
+    modified_design_file_content = set_option_in_design_file_content modified_design_file_content, "fmri(tr)"                        , params[:tr] 
+    modified_design_file_content = set_option_in_design_file_content modified_design_file_content, "fmri(ndelete)"                   , params[:ndelete]
+    modified_design_file_content = set_option_in_design_file_content modified_design_file_content, "fmri(filtering_yn)"              , params[:filtering_yn]
+    modified_design_file_content = set_option_in_design_file_content modified_design_file_content, "fmri(brain_thresh)"              , params[:brain_thresh]
+    modified_design_file_content = set_option_in_design_file_content modified_design_file_content, "fmri(mc)"                        , params[:mc]
+    modified_design_file_content = set_option_in_design_file_content modified_design_file_content, "fmri(te)"                        , params[:te]
+    modified_design_file_content = set_option_in_design_file_content modified_design_file_content, "fmri(bet_yn)"                    , params[:bet_yn]
+    modified_design_file_content = set_option_in_design_file_content modified_design_file_content, "fmri(smooth)"                    , params[:smooth]
+    modified_design_file_content = set_option_in_design_file_content modified_design_file_content, "fmri(norm_yn)"                   , params[:norm_yn]
+    modified_design_file_content = set_option_in_design_file_content modified_design_file_content, "fmri(temphp_yn)"                 , params[:temphp_yn]
+    modified_design_file_content = set_option_in_design_file_content modified_design_file_content, "fmri(templp_yn)"                 , params[:templp_yn]
+    modified_design_file_content = set_option_in_design_file_content modified_design_file_content, "fmri(motionevs)"                 , params[:motionevs]
+    modified_design_file_content = set_option_in_design_file_content modified_design_file_content, "fmri(bgimage)"                   , params[:bgimage]
+    modified_design_file_content = set_option_in_design_file_content modified_design_file_content, "fmri(reg_yn)"                    , params[:reg_yn]
+    modified_design_file_content = set_option_in_design_file_content modified_design_file_content, "fmri(reginitial_highres_yn)"     , params[:reginitial_highres_yn]
+    modified_design_file_content = set_option_in_design_file_content modified_design_file_content, "fmri(reginitial_highres_search)" , params[:reginitial_highres_search]
+    modified_design_file_content = set_option_in_design_file_content modified_design_file_content, "fmri(reginitial_highres_dof)"    , params[:reginitial_highres_dof]
+    modified_design_file_content = set_option_in_design_file_content modified_design_file_content, "fmri(reghighres_yn)"            , params[:reghighres_yn]
+    modified_design_file_content = set_option_in_design_file_content modified_design_file_content, "fmri(reghighres_search)"        , params[:reghighres_search]
+    modified_design_file_content = set_option_in_design_file_content modified_design_file_content, "fmri(reghighres_dof)"           , params[:reghighres_dof]
+    modified_design_file_content = set_option_in_design_file_content modified_design_file_content, "fmri(regstandard_yn)"            , params[:regstandard_yn]
+    modified_design_file_content = set_option_in_design_file_content modified_design_file_content, "fmri(regstandard_search)"        , params[:regstandard_search]
+    modified_design_file_content = set_option_in_design_file_content modified_design_file_content, "fmri(regstandard_dof)"           , params[:regstandard_dof]
+    modified_design_file_content = set_option_in_design_file_content modified_design_file_content, "fmri(regstandard_nonlinear_yn)"  , params[:regstandard_nonlinear_yn]
+    modified_design_file_content = set_option_in_design_file_content modified_design_file_content, "fmri(regstandard_nonlinear_warpres)" , params[:regstandard_nonlinear_warpres]
+    modified_design_file_content = set_option_in_design_file_content modified_design_file_content, "fmri(regstandard_res)"           , params[:regstandard_res]
+    modified_design_file_content = set_option_in_design_file_content modified_design_file_content, "fmri(varnorm)"                   , params[:varnorm]
+    modified_design_file_content = set_option_in_design_file_content modified_design_file_content, "fmri(dim_yn)"                    , params[:dim_yn]
+    modified_design_file_content = set_option_in_design_file_content modified_design_file_content, "fmri(dim)"                       , params[:dim]
+    modified_design_file_content = set_option_in_design_file_content modified_design_file_content, "fmri(thresh_yn)"                 , params[:thresh_yn]
+    modified_design_file_content = set_option_in_design_file_content modified_design_file_content, "fmri(mmthresh)"                  , params[:mmthresh]
+    modified_design_file_content = set_option_in_design_file_content modified_design_file_content, "fmri(ostats)"                    , params[:ostats]
+    
+    
+    # fixes path of the standard brain in design file
+    fsldir = ENV['FSLDIR']
+    modified_design_file_content.gsub! /\)\ .*data\/standard/,") #{fsldir}/data/standard"
 
-    sed_command = 'sed s/^set\ feat_files.*/\#\ LINE\ REMOVED\ BY\ CBRAIN/g '"#{design_file}"' | sed s/^set\ highres_files.*/\#\ LINE\ REMOVED\ BY\ CBRAIN/g | sed s/^set\ fmri\(outputdir\)/\#\ LINE\ REMOVED\ BY\ CBRAIN/g | sed s/^set\ fmri\(multiple\)/\#\ LINE\ REMOVED\ BY\\ CBRAIN/g | sed s,\"\.*/data/standard,\"${FSLDIR}/data/standard,g'" > #{modified_design_file}"
-    cmds << sed_command
-
-    cmds << "echo \"#LINES ADDED BY CBRAIN\" >> #{modified_design_file} \n"
-    cmds << "echo \"set feat_files\(1\) \\\"#{functional_file}\\\"\" >> #{modified_design_file}\n"
-    cmds << "echo \"set highres_files\(1\) \\\"#{structural_file}\\\"\" >> #{modified_design_file}\n" unless self.params[:structural_file_id].blank?
-    cmds << "echo \"set fmri\(outputdir\) \\\"#{output}\\\"\" >> #{modified_design_file}\n"
-    cmds << "echo \"set fmri\(multiple\) 1\" >> #{modified_design_file}\n"
-
-    cmd_melodic = "feat #{modified_design_file} ; if [ $? != 0 ]; then echo \"ERROR: melodic exited with a non-zero exit code!\"; fi " 
+    # writes the new design file in temporary file   
+    tempfile = Tempfile.new(["design",".fsf"],".")
+    modified_design_file_path = tempfile.path
+    tempfile << modified_design_file_content
+    tempfile.close
+    
+    cmd_melodic = "feat #{modified_design_file_path} ; if [ $? != 0 ]; then echo \"ERROR: melodic exited with a non-zero exit code!\"; fi " 
     
     cmds    << "echo running #{cmd_melodic.bash_escape}"
     cmds    << cmd_melodic
