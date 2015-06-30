@@ -177,10 +177,12 @@ class CbrainTask::FslMelodic < ClusterTask
     tempfile << modified_design_file_content
     tempfile.close
     
-    cmd_melodic = "feat #{modified_design_file_path} ; if [ $? != 0 ]; then echo \"ERROR: melodic exited with a non-zero exit code!\"; fi " 
+    cmd_melodic = "feat #{modified_design_file_path}"
+    # separate the error check from cmd_melodic otherwise ERROR always shows in the stdout and all the jobs fail
+    cmd_with_error_check = "#{cmd_melodic} ; if [ $? != 0 ]; then echo \"ERROR: melodic exited with a non-zero exit code!\"; fi " 
     
     cmds    << "echo running #{cmd_melodic.bash_escape}"
-    cmds    << cmd_melodic
+    cmds    << cmd_with_error_check
 
     params[:output_dir_name] = output
 

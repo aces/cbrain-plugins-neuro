@@ -73,7 +73,7 @@ class CbrainTask::FslMelodic < PortalTask
       line.each_with_index do |file_name,index|
         file_name.strip!
         # Checks files in line
-        cb_error "Error: file #{file_name} (present in #{csv_file.name}) doesn't look like a Nifti file (must have a .nii or .nii.gz extension)" unless file_name.end_with? ".nii" or file_name.end_with? ".nii.gz"
+        cb_error "Error: file #{file_name} (present in #{csv_file.name}) doesn't look like a Nifti or MINC file (must have a .mnc, .nii or .nii.gz extension)" unless file_name.end_with? ".nii" or file_name.end_with? ".nii.gz" or file_name.end_with? ".mnc"
         file_array = Userfile.where(:name => file_name)
         cb_error "Error: file #{file_name} (present in #{csv_file.name}) not found!" unless file_array.size > 0
         cb_error "Error: multiple files found for #{file_name} (present in #{csv_file.name})" if file_array.size > 1 # this shouldn't happen.
