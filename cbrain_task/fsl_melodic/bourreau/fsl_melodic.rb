@@ -119,10 +119,12 @@ class CbrainTask::FslMelodic < ClusterTask
     cmds << "echo \"set fmri\(outputdir\) \\\"#{output}\\\"\" >> #{modified_design_file}\n"
     cmds << "echo \"set fmri\(multiple\) 1\" >> #{modified_design_file}\n"
 
-    cmd_melodic = "feat #{modified_design_file} ; if [ $? != 0 ]; then echo \"ERROR: melodic exited with a non-zero exit code!\"; fi " 
+    cmd_melodic          = "fsl5.0-feat #{modified_design_file}"
+    # separate the error check from cmd_melodic otherwise ERROR always shows in the stdout and all the jobs fail
+    cmd_with_error_check = "#{cmd_melodic} ; if [ $? != 0 ]; then echo \"ERROR: melodic exited with a non-zero exit code!\"; fi " 
     
     cmds    << "echo running #{cmd_melodic.bash_escape}"
-    cmds    << cmd_melodic
+    cmds    << cmd_with_error_check
 
     params[:output_dir_name] = output
 
