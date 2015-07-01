@@ -22,12 +22,9 @@
    #
    -%>
 
-<h2>Files</h2>
+<h2>Data</h2>
 <p>
-  <b>Design file:</b> <%= link_to_userfile_if_accessible(params[:design_file_id]) %> <%= form.params_hidden_field "design_file_id" %>
-</p>
-<p>
-  Make sure that the CSV file was correctly parsed (first column: functional files, second column: structural files).
+  Make sure that the CSV file was correctly parsed (first column: functional files, second column: structural files). Only single-session ICA is supported: every (functional,structural) pairs will be processed in a separate task.
 </p>
 <table>
   <tr><th>Task</th><th>Functional files</th><th>Structural files</th></tr>
@@ -39,9 +36,11 @@
   </tr>
     <% end %>
 </table>
-<p>
-Note: only single-session ICA is supported: every (functional,structural) pairs will be processed in a separate task.
-</p>
+<ul>
+<li><label>TR (s):</label>                                   <%= form.params_text_field :tr %>           </li>
+<li><label>EPI TE (s):</label>                               <%= form.params_text_field :te %>           </li>
+</ul>
+<br/>
 
 <h2>Parameters</h2>
 <style>
@@ -51,6 +50,8 @@ Note: only single-session ICA is supported: every (functional,structural) pairs 
   font-weight: bold;
   }
 </style>
+
+<label>Design file:</label> <%= link_to_userfile_if_accessible(params[:design_file_id]) %> <%= form.params_hidden_field "design_file_id" %>
 
 <ul>
   <h4>General</h4>
@@ -68,10 +69,6 @@ Note: only single-session ICA is supported: every (functional,structural) pairs 
   </li>
   <li><label>Output name:</label>                              <%= form.params_text_field :output_name %>  </li>
   <br/>
-  <h4>Data</h4>
-  <li><label>TR (s):</label>                                   <%= form.params_text_field :tr %>           </li>
-  <li><label>EPI TE (s):</label>                               <%= form.params_text_field :te %>           </li>
-<br/>
   <h4>Pre-processing</h4>
   <li><label>ndelete:</label>                                  <%= form.params_text_field :ndelete %>      </li>
   <li><label>Filtering:</label>                                <%= form.params_check_box :filtering_yn %>  </li>
