@@ -50,7 +50,7 @@ class CbrainTask::FslMelodic < ClusterTask
   end
 
   # modifies the design file to change an option
-  def set_option_in_design_file_content design_file_content,option,value
+  def set_option_in_design_file_content design_file_content,option,value,quotes=false
     return design_file_content if value.nil? or value.blank?
     modified_design_file_content = []
     # Remove existing option line(s)
@@ -63,7 +63,8 @@ class CbrainTask::FslMelodic < ClusterTask
       modified_design_file_content << new_line
     end
     # Add new option line
-    modified_design_file_content << "set #{option} #{value} # Line added by CBRAIN \n"
+    content = quotes ? "set #{option} \"#{value}\" \n" : "set #{option} #{value} \n"
+    modified_design_file_content << content
 
     return modified_design_file_content.join
   end
@@ -97,6 +98,11 @@ class CbrainTask::FslMelodic < ClusterTask
     # file_name is a MINC file name
     return [ nifti_file_name(file_name) ,  mnc_to_nifti_command(file_name) ] 
   end
+
+  def modify_file_path_for_vm path
+    task_dir = RemoteResource.current_resource.cms_shared_dir
+    return path.sub(task_dir,File.join("$HOME",File.basename(task_dir)))
+  end
   
   def cluster_commands #:nodoc:
     params    = self.params
@@ -117,7 +123,17 @@ class CbrainTask::FslMelodic < ClusterTask
       cmds      << "echo File conversion to NIFTI"
       cmds      << structural_conversion_command
       params[:converted_structural_file_name] = structural_file
-     end
+    end
+
+    modified_design_file_path = "design-cbrain.fsf"
+    count = 1
+    while File.exists? modified_design_file_path
+      count += 1
+      modified_design_file_path = "design-cbrain-#{count}.fsf"
+    end
+    
+    cmds << "echo Replacing $HOME with its value in the design file"
+    cmds << "sed s,\\\$HOME,$HOME,g #{modified_design_file_path} > #{modified_design_file_path}.temp ; \mv -f #{modified_design_file_path}.temp #{modified_design_file_path}"
 
     cmds      << "echo Starting melodic"
     
@@ -125,13 +141,19 @@ class CbrainTask::FslMelodic < ClusterTask
     output  = (params[:output_name].eql? "") ? "melodic-#{self.run_id}" : "#{params[:output_name]}-#{self.run_id}"
     design_file_id = params[:design_file_id] || []
     design_file = Userfile.find(design_file_id).cache_full_path.to_s
-
+    
+    if self.respond_to? "job_template_goes_to_vm?" # method is defined only in the VM branch...
+      if self.job_template_goes_to_vm? 
+        functional_file = modify_file_path_for_vm functional_file
+        structural_file = modify_file_path_for_vm structural_file
+      end
+    end
     
     # modifies options in the design file
     modified_design_file_content = File.read(design_file)
-    modified_design_file_content = set_option_in_design_file_content modified_design_file_content, "feat_files(1)"                   ,"#{functional_file}"
-    modified_design_file_content = set_option_in_design_file_content modified_design_file_content, "highres_files(1)"                ,"#{structural_file}" 
-    modified_design_file_content = set_option_in_design_file_content modified_design_file_content, "fmri(outputdir)"                 ,"#{output}"
+    modified_design_file_content = set_option_in_design_file_content modified_design_file_content, "feat_files(1)"                   ,"#{functional_file}", true
+    modified_design_file_content = set_option_in_design_file_content modified_design_file_content, "highres_files(1)"                ,"#{structural_file}", true
+    modified_design_file_content = set_option_in_design_file_content modified_design_file_content, "fmri(outputdir)"                 ,"#{output}", true
     modified_design_file_content = set_option_in_design_file_content modified_design_file_content, "fmri(multiple)"                  ,"1"
     modified_design_file_content = set_option_in_design_file_content modified_design_file_content, "fmri(tr)"                        , params[:tr] 
     modified_design_file_content = set_option_in_design_file_content modified_design_file_content, "fmri(ndelete)"                   , params[:ndelete]
@@ -172,15 +194,12 @@ class CbrainTask::FslMelodic < ClusterTask
     
     # fixes path of the standard brain in design file
     fsldir = ENV['FSLDIR']
-    modified_design_file_content.gsub! /\)\ .*data\/standard/,") #{fsldir}/data/standard"
+    modified_design_file_content.gsub! /\)\ .*data\/standard/,") \"#{fsldir}/data/standard"
 
-    # writes the new design file in temporary file   
-    tempfile = Tempfile.new(["design",".fsf"],".")
-    modified_design_file_path = tempfile.path
-    tempfile << modified_design_file_content
-    tempfile.close
+    # writes the new design file
+    File.open(modified_design_file_path, 'w') { |file| file.write(modified_design_file_content) }
     
-    cmd_melodic = "feat #{modified_design_file_path}"
+    cmd_melodic = "fsl5.0-feat #{modified_design_file_path}"
     # separate the error check from cmd_melodic otherwise ERROR always shows in the stdout and all the jobs fail
     cmd_with_error_check = "#{cmd_melodic} ; if [ $? != 0 ]; then echo \"ERROR: melodic exited with a non-zero exit code!\"; fi " 
     
