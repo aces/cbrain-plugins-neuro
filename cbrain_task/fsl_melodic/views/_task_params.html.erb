@@ -51,10 +51,10 @@
   }
 </style>
 
-<label>Design file:</label> <%= link_to_userfile_if_accessible(params[:design_file_id]) %> <%= form.params_hidden_field "design_file_id" %>
 
 <ul>
   <h4>General</h4>
+  <li>  <label>Design file:</label> <%= link_to_userfile_if_accessible(params[:design_file_id]) %> <%= form.params_hidden_field "design_file_id" %> </li>
   <li>  <label>Type of analysis</label>
     <%= form.params_select :analysis, ["0","7","1","3","2","6","4"] %>
     <ul>
