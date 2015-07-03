@@ -82,9 +82,13 @@
   
   <li><label>BET brain extraction:</label>                     <%= form.params_check_box :bet_yn %>        </li>
   <li><label>Spatial smoothing FWHM (mm):</label>              <%= form.params_text_field :smooth %>       </li>
-  <li><label>Slice timing correction:</label>                  <%= form.params_select :st, ["0","1","2","3","4","5"] %>
+  <li><label>Slice timing correction:</label>                  <%= form.params_select :st, ["0","1","2","5"] %>
     <br/>
-    0 : None, 1 : Regular up (0, 1, 2, 3, ...), 2 : Regular down, 3 : Use slice order file, 4 : Use slice timings file (if selected, user has to provide a .csv file called slice_timing.csv), 5 : Interleaved (0, 2, 4 ... 1, 3, 5 ... ).
+    0 : None, 1 : Regular up (0, 1, 2, 3, ...), 2 : Regular down, 3 : Use slice order file (<b>not supported yet</b>), 4 : Use slice timings file (<b>not supported yet</b>), 5 : Interleaved (0, 2, 4 ... 1, 3, 5 ... ).
+    <% if params[:st] == "3" or params[":st"] == "4" %>
+    <br/>
+    <u>Warning:</u> Design file has fmri(st)=<%="#{params[:st]}"%> which is not supported by CBRAIN yet.
+    <% end %>
   </li>
   <li><label>Intensity normalization:</label>                  <%= form.params_check_box:norm_yn %>       </li>
   <li><label>Highpass temporal filtering:</label>              <%= form.params_check_box :temphp_yn %>     </li>
