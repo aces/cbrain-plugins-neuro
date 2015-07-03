@@ -75,7 +75,7 @@ class CbrainTask::FslMelodic < ClusterTask
     raise "Error: this doesn't look like a MINC file" unless is_minc_file_name? minc_file_name
     nii_file_name = nifti_file_name minc_file_name
     # removes the minc file after conversion otherwise feat crashes...
-    command = "/usr/local/freesurfer/mni/bin/mnc2nii -nii #{minc_file_name} `pwd`/#{File.basename nii_file_name}; if [ $? != 0 ]; then echo ERROR: cannot convert file #{minc_file_name} to nii ; exit 1 ; fi; rm -f #{minc_file_name}"
+    command = "mnc2nii -nii #{minc_file_name} `pwd`/#{File.basename nii_file_name}; if [ $? != 0 ]; then echo ERROR: cannot convert file #{minc_file_name} to nii ; exit 1 ; fi; rm -f #{minc_file_name}"
     return command
   end
 
