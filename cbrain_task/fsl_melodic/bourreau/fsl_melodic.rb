@@ -94,6 +94,7 @@ class CbrainTask::FslMelodic < ClusterTask
   # Returns an array containing the cache full name of the file converted to MINC
   # format, and the conversion command.
   def converted_file_name_and_command file_id
+    return nil if file_id.nil?
     file_name = "#{self.full_cluster_workdir}/#{Userfile.find(file_id).name}"    
     return [file_name,""] unless is_minc_file_name? file_name
     # file_name is a MINC file name
@@ -101,6 +102,7 @@ class CbrainTask::FslMelodic < ClusterTask
   end
 
   def modify_file_path_for_vm path
+    return nil if path.nil?
     task_dir = RemoteResource.current_resource.cms_shared_dir
     return path.sub(task_dir,File.join("$HOME",File.basename(task_dir)))
   end
@@ -111,21 +113,28 @@ class CbrainTask::FslMelodic < ClusterTask
     cmds      = []
     
     # Convert minc files to nifti.
-    functional_file , functional_conversion_command = converted_file_name_and_command params[:functional_file_id]   
-    structural_file , structural_conversion_command = converted_file_name_and_command params[:structural_file_id]
+    functional_file , functional_conversion_command  = converted_file_name_and_command params[:functional_file_id]   
+    structural_file , structural_conversion_command  = converted_file_name_and_command params[:structural_file_id]
+    regstandard_file, regstandard_conversion_command = converted_file_name_and_command params[:regstandard_file_id] 
     
-    if functional_conversion_command != "" 
+    if functional_conversion_command.present?
       cmds      << "echo File conversion to NIFTI"
       cmds      << functional_conversion_command
       params[:converted_functional_file_name] = functional_file
     end
     
-    if structural_conversion_command != "" 
+    if structural_conversion_command.present?
       cmds      << "echo File conversion to NIFTI"
       cmds      << structural_conversion_command
       params[:converted_structural_file_name] = structural_file
     end
-
+    
+    if regstandard_conversion_command.present?
+      cmds      << "echo File conversion to NIFTI"
+      cmds      << regstandard_conversion_command
+      params[:converted_regstandard_file_name] = regstandard_file
+    end
+    
     modified_design_file_path = "design-cbrain.fsf"
     count = 1
     while File.exists? modified_design_file_path
@@ -155,15 +164,17 @@ class CbrainTask::FslMelodic < ClusterTask
     
     if self.respond_to? "job_template_goes_to_vm?" # method is defined only in the VM branch...
       if self.job_template_goes_to_vm? 
-        functional_file = modify_file_path_for_vm functional_file
-        structural_file = modify_file_path_for_vm structural_file
+        functional_file  = modify_file_path_for_vm functional_file
+        structural_file  = modify_file_path_for_vm structural_file
+        regstandard_File = modify_file_path_for_vm regstandard_file 
       end
     end
     
     # modifies options in the design file
     modified_design_file_content = File.read(design_file)
-    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "feat_files(1)"                   ,"#{functional_file}", true
-    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "highres_files(1)"                ,"#{structural_file}", true
+    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "feat_files(1)"                   ,"#{functional_file}" , true
+    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "highres_files(1)"                ,"#{structural_file}" , true
+    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(regstandard)"               ,"#{regstandard_file}", true
     modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(outputdir)"                 ,"#{output}", true
     modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(multiple)"                  ,"1"
     modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(tr)"                        ,     params[:tr] 
@@ -203,6 +214,7 @@ class CbrainTask::FslMelodic < ClusterTask
     modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(analysis)"                  ,     params[:analysis]
     modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(paradigm_hp)"               ,     params[:paradigm_hp]
     modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(npts)"                      ,     params[:npts]
+    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(alternateReference_yn)"     ,     params[:alternatereference_yn]
     
     
     # fixes path of the standard brain in design file
@@ -211,8 +223,14 @@ class CbrainTask::FslMelodic < ClusterTask
 
     # writes the new design file
     File.open(modified_design_file_path, 'w') { |file| file.write(modified_design_file_content) }
-       
-    cmd_melodic = "fsl5.0-feat #{modified_design_file_path}"
+
+    # searches for the feat executable
+    feat_commands = "feat fsl5.0-feat"
+    cmd_find_feat = "unset FEATCMD; for cmd in #{feat_commands}; do which ${cmd} ; if [ $? = 0 ]; then FEATCMD=${cmd}; break; fi; done ; if [ -z \"${FEATCMD}\" ]; then echo Unable to find any feat executable; exit 1; else echo feat executable set to ${FEATCMD} ; fi"
+    cmds   << "echo Looking for feat executable"
+    cmds   << cmd_find_feat
+    
+    cmd_melodic = "${FEATCMD} #{modified_design_file_path}"
     # separate the error check from cmd_melodic otherwise ERROR always shows in the stdout and all the jobs fail
     cmd_with_error_check = "#{cmd_melodic} ; if [ $? != 0 ]; then echo \"ERROR: melodic exited with a non-zero exit code!\"; fi " 
     
@@ -229,11 +247,13 @@ class CbrainTask::FslMelodic < ClusterTask
     params  = self.params
     # user_id = self.user_id
 
-    functional_file_id = params[:functional_file_id].to_i
-    structural_file_id = params[:structural_file_id].to_i
+    functional_file_id  = params[:functional_file_id]
+    structural_file_id  = params[:structural_file_id]
+    regstandard_file_id = params[:regstandard_file_id]
 
     functional_file    = Userfile.find(functional_file_id)
     structural_file    = Userfile.find(structural_file_id)
+    regstandard_file   = Userfile.find(regstandard_file_id) unless regstandard_file_id.nil?
 
     functional_name    = functional_file.name.gsub(".gz","").gsub(".nii","").gsub(".mnc","")
 
@@ -246,8 +266,9 @@ class CbrainTask::FslMelodic < ClusterTask
     raise "Cannot rename output file" unless File.rename(outputname,outputname_new)
 
     # Save converted file if any
-    functional_file = save_converted_file(params[:converted_functional_file_name],functional_file) unless params[:converted_functional_file_name].nil?
-    structural_file = save_converted_file(params[:converted_structural_file_name],structural_file) unless params[:converted_structural_file_name].nil?
+    functional_file  = save_converted_file( params[:converted_functional_file_name]  , functional_file )  unless params[:converted_functional_file_name].nil?
+    structural_file  = save_converted_file( params[:converted_structural_file_name]  , structural_file )  unless params[:converted_structural_file_name].nil?
+    regstandard_file = save_converted_file( params[:converted_regstandard_file_name] , regstandard_file) unless params[:converted_regstandard_file_name].nil?
     
     # Save result file
     outputname_unique  = unique_file_name outputname_new
