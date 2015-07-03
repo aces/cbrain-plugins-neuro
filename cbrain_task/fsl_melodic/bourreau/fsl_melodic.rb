@@ -151,46 +151,47 @@ class CbrainTask::FslMelodic < ClusterTask
     
     # modifies options in the design file
     modified_design_file_content = File.read(design_file)
-    modified_design_file_content = set_option_in_design_file_content modified_design_file_content, "feat_files(1)"                   ,"#{functional_file}", true
-    modified_design_file_content = set_option_in_design_file_content modified_design_file_content, "highres_files(1)"                ,"#{structural_file}", true
-    modified_design_file_content = set_option_in_design_file_content modified_design_file_content, "fmri(outputdir)"                 ,"#{output}", true
-    modified_design_file_content = set_option_in_design_file_content modified_design_file_content, "fmri(multiple)"                  ,"1"
-    modified_design_file_content = set_option_in_design_file_content modified_design_file_content, "fmri(tr)"                        , params[:tr] 
-    modified_design_file_content = set_option_in_design_file_content modified_design_file_content, "fmri(ndelete)"                   , params[:ndelete]
-    modified_design_file_content = set_option_in_design_file_content modified_design_file_content, "fmri(filtering_yn)"              , params[:filtering_yn]
-    modified_design_file_content = set_option_in_design_file_content modified_design_file_content, "fmri(brain_thresh)"              , params[:brain_thresh]
-    modified_design_file_content = set_option_in_design_file_content modified_design_file_content, "fmri(mc)"                        , params[:mc]
-    modified_design_file_content = set_option_in_design_file_content modified_design_file_content, "fmri(te)"                        , params[:te]
-    modified_design_file_content = set_option_in_design_file_content modified_design_file_content, "fmri(bet_yn)"                    , params[:bet_yn]
-    modified_design_file_content = set_option_in_design_file_content modified_design_file_content, "fmri(smooth)"                    , params[:smooth]
-    modified_design_file_content = set_option_in_design_file_content modified_design_file_content, "fmri(norm_yn)"                   , params[:norm_yn]
-    modified_design_file_content = set_option_in_design_file_content modified_design_file_content, "fmri(temphp_yn)"                 , params[:temphp_yn]
-    modified_design_file_content = set_option_in_design_file_content modified_design_file_content, "fmri(templp_yn)"                 , params[:templp_yn]
-    modified_design_file_content = set_option_in_design_file_content modified_design_file_content, "fmri(motionevs)"                 , params[:motionevs]
-    modified_design_file_content = set_option_in_design_file_content modified_design_file_content, "fmri(bgimage)"                   , params[:bgimage]
-    modified_design_file_content = set_option_in_design_file_content modified_design_file_content, "fmri(reg_yn)"                    , params[:reg_yn]
-    modified_design_file_content = set_option_in_design_file_content modified_design_file_content, "fmri(reginitial_highres_yn)"     , params[:reginitial_highres_yn]
-    modified_design_file_content = set_option_in_design_file_content modified_design_file_content, "fmri(reginitial_highres_search)" , params[:reginitial_highres_search]
-    modified_design_file_content = set_option_in_design_file_content modified_design_file_content, "fmri(reginitial_highres_dof)"    , params[:reginitial_highres_dof]
-    modified_design_file_content = set_option_in_design_file_content modified_design_file_content, "fmri(reghighres_yn)"            , params[:reghighres_yn]
-    modified_design_file_content = set_option_in_design_file_content modified_design_file_content, "fmri(reghighres_search)"        , params[:reghighres_search]
-    modified_design_file_content = set_option_in_design_file_content modified_design_file_content, "fmri(reghighres_dof)"           , params[:reghighres_dof]
-    modified_design_file_content = set_option_in_design_file_content modified_design_file_content, "fmri(regstandard_yn)"            , params[:regstandard_yn]
-    modified_design_file_content = set_option_in_design_file_content modified_design_file_content, "fmri(regstandard_search)"        , params[:regstandard_search]
-    modified_design_file_content = set_option_in_design_file_content modified_design_file_content, "fmri(regstandard_dof)"           , params[:regstandard_dof]
-    modified_design_file_content = set_option_in_design_file_content modified_design_file_content, "fmri(regstandard_nonlinear_yn)"  , params[:regstandard_nonlinear_yn]
-    modified_design_file_content = set_option_in_design_file_content modified_design_file_content, "fmri(regstandard_nonlinear_warpres)" , params[:regstandard_nonlinear_warpres]
-    modified_design_file_content = set_option_in_design_file_content modified_design_file_content, "fmri(regstandard_res)"           , params[:regstandard_res]
-    modified_design_file_content = set_option_in_design_file_content modified_design_file_content, "fmri(varnorm)"                   , params[:varnorm]
-    modified_design_file_content = set_option_in_design_file_content modified_design_file_content, "fmri(dim_yn)"                    , params[:dim_yn]
-    modified_design_file_content = set_option_in_design_file_content modified_design_file_content, "fmri(dim)"                       , params[:dim]
-    modified_design_file_content = set_option_in_design_file_content modified_design_file_content, "fmri(thresh_yn)"                 , params[:thresh_yn]
-    modified_design_file_content = set_option_in_design_file_content modified_design_file_content, "fmri(mmthresh)"                  , params[:mmthresh]
-    modified_design_file_content = set_option_in_design_file_content modified_design_file_content, "fmri(ostats)"                    , params[:ostats]
-    modified_design_file_content = set_option_in_design_file_content modified_design_file_content, "fmri(st)"                        , params[:st]
-    modified_design_file_content = set_option_in_design_file_content modified_design_file_content, "fmri(icaopt)"                    , params[:icaopt]
-    modified_design_file_content = set_option_in_design_file_content modified_design_file_content, "fmri(analysis)"                  , params[:analysis]
-    modified_design_file_content = set_option_in_design_file_content modified_design_file_content, "fmri(paradigm_hp)"               , params[:paradigm_hp]
+    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "feat_files(1)"                   ,"#{functional_file}", true
+    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "highres_files(1)"                ,"#{structural_file}", true
+    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(outputdir)"                 ,"#{output}", true
+    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(multiple)"                  ,"1"
+    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(tr)"                        ,     params[:tr] 
+    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(ndelete)"                   ,     params[:ndelete]
+    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(filtering_yn)"              ,     params[:filtering_yn]
+    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(brain_thresh)"              ,     params[:brain_thresh]
+    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(mc)"                        ,     params[:mc]
+    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(te)"                        ,     params[:te]
+    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(bet_yn)"                    ,     params[:bet_yn]
+    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(smooth)"                    ,     params[:smooth]
+    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(norm_yn)"                   ,     params[:norm_yn]
+    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(temphp_yn)"                 ,     params[:temphp_yn]
+    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(templp_yn)"                 ,     params[:templp_yn]
+    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(motionevs)"                 ,     params[:motionevs]
+    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(bgimage)"                   ,     params[:bgimage]
+    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(reg_yn)"                    ,     params[:reg_yn]
+    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(reginitial_highres_yn)"     ,     params[:reginitial_highres_yn]
+    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(reginitial_highres_search)" ,     params[:reginitial_highres_search]
+    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(reginitial_highres_dof)"    ,     params[:reginitial_highres_dof]
+    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(reghighres_yn)"            ,      params[:reghighres_yn]
+    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(reghighres_search)"        ,      params[:reghighres_search]
+    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(reghighres_dof)"           ,      params[:reghighres_dof]
+    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(regstandard_yn)"            ,     params[:regstandard_yn]
+    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(regstandard_search)"        ,     params[:regstandard_search]
+    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(regstandard_dof)"           ,     params[:regstandard_dof]
+    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(regstandard_nonlinear_yn)"  ,     params[:regstandard_nonlinear_yn]
+    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(regstandard_nonlinear_warpres)" , params[:regstandard_nonlinear_warpres]
+    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(regstandard_res)"           ,     params[:regstandard_res]
+    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(varnorm)"                   ,     params[:varnorm]
+    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(dim_yn)"                    ,     params[:dim_yn]
+    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(dim)"                       ,     params[:dim]
+    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(thresh_yn)"                 ,     params[:thresh_yn]
+    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(mmthresh)"                  ,     params[:mmthresh]
+    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(ostats)"                    ,     params[:ostats]
+    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(st)"                        ,     params[:st]
+    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(icaopt)"                    ,     params[:icaopt]
+    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(analysis)"                  ,     params[:analysis]
+    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(paradigm_hp)"               ,     params[:paradigm_hp]
+    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(npts)"                      ,     params[:npts]
     
     
     # fixes path of the standard brain in design file
@@ -226,6 +227,9 @@ class CbrainTask::FslMelodic < ClusterTask
     functional_name    = functional_file.name.gsub(".gz","").gsub(".nii","").gsub(".mnc","")
 
     outputname         = "#{params[:output_dir_name]}.ica"
+    outputname         = "#{params[:output_dir_name]}.gica" unless File.exists? outputname
+    raise "Cannot find output file #{outputname}/.ica"      unless File.exists? outputname
+
     outputname_new     = "#{functional_name}-#{outputname}"
     raise "Cannot rename output file" unless File.rename(outputname,outputname_new)
 
