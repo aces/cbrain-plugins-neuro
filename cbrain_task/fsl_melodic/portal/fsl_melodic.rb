@@ -51,13 +51,7 @@ class CbrainTask::FslMelodic < PortalTask
       u = Userfile.find(id) rescue nil
       cb_error "Error: input file #{id} doesn't exist." unless u
       cb_error "Error: '#{u.name}' does not seem to be a single file." unless u.is_a?(SingleFile)
-      cb_error "Error: you must select a design file and a CSV file containing pairs of functional/structural Nifti file names, separated by commas (found a #{u.type})." unless 
-        ( 
-         u.is_a?(CSVFile) 
-         || u.is_a?(FSLDesignFile)
-         || u.name.end_with?(".csv") 
-         || u.name.end_with?(".fsf")
-         )
+      cb_error "Error: you must select a design file and a CSV file containing pairs of functional/structural Nifti file names, separated by commas (found a #{u.type})." unless ( u.is_a?(CSVFile) || u.is_a?(FSLDesignFile) || u.name.end_with?(".csv") || u.name.end_with?(".fsf") )
       if u.is_a?(FSLDesignFile) or u.name.end_with?(".fsf")
         cb_error "Error: you may select only 1 design file." unless params[:design_file_id].nil?
         params[:design_file_id] = id
@@ -79,10 +73,7 @@ class CbrainTask::FslMelodic < PortalTask
       line.each_with_index do |file_name,index|
         file_name.strip!
         # Checks files in line
-        cb_error "Error: file #{file_name} (present in #{csv_file.name}) doesn't look like a Nifti or MINC file (must have a .mnc, .nii or .nii.gz extension)" unless 
-          file_name.end_with? ".nii"    or
-          file_name.end_with? ".nii.gz" or
-          file_name.end_with? ".mnc"
+        cb_error "Error: file #{file_name} (present in #{csv_file.name}) doesn't look like a Nifti or MINC file (must have a .mnc, .nii or .nii.gz extension)" unless file_name.end_with? ".nii" or file_name.end_with? ".nii.gz" or file_name.end_with? ".mnc"
         file_array = Userfile.where(:name => file_name)
         current_user = User.find(self.user_id)
         file_array = Userfile.find_accessible_by_user(file_array.map { |x| x.id }, current_user) rescue [] # makes sure that files accessible by the user are selected
