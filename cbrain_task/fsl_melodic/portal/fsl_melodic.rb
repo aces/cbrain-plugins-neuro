@@ -36,6 +36,19 @@ class CbrainTask::FslMelodic < PortalTask
       :output_name => "melodic-output"
     }
   end
+
+  def usage
+    "You MUST select:
+     * an FSL design file, with extension .fsf or CBRAIN type FSLDesignFile. 
+     * a CSV file containing pairs of Nifti or MINC file names, separated by commas. 
+     --- The corresponding files must be registered in CBRAIN and you must have access to them. 
+     --- The file type (MINC or Nifti) is determined based on the file extension (.mnc, .nii or .nii.gz). 
+     --- The first file in the pair will be treated as a functional file. 
+     --- The second file in the pair will be treated as an anatomical file. 
+     You MAY select: 
+     * A MINC or Nifti file, used as the standard brain. 
+    "
+  end
   
   def before_form #:nodoc:
 
@@ -51,7 +64,7 @@ class CbrainTask::FslMelodic < PortalTask
       u = Userfile.find(id) rescue nil
       cb_error "Error: input file #{id} doesn't exist." unless u
       cb_error "Error: '#{u.name}' does not seem to be a single file." unless u.is_a?(SingleFile)
-      cb_error "Error: you must select a design file and a CSV file containing pairs of functional/structural Nifti file names, separated by commas (found a #{u.type})." unless ( u.is_a?(CSVFile) || u.is_a?(FSLDesignFile) || u.name.end_with?(".csv") || u.name.end_with?(".fsf") )
+      cb_error "Error: found a #{u.type}. \n #{usage}" unless ( u.is_a?(CSVFile) || u.is_a?(FSLDesignFile) || u.is_a?(MincFile) || u.is_a?(NiftiFile) || u.name.end_with?(".csv") || u.name.end_with?(".fsf") || u.name.end_with?(".mnc") || u.name.end_with?(".nii") || u.name.end_with?(".nii.gz") )
       if u.is_a?(FSLDesignFile) or u.name.end_with?(".fsf")
         cb_error "Error: you may select only 1 design file." unless params[:design_file_id].nil?
         params[:design_file_id] = id
@@ -60,9 +73,13 @@ class CbrainTask::FslMelodic < PortalTask
         cb_error "Error: you may select only 1 CSV file." unless params[:csv_file_id].nil?
         params[:csv_file_id] = id
       end
+      if u.is_a?(MincFile) or u.name.end_with?(".mnc") or u.is_a?(NiftiFile) or u.name.end_with?(".nii") or u.name.end_with?(".nii.gz")
+        cb_error "Error: you may select only 1 Nifti or MINC file." unless params[:regstandard_file_id].nil?
+        params[:regstandard_file_id] = id
+      end
     end
-    cb_error "Error: you must select a design file and a CSV file containing pairs of functional/structural Nifti file names, separated by commas (design file missing)." if params[:design_file_id].nil?
-    cb_error "Error: you must select a design file and a CSV file containing pairs of functional/structural Nifti file names, separated by commas (CSV file missing)." if params[:csv_file_id].nil?
+    cb_error "Error: design file missing. <br/> #{usage}" if params[:design_file_id].nil?
+    cb_error "Error: CSV file missing. <br/> #{usage}" if params[:csv_file_id].nil?
 
     # Parses CSV file
     csv_file = Userfile.find(params[:csv_file_id])
@@ -131,7 +148,7 @@ class CbrainTask::FslMelodic < PortalTask
     params[:analysis]                      = get_option_value_from_design_file_content design_file_content,    "analysis"
     params[:paradigm_hp]                   = get_option_value_from_design_file_content design_file_content,    "paradigm_hp"
     params[:npts]                          = get_option_value_from_design_file_content design_file_content,    "npts"
-    
+    params[:alternatereference_yn]         = get_option_value_from_design_file_content design_file_content,    "alternateReference_yn"
     
     ""
   end
@@ -141,7 +158,7 @@ class CbrainTask::FslMelodic < PortalTask
       line.downcase!
       next if line.start_with? "#"
       tokens = line.split(" ")
-      return tokens[2] if tokens[0] == "set" and tokens[1] == "fmri(#{option})"
+      return tokens[2] if tokens[0] == "set" and tokens[1] == "fmri(#{option})".downcase
     end
     return nil
   end
@@ -160,6 +177,7 @@ class CbrainTask::FslMelodic < PortalTask
       task.params[:functional_file_id] = params[:functional_file_ids]["#{i}"]
       task.params[:structural_file_id] = params[:structural_file_ids]["#{i}"]
       task.params[:task_file_ids] = [ params[:design_file_id], task.params[:functional_file_id], task.params[:structural_file_id] ]
+      task.params[:task_file_ids] << params[:regstandard_file_id] if params[:regstandard_file_id].present?
       task.description = Userfile.find(task.params[:functional_file_id]).name if task.description.blank?
       # clean task parameters
       task.params.delete :functional_file_ids
