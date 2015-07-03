@@ -74,7 +74,7 @@ class CbrainTask::FslMelodic < ClusterTask
     raise "Error: this doesn't look like a MINC file" unless is_minc_file_name? minc_file_name
     nii_file_name = nifti_file_name minc_file_name
     # removes the minc file after conversion otherwise feat crashes...
-    command = "mnc2nii -nii #{minc_file_name} `pwd`/#{File.basename nii_file_name}; if [ $? != 0 ]; then echo ERROR: cannot convert file #{minc_file_name} to nii ; exit 1 ; fi; rm -f #{minc_file_name}"
+    command = "/usr/local/freesurfer/mni/bin/mnc2nii -nii #{minc_file_name} `pwd`/#{File.basename nii_file_name}; if [ $? != 0 ]; then echo ERROR: cannot convert file #{minc_file_name} to nii ; exit 1 ; fi; rm -f #{minc_file_name}"
     return command
   end
 
@@ -190,6 +190,7 @@ class CbrainTask::FslMelodic < ClusterTask
     modified_design_file_content = set_option_in_design_file_content modified_design_file_content, "fmri(st)"                        , params[:st]
     modified_design_file_content = set_option_in_design_file_content modified_design_file_content, "fmri(icaopt)"                    , params[:icaopt]
     modified_design_file_content = set_option_in_design_file_content modified_design_file_content, "fmri(analysis)"                  , params[:analysis]
+    modified_design_file_content = set_option_in_design_file_content modified_design_file_content, "fmri(paradigm_hp)"               , params[:paradigm_hp]
     
     
     # fixes path of the standard brain in design file
