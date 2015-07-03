@@ -21,6 +21,7 @@
 #
 
 # A subclass of ClusterTask to run FslMelodic
+
 class CbrainTask::FslMelodic < ClusterTask
 
   Revision_info=CbrainFileRevision[__FILE__] #:nodoc:
@@ -103,7 +104,7 @@ class CbrainTask::FslMelodic < ClusterTask
     task_dir = RemoteResource.current_resource.cms_shared_dir
     return path.sub(task_dir,File.join("$HOME",File.basename(task_dir)))
   end
-  
+
   def cluster_commands #:nodoc:
     params    = self.params
 
@@ -132,8 +133,18 @@ class CbrainTask::FslMelodic < ClusterTask
       modified_design_file_path = "design-cbrain-#{count}.fsf"
     end
     
-    cmds << "echo Replacing $HOME with its value in the design file"
+    # $HOME has to be replaced on the machine where the task is
+    # executed, not on the Bourreau's machine
+    cmds << "echo Replacing '$HOME' with its value in the design file."
     cmds << "sed s,\\\$HOME,$HOME,g #{modified_design_file_path} > #{modified_design_file_path}.temp ; \mv -f #{modified_design_file_path}.temp #{modified_design_file_path}"
+
+    # $FSLDIR has to be replaced on the machine where the task is
+    # executed, not on the Bourreau's machine.  In some installations
+    # of FSL, e.g. Neurodebian's, FSLDIR is not defined before feat is
+    # called (it is set in the feat wrapper). In that case, FSLDIR
+    # should be set in CBRAIN's tool configuration.
+    cmds << "echo Replacing path of standard file with its path on the current machine."
+    cmds << "sed s,\\\"\.*/data/standard,\\\"${FSLDIR}/data/standard,g #{modified_design_file_path} > #{modified_design_file_path}.temp ; \mv -f #{modified_design_file_path}.temp #{modified_design_file_path}"
 
     cmds      << "echo Starting melodic"
     
@@ -200,7 +211,7 @@ class CbrainTask::FslMelodic < ClusterTask
 
     # writes the new design file
     File.open(modified_design_file_path, 'w') { |file| file.write(modified_design_file_content) }
-    
+       
     cmd_melodic = "fsl5.0-feat #{modified_design_file_path}"
     # separate the error check from cmd_melodic otherwise ERROR always shows in the stdout and all the jobs fail
     cmd_with_error_check = "#{cmd_melodic} ; if [ $? != 0 ]; then echo \"ERROR: melodic exited with a non-zero exit code!\"; fi " 
@@ -231,6 +242,7 @@ class CbrainTask::FslMelodic < ClusterTask
     raise "Cannot find output file #{outputname}/.ica"      unless File.exists? outputname
 
     outputname_new     = "#{functional_name}-#{outputname}"
+    self.addlog "Renaming #{outputname} to #{outputname_new}."
     raise "Cannot rename output file" unless File.rename(outputname,outputname_new)
 
     # Save converted file if any
