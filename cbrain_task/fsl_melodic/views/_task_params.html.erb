@@ -87,6 +87,7 @@
   </li>
   <li><label>Intensity normalization:</label>                  <%= form.params_check_box:norm_yn %>       </li>
   <li><label>Highpass temporal filtering:</label>              <%= form.params_check_box :temphp_yn %>     </li>
+  <li><label>Highpass filter cutoff: </label>                  <%= form.params_check_box :paradigm_hp %>     </li>
   <li><label>Lowpass temporal filtering:</label>               <%= form.params_check_box :templp_yn %>     </li>
   <li><label>Registration?</label>                             <%= form.params_check_box :reg_yn %>        </li>
 <br/>
@@ -118,7 +119,7 @@
   <li><label>Resampling resolution:</label>                                            <%= form.params_text_field :regstandard_res %>                        </li>
 <br/>    
   <h4>Stats</h4>
-  <li><label>Type of ICA:</label>                  <%= form.params_select :icaopt, ["1","2","3"] %>
+  <li><label>Type of ICA:</label>                                                      <%= form.params_select :icaopt, ["1","2","3"] %>
     <br/>
     1 : Single-session ICA, 2 : Multi-session temporal concatenation, 3 : Multi-session tensor TICA.
   </li>

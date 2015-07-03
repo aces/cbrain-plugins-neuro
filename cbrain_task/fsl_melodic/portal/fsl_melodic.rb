@@ -127,6 +127,7 @@ class CbrainTask::FslMelodic < PortalTask
     params[:ostats] = get_option_value_from_design_file_content design_file_content,"ostats"
     params[:icaopt] = get_option_value_from_design_file_content design_file_content,"icaopt"
     params[:analysis] = get_option_value_from_design_file_content design_file_content,"analysis"
+    params[:paradigm_hp] = get_option_value_from_design_file_content design_file_content,"paradigm_hp"
     
     
     ""
