@@ -48,6 +48,7 @@
   <li><label>Total volumes:</label>                            <%= form.params_text_field :npts %> <b>auto-correct:</b> <%= form.params_check_box :npts_auto%> (uses the value returned by fslnvols) </li> 
   <li><label>TR (s):       </label>                            <%= form.params_text_field :tr %>   <b>auto-correct:</b> <%= form.params_check_box :tr_auto%>   (uses the value returned by fslhd)    </li>
   <li><label>EPI TE (s):   </label>                            <%= form.params_text_field :te %>                                                               </li>
+  <li><label>Total voxels: </label>                            <%= form.params_text_field :totalvoxels %> <b>auto-correct:</b> <%= form.params_check_box :totalvoxels_auto%>   (uses the value returned by fslstats -v)    </li>                                                              </li>
 </ul>
 <br/>
 

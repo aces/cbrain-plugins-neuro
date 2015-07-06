@@ -149,10 +149,12 @@ class CbrainTask::FslMelodic < PortalTask
     params[:paradigm_hp]                   = get_option_value_from_design_file_content design_file_content,    "paradigm_hp"
     params[:npts]                          = get_option_value_from_design_file_content design_file_content,    "npts"
     params[:alternatereference_yn]         = get_option_value_from_design_file_content design_file_content,    "alternateReference_yn"
+    params[:totalvoxels]                   = get_option_value_from_design_file_content design_file_content,    "totalVoxels"
 
     # initializes parameters that are not in the design file
     params[:tr_auto]   = "1"
     params[:npts_auto] = "1"
+    params[:totalvoxels_auto] = "1"
     
     ""
   end
