@@ -66,15 +66,15 @@ class CbrainTask::FslMelodic < PortalTask
       cb_error "Error: '#{u.name}' does not seem to be a single file." unless u.is_a?(SingleFile)
       cb_error "Error: found a #{u.type}. \n #{usage}" unless ( u.is_a?(CSVFile) || u.is_a?(FSLDesignFile) || u.is_a?(MincFile) || u.is_a?(NiftiFile) || u.name.end_with?(".csv") || u.name.end_with?(".fsf") || u.name.end_with?(".mnc") || u.name.end_with?(".nii") || u.name.end_with?(".nii.gz") )
       if u.is_a?(FSLDesignFile) or u.name.end_with?(".fsf")
-        cb_error "Error: you may select only 1 design file." unless params[:design_file_id].nil?
+        cb_error "Error: you may select only 1 design file. \n #{usage}" unless params[:design_file_id].nil?
         params[:design_file_id] = id
       end
       if u.is_a?(CSVFile) or u.name.end_with?(".csv")
-        cb_error "Error: you may select only 1 CSV file." unless params[:csv_file_id].nil?
+        cb_error "Error: you may select only 1 CSV file. \n #{usage}" unless params[:csv_file_id].nil?
         params[:csv_file_id] = id
       end
       if u.is_a?(MincFile) or u.name.end_with?(".mnc") or u.is_a?(NiftiFile) or u.name.end_with?(".nii") or u.name.end_with?(".nii.gz")
-        cb_error "Error: you may select only 1 Nifti or MINC file." unless params[:regstandard_file_id].nil?
+        cb_error "Error: you may select only 1 Nifti or MINC file. \n #{usage}" unless params[:regstandard_file_id].nil?
         params[:regstandard_file_id] = id
       end
     end
@@ -149,6 +149,10 @@ class CbrainTask::FslMelodic < PortalTask
     params[:paradigm_hp]                   = get_option_value_from_design_file_content design_file_content,    "paradigm_hp"
     params[:npts]                          = get_option_value_from_design_file_content design_file_content,    "npts"
     params[:alternatereference_yn]         = get_option_value_from_design_file_content design_file_content,    "alternateReference_yn"
+
+    # initializes parameters that are not in the design file
+    params[:tr_auto]   = "1"
+    params[:npts_auto] = "1"
     
     ""
   end
