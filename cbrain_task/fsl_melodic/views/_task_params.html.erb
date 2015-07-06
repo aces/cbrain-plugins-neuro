@@ -122,7 +122,14 @@
   <li><label>Degrees of Freedom for registration to main structural:</label>           <%= form.params_select :reghighres_dof, ["3","6","9","12"] %>       </li>
 <br/>
   <h4>Registration to standard image</h4>
-  <li><label>Registration to standard image:</label>                                   <%= form.params_check_box :regstandard_yn %>                        </li>
+  <li><label>Registration to standard image:</label>                                 
+    <% if params[:regstandard_yn] != "1" and params[:icaopt] != "1" %>
+       <% params[:regstandard_yn] = "1" %>
+       <%= form.params_check_box :regstandard_yn %>                        </li>
+       <b>Warning:</b> this option was not enabled in your design file (we enabled it for you because you selected a multi-session analysis -- fmri(icaopt)=<%= params[:icaopt]%>).        <br/>
+    <% else %>
+      <%= form.params_check_box :regstandard_yn %>                        </li>
+    <% end %>
   <li><label>Use alternate reference image?</label>                       
     <% if params[:alternatereference_yn] != "1" %>
       <% if params[:regstandard_file_id].present? %>
