@@ -123,6 +123,20 @@ class CbrainTask::FslMelodic < ClusterTask
       cmds << "echo Auto-corrected TR to ${TR}.\n"
       cmds << set_design_file_option(modified_design_file_path,"tr","${TR}")
     end
+
+    if params[:totalvoxels_auto] == "1"
+      cmds << find_command("FSLSTATS","fslstats fsl5.0-fslstats")
+      cmds << "# Auto-corrects parameter fmri(totalVoxels)\n"
+      cmds << "NVOX=`${FSLSTATS} #{functional_file} -v | awk '{print $1}'`\n"
+      cmds << "if [ $? != 0 ]\n"
+      cmds << "then\n"
+      cmds << "  echo ERROR: cannot auto-correct number of voxels in #{functional_file} '(fslstats failed)'.\n"
+      cmds << "  exit 1\n"
+      cmds << "fi\n"
+      cmds << "echo Auto-corrected total voxels to ${NVOX}.\n"
+      cmds << set_design_file_option(modified_design_file_path,"totalVoxels","${NVOX}")
+    end
+
     
     # Updates path of the standard brain to the local path. 
     # $FSLDIR has to be replaced on the machine where the task is
@@ -195,6 +209,8 @@ class CbrainTask::FslMelodic < ClusterTask
     modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(paradigm_hp)"               ,     params[:paradigm_hp]
     modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(npts)"                      ,     params[:npts]                     unless params[:npts_auto] == "1"
     modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(alternateReference_yn)"     ,     params[:alternatereference_yn]
+    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(totalVoxels)"               ,     params[:totalvoxels]               unless params[:totalvoxels_auto] == "1"
+
     
     # Writes the new design file
     File.open(modified_design_file_path, 'w') { |file| file.write(modified_design_file_content) }
