@@ -227,7 +227,8 @@ class CbrainTask::FslMelodic < ClusterTask
     
     functional_file    = Userfile.find(functional_file_id)
     structural_file    = Userfile.find(structural_file_id)
-    regstandard_file   = Userfile.find(regstandard_file_id) unless regstandard_file_id.nil?
+
+    regstandard_file   = Userfile.find(regstandard_file_id) unless not regstandard_file_id.present?
     
     functional_name    = functional_file.name.gsub(".gz","").gsub(".nii","").gsub(".mnc","")
     
@@ -363,7 +364,7 @@ class CbrainTask::FslMelodic < ClusterTask
   # Returns an array containing the cache full name of the file converted to MINC
   # format, and the conversion command.
   def converted_file_name_and_command file_id
-    return nil if file_id.nil?
+    return nil if not file_id.present?
     file_name = "#{self.full_cluster_workdir}/#{Userfile.find(file_id).name}"    
     return [file_name,""] unless is_minc_file_name? file_name
     # file_name is a MINC file name
@@ -375,7 +376,7 @@ class CbrainTask::FslMelodic < ClusterTask
   ####
   
   def modify_file_path_for_vm path
-    return nil if path.nil?
+    return nil if not path.present?
     task_dir = RemoteResource.current_resource.cms_shared_dir
     return path.sub(task_dir,File.join("$HOME",File.basename(task_dir)))
   end

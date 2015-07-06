@@ -22,6 +22,14 @@
    #
    -%>
 
+<style>
+  label {
+  width: 500px;
+  display: inline-block;
+  font-weight: bold;
+  }
+</style>
+
 <h2>Data</h2>
 <p>
   Make sure that the CSV file was correctly parsed (first column: functional files, second column: structural files). Only single-session ICA is supported: every (functional,structural) pairs will be processed in a separate task.
@@ -37,22 +45,13 @@
     <% end %>
 </table>
 <ul>
-<li><label>TR (s):</label>                                   <%= form.params_text_field :tr %>           </li>
-<li><label>EPI TE (s):</label>                               <%= form.params_text_field :te %>           </li>
-<li><label>Total volumes:</label>                            <%= form.params_text_field :npts %>         </li>
+  <li><label>Total volumes:</label>                            <%= form.params_text_field :npts %> <b>auto-correct:</b> <%= form.params_check_box :npts_auto%> (uses the value returned by fslnvols) </li> 
+  <li><label>TR (s):       </label>                            <%= form.params_text_field :tr %>   <b>auto-correct:</b> <%= form.params_check_box :tr_auto%>   (uses the value returned by fslhd)    </li>
+  <li><label>EPI TE (s):   </label>                            <%= form.params_text_field :te %>                                                               </li>
 </ul>
 <br/>
 
 <h2>Parameters</h2>
-<style>
-  label {
-  width: 500px;
-  display: inline-block;
-  font-weight: bold;
-  }
-</style>
-
-
 <ul>
   <h4>General</h4>
   <li>  <label>Design file:</label> <%= link_to_userfile_if_accessible(params[:design_file_id]) %> <%= form.params_hidden_field "design_file_id" %> </li>
