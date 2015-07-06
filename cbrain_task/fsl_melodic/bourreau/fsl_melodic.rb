@@ -132,7 +132,7 @@ class CbrainTask::FslMelodic < ClusterTask
     # should be set in CBRAIN's tool configuration.
     cmds << "# Corrects path of standard brain\n"
     cmds << "echo Replacing path of standard file with its path on the current machine.\n"
-    cmds << sed_design_file(modified_design_file_path,'\\\"\.*/data/standard','\\\"${FSLDIR}/data/standard')
+    cmds << sed_design_file(modified_design_file_path,'\\"\.*/data/standard','\\"${FSLDIR}/data/standard')
     cmds << "\n"
     
     # Modifies paths of files in the design file when task goes to VM.    
@@ -157,7 +157,7 @@ class CbrainTask::FslMelodic < ClusterTask
     modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(regstandard)"               ,"#{regstandard_file}", true
     modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(outputdir)"                 ,"#{output}", true
     modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(multiple)"                  ,"1"
-    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(tr)"                        ,     params[:tr] 
+    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(tr)"                        ,     params[:tr]            unless params[:tr_auto] == "1"
     modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(ndelete)"                   ,     params[:ndelete]
     modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(filtering_yn)"              ,     params[:filtering_yn]
     modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(brain_thresh)"              ,     params[:brain_thresh]
@@ -193,7 +193,7 @@ class CbrainTask::FslMelodic < ClusterTask
     modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(icaopt)"                    ,     params[:icaopt]
     modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(analysis)"                  ,     params[:analysis]
     modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(paradigm_hp)"               ,     params[:paradigm_hp]
-    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(npts)"                      ,     params[:npts]
+    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(npts)"                      ,     params[:npts]                     unless params[:npts_auto] == "1"
     modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(alternateReference_yn)"     ,     params[:alternatereference_yn]
     
     # Writes the new design file
@@ -308,12 +308,12 @@ class CbrainTask::FslMelodic < ClusterTask
 
   # Bash command to "sed" a string in a file.
   def sed_design_file design_file_path,old_value,new_value
-    return "sed s,#{old_value},#{new_value},g #{design_file_path} > #{design_file_path}.temp ; \mv -f #{design_file_path}.temp #{design_file_path}"
+    return "sed s,#{old_value},#{new_value},g #{design_file_path} > #{design_file_path}.temp \n \mv -f #{design_file_path}.temp #{design_file_path}\n"
   end
   
   # Bash command to add a line to a file.
   def add_line_to_file file_path,line
-    return "echo ${line} >> #{file_path}"
+    return "echo #{line} >> #{file_path}"
   end
   
   # Bash command to set the value of a parameter in the design file
@@ -321,7 +321,7 @@ class CbrainTask::FslMelodic < ClusterTask
     cmds = []
     cmds << "# Sets option ${parameter_name} in the design file\n"
     cmds << sed_design_file(design_file_path,"\'set.*fmri(#{parameter_name})\'","\'# Line commented by CBRAIN set fmri(#{parameter_name})\'")
-    cmds << add_line_to_file(design_file_path,"set fmri(#{parameter_name}) #{value}")
+    cmds << add_line_to_file(design_file_path,"'set fmri(#{parameter_name})' #{value}")
     cmds << "\n"
     return cmds.join
   end
