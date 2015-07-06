@@ -122,12 +122,23 @@
 <br/>
   <h4>Registration to standard image</h4>
   <li><label>Registration to standard image:</label>                                   <%= form.params_check_box :regstandard_yn %>                        </li>
-  <li><label>Use alternate reference image?</label>                                    <%= form.params_check_box :alternatereference_yn %>                 <br/>
-    Default is $FSLDIR/data/standard/MNI152_T1_2mm_brain.
-    <% if not params[:regstandard_file_id].present? and params[:alternatereference_yn] == "1" %>
-    <br/>
-    <b>Warning:</b> your design file specifies that an alternate standard brain should be used, but you haven't selected the Nifti or MINC file to use.
+  <li><label>Use alternate reference image?</label>                       
+    <% if params[:alternatereference_yn] != "1" %>
+      <% if params[:regstandard_file_id].present? %>
+        <% params[:alternatereference_yn] = "1" %>
+        <%= form.params_check_box :alternatereference_yn %>          <br/>
+        <b>Warning:</b> this option was not enabled in your design file (we enabled it for you because you selected an alternate standard file).        <br/>
+      <% else %>
+         <%= form.params_check_box :alternatereference_yn %>          <br/>
+      <% end %>
+    <% else %>
+      <%= form.params_check_box :alternatereference_yn %>    
+      <% if not params[:regstandard_file_id].present? %>
+      <br/>
+        <b>Warning:</b> your design file specifies that an alternate standard brain should be used, but you haven't selected the Nifti or MINC file to use.
+      <% end %>
     <% end %>
+    Default is $FSLDIR/data/standard/MNI152_T1_2mm_brain.   
   </li>
   <li><label>Standard image</label>                                                    <%= link_to_userfile_if_accessible(params[:regstandard_file_id]) %> <%= form.params_hidden_field "regstandard_file_id" %>                           </li>
   <li><label>Search space for registration to standard space:</label>                  <%= form.params_select :regstandard_search, ["0","90","180"] %>
