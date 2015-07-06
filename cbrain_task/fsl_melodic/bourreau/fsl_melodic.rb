@@ -205,7 +205,7 @@ class CbrainTask::FslMelodic < ClusterTask
     # FSL melodic execution commands
     cmds   << "# Executes FSL melodic\n"
     cmds   << "echo Starting melodic\n"
-    cmds   << "${FEATCMD} #{modified_design_file_path}\n"
+    cmds   << "${FEAT} #{modified_design_file_path}\n"
     cmds   << "if [ $? != 0 ]\n"
     cmds   << "then\n"
     cmds   << "echo \"ERROR: melodic exited with a non-zero exit code!\"\n"
@@ -409,6 +409,7 @@ class CbrainTask::FslMelodic < ClusterTask
 
   # A bash command to find a command among a list of possible commands. 
   def find_command command_name,command_list
+    cmds = []
     variable = command_name.gsub(' ','').upcase
     cmds   << "# Looks for #{command_name} executable\n"
     cmds   << "unset #{variable}\n"
@@ -428,6 +429,7 @@ class CbrainTask::FslMelodic < ClusterTask
     cmds   << "fi\n"
     cmds   << "echo #{command_name} executable set to ${#{variable}}.\n"
     cmds   << "\n"
+    return cmds.join
   end
 end
 
