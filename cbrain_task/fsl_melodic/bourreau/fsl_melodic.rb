@@ -96,9 +96,11 @@ class CbrainTask::FslMelodic < ClusterTask
     # the task node (i.e. in the task script), not on the Bourreau
     # host.  Otherwise, FSL needs to be installed on the Bourreau
     # node, which might not be the case.
+
     if params[:npts_auto] == "1"
+      cmds << find_command("FSLNVOLS","fslnvols fsl5.0-fslnvols")
       cmds << "# Auto-corrects parameter fmri(npts)\n"
-      cmds << "NPTS=`fslnvols #{functional_file}`\n"
+      cmds << "NPTS=`${FSLNVOLS} #{functional_file}`\n"
       cmds << "if [ $? != 0 ]\n"
       cmds << "then\n"
       cmds << "  echo ERROR: cannot auto-correct number of volumes in #{functional_file} '(fslnvols failed)'.\n"
@@ -107,10 +109,12 @@ class CbrainTask::FslMelodic < ClusterTask
       cmds << "echo Auto-corrected number of volumes to ${NPTS}.\n"
       cmds << set_design_file_option(modified_design_file_path,"npts","${NPTS}")
     end
+
     
     if params[:tr_auto] == "1"
+      cmds << find_command("FSLHD","fslhd fsl5.0-fslhd")
       cmds << "# Auto-corrects parameter fmri(tr)\n"
-      cmds << "TR=`fslhd #{functional_file} | awk '$1==\"pixdim4\" {print $2}'`\n"
+      cmds << "TR=`${FSLHD} #{functional_file} | awk '$1==\"pixdim4\" {print $2}'`\n"
       cmds << "if [ $? != 0 ]\n"
       cmds << "then\n"
       cmds << "  echo ERROR: cannot auto-correct TR in #{functional_file} '(fslhd failed)'.\n"
@@ -196,30 +200,12 @@ class CbrainTask::FslMelodic < ClusterTask
     File.open(modified_design_file_path, 'w') { |file| file.write(modified_design_file_content) }
     
     # Searches for the feat executable
-    feat_commands = "feat fsl5.0-feat"
-    cmds   << "# Looks for feat executable\n"
-    cmds   << "unset FEATCMD\n"
-    cmds   << "for cmd in #{feat_commands}\n"
-    cmds   << "do\n"
-    cmds   << "  which ${cmd} &>/dev/null\n"
-    cmds   << "  if [ $? = 0 ]\n"
-    cmds   << "  then\n"
-    cmds   << "    FEATCMD=${cmd}\n"
-    cmds   << "    break\n"
-    cmds   << "fi\n"
-    cmds   << "done\n"
-    cmds   << "if [ -z \"${FEATCMD}\" ]\n"
-    cmds   << "then\n"
-    cmds   << "  echo ERROR: unable to find any feat executable\n"
-    cmds   << "  exit 1\n"
-    cmds   << "fi\n"
-    cmds   << "echo Feat executable set to ${FEATCMD}.\n"
-    cmds   << "\n"
+    cmds   << find_command("Feat","feat fsl5.0-feat")
 
     # FSL melodic execution commands
     cmds   << "# Executes FSL melodic\n"
     cmds   << "echo Starting melodic\n"
-    cmds   << "${FEATCMD} #{modified_design_file_path}\n"
+    cmds   << "${FEAT} #{modified_design_file_path}\n"
     cmds   << "if [ $? != 0 ]\n"
     cmds   << "then\n"
     cmds   << "echo \"ERROR: melodic exited with a non-zero exit code!\"\n"
@@ -241,7 +227,8 @@ class CbrainTask::FslMelodic < ClusterTask
     
     functional_file    = Userfile.find(functional_file_id)
     structural_file    = Userfile.find(structural_file_id)
-    regstandard_file   = Userfile.find(regstandard_file_id) unless regstandard_file_id.nil?
+
+    regstandard_file   = Userfile.find(regstandard_file_id) unless not regstandard_file_id.present?
     
     functional_name    = functional_file.name.gsub(".gz","").gsub(".nii","").gsub(".mnc","")
     
@@ -377,7 +364,7 @@ class CbrainTask::FslMelodic < ClusterTask
   # Returns an array containing the cache full name of the file converted to MINC
   # format, and the conversion command.
   def converted_file_name_and_command file_id
-    return nil if file_id.nil?
+    return nil if not file_id.present?
     file_name = "#{self.full_cluster_workdir}/#{Userfile.find(file_id).name}"    
     return [file_name,""] unless is_minc_file_name? file_name
     # file_name is a MINC file name
@@ -389,7 +376,7 @@ class CbrainTask::FslMelodic < ClusterTask
   ####
   
   def modify_file_path_for_vm path
-    return nil if path.nil?
+    return nil if not path.present?
     task_dir = RemoteResource.current_resource.cms_shared_dir
     return path.sub(task_dir,File.join("$HOME",File.basename(task_dir)))
   end
@@ -418,6 +405,31 @@ class CbrainTask::FslMelodic < ClusterTask
     self.addlog("Saved result file #{converted_file.name}")
     converted_file.move_to_child_of(parent_file)
     return converted_file
+  end
+
+  # A bash command to find a command among a list of possible commands. 
+  def find_command command_name,command_list
+    cmds = []
+    variable = command_name.gsub(' ','').upcase
+    cmds   << "# Looks for #{command_name} executable\n"
+    cmds   << "unset #{variable}\n"
+    cmds   << "for cmd in #{command_list}\n"
+    cmds   << "do\n"
+    cmds   << "  which ${cmd} &>/dev/null\n"
+    cmds   << "  if [ $? = 0 ]\n"
+    cmds   << "  then\n"
+    cmds   << "    #{variable}=${cmd}\n"
+    cmds   << "    break\n"
+    cmds   << "fi\n"
+    cmds   << "done\n"
+    cmds   << "if [ -z \"${#{variable}}\" ]\n"
+    cmds   << "then\n"
+    cmds   << "  echo ERROR: unable to find any #{command_name} executable\n"
+    cmds   << "  exit 1\n"
+    cmds   << "fi\n"
+    cmds   << "echo #{command_name} executable set to ${#{variable}}.\n"
+    cmds   << "\n"
+    return cmds.join
   end
 end
 
