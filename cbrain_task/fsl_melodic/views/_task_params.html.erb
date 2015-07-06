@@ -104,7 +104,16 @@
   <li><label>Degrees of Freedom for registration to initial structural:</label>        <%= form.params_select :reginitial_highres_dof, ["3","6","9","12"] %></li>
 <br/>
   <h4>Registration to main structural</h4>
-  <li><label>Registration to main structural:</label>                                  <%= form.params_check_box :reghighres_yn %>                         </li>
+  <li><label>Registration to main structural:</label>     
+    <% if params[:reghighres_yn] != "1" %>
+      <% params[:reghighres_yn] = "1" %>
+      <%= form.params_check_box :reghighres_yn %>     
+      <br/>
+      <b>Warning:</b> this option was not enabled in your design file (we enabled it for you). 
+    <% else %>
+      <%= form.params_check_box :reghighres_yn %>     
+    <% end  %>
+  </li>
   <li><label>Search space for registration to main structural:</label>                 <%= form.params_select :reghighres_search, ["0","90","180"] %>
     <br/>
     0   : No search, 90  : Normal search (default), 180 : Full search.
