@@ -45,96 +45,39 @@ class CbrainTask::FslMelodic < ClusterTask
     end
     return true
   end
-
+  
   def job_walltime_estimate #:nodoc:
     return 1.hours
   end
-
-  # modifies the design file to change an option
-  def set_option_in_design_file_content design_file_content,option,value,quotes=false
-    return design_file_content if value.nil? or value.blank?
-    modified_design_file_content = []
-    # Remove existing option line(s)
-    design_file_content.each_line do |line|
-      if line.gsub(" ","").downcase.include? option.gsub(" ","").downcase
-        new_line = "# Line commented by CBRAIN: #{line}"
-      else
-        new_line = line
-      end
-      modified_design_file_content << new_line
-    end
-    # Add new option line
-    content = quotes ? "set #{option} \"#{value}\" \n" : "set #{option} #{value} \n"
-    modified_design_file_content << content
-
-    return modified_design_file_content.join
-  end
   
-  # Returns the conversion command from MINC to NIFTI.
-  def mnc_to_nifti_command minc_file_name    
-    raise "Error: this doesn't look like a MINC file" unless is_minc_file_name? minc_file_name
-    nii_file_name = nifti_file_name minc_file_name
-    # removes the minc file after conversion otherwise feat crashes...
-    command = "mnc2nii -nii #{minc_file_name} `pwd`/#{File.basename nii_file_name}; if [ $? != 0 ]; then echo ERROR: cannot convert file #{minc_file_name} to nii ; exit 1 ; fi; rm -f #{minc_file_name}"
-    return command
-  end
-
-  # Gets a NIFTI file name from a MINC file name. 
-  def nifti_file_name minc_file_name
-    raise "Error: this doesn't look like a MINC file" unless is_minc_file_name? minc_file_name
-    name ="#{File.dirname(minc_file_name)}/#{File.basename(minc_file_name,".mnc")}" 
-    return "#{name}.nii"
-  end
-
-  # Tests if file name looks like a MINC file. 
-  def is_minc_file_name? file_name
-    return file_name.end_with? ".mnc"
-  end
-
-  # Returns an array containing the cache full name of the file converted to MINC
-  # format, and the conversion command.
-  def converted_file_name_and_command file_id
-    return nil if not file_id.present?
-    file_name = "#{self.full_cluster_workdir}/#{Userfile.find(file_id).name}"    
-    return [file_name,""] unless is_minc_file_name? file_name
-    # file_name is a MINC file name
-    return [ nifti_file_name(file_name) ,  mnc_to_nifti_command(file_name) ] 
-  end
-
-  def modify_file_path_for_vm path
-    return nil if not path.present?
-    task_dir = RemoteResource.current_resource.cms_shared_dir
-    return path.sub(task_dir,File.join("$HOME",File.basename(task_dir)))
-  end
-
   def cluster_commands #:nodoc:
+    
     params    = self.params
-
+    
+    # The list of bash commands to be executed. 
     cmds      = []
     
-    # Convert minc files to nifti.
+    # Converts minc files to nifti.
     functional_file , functional_conversion_command  = converted_file_name_and_command params[:functional_file_id]   
     structural_file , structural_conversion_command  = converted_file_name_and_command params[:structural_file_id]
     regstandard_file, regstandard_conversion_command = converted_file_name_and_command params[:regstandard_file_id] 
     
     if functional_conversion_command.present?
-      cmds      << "echo File conversion to NIFTI"
       cmds      << functional_conversion_command
       params[:converted_functional_file_name] = functional_file
     end
     
     if structural_conversion_command.present?
-      cmds      << "echo File conversion to NIFTI"
       cmds      << structural_conversion_command
       params[:converted_structural_file_name] = structural_file
     end
     
     if regstandard_conversion_command.present?
-      cmds      << "echo File conversion to NIFTI"
       cmds      << regstandard_conversion_command
       params[:converted_regstandard_file_name] = regstandard_file
     end
-    
+
+    # Finds a name for the modified design file. 
     modified_design_file_path = "design-cbrain.fsf"
     count = 1
     while File.exists? modified_design_file_path
@@ -144,24 +87,51 @@ class CbrainTask::FslMelodic < ClusterTask
     
     # $HOME has to be replaced on the machine where the task is
     # executed, not on the Bourreau's machine
-    cmds << "echo Replacing '$HOME' with its value in the design file."
-    cmds << "sed s,\\\$HOME,$HOME,g #{modified_design_file_path} > #{modified_design_file_path}.temp ; \mv -f #{modified_design_file_path}.temp #{modified_design_file_path}"
+    cmds << "# echo Replacing '$HOME' with $HOME in the design file.\n"
+    cmds << "echo Replacing '$HOME' with $HOME in the design file.\n"
+    cmds << sed_design_file(modified_design_file_path,"\\\$HOME","$HOME")
+    cmds << "\n"
 
+    # Auto-corrected parameters. Auto-correction needs to be done on
+    # the task node (i.e. in the task script), not on the Bourreau
+    # host.  Otherwise, FSL needs to be installed on the Bourreau
+    # node, which might not be the case.
+    if params[:npts_auto] == "1"
+      cmds << "# Auto-corrects parameter fmri(npts)\n"
+      cmds << "NPTS=`fslnvols #{functional_file}`\n"
+      cmds << "if [ $? != 0 ]\n"
+      cmds << "then\n"
+      cmds << "  echo ERROR: cannot auto-correct number of volumes in #{functional_file} '(fslnvols failed)'.\n"
+      cmds << "  exit 1\n"
+      cmds << "fi\n"
+      cmds << "echo Auto-corrected number of volumes to ${NPTS}.\n"
+      cmds << set_design_file_option(modified_design_file_path,"npts","${NPTS}")
+    end
+    
+    if params[:tr_auto] == "1"
+      cmds << "# Auto-corrects parameter fmri(tr)\n"
+      cmds << "TR=`fslhd #{functional_file} | awk '$1==\"pixdim4\" {print $2}'`\n"
+      cmds << "if [ $? != 0 ]\n"
+      cmds << "then\n"
+      cmds << "  echo ERROR: cannot auto-correct TR in #{functional_file} '(fslhd failed)'.\n"
+      cmds << "  exit 1\n"
+      cmds << "fi\n"
+      cmds << "echo Auto-corrected TR to ${TR}.\n"
+      cmds << set_design_file_option(modified_design_file_path,"tr","${TR}")
+    end
+    
+    # Updates path of the standard brain to the local path. 
     # $FSLDIR has to be replaced on the machine where the task is
     # executed, not on the Bourreau's machine.  In some installations
     # of FSL, e.g. Neurodebian's, FSLDIR is not defined before feat is
     # called (it is set in the feat wrapper). In that case, FSLDIR
     # should be set in CBRAIN's tool configuration.
-    cmds << "echo Replacing path of standard file with its path on the current machine."
-    cmds << "sed s,\\\"\.*/data/standard,\\\"${FSLDIR}/data/standard,g #{modified_design_file_path} > #{modified_design_file_path}.temp ; \mv -f #{modified_design_file_path}.temp #{modified_design_file_path}"
-
-    cmds      << "echo Starting melodic"
+    cmds << "# Corrects path of standard brain\n"
+    cmds << "echo Replacing path of standard file with its path on the current machine.\n"
+    cmds << sed_design_file(modified_design_file_path,'\\\"\.*/data/standard','\\\"${FSLDIR}/data/standard')
+    cmds << "\n"
     
-    # Create melodic cmd
-    output  = (params[:output_name].eql? "") ? "melodic-#{self.run_id}" : "#{params[:output_name]}-#{self.run_id}"
-    design_file_id = params[:design_file_id] || []
-    design_file = Userfile.find(design_file_id).cache_full_path.to_s
-    
+    # Modifies paths of files in the design file when task goes to VM.    
     if self.respond_to? "job_template_goes_to_vm?" # method is defined only in the VM branch...
       if self.job_template_goes_to_vm? 
         functional_file  = modify_file_path_for_vm functional_file
@@ -170,7 +140,13 @@ class CbrainTask::FslMelodic < ClusterTask
       end
     end
     
-    # modifies options in the design file
+    # Modifies options in the design file
+    # These modifications will be done by the Bourreau, not by the task script.
+
+    design_file_id = params[:design_file_id] || []
+    design_file = Userfile.find(design_file_id).cache_full_path.to_s
+    output  = (params[:output_name].eql? "") ? "melodic-#{self.run_id}" : "#{params[:output_name]}-#{self.run_id}"
+    
     modified_design_file_content = File.read(design_file)
     modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "feat_files(1)"                   ,"#{functional_file}" , true
     modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "highres_files(1)"                ,"#{structural_file}" , true
@@ -216,27 +192,39 @@ class CbrainTask::FslMelodic < ClusterTask
     modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(npts)"                      ,     params[:npts]
     modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(alternateReference_yn)"     ,     params[:alternatereference_yn]
     
-    
-    # fixes path of the standard brain in design file
-    fsldir = ENV['FSLDIR']
-    modified_design_file_content.gsub! /\)\ .*data\/standard/,") \"#{fsldir}/data/standard"
-
-    # writes the new design file
+    # Writes the new design file
     File.open(modified_design_file_path, 'w') { |file| file.write(modified_design_file_content) }
-
-    # searches for the feat executable
+    
+    # Searches for the feat executable
     feat_commands = "feat fsl5.0-feat"
-    cmd_find_feat = "unset FEATCMD; for cmd in #{feat_commands}; do which ${cmd} ; if [ $? = 0 ]; then FEATCMD=${cmd}; break; fi; done ; if [ -z \"${FEATCMD}\" ]; then echo Unable to find any feat executable; exit 1; else echo feat executable set to ${FEATCMD} ; fi"
-    cmds   << "echo Looking for feat executable"
-    cmds   << cmd_find_feat
-    
-    cmd_melodic = "${FEATCMD} #{modified_design_file_path}"
-    # separate the error check from cmd_melodic otherwise ERROR always shows in the stdout and all the jobs fail
-    cmd_with_error_check = "#{cmd_melodic} ; if [ $? != 0 ]; then echo \"ERROR: melodic exited with a non-zero exit code!\"; fi " 
-    
-    cmds    << "echo running #{cmd_melodic.bash_escape}"
-    cmds    << cmd_with_error_check
+    cmds   << "# Looks for feat executable\n"
+    cmds   << "unset FEATCMD\n"
+    cmds   << "for cmd in #{feat_commands}\n"
+    cmds   << "do\n"
+    cmds   << "  which ${cmd} &>/dev/null\n"
+    cmds   << "  if [ $? = 0 ]\n"
+    cmds   << "  then\n"
+    cmds   << "    FEATCMD=${cmd}\n"
+    cmds   << "    break\n"
+    cmds   << "fi\n"
+    cmds   << "done\n"
+    cmds   << "if [ -z \"${FEATCMD}\" ]\n"
+    cmds   << "then\n"
+    cmds   << "  echo ERROR: unable to find any feat executable\n"
+    cmds   << "  exit 1\n"
+    cmds   << "fi\n"
+    cmds   << "echo Feat executable set to ${FEATCMD}.\n"
+    cmds   << "\n"
 
+    # FSL melodic execution commands
+    cmds   << "# Executes FSL melodic\n"
+    cmds   << "echo Starting melodic\n"
+    cmds   << "${FEATCMD} #{modified_design_file_path}\n"
+    cmds   << "if [ $? != 0 ]\n"
+    cmds   << "then\n"
+    cmds   << "echo \"ERROR: melodic exited with a non-zero exit code!\"\n"
+    cmds   << "fi\n" 
+    
     params[:output_dir_name] = output
 
     return cmds
@@ -244,33 +232,34 @@ class CbrainTask::FslMelodic < ClusterTask
   end
 
   def save_results #:nodoc:
-    params  = self.params
-    # user_id = self.user_id
 
+    params  = self.params
+    
     functional_file_id  = params[:functional_file_id]
     structural_file_id  = params[:structural_file_id]
     regstandard_file_id = params[:regstandard_file_id]
-
+    
     functional_file    = Userfile.find(functional_file_id)
     structural_file    = Userfile.find(structural_file_id)
+
     regstandard_file   = Userfile.find(regstandard_file_id) unless not regstandard_file_id.present?
-
+    
     functional_name    = functional_file.name.gsub(".gz","").gsub(".nii","").gsub(".mnc","")
-
-    outputname         = "#{params[:output_dir_name]}.ica"
-    outputname         = "#{params[:output_dir_name]}.gica" unless File.exists? outputname
-    raise "Cannot find output file #{outputname}/.ica"      unless File.exists? outputname
-
-    outputname_new     = "#{functional_name}-#{outputname}"
-    self.addlog "Renaming #{outputname} to #{outputname_new}."
-    raise "Cannot rename output file" unless File.rename(outputname,outputname_new)
-
-    # Save converted file if any
+    
+    # Saves converted file if any.
     functional_file  = save_converted_file( params[:converted_functional_file_name]  , functional_file )  unless params[:converted_functional_file_name].nil?
     structural_file  = save_converted_file( params[:converted_structural_file_name]  , structural_file )  unless params[:converted_structural_file_name].nil?
     regstandard_file = save_converted_file( params[:converted_regstandard_file_name] , regstandard_file) unless params[:converted_regstandard_file_name].nil?
     
-    # Save result file
+    # Finds and renames output directory. 
+    outputname         = "#{params[:output_dir_name]}.ica"
+    outputname         = "#{params[:output_dir_name]}.gica" unless File.exists? outputname
+    raise "Cannot find output file #{outputname}/.ica"      unless File.exists? outputname
+    outputname_new     = "#{functional_name}-#{outputname}"
+    self.addlog "Renaming #{outputname} to #{outputname_new}."
+    raise "Cannot rename output file" unless File.rename(outputname,outputname_new)
+    
+    # Saves result file.
     outputname_unique  = unique_file_name outputname_new
     outputfile         =  safe_userfile_find_or_new(FslMelodicOutput, :name => outputname_unique)
     outputfile.save!
@@ -280,7 +269,9 @@ class CbrainTask::FslMelodic < ClusterTask
     params[:outfile_id] = outputfile.id
     outputfile.move_to_child_of(functional_file)
     
-    # Verify if all tasks exited without error (do this after saving the files because important debug information is found in the melodic logs).
+    # Verifies if all tasks exited without error (do this after saving
+    # the files because important debug information is found in the
+    # melodic logs).
     stderr = File.read(self.stderr_cluster_filename) rescue ""
     if stderr =~ /ERROR:/
       self.addlog("melodic task failed (see Standard Error)")
@@ -293,8 +284,115 @@ class CbrainTask::FslMelodic < ClusterTask
       return false
     end
     
-    
     return true
+  end
+  
+  private
+
+  ##################################################
+  ################# Utils methods ##################
+  ##################################################
+
+  ####
+  #### File content manipulation in Ruby.
+  ####
+  
+  # Sets an option in the design file.
+  def set_option_in_design_file_content design_file_content,option,value,quotes=false
+    return design_file_content if value.nil? or value.blank?
+    modified_design_file_content = []
+    # Remove existing option line(s)
+    design_file_content.each_line do |line|
+      if line.gsub(" ","").downcase.include? option.gsub(" ","").downcase
+        new_line = "# Line commented by CBRAIN: #{line}"
+      else
+        new_line = line
+      end
+      modified_design_file_content << new_line
+    end
+    # Add new option line
+    content = quotes ? "set #{option} \"#{value}\" \n" : "set #{option} #{value} \n"
+    modified_design_file_content << content
+    return modified_design_file_content.join
+  end
+
+  ####
+  #### File content manipulation in bash.
+  ####
+
+  # Bash command to "sed" a string in a file.
+  def sed_design_file design_file_path,old_value,new_value
+    return "sed s,#{old_value},#{new_value},g #{design_file_path} > #{design_file_path}.temp ; \mv -f #{design_file_path}.temp #{design_file_path}"
+  end
+  
+  # Bash command to add a line to a file.
+  def add_line_to_file file_path,line
+    return "echo ${line} >> #{file_path}"
+  end
+  
+  # Bash command to set the value of a parameter in the design file
+  def set_design_file_option design_file_path,parameter_name,value
+    cmds = []
+    cmds << "# Sets option ${parameter_name} in the design file\n"
+    cmds << sed_design_file(design_file_path,"\'set.*fmri(#{parameter_name})\'","\'# Line commented by CBRAIN set fmri(#{parameter_name})\'")
+    cmds << add_line_to_file(design_file_path,"set fmri(#{parameter_name}) #{value}")
+    cmds << "\n"
+    return cmds.join
+  end
+  
+  ####
+  #### Conversion from MINC to Nifti.
+  ####
+  
+  # Returns the conversion command from MINC to NIFTI.
+  def mnc_to_nifti_command minc_file_name    
+    raise "Error: this doesn't look like a MINC file" unless is_minc_file_name? minc_file_name
+    nii_file_name = nifti_file_name minc_file_name
+    # removes the minc file after conversion otherwise feat crashes...
+    cmds = []
+    cmds << "# File converstion to Nifti\n"
+    cmds << "echo Converting file #{minc_file_name} to Nifti\n"
+    cmds << "mnc2nii -nii #{minc_file_name} `pwd`/#{File.basename nii_file_name}\n"
+    cmds << "if [ $? != 0 ]\n"
+    cmds << "then\n"
+    cmds << "  echo ERROR: cannot convert file #{minc_file_name} to nii\n"
+    cmds << "  exit 1\n"
+    cmds << "fi\n"
+    cmds << "rm -f #{minc_file_name}\n"
+    cmds << "\n"
+    return cmds.join
+  end
+  
+  # Gets a NIFTI file name from a MINC file name. 
+  def nifti_file_name minc_file_name
+    raise "Error: this doesn't look like a MINC file" unless is_minc_file_name? minc_file_name
+    name ="#{File.dirname(minc_file_name)}/#{File.basename(minc_file_name,".mnc")}" 
+    return "#{name}.nii"
+  end
+  
+  # Tests if file name looks like a MINC file. 
+  def is_minc_file_name? file_name
+    return file_name.end_with? ".mnc"
+  end
+  
+  # Returns an array containing the cache full name of the file converted to MINC
+  # format, and the conversion command.
+  def converted_file_name_and_command file_id
+    return nil if not file_id.present?
+    file_name = "#{self.full_cluster_workdir}/#{Userfile.find(file_id).name}"    
+    return [file_name,""] unless is_minc_file_name? file_name
+    # file_name is a MINC file name
+    return [ nifti_file_name(file_name) ,  mnc_to_nifti_command(file_name) ] 
+  end
+
+  ####
+  #### Other utils.
+  ####
+  
+  def modify_file_path_for_vm path
+    return nil if not path.present?
+    task_dir = RemoteResource.current_resource.cms_shared_dir
+    return path.sub(task_dir,File.join("$HOME",File.basename(task_dir)))
   end
 
   # Returns a file_name if there is no file named file_name. Returns a
