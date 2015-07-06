@@ -104,10 +104,12 @@ class FslMelodicOutput < FileCollection
   # Modifies the href attribute of a link.
   def tweak_href_of_link link,dir_name
     new_link = link
+
     if link.downcase.include? "http"
       # do not tweak links that are external URLs
       return link
     end
+
     # Treat separately the following cases:
     # href="..." (with quote)
     # href=... (without quote)
@@ -119,9 +121,11 @@ class FslMelodicOutput < FileCollection
     new_link.gsub! "userfile.id","#{self.id}"
     new_link.gsub! "@dirname","#{dir_name}"
     new_link.gsub! '/"',"/"
-    
+
     # Append #file_content to the URL
     new_link = append_string_to_link new_link,"file_name","#file_content"
+
+    new_link.gsub! /file_name=(.*?)gica\//,"file_name="
     
     return new_link
   end
@@ -159,9 +163,8 @@ class FslMelodicOutput < FileCollection
     new_link.gsub! "@dirname","#{dir_name}"
     new_link.gsub! '/"',"/"            
 
-
     new_link = append_string_to_link new_link,"arguments","&content_loader=collection_file&content_viewer=off&viewer=image_file&viewer_userfile_class=ImageFile"
-    
+    new_link.gsub! /gica(.*?)gica/,"gica"
     
     return new_link
   end
