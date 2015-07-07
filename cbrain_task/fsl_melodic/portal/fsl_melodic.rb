@@ -204,19 +204,18 @@ class CbrainTask::FslMelodic < PortalTask
     ids = []
     
 
-    ids = params[:functional_file_ids]
+    ids = task.params[:functional_file_ids].dup
     ids.concat params[:structural_file_ids]
     ids << task.params[:design_file_id]
-    ids << task.params[:regstandard_file_id] if task.params[:regstandard_file_id].present? 
+    ids << task.params[:regstandard_file_id] if task.params[:regstandard_file_id].present? and task.params[:alternatereference_yn] == "1"
     
-    description = []
+    description_strings = []
     task.params[:functional_file_ids].each do |id|
       description << Userfile.find(id).name+" "
     end
-    description = description.join
     
     task.params[:task_file_ids] = ids
-    task.description = description if task.description.blank?
+    task.description = description_strings.join if task.description.blank?
 
     task.params.delete :interface_userfile_ids
   end
