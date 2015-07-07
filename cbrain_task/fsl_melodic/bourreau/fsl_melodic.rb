@@ -60,7 +60,7 @@ class CbrainTask::FslMelodic < ClusterTask
     # A hash containing the files converted from Nifti to MINC
     # key: file id of Nifti file.
     # value: file name of corresponding MINC file. 
-    converted_files = Hash.new
+    params[:converted_files] = Hash.new
 
     # Reads the content of the design file
     design_file_id = params[:design_file_id] 
@@ -87,7 +87,7 @@ class CbrainTask::FslMelodic < ClusterTask
       functional_file , functional_conversion_command  = converted_file_name_and_command functional_file_id
       if functional_conversion_command.present?
         cmds << functional_conversion_command 
-        converted_files[functional_file_id] = functional_file
+        params[:converted_files][functional_file_id] = functional_file
       end
 
       # Performs auto-correction based on the first functional file. 
@@ -160,7 +160,7 @@ class CbrainTask::FslMelodic < ClusterTask
       structural_file , structural_conversion_command  = converted_file_name_and_command structural_file_id
       if structural_conversion_command.present?
         cmds << structural_conversion_command 
-        converted_files[structural_file_id] = structural_file
+        params[:converted_files][structural_file_id] = structural_file
       end
 
       # Modifies paths of file in the design file when task goes to VM.    
@@ -179,7 +179,7 @@ class CbrainTask::FslMelodic < ClusterTask
     regstandard_file, regstandard_conversion_command = converted_file_name_and_command params[:regstandard_file_id]   
     if regstandard_conversion_command.present?
       cmds << regstandard_conversion_command
-      converted_files[regstandard_file_id] = regstandard_file
+      params[:converted_files][regstandard_file_id] = regstandard_file
     end
 
     # Modifies paths of file in the design file when task goes to VM.    
@@ -314,7 +314,7 @@ class CbrainTask::FslMelodic < ClusterTask
     end
 
     # Saves files converted to MINC
-    converted_files.each do |key,value|
+    params[:converted_files].each do |key,value|
       save_converted_file(value,Userfile.find(key))
     end
     
