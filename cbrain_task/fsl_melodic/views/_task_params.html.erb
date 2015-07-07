@@ -1,26 +1,26 @@
 
 <%-
-   #
-   # CBRAIN Project
-   #
-   # Copyright (C) 2008-2012
-   # The Royal Institution for the Advancement of Learning
-   # McGill University
-   #
-   # This program is free software: you can redistribute it and/or modify
-   # it under the terms of the GNU General Public License as published by
-   # the Free Software Foundation, either version 3 of the License, or
-   # (at your option) any later version.
-   #
-   # This program is distributed in the hope that it will be useful,
-   # but WITHOUT ANY WARRANTY; without even the implied warranty of
-   # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   # GNU General Public License for more details.
-   #
-   # You should have received a copy of the GNU General Public License
-   # along with this program.  If not, see <http://www.gnu.org/licenses/>.  
-   #
-   -%>
+#
+# CBRAIN Project
+#
+# Copyright (C) 2008-2012
+# The Royal Institution for the Advancement of Learning
+# McGill University
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.  
+#
+-%>
 
 <style>
   label {
@@ -48,6 +48,7 @@
   <li><label>Total volumes:</label>                            <%= form.params_text_field :npts %> <b>auto-correct:</b> <%= form.params_check_box :npts_auto%> (uses the value returned by fslnvols) </li> 
   <li><label>TR (s):       </label>                            <%= form.params_text_field :tr %>   <b>auto-correct:</b> <%= form.params_check_box :tr_auto%>   (uses the value returned by fslhd)    </li>
   <li><label>EPI TE (s):   </label>                            <%= form.params_text_field :te %>                                                               </li>
+  <li><label>Total voxels: </label>                            <%= form.params_text_field :totalvoxels %> <b>auto-correct:</b> <%= form.params_check_box :totalvoxels_auto%>   (uses the value returned by fslstats -v)    </li>                                                              </li>
 </ul>
 <br/>
 
@@ -121,7 +122,14 @@
   <li><label>Degrees of Freedom for registration to main structural:</label>           <%= form.params_select :reghighres_dof, ["3","6","9","12"] %>       </li>
 <br/>
   <h4>Registration to standard image</h4>
-  <li><label>Registration to standard image:</label>                                   <%= form.params_check_box :regstandard_yn %>                        </li>
+  <li><label>Registration to standard image:</label>                                 
+    <% if params[:regstandard_yn] != "1" and params[:icaopt] != "1" %>
+       <% params[:regstandard_yn] = "1" %>
+       <%= form.params_check_box :regstandard_yn %>                        </li>
+       <b>Warning:</b> this option was not enabled in your design file (we enabled it for you because you selected a multi-session analysis -- fmri(icaopt)=<%= params[:icaopt]%>).        <br/>
+    <% else %>
+      <%= form.params_check_box :regstandard_yn %>                        </li>
+    <% end %>
   <li><label>Use alternate reference image?</label>                       
     <% if params[:alternatereference_yn] != "1" %>
       <% if params[:regstandard_file_id].present? %>

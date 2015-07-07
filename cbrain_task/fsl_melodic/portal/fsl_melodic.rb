@@ -78,8 +78,8 @@ class CbrainTask::FslMelodic < PortalTask
         params[:regstandard_file_id] = id
       end
     end
-    cb_error "Error: design file missing. <br/> #{usage}" if params[:design_file_id].nil?
-    cb_error "Error: CSV file missing. <br/> #{usage}" if params[:csv_file_id].nil?
+    cb_error "Error: design file missing. \n #{usage}" if params[:design_file_id].nil?
+    cb_error "Error: CSV file missing. \n #{usage}" if params[:csv_file_id].nil?
 
     # Parses CSV file
     csv_file = Userfile.find(params[:csv_file_id])
@@ -149,10 +149,12 @@ class CbrainTask::FslMelodic < PortalTask
     params[:paradigm_hp]                   = get_option_value_from_design_file_content design_file_content,    "paradigm_hp"
     params[:npts]                          = get_option_value_from_design_file_content design_file_content,    "npts"
     params[:alternatereference_yn]         = get_option_value_from_design_file_content design_file_content,    "alternateReference_yn"
+    params[:totalvoxels]                   = get_option_value_from_design_file_content design_file_content,    "totalVoxels"
 
     # initializes parameters that are not in the design file
     params[:tr_auto]   = "1"
     params[:npts_auto] = "1"
+    params[:totalvoxels_auto] = "1"
     
     ""
   end
@@ -169,7 +171,6 @@ class CbrainTask::FslMelodic < PortalTask
   
   def after_form #:nodoc:
     output_name = (params[:output_name].strip.eql? "") ? output_name : params[:output_name].strip 
-    
     ""
   end
   

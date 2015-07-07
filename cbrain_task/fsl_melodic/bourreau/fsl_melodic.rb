@@ -45,11 +45,11 @@ class CbrainTask::FslMelodic < ClusterTask
     end
     return true
   end
-  
+
   def job_walltime_estimate #:nodoc:
     return 1.hours
   end
-  
+
   def cluster_commands #:nodoc:
     
     params    = self.params
@@ -310,7 +310,6 @@ class CbrainTask::FslMelodic < ClusterTask
       self.addlog("melodic task failed (see Standard Error)")
       return false
     end
-    
     stdout = File.read(self.stdout_cluster_filename) rescue ""
     if stdout =~ /ERROR:/
       self.addlog("melodic task failed (see Standard Output)")
