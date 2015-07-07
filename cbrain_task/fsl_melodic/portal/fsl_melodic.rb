@@ -175,13 +175,22 @@ class CbrainTask::FslMelodic < PortalTask
   end
   
   def final_task_list #:nodoc:
+    functional_ids = []
+    structural_ids = []
+
+    params[:functional_file_ids].each { |key,value| functional_ids << value }
+    params[:structural_file_ids].each { |key,value| structural_ids << value }
+
+    params[:functional_file_ids] = functional_ids
+    params[:structural_file_ids] = structural_ids
+
     mytasklist = []
     if params[:icaopt] == "1" # creates 1 task per functional file
       n_tasks    = params[:functional_file_ids].size-1
       (0..n_tasks).each do |i|
         task=self.dup # not .clone, as of Rails 3.1.10
-        task.params[:functional_file_ids] = [ params[:functional_file_ids]["#{i}"] ]
-        task.params[:structural_file_ids] = [ params[:structural_file_ids]["#{i}"] ]
+        task.params[:functional_file_ids] = [ params[:functional_file_ids]["#{i}".to_i] ]
+        task.params[:structural_file_ids] = [ params[:structural_file_ids]["#{i}".to_i] ]
         set_task_parameters(task)
         mytasklist << task
       end
@@ -195,8 +204,10 @@ class CbrainTask::FslMelodic < PortalTask
   
   def set_task_parameters task
     ids = []
-    ids.concat task.params[:functional_file_ids]
-    ids.concat task.params[:structural_file_ids]
+    
+
+    ids = params[:functional_file_ids]
+    ids.concat params[:structural_file_ids]
     ids << task.params[:design_file_id]
     ids << task.params[:regstandard_file_id] if task.params[:regstandard_file_id].present? 
     
@@ -204,7 +215,7 @@ class CbrainTask::FslMelodic < PortalTask
     task.params[:functional_file_ids].each do |id|
       description << Userfile.find(id).name+" "
     end
-    description.join
+    description = description.join
     
     task.params[:task_file_ids] = ids
     task.description = description if task.description.blank?
