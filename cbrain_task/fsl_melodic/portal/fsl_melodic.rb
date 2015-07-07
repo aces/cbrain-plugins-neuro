@@ -175,21 +175,40 @@ class CbrainTask::FslMelodic < PortalTask
   
   def final_task_list #:nodoc:
     mytasklist = []
-    n_tasks    = params[:functional_file_ids].size-1
-    (0..n_tasks).each do |i|
+    if params[:icaopt] == "1" # creates 1 task per functional file
+      n_tasks    = params[:functional_file_ids].size-1
+      (0..n_tasks).each do |i|
+        task=self.dup # not .clone, as of Rails 3.1.10
+        task.params[:functional_file_ids] = [ params[:functional_file_ids]["#{i}"] ]
+        task.params[:structural_file_ids] = [ params[:structural_file_ids]["#{i}"] ]
+        set_task_parameters(task)
+        mytasklist << task
+      end
+    else # creates only 1 task
       task=self.dup # not .clone, as of Rails 3.1.10
-      task.params[:functional_file_id] = params[:functional_file_ids]["#{i}"]
-      task.params[:structural_file_id] = params[:structural_file_ids]["#{i}"]
-      task.params[:task_file_ids] = [ params[:design_file_id], task.params[:functional_file_id], task.params[:structural_file_id] ]
-      task.params[:task_file_ids] << params[:regstandard_file_id] if params[:regstandard_file_id].present?
-      task.description = Userfile.find(task.params[:functional_file_id]).name if task.description.blank?
-      # clean task parameters
-      task.params.delete :functional_file_ids
-      task.params.delete :structural_file_ids
-      task.params.delete :interface_userfile_ids
+      set_task_parameters(task)
       mytasklist << task
     end
     return mytasklist
+  end
+  
+  def set_task_parameters task
+    ids = []
+    ids.concat task.params[:functional_file_ids]
+    ids.concat task.params[:structural_file_ids]
+    ids << task.params[:design_file_id]
+    ids << task.params[:regstandard_file_id] if task.params[:regstandard_file_id].present? 
+    
+    description = []
+    task.params[:functional_file_ids].each do |id|
+      description << Userfile.find(id).name+" "
+    end
+    description.join
+    
+    task.params[:task_file_ids] = ids
+    task.description = description if task.description.blank?
+
+    task.params.delete :interface_userfile_ids
   end
   
   def untouchable_params_attributes #:nodoc:
