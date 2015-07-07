@@ -64,7 +64,7 @@ class CbrainTask::FslMelodic < PortalTask
       u = Userfile.find(id) rescue nil
       cb_error "Error: input file #{id} doesn't exist." unless u
       cb_error "Error: '#{u.name}' does not seem to be a single file." unless u.is_a?(SingleFile)
-      cb_error "Error: found a #{u.type}. \n #{usage}" unless ( u.is_a?(CSVFile) || u.is_a?(FSLDesignFile) || u.is_a?(MincFile) || u.is_a?(NiftiFile) || u.name.end_with?(".csv") || u.name.end_with?(".fsf") || u.name.end_with?(".mnc") || u.name.end_with?(".nii") || u.name.end_with?(".nii.gz") )
+      cb_error "Error: found a #{u.type}. \n #{usage}" unless ( u.is_a?(CSVFile) || u.is_a?(FSLDesignFile) || u.name.end_with?(".csv") || u.name.end_with?(".fsf"))
       if u.is_a?(FSLDesignFile) or u.name.end_with?(".fsf")
         cb_error "Error: you may select only 1 design file. \n #{usage}" unless params[:design_file_id].nil?
         params[:design_file_id] = id
@@ -72,10 +72,6 @@ class CbrainTask::FslMelodic < PortalTask
       if u.is_a?(CSVFile) or u.name.end_with?(".csv")
         cb_error "Error: you may select only 1 CSV file. \n #{usage}" unless params[:csv_file_id].nil?
         params[:csv_file_id] = id
-      end
-      if u.is_a?(MincFile) or u.name.end_with?(".mnc") or u.is_a?(NiftiFile) or u.name.end_with?(".nii") or u.name.end_with?(".nii.gz")
-        cb_error "Error: you may select only 1 Nifti or MINC file. \n #{usage}" unless params[:regstandard_file_id].nil?
-        params[:regstandard_file_id] = id
       end
     end
     cb_error "Error: design file missing. \n #{usage}" if params[:design_file_id].nil?
@@ -151,6 +147,8 @@ class CbrainTask::FslMelodic < PortalTask
     params[:alternatereference_yn]         = get_option_value_from_design_file_content design_file_content,    "alternateReference_yn"
     params[:totalvoxels]                   = get_option_value_from_design_file_content design_file_content,    "totalVoxels"
 
+    params[:template_files]                = get_template_files
+    
     # initializes parameters that are not in the design file
     params[:tr_auto]   = "1"
     params[:npts_auto] = "1"
@@ -221,6 +219,17 @@ class CbrainTask::FslMelodic < PortalTask
     task.description = description if task.description.blank?
 
     task.params.delete :interface_userfile_ids
+  end
+
+  def get_template_files
+    template_files = []
+    current_user = User.find(self.user_id)
+    user_tags = current_user.available_tags.select {|t| t.name =~ /TEMPLATE/i}
+    user_tags.each do |tag|
+      user_files ||= Userfile.find_all_accessible_by_user(current_user)
+      template_files.concat user_files.select { |u| u.tag_ids.include? tag.id }
+    end
+    return template_files.map { |f| [f.name,f.id.to_s]}
   end
   
   def untouchable_params_attributes #:nodoc:
