@@ -86,7 +86,7 @@
     T-test contrast matrix (-t): <%= params[:t_contrasts_name].blank? ? "(None)" : File.basename(params[:t_contrasts_name]) %>
     <%= form.params_hidden_field :t_contrasts_name %>
     <br>
-    F-test contrast matrix (-t): <%= params[:f_contrasts_name].blank? ? "(None)" : File.basename(params[:f_contrasts_name]) %>
+    F-test contrast matrix (-f): <%= params[:f_contrasts_name].blank? ? "(None)" : File.basename(params[:f_contrasts_name]) %>
     <%= form.params_hidden_field :f_contrasts_name %>
     <br>
     Exchangeability block labels file (-e): <%= params[:exchangeability_matrix_name].blank? ? "(None)" : File.basename(params[:exchangeability_matrix_name]) %>
@@ -101,7 +101,7 @@
     <%= form.params_hidden_field :t_contrasts_id %>
     T-test contrast matrix (-t): <%= link_to_userfile_if_accessible(params[:t_contrasts_id]) %>
     <br>
-    <%= form.params_label  :f_contrasts_id, "F-test contrast matrix(-f):" %>
+    <%= form.params_label  :f_contrasts_id, "F-test contrast matrix (-f):" %>
     <%= form.params_select :f_contrasts_id, left_matrix %>
     <br>
     <%= form.params_label  :exchangeability_matrix_id, "Exchangeability block labels file (-e):" %>
@@ -109,7 +109,7 @@
   <% end %>
 
   <br><br>
-  <small><b>Note:</b> If a collection is choosen, the files in the collection will be used as matrix.</small>
+  <small><b>Note:</b> If a collection is chosen, the files in the collection will be used as matrices.</small>
 
 </fieldset>
 
