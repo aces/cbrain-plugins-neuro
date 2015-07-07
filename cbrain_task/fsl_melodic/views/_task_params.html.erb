@@ -57,16 +57,16 @@
   <h4>General</h4>
   <li>  <label>Design file:</label> <%= link_to_userfile_if_accessible(params[:design_file_id]) %> <%= form.params_hidden_field "design_file_id" %> </li>
   <li>  <label>Type of analysis</label>
-    <%= form.params_select :analysis, ["0","7","1","3","2","6","4"] %>
+    <%= form.params_select :analysis, ["0","7","1","3"] %>
     <ul>
       <li>0 : No first-level analysis (registration and/or group stats only)</li>
       <li>7 : Full first-level analysis</li>
       <li>1 : Pre-Stats</li>
       <li>3 : Pre-Stats + Stats</li>
-      <li>2 :             Stats</li>
-      <li>6 :             Stats + Post-stats</li>
-      <li>4 :                     Post-stats</li>
     </ul>
+    <% if params[:analysis] == "2" or params[:analysis] == "6" or params[:analysis] == "4" %>
+      <u>Warning:</u> Design file has fmri(analysis)=<%="#{params[:analysis]}"%> which is not supported by CBRAIN yet.
+    <% end %>
   </li>
   <li><label>Output name:</label>                              <%= form.params_text_field :output_name %>  </li>
   <br/>
@@ -85,7 +85,7 @@
   <li><label>Slice timing correction:</label>                  <%= form.params_select :st, ["0","1","2","5"] %>
     <br/>
     0 : None, 1 : Regular up (0, 1, 2, 3, ...), 2 : Regular down, 3 : Use slice order file (<b>not supported yet</b>), 4 : Use slice timings file (<b>not supported yet</b>), 5 : Interleaved (0, 2, 4 ... 1, 3, 5 ... ).
-    <% if params[:st] == "3" or params[":st"] == "4" %>
+    <% if params[:st] == "3" or params[:st] == "4" %>
     <br/>
     <u>Warning:</u> Design file has fmri(st)=<%="#{params[:st]}"%> which is not supported by CBRAIN yet.
     <% end %>
@@ -94,16 +94,16 @@
   <li><label>Highpass temporal filtering:</label>              <%= form.params_check_box :temphp_yn %>     </li>
   <li><label>Highpass filter cutoff: </label>                  <%= form.params_text_field :paradigm_hp %>     </li>
   <li><label>Lowpass temporal filtering:</label>               <%= form.params_check_box :templp_yn %>     </li>
-  <li><label>Registration?</label>                             <%= form.params_check_box :reg_yn %>        </li>
 <br/>
-  <h4>Registration to initial structural</h4>
-  <li><label>Registration to initial structural:</label>                               <%= form.params_check_box :reginitial_highres_yn %>                  </li>
-  <li><label>Search space for registration to initial structural:</label>              <%= form.params_select :reginitial_highres_search, ["0","90","180"] %>
-    <br/>
-    0   : No search, 90  : Normal search (default), 180 : Full search.
-  </li>
-  <li><label>Degrees of Freedom for registration to initial structural:</label>        <%= form.params_select :reginitial_highres_dof, ["3","6","9","12"] %></li>
-<br/>
+<!--   Commented out as this option is not properly supported by CBRAIN yet -->
+<!--   <h4>Registration to initial structural</h4> -->
+<!--   <li><label>Registration to initial structural:</label>                               <%= form.params_check_box :reginitial_highres_yn %>                  </li> -->
+<!--   <li><label>Search space for registration to initial structural:</label>              <%= form.params_select :reginitial_highres_search, ["0","90","180"] %> -->
+<!--     <br/> -->
+<!--     0   : No search, 90  : Normal search (default), 180 : Full search. -->
+<!--   </li> -->
+<!--   <li><label>Degrees of Freedom for registration to initial structural:</label>        <%= form.params_select :reginitial_highres_dof, ["3","6","9","12"] %></li> -->
+<!-- <br/> -->
   <h4>Registration to main structural</h4>
   <li><label>Registration to main structural:</label>     
     <% if params[:reghighres_yn] != "1" %>
@@ -134,8 +134,7 @@
     <%= form.params_check_box :alternatereference_yn %>          <br/>
     Default is $FSLDIR/data/standard/MNI152_T1_2mm_brain.   
   </li>
-  <li><label>Standard image</label>                
-    <%= form.params_select 'regstandard_file_id', params[:template_files], {}, {:multiple => false, :class => "form-control"} %><br/>
+  <li><label>Alternate reference image:</label>                <%= form.params_select 'regstandard_file_id', params[:template_files], {}, {:multiple => false, :class => "form-control"} %><br/>
   <li><label>Search space for registration to standard space:</label>                  <%= form.params_select :regstandard_search, ["0","90","180"] %>
       <br/>
     0   : No search, 90  : Normal search (default), 180 : Full search.

@@ -232,10 +232,11 @@ class CbrainTask::FslMelodic < ClusterTask
     modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(templp_yn)"                 ,     params[:templp_yn]
     modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(motionevs)"                 ,     params[:motionevs]
     modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(bgimage)"                   ,     params[:bgimage]
-    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(reg_yn)"                    ,     params[:reg_yn]
-    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(reginitial_highres_yn)"     ,     params[:reginitial_highres_yn]
-    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(reginitial_highres_search)" ,     params[:reginitial_highres_search]
-    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(reginitial_highres_dof)"    ,     params[:reginitial_highres_dof]
+    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(reg_yn)"                    ,     ( params[:reghighres_yn] == "1" or params[:regstandard_yn] == "1" ) ? "1" : "0"
+#    Commented out as this option is not properly supported by CBRAIN yet.
+#    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(reginitial_highres_yn)"     ,     params[:reginitial_highres_yn]
+#    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(reginitial_highres_search)" ,     params[:reginitial_highres_search]
+#    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(reginitial_highres_dof)"    ,     params[:reginitial_highres_dof]
     modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(reghighres_yn)"            ,      params[:reghighres_yn]
     modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(reghighres_search)"        ,      params[:reghighres_search]
     modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(reghighres_dof)"           ,      params[:reghighres_dof]
