@@ -45,11 +45,11 @@ class CbrainTask::FslMelodic < ClusterTask
     end
     return true
   end
-  
+
   def job_walltime_estimate #:nodoc:
     return 1.hours
   end
-  
+
   def cluster_commands #:nodoc:
     
     params    = self.params
@@ -96,7 +96,6 @@ class CbrainTask::FslMelodic < ClusterTask
     # the task node (i.e. in the task script), not on the Bourreau
     # host.  Otherwise, FSL needs to be installed on the Bourreau
     # node, which might not be the case.
-
     if params[:npts_auto] == "1"
       cmds << find_command("FSLNVOLS","fslnvols fsl5.0-fslnvols")
       cmds << "# Auto-corrects parameter fmri(npts)\n"
@@ -109,7 +108,6 @@ class CbrainTask::FslMelodic < ClusterTask
       cmds << "echo Auto-corrected number of volumes to ${NPTS}.\n"
       cmds << set_design_file_option(modified_design_file_path,"npts","${NPTS}")
     end
-
     
     if params[:tr_auto] == "1"
       cmds << find_command("FSLHD","fslhd fsl5.0-fslhd")
@@ -136,7 +134,6 @@ class CbrainTask::FslMelodic < ClusterTask
       cmds << "echo Auto-corrected total voxels to ${NVOX}.\n"
       cmds << set_design_file_option(modified_design_file_path,"totalVoxels","${NVOX}")
     end
-
     
     # Updates path of the standard brain to the local path. 
     # $FSLDIR has to be replaced on the machine where the task is
@@ -210,7 +207,6 @@ class CbrainTask::FslMelodic < ClusterTask
     modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(npts)"                      ,     params[:npts]                     unless params[:npts_auto] == "1"
     modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(alternateReference_yn)"     ,     params[:alternatereference_yn]
     modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(totalVoxels)"               ,     params[:totalvoxels]               unless params[:totalvoxels_auto] == "1"
-
     
     # Writes the new design file
     File.open(modified_design_file_path, 'w') { |file| file.write(modified_design_file_content) }
@@ -279,7 +275,6 @@ class CbrainTask::FslMelodic < ClusterTask
       self.addlog("melodic task failed (see Standard Error)")
       return false
     end
-    
     stdout = File.read(self.stdout_cluster_filename) rescue ""
     if stdout =~ /ERROR:/
       self.addlog("melodic task failed (see Standard Output)")

@@ -78,8 +78,8 @@ class CbrainTask::FslMelodic < PortalTask
         params[:regstandard_file_id] = id
       end
     end
-    cb_error "Error: design file missing. <br/> #{usage}" if params[:design_file_id].nil?
-    cb_error "Error: CSV file missing. <br/> #{usage}" if params[:csv_file_id].nil?
+    cb_error "Error: design file missing. \n #{usage}" if params[:design_file_id].nil?
+    cb_error "Error: CSV file missing. \n #{usage}" if params[:csv_file_id].nil?
 
     # Parses CSV file
     csv_file = Userfile.find(params[:csv_file_id])
@@ -171,7 +171,6 @@ class CbrainTask::FslMelodic < PortalTask
   
   def after_form #:nodoc:
     output_name = (params[:output_name].strip.eql? "") ? output_name : params[:output_name].strip 
-    
     ""
   end
   
