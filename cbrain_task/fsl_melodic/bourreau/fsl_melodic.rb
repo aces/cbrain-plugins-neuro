@@ -57,10 +57,23 @@ class CbrainTask::FslMelodic < ClusterTask
     # The list of bash commands to be executed. 
     cmds      = []
 
+    # A hash containing the files converted from Nifti to MINC
+    # key: file id of Nifti file.
+    # value: file name of corresponding MINC file. 
+    converted_files = Hash.new
+
     # Reads the content of the design file
     design_file_id = params[:design_file_id] 
     design_file = Userfile.find(design_file_id).cache_full_path.to_s
     modified_design_file_content = File.read(design_file)
+
+    # Finds a name for the modified design file. 
+    modified_design_file_path = "design-cbrain.fsf"
+    count = 1
+    while File.exists? modified_design_file_path
+      count += 1
+      modified_design_file_path = "design-cbrain-#{count}.fsf"
+    end
     
     ###
     ### Processes functional files.
@@ -72,7 +85,10 @@ class CbrainTask::FslMelodic < ClusterTask
 
       # Converts minc files to nifti.
       functional_file , functional_conversion_command  = converted_file_name_and_command functional_file_id
-      cmds << functional_conversion_command if functional_conversion_command.present?
+      if functional_conversion_command.present?
+        cmds << functional_conversion_command 
+        converted_files[functional_file_id] = functional_file
+      end
 
       # Performs auto-correction based on the first functional file. 
       unless auto_correction_done
@@ -85,7 +101,7 @@ class CbrainTask::FslMelodic < ClusterTask
         # node, which might not be the case.
         
         if params[:npts_auto] == "1"
-        cmds << find_command("FSLNVOLS","fslnvols fsl5.0-fslnvols")
+          cmds << find_command("FSLNVOLS","fslnvols fsl5.0-fslnvols")
           cmds << "# Auto-corrects parameter fmri(npts)\n"
           cmds << "NPTS=`${FSLNVOLS} #{functional_file}`\n"
           cmds << "if [ $? != 0 ]\n"
@@ -142,7 +158,10 @@ class CbrainTask::FslMelodic < ClusterTask
 
       # Converts minc files to nifti.
       structural_file , structural_conversion_command  = converted_file_name_and_command structural_file_id
-      cmds << structural_conversion_command if structural_conversion_command.present?
+      if structural_conversion_command.present?
+        cmds << structural_conversion_command 
+        converted_files[structural_file_id] = structural_file
+      end
 
       # Modifies paths of file in the design file when task goes to VM.    
       structural_file  = modify_file_path_for_vm(structural_file) if self.respond_to? "job_template_goes_to_vm?" and self.job_template_goes_to_vm? 
@@ -158,7 +177,10 @@ class CbrainTask::FslMelodic < ClusterTask
 
     # Conversion to MINC
     regstandard_file, regstandard_conversion_command = converted_file_name_and_command params[:regstandard_file_id]   
-    cmds << regstandard_conversion_command  if regstandard_conversion_command.present?
+    if regstandard_conversion_command.present?
+      cmds << regstandard_conversion_command
+      converted_files[regstandard_file_id] = regstandard_file
+    end
 
     # Modifies paths of file in the design file when task goes to VM.    
     regstandard_file  = modify_file_path_for_vm(regstandard_file) if self.respond_to? "job_template_goes_to_vm?" and self.job_template_goes_to_vm? 
@@ -167,18 +189,6 @@ class CbrainTask::FslMelodic < ClusterTask
     # Modifies design file content
     modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(regstandard)"               ,"#{regstandard_file}", true    
 
-    ###
-    ### Other stuff. 
-    ###
-
-    # Finds a name for the modified design file. 
-    modified_design_file_path = "design-cbrain.fsf"
-    count = 1
-    while File.exists? modified_design_file_path
-      count += 1
-      modified_design_file_path = "design-cbrain-#{count}.fsf"
-    end
-    
     ###
     ### Design file modifications on the execution machine, i.e. done
     ### in the qsub script rather than in the Bourreau.
@@ -205,7 +215,7 @@ class CbrainTask::FslMelodic < ClusterTask
     ###
     ### Design file modifications done in the Bourreau.
     ###
-        
+    
     output  = (params[:output_name].eql? "") ? "melodic-#{self.run_id}" : "#{params[:output_name]}-#{self.run_id}"
     modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(outputdir)"                 ,     "#{output}", true
     modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(multiple)"                  ,     "#{params[:functional_file_ids].size}"
@@ -277,7 +287,7 @@ class CbrainTask::FslMelodic < ClusterTask
   def save_results #:nodoc:
 
     params  = self.params
-      
+    
     # Finds and renames output directory. 
     outputname         = "#{params[:output_dir_name]}.ica"
     outputname         = "#{params[:output_dir_name]}.gica" unless File.exists? outputname
@@ -301,7 +311,13 @@ class CbrainTask::FslMelodic < ClusterTask
       outputfile.move_to_child_of(Userfile.find(params[:functional_file_ids][0]))
     else
       outputfile.move_to_child_of(Userfile.find(params[:csv_file]))
-      
+    end
+
+    # Saves files converted to MINC
+    converted_files.each do |key,value|
+      save_converted_file(value,Userfile.find(key))
+    end
+    
     # Verifies if all tasks exited without error (do this after saving
     # the files because important debug information is found in the
     # melodic logs).
@@ -318,6 +334,7 @@ class CbrainTask::FslMelodic < ClusterTask
     
     return true
   end
+
   
   private
 
@@ -478,5 +495,3 @@ class CbrainTask::FslMelodic < ClusterTask
     return cmds.join
   end
 end
-
-
