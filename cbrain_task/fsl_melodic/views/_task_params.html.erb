@@ -32,7 +32,7 @@
 
 <h2>Data</h2>
 <p>
-  Make sure that the CSV file was correctly parsed (first column: functional files, second column: structural files). Only single-session ICA is supported: every (functional,structural) pairs will be processed in a separate task.
+  Make sure that the CSV file was correctly parsed (first column: functional files, second column: structural files). 
 </p>
 <table>
   <tr><th>Task</th><th>Functional files</th><th>Structural files</th></tr>
@@ -131,24 +131,11 @@
       <%= form.params_check_box :regstandard_yn %>                        </li>
     <% end %>
   <li><label>Use alternate reference image?</label>                       
-    <% if params[:alternatereference_yn] != "1" %>
-      <% if params[:regstandard_file_id].present? %>
-        <% params[:alternatereference_yn] = "1" %>
-        <%= form.params_check_box :alternatereference_yn %>          <br/>
-        <b>Warning:</b> this option was not enabled in your design file (we enabled it for you because you selected an alternate standard file).        <br/>
-      <% else %>
-         <%= form.params_check_box :alternatereference_yn %>          <br/>
-      <% end %>
-    <% else %>
-      <%= form.params_check_box :alternatereference_yn %>    
-      <% if not params[:regstandard_file_id].present? %>
-      <br/>
-        <b>Warning:</b> your design file specifies that an alternate standard brain should be used, but you haven't selected the Nifti or MINC file to use.
-      <% end %>
-    <% end %>
+    <%= form.params_check_box :alternatereference_yn %>          <br/>
     Default is $FSLDIR/data/standard/MNI152_T1_2mm_brain.   
   </li>
-  <li><label>Standard image</label>                                                    <%= link_to_userfile_if_accessible(params[:regstandard_file_id]) %> <%= form.params_hidden_field "regstandard_file_id" %>                           </li>
+  <li><label>Standard image</label>                
+    <%= form.params_select 'regstandard_file_id', params[:template_files], {}, {:multiple => false, :class => "form-control"} %><br/>
   <li><label>Search space for registration to standard space:</label>                  <%= form.params_select :regstandard_search, ["0","90","180"] %>
       <br/>
     0   : No search, 90  : Normal search (default), 180 : Full search.
