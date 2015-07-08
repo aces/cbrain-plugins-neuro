@@ -29,23 +29,24 @@
 </p>
 
 <p>
-<STRONG>Functional file:</STRONG>
+<STRONG>Functional file(s):</STRONG>
 <ul>
-  <li><%= link_to_userfile_if_accessible(params[:functional_file_id]) %></li>
+  <% params[:functional_file_ids].each do |id| %>
+  <li><%= link_to_userfile_if_accessible(id) %></li>
+  <% end %> 
 </ul>
 </p>
 
-<% if !params[:structural_file_id].blank? %>
+<% if !params[:structural_file_ids].blank? %>
 <p>
-<STRONG>Structural file:</STRONG>
+<STRONG>Structural file(s):</STRONG>
 <ul>
-  <li><%= link_to_userfile_if_accessible(params[:structural_file_id]) %></li>
+  <% params[:structural_file_ids].each do |id| %>
+  <li><%= link_to_userfile_if_accessible(id) %></li>
+  <% end %>
 </ul>
 </p>
 <% end %>
-
-
-
 
 <p>
 <STRONG>Output:</STRONG>
@@ -53,3 +54,5 @@
 <UL>
   <li><%= link_to_userfile_if_accessible params[:outfile_id] %></li>
 </UL>
+
+See this task's <%= link_to "edit page", edit_task_path(task) %> for more information.
