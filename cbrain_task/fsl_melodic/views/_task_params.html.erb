@@ -134,7 +134,13 @@
     <%= form.params_check_box :alternatereference_yn %>          <br/>
     Default is $FSLDIR/data/standard/MNI152_T1_2mm_brain.   
   </li>
-  <li><label>Alternate reference image:</label>                <%= form.params_select 'regstandard_file_id', params[:template_files], {}, {:multiple => false, :class => "form-control"} %><br/>
+  <li><label>Alternate reference image:</label>                
+    <% if params[:template_files].present? %>
+    <%= form.params_select 'regstandard_file_id', params[:template_files], {}, {:multiple => false, :class => "form-control"} %><br/>
+    <% else %>
+    <%= link_to_userfile_if_accessible(params[:regstandard_file_id]) %>
+    <%= form.params_hidden_field "regstandard_file_id" %>
+    <% end %>
   <li><label>Search space for registration to standard space:</label>                  <%= form.params_select :regstandard_search, ["0","90","180"] %>
       <br/>
     0   : No search, 90  : Normal search (default), 180 : Full search.
