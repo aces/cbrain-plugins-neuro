@@ -66,7 +66,6 @@
     nifti_list  = NiftiFile.where(:id =>  params[:interface_userfile_ids]).all.map {|u| [u.name,u.id.to_s] }
     left_ids    = left_ids - nifti_list.map {|x| x[1].to_i}.compact
     left_matrix = Userfile.where(:id => left_ids).all.map {|u| [u.name,u.id.to_s] }
-    left_matrix.unshift(["None", ""])
   %>
 
   <!-- If a collection with Matrices is selected -->
@@ -101,14 +100,32 @@
     <%= form.params_hidden_field :t_contrasts_id %>
     T-test contrast matrix (-t): <%= link_to_userfile_if_accessible(params[:t_contrasts_id]) %>
     <br>
-    <%= form.params_label  :f_contrasts_id, "F-test contrast matrix (-f):" %>
-    <%= form.params_select :f_contrasts_id, left_matrix %>
+
+    <span>
+      <% unless left_matrix.empty? %>
+        <input class="param_input_toggle" type="checkbox" checked />
+        <%= form.params_label  :f_contrasts_id, "F-test contrast matrix (-f):" %>
+        <%= form.params_select :f_contrasts_id, left_matrix %>
+      <% else %>
+        F-test contrast matrix (-f): (None)
+        <%= form.params_hidden_field :f_contrasts_id %>
+      <% end %>
+    </span>
     <br>
-    <%= form.params_label  :exchangeability_matrix_id, "Exchangeability block labels file (-e):" %>
-    <%= form.params_select :exchangeability_matrix_id, left_matrix %>
+
+    <span>
+      <% unless left_matrix.empty? %>
+        <input class="param_input_toggle" type="checkbox" checked />
+        <%= form.params_label  :exchangeability_matrix_id, "Exchangeability block labels file (-e):" %>
+        <%= form.params_select :exchangeability_matrix_id, left_matrix %>
+      <% else %>
+        Exchangeability block labels file (-e): (None)
+        <%= form.params_hidden_field :exchangeability_matrix_id %>
+      <% end %>
+    </span>
+    <br>
   <% end %>
 
-  <br><br>
   <small><b>Note:</b> If a collection is chosen, the files in the collection will be used as matrices.</small>
 
 </fieldset>
@@ -175,5 +192,17 @@ function updateList() {
 
 updateList();
 $("#cbrain_task_params_mask_id").change(updateList);
+
+$('input.param_input_toggle').click(function() {
+  var checked = $(this).prop('checked'),
+      select  = $(this).siblings('select');
+
+  select.prop('disabled', !checked);
+
+  if (checked)
+    select[0].selectedIndex = 0;
+  else
+    select.val('');
+});
 
 </script>
