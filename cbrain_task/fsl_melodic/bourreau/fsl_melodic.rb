@@ -224,7 +224,7 @@ class CbrainTask::FslMelodic < ClusterTask
     ### Design file modifications done in the Bourreau.
     ###
     
-    output  = (! params[:output_name].presnt?) ? "melodic-#{self.run_id}" : "#{params[:output_name]}-#{self.run_id}"
+    output  = (! params[:output_name].present?) ? "melodic-#{self.run_id}" : "#{params[:output_name]}-#{self.run_id}"
     
     new_options["fmri(outputdir)"]                     =     "\"#{output}\""
     new_options["fmri(multiple)"]                      =     "#{params[:functional_file_ids].size}"
