@@ -140,7 +140,7 @@
     0   : No search, 90  : Normal search (default), 180 : Full search.
     </li>
   <li><label>Degrees of Freedom for registration to standard space:</label>            <%= form.params_select :regstandard_dof, ["6","9","12"] %>           </li>
-  <li><label>Do nonlinear registration from structural to standard space?:</label>     <%= form.params_check_box :regstandard_nonlinear_yn %>              </li>
+  <li><label>Do nonlinear registration from structural to standard space?</label>     <%= form.params_check_box :regstandard_nonlinear_yn %>              </li>
   <li><label>Control nonlinear warp field resolution:</label>                          <%= form.params_text_field :regstandard_nonlinear_warpres %>          </li>
   <li><label>Resampling resolution:</label>                                            <%= form.params_text_field :regstandard_res %>                        </li>
 <br/>    

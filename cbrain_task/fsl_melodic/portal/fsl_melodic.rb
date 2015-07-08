@@ -107,7 +107,7 @@ class CbrainTask::FslMelodic < PortalTask
     design_file.sync_to_cache unless design_file.is_locally_synced?
     design_file_content = File.read(design_file.cache_full_path)
 
-    option_values = get_option_values_from_design_file_content
+    option_values = get_option_values_from_design_file_content(design_file_content)
     options = ["tr","ndelete","filtering_yn","brain_thresh",
                "mc","te","bet_yn","smooth","st","norm_yn",
                "temphp_yn","templp_yn","motionevs","bgimage",
