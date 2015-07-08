@@ -46,11 +46,7 @@
   <% end %>
 </ul>
 </p>
-See this task's <%= link_to "edit page", edit_task_path(task) %> for more information.
 <% end %>
-
-
-
 
 <p>
 <STRONG>Output:</STRONG>
@@ -58,3 +54,5 @@ See this task's <%= link_to "edit page", edit_task_path(task) %> for more inform
 <UL>
   <li><%= link_to_userfile_if_accessible params[:outfile_id] %></li>
 </UL>
+
+See this task's <%= link_to "edit page", edit_task_path(task) %> for more information.
