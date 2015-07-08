@@ -183,20 +183,24 @@ class CbrainTask::FslMelodic < ClusterTask
     ### Processes regstandard file
     ###
 
-    # Conversion to MINC
-    regstandard_file, regstandard_conversion_command = converted_file_name_and_command(params[:regstandard_file_id])
-    if regstandard_conversion_command.present?
-      cmds << regstandard_conversion_command
-      params[:converted_files][regstandard_file_id] = regstandard_file
+    if params[:regstandard_file_id].present? 
+      
+      # Conversion to MINC
+      regstandard_file, regstandard_conversion_command = converted_file_name_and_command(params[:regstandard_file_id])
+      if regstandard_conversion_command.present?
+        cmds << regstandard_conversion_command
+        params[:converted_files][regstandard_file_id] = regstandard_file
+      end
+      
+      
+      # Modifies paths of file in the design file when task goes to VM.    
+      regstandard_file  = modify_file_path_for_vm(regstandard_file) if self.respond_to?("job_template_goes_to_vm?") && self.job_template_goes_to_vm? 
+      
+      # Adds new option to design file
+      new_options["fmri(regstandard)"] = "\"#{regstandard_file}\""
+
     end
-
-    # Modifies paths of file in the design file when task goes to VM.    
-    regstandard_file  = modify_file_path_for_vm(regstandard_file) if self.respond_to?("job_template_goes_to_vm?") && self.job_template_goes_to_vm? 
-    
-
-    # Adds new option to design file
-    new_options["fmri(regstandard)"] = "\"#{regstandard_file}\""
-
+      
     ###
     ### Design file modifications on the execution machine, i.e. done
     ### in the qsub script rather than in the Bourreau.
@@ -224,7 +228,7 @@ class CbrainTask::FslMelodic < ClusterTask
     ### Design file modifications done in the Bourreau.
     ###
     
-    output  = (! params[:output_name].presnt?) ? "melodic-#{self.run_id}" : "#{params[:output_name]}-#{self.run_id}"
+    output  = (! params[:output_name].present?) ? "melodic-#{self.run_id}" : "#{params[:output_name]}-#{self.run_id}"
     
     new_options["fmri(outputdir)"]                     =     "\"#{output}\""
     new_options["fmri(multiple)"]                      =     "#{params[:functional_file_ids].size}"
@@ -284,7 +288,7 @@ class CbrainTask::FslMelodic < ClusterTask
     cmds   << find_command("Feat","feat fsl5.0-feat")
     
     # FSL melodic execution commands
-    command <<-END
+    command=<<-END
       # Executes FSL melodic
       echo Starting melodic
       ${FEAT} #{modified_design_file_path}
@@ -326,7 +330,7 @@ class CbrainTask::FslMelodic < ClusterTask
     if params[:functional_file_ids].size == 1
       outputfile.move_to_child_of(Userfile.find(params[:functional_file_ids][0]))
     else
-      outputfile.move_to_child_of(Userfile.find(params[:csv_file]))
+      outputfile.move_to_child_of(Userfile.find(params[:csv_file_id]))
     end
 
     # Saves files converted to MINC
@@ -473,7 +477,7 @@ class CbrainTask::FslMelodic < ClusterTask
     count = 0
     name  = file_name
     current_user = User.find(self.user_id)
-    while !(Userfile.find_all_accessible_by_user(current_user).exists?(:name => name))
+    while Userfile.find_all_accessible_by_user(current_user).exists?(:name => name)
       count += 1
       extname = File.extname(name)
       name = "#{File.basename(name,extname)}-#{count}#{extname}"
@@ -497,7 +501,7 @@ class CbrainTask::FslMelodic < ClusterTask
   # A bash command to find a command among a list of possible commands. 
   def find_command command_name,command_list
     variable = command_name.gsub(' ','').upcase
-    command <<-END
+    command=<<-END
       # Looks for #{command_name} executable
       unset #{variable}
       for cmd in #{command_list}
