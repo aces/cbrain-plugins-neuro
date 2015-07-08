@@ -62,10 +62,6 @@ class CbrainTask::FslMelodic < ClusterTask
     # value: file name of corresponding MINC file. 
     params[:converted_files] = Hash.new
 
-    # Reads the content of the design file
-    design_file_id = params[:design_file_id] 
-    design_file = Userfile.find(design_file_id).cache_full_path.to_s
-    modified_design_file_content = File.read(design_file)
 
     # Finds a name for the modified design file. 
     modified_design_file_path = "design-cbrain.fsf"
@@ -74,6 +70,9 @@ class CbrainTask::FslMelodic < ClusterTask
       count += 1
       modified_design_file_path = "design-cbrain-#{count}.fsf"
     end
+
+    # A hash containing the options to change in the design file
+    new_options = Hash.new 
     
     ###
     ### Processes functional files.
@@ -84,7 +83,7 @@ class CbrainTask::FslMelodic < ClusterTask
     params[:functional_file_ids].each_with_index do |functional_file_id,index| 
 
       # Converts minc files to nifti.
-      functional_file , functional_conversion_command  = converted_file_name_and_command functional_file_id
+      functional_file , functional_conversion_command  = converted_file_name_and_command(functional_file_id)
       if functional_conversion_command.present?
         cmds << functional_conversion_command 
         params[:converted_files][functional_file_id] = functional_file
@@ -102,51 +101,60 @@ class CbrainTask::FslMelodic < ClusterTask
         
         if params[:npts_auto] == "1"
           cmds << find_command("FSLNVOLS","fslnvols fsl5.0-fslnvols")
-          cmds << "# Auto-corrects parameter fmri(npts)\n"
-          cmds << "NPTS=`${FSLNVOLS} #{functional_file}`\n"
-          cmds << "if [ $? != 0 ]\n"
-          cmds << "then\n"
-          cmds << "  echo ERROR: cannot auto-correct number of volumes in #{functional_file} '(fslnvols failed)'.\n"
-          cmds << "  exit 1\n"
-          cmds << "fi\n"
-          cmds << "echo Auto-corrected number of volumes to ${NPTS}.\n"
+          command=<<-END
+            # Auto-corrects parameter fmri(npts)
+            NPTS=`${FSLNVOLS} #{functional_file}`
+            if [ $? != 0 ]
+            then
+              echo ERROR: cannot auto-correct number of volumes in #{functional_file} '(fslnvols failed)'.
+              exit 1
+            fi
+            echo Auto-corrected number of volumes to ${NPTS}.
+          END
+          cmds << command
           cmds << set_design_file_option(modified_design_file_path,"npts","${NPTS}")
         end
         
         
         if params[:tr_auto] == "1"
           cmds << find_command("FSLHD","fslhd fsl5.0-fslhd")
-          cmds << "# Auto-corrects parameter fmri(tr)\n"
-          cmds << "TR=`${FSLHD} #{functional_file} | awk '$1==\"pixdim4\" {print $2}'`\n"
-          cmds << "if [ $? != 0 ]\n"
-          cmds << "then\n"
-          cmds << "  echo ERROR: cannot auto-correct TR in #{functional_file} '(fslhd failed)'.\n"
-          cmds << "  exit 1\n"
-          cmds << "fi\n"
-          cmds << "echo Auto-corrected TR to ${TR}.\n"
+          command=<<-END
+            # Auto-corrects parameter fmri(tr)
+            TR=`${FSLHD} #{functional_file} | awk '$1==\"pixdim4\" {print $2}'`
+            if [ $? != 0 ]
+            then
+              echo ERROR: cannot auto-correct TR in #{functional_file} '(fslhd failed)'.
+              exit 1
+            fi
+            echo Auto-corrected TR to ${TR}.
+          END
+          cmds << command
           cmds << set_design_file_option(modified_design_file_path,"tr","${TR}")
         end
         
         if params[:totalvoxels_auto] == "1"
           cmds << find_command("FSLSTATS","fslstats fsl5.0-fslstats")
-          cmds << "# Auto-corrects parameter fmri(totalVoxels)\n"
-          cmds << "NVOX=`${FSLSTATS} #{functional_file} -v | awk '{print $1}'`\n"
-          cmds << "if [ $? != 0 ]\n"
-          cmds << "then\n"
-          cmds << "  echo ERROR: cannot auto-correct number of voxels in #{functional_file} '(fslstats failed)'.\n"
-          cmds << "  exit 1\n"
-          cmds << "fi\n"
-          cmds << "echo Auto-corrected total voxels to ${NVOX}.\n"
+          command=<<-END
+            # Auto-corrects parameter fmri(totalVoxels)
+            NVOX=`${FSLSTATS} #{functional_file} -v | awk '{print $1}'`
+            if [ $? != 0 ]
+            then
+              echo ERROR: cannot auto-correct number of voxels in #{functional_file} '(fslstats failed)'.
+              exit 1
+            fi
+            echo Auto-corrected total voxels to ${NVOX}.
+          END
+          cmds << command
           cmds << set_design_file_option(modified_design_file_path,"totalVoxels","${NVOX}")
         end
         
       end
       
       # Modifies paths of file in the design file when task goes to VM.    
-      functional_file  = modify_file_path_for_vm(functional_file)       if self.respond_to? "job_template_goes_to_vm?" and self.job_template_goes_to_vm? 
+      functional_file = modify_file_path_for_vm(functional_file) if self.respond_to?("job_template_goes_to_vm?") and self.job_template_goes_to_vm? 
       
-      # Modifies design file content
-      modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "feat_files(#{index+1})"                   ,"#{functional_file}" , true
+      # Adds new option to design file
+      new_options["feat_files(#{index+1})"] = "\"#{functional_file}\""
       
     end
     
@@ -157,17 +165,17 @@ class CbrainTask::FslMelodic < ClusterTask
     params[:structural_file_ids].each_with_index do |structural_file_id,index| 
 
       # Converts minc files to nifti.
-      structural_file , structural_conversion_command  = converted_file_name_and_command structural_file_id
+      structural_file , structural_conversion_command  = converted_file_name_and_command(structural_file_id)
       if structural_conversion_command.present?
         cmds << structural_conversion_command 
         params[:converted_files][structural_file_id] = structural_file
       end
 
       # Modifies paths of file in the design file when task goes to VM.    
-      structural_file  = modify_file_path_for_vm(structural_file) if self.respond_to? "job_template_goes_to_vm?" and self.job_template_goes_to_vm? 
+      structural_file = modify_file_path_for_vm(structural_file) if self.respond_to?("job_template_goes_to_vm?") && self.job_template_goes_to_vm? 
 
-      # Modifies design file content
-      modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "highres_files(#{index+1})"                ,"#{structural_file}" , true
+      # Adds new option to design file
+      new_options["highres_files(#{index+1})"] = "\"#{structural_file}\""
 
     end
     
@@ -176,18 +184,18 @@ class CbrainTask::FslMelodic < ClusterTask
     ###
 
     # Conversion to MINC
-    regstandard_file, regstandard_conversion_command = converted_file_name_and_command params[:regstandard_file_id]   
+    regstandard_file, regstandard_conversion_command = converted_file_name_and_command(params[:regstandard_file_id])
     if regstandard_conversion_command.present?
       cmds << regstandard_conversion_command
       params[:converted_files][regstandard_file_id] = regstandard_file
     end
 
     # Modifies paths of file in the design file when task goes to VM.    
-    regstandard_file  = modify_file_path_for_vm(regstandard_file) if self.respond_to? "job_template_goes_to_vm?" and self.job_template_goes_to_vm? 
+    regstandard_file  = modify_file_path_for_vm(regstandard_file) if self.respond_to?("job_template_goes_to_vm?") && self.job_template_goes_to_vm? 
     
 
-    # Modifies design file content
-    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(regstandard)"               ,"#{regstandard_file}", true    
+    # Adds new option to design file
+    new_options["fmri(regstandard)"] = "\"#{regstandard_file}\""
 
     ###
     ### Design file modifications on the execution machine, i.e. done
@@ -216,51 +224,56 @@ class CbrainTask::FslMelodic < ClusterTask
     ### Design file modifications done in the Bourreau.
     ###
     
-    output  = (params[:output_name].eql? "") ? "melodic-#{self.run_id}" : "#{params[:output_name]}-#{self.run_id}"
-    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(outputdir)"                 ,     "#{output}", true
-    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(multiple)"                  ,     "#{params[:functional_file_ids].size}"
-    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(tr)"                        ,     params[:tr]            unless params[:tr_auto] == "1"
-    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(ndelete)"                   ,     params[:ndelete]
-    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(filtering_yn)"              ,     params[:filtering_yn]
-    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(brain_thresh)"              ,     params[:brain_thresh]
-    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(mc)"                        ,     params[:mc]
-    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(te)"                        ,     params[:te]
-    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(bet_yn)"                    ,     params[:bet_yn]
-    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(smooth)"                    ,     params[:smooth]
-    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(norm_yn)"                   ,     params[:norm_yn]
-    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(temphp_yn)"                 ,     params[:temphp_yn]
-    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(templp_yn)"                 ,     params[:templp_yn]
-    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(motionevs)"                 ,     params[:motionevs]
-    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(bgimage)"                   ,     params[:bgimage]
-    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(reg_yn)"                    ,     ( params[:reghighres_yn] == "1" or params[:regstandard_yn] == "1" ) ? "1" : "0"
+    output  = (! params[:output_name].presnt?) ? "melodic-#{self.run_id}" : "#{params[:output_name]}-#{self.run_id}"
+    
+    new_options["fmri(outputdir)"]                     =     "\"#{output}\""
+    new_options["fmri(multiple)"]                      =     "#{params[:functional_file_ids].size}"
+    new_options["fmri(tr)"]                            =     params[:tr]            unless params[:tr_auto] == "1"
+    new_options["fmri(ndelete)"]                       =     params[:ndelete]
+    new_options["fmri(filtering_yn)"]                  =     params[:filtering_yn]
+    new_options["fmri(brain_thresh)"]                  =     params[:brain_thresh]
+    new_options["fmri(mc)"]                            =     params[:mc]
+    new_options["fmri(te)"]                            =     params[:te]
+    new_options["fmri(bet_yn)"]                        =     params[:bet_yn]
+    new_options["fmri(smooth)"]                        =     params[:smooth]
+    new_options["fmri(norm_yn)"]                       =     params[:norm_yn]
+    new_options["fmri(temphp_yn)"]                     =     params[:temphp_yn]
+    new_options["fmri(templp_yn)"]                     =     params[:templp_yn]
+    new_options["fmri(motionevs)"]                     =     params[:motionevs]
+    new_options["fmri(bgimage)"]                       =     params[:bgimage]
+    new_options["fmri(reg_yn)"]                        =     ( params[:reghighres_yn] == "1" or params[:regstandard_yn] == "1" ) ? "1" : "0"
 #    Commented out as this option is not properly supported by CBRAIN yet.
-#    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(reginitial_highres_yn)"     ,     params[:reginitial_highres_yn]
-#    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(reginitial_highres_search)" ,     params[:reginitial_highres_search]
-#    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(reginitial_highres_dof)"    ,     params[:reginitial_highres_dof]
-    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(reghighres_yn)"            ,      params[:reghighres_yn]
-    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(reghighres_search)"        ,      params[:reghighres_search]
-    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(reghighres_dof)"           ,      params[:reghighres_dof]
-    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(regstandard_yn)"            ,     params[:regstandard_yn]
-    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(regstandard_search)"        ,     params[:regstandard_search]
-    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(regstandard_dof)"           ,     params[:regstandard_dof]
-    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(regstandard_nonlinear_yn)"  ,     params[:regstandard_nonlinear_yn]
-    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(regstandard_nonlinear_warpres)" , params[:regstandard_nonlinear_warpres]
-    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(regstandard_res)"           ,     params[:regstandard_res]
-    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(varnorm)"                   ,     params[:varnorm]
-    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(dim_yn)"                    ,     params[:dim_yn]
-    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(dim)"                       ,     params[:dim]
-    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(thresh_yn)"                 ,     params[:thresh_yn]
-    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(mmthresh)"                  ,     params[:mmthresh]
-    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(ostats)"                    ,     params[:ostats]
-    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(st)"                        ,     params[:st]
-    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(icaopt)"                    ,     params[:icaopt]
-    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(analysis)"                  ,     params[:analysis]
-    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(paradigm_hp)"               ,     params[:paradigm_hp]
-    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(npts)"                      ,     params[:npts]                     unless params[:npts_auto] == "1"
-    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(alternateReference_yn)"     ,     params[:alternatereference_yn]
-    modified_design_file_content = set_option_in_design_file_content modified_design_file_content , "fmri(totalVoxels)"               ,     params[:totalvoxels]               unless params[:totalvoxels_auto] == "1"
+#    new_options["fmri(reginitial_highres_yn)"]        =     params[:reginitial_highres_yn]
+#    new_options["fmri(reginitial_highres_search)"]    =     params[:reginitial_highres_search]
+#    new_options["fmri(reginitial_highres_dof)"]       =     params[:reginitial_highres_dof]
+    new_options["fmri(reghighres_yn)"]                 =     params[:reghighres_yn]
+    new_options["fmri(reghighres_search)"]             =     params[:reghighres_search]
+    new_options["fmri(reghighres_dof)"]                =     params[:reghighres_dof]
+    new_options["fmri(regstandard_yn)"]                =     params[:regstandard_yn]
+    new_options["fmri(regstandard_search)"]            =     params[:regstandard_search]
+    new_options["fmri(regstandard_dof)"]               =     params[:regstandard_dof]
+    new_options["fmri(regstandard_nonlinear_yn)"]      =     params[:regstandard_nonlinear_yn]
+    new_options["fmri(regstandard_nonlinear_warpres)"] =     params[:regstandard_nonlinear_warpres]
+    new_options["fmri(regstandard_res)"]               =     params[:regstandard_res]
+    new_options["fmri(varnorm)"]                       =     params[:varnorm]
+    new_options["fmri(dim_yn)"]                        =     params[:dim_yn]
+    new_options["fmri(dim)"]                           =     params[:dim]
+    new_options["fmri(thresh_yn)"]                     =     params[:thresh_yn]
+    new_options["fmri(mmthresh)"]                      =     params[:mmthresh]
+    new_options["fmri(ostats)"]                        =     params[:ostats]
+    new_options["fmri(st)"]                            =     params[:st]
+    new_options["fmri(icaopt)"]                        =     params[:icaopt]
+    new_options["fmri(analysis)"]                      =     params[:analysis]
+    new_options["fmri(paradigm_hp)"]                   =     params[:paradigm_hp]
+    new_options["fmri(npts)"]                          =     params[:npts]                      unless params[:npts_auto] == "1"
+    new_options["fmri(alternateReference_yn)"]         =     params[:alternatereference_yn]
+    new_options["fmri(totalVoxels)"]                   =     params[:totalvoxels]               unless params[:totalvoxels_auto] == "1"
 
-    # Writes the new design file
+    # Writes the new design file   
+    design_file_id               = params[:design_file_id] 
+    design_file                  = Userfile.find(design_file_id).cache_full_path.to_s
+    design_file_content          = File.read(design_file)
+    modified_design_file_content = set_options_in_design_file_content(design_file_content,new_options)
     File.open(modified_design_file_path, 'w') { |file| file.write(modified_design_file_content) }
 
     ###
@@ -271,14 +284,16 @@ class CbrainTask::FslMelodic < ClusterTask
     cmds   << find_command("Feat","feat fsl5.0-feat")
     
     # FSL melodic execution commands
-    cmds   << "# Executes FSL melodic\n"
-    cmds   << "echo Starting melodic\n"
-    cmds   << "${FEAT} #{modified_design_file_path}\n"
-    cmds   << "if [ $? != 0 ]\n"
-    cmds   << "then\n"
-    cmds   << "echo \"ERROR: melodic exited with a non-zero exit code!\"\n"
-    cmds   << "fi\n" 
-    
+    command <<-END
+      # Executes FSL melodic
+      echo Starting melodic
+      ${FEAT} #{modified_design_file_path}
+      if [ $? != 0 ]
+      then 
+       echo ERROR: melodic exited with a non-zero exit code 
+      fi
+    END
+    cmds << command    
     params[:output_dir_name] = output
     
     return cmds
@@ -301,7 +316,7 @@ class CbrainTask::FslMelodic < ClusterTask
 
     # Saves result file.
     outputname_unique  = unique_file_name outputname
-    outputfile         =  safe_userfile_find_or_new(FslMelodicOutput, :name => outputname_unique)
+    outputfile         = safe_userfile_find_or_new(FslMelodicOutput, :name => outputname_unique)
     outputfile.save!
     outputfile.cache_copy_from_local_file(outputname)
     self.addlog_to_userfiles_these_created_these( input_files, [ outputfile ] )
@@ -346,31 +361,36 @@ class CbrainTask::FslMelodic < ClusterTask
   ####
   #### File content manipulation in Ruby.
   ####
-  
-  # Sets an option in the design file.
-  def set_option_in_design_file_content design_file_content,option,value,quotes=false
-    return design_file_content if value.nil? or value.blank?
+
+  # Options is a hash containing option => value.
+  # Example: { "fmri(npts)" => "1234", "fmri(ostats)" => "45" }
+  def set_options_in_design_file_content design_file_content,options
+    return design_file_content if options.nil? || options.size == 0
     modified_design_file_content = []
     # Remove existing option line(s)
     design_file_content.each_line do |line|
-      if line.gsub(" ","").downcase.include? option.gsub(" ","").downcase
-        new_line = "# Line commented by CBRAIN: #{line}"
-      else
-        new_line = line
+      new_line = line
+      options.each do |option,value|
+        if line.gsub(" ","").downcase.include?(option.gsub(" ","").downcase)
+          new_line = "# Line commented by CBRAIN: #{line}"
+          break
+        end
       end
       modified_design_file_content << new_line
     end
-    # Add new option line
-    content = quotes ? "set #{option} \"#{value}\" \n" : "set #{option} #{value} \n"
-    modified_design_file_content << content
+    # Add new option line(s)
+    options.each do |option,value|
+      modified_design_file_content << "set #{option} #{value} \n"
+    end
     return modified_design_file_content.join
   end
-
+  
   ####
   #### File content manipulation in bash.
   ####
 
-  # Bash command to "sed" a string in a file.
+  # Bash command to replace old_value with new_value anywhere in design_file_path.
+  # old_value and new_value cannot contain commas. 
   def sed_design_file design_file_path,old_value,new_value
     return "sed s,#{old_value},#{new_value},g #{design_file_path} > #{design_file_path}.temp \n \mv -f #{design_file_path}.temp #{design_file_path}\n"
   end
@@ -380,7 +400,8 @@ class CbrainTask::FslMelodic < ClusterTask
     return "echo #{line} >> #{file_path}"
   end
   
-  # Bash command to set the value of a parameter in the design file
+  # Bash command to set the value of a parameter in the design file.
+  # The parameter name and value cannot contain commas.
   def set_design_file_option design_file_path,parameter_name,value
     cmds = []
     cmds << "# Sets option ${parameter_name} in the design file\n"
@@ -399,18 +420,18 @@ class CbrainTask::FslMelodic < ClusterTask
     raise "Error: this doesn't look like a MINC file" unless is_minc_file_name? minc_file_name
     nii_file_name = nifti_file_name minc_file_name
     # removes the minc file after conversion otherwise feat crashes...
-    cmds = []
-    cmds << "# File converstion to Nifti\n"
-    cmds << "echo Converting file #{minc_file_name} to Nifti\n"
-    cmds << "mnc2nii -nii #{minc_file_name} `pwd`/#{File.basename nii_file_name}\n"
-    cmds << "if [ $? != 0 ]\n"
-    cmds << "then\n"
-    cmds << "  echo ERROR: cannot convert file #{minc_file_name} to nii\n"
-    cmds << "  exit 1\n"
-    cmds << "fi\n"
-    cmds << "rm -f #{minc_file_name}\n"
-    cmds << "\n"
-    return cmds.join
+    command=<<-END 
+      # File converstion to Nifti
+      echo Converting file #{minc_file_name} to Nifti
+      mnc2nii -nii #{minc_file_name} `pwd`/#{File.basename nii_file_name}
+      if [ $? != 0 ]
+      then
+        echo \"ERROR: cannot convert file #{minc_file_name} to nii\"
+        exit 1
+      fi
+      rm -f #{minc_file_name}
+    END
+    return command
   end
   
   # Gets a NIFTI file name from a MINC file name. 
@@ -428,7 +449,7 @@ class CbrainTask::FslMelodic < ClusterTask
   # Returns an array containing the cache full name of the file converted to MINC
   # format, and the conversion command.
   def converted_file_name_and_command file_id
-    return nil if not file_id.present?
+    return nil if !file_id.present?
     file_name = "#{self.full_cluster_workdir}/#{Userfile.find(file_id).name}"    
     return [file_name,""] unless is_minc_file_name? file_name
     # file_name is a MINC file name
@@ -440,8 +461,9 @@ class CbrainTask::FslMelodic < ClusterTask
   ####
   
   def modify_file_path_for_vm path
-    return nil if not path.present?
+    return nil if !path.present?
     task_dir = RemoteResource.current_resource.cms_shared_dir
+    # assumes that HOME is defined in the VM.
     return path.sub(task_dir,File.join("$HOME",File.basename(task_dir)))
   end
 
@@ -450,7 +472,8 @@ class CbrainTask::FslMelodic < ClusterTask
   def unique_file_name file_name
     count = 0
     name  = file_name
-    while not Userfile.where(:name => name).empty?
+    current_user = User.find(self.user_id)
+    while !(Userfile.find_all_accessible_by_user(current_user).exists?(:name => name))
       count += 1
       extname = File.extname(name)
       name = "#{File.basename(name,extname)}-#{count}#{extname}"
@@ -473,26 +496,26 @@ class CbrainTask::FslMelodic < ClusterTask
 
   # A bash command to find a command among a list of possible commands. 
   def find_command command_name,command_list
-    cmds = []
     variable = command_name.gsub(' ','').upcase
-    cmds   << "# Looks for #{command_name} executable\n"
-    cmds   << "unset #{variable}\n"
-    cmds   << "for cmd in #{command_list}\n"
-    cmds   << "do\n"
-    cmds   << "  which ${cmd} &>/dev/null\n"
-    cmds   << "  if [ $? = 0 ]\n"
-    cmds   << "  then\n"
-    cmds   << "    #{variable}=${cmd}\n"
-    cmds   << "    break\n"
-    cmds   << "fi\n"
-    cmds   << "done\n"
-    cmds   << "if [ -z \"${#{variable}}\" ]\n"
-    cmds   << "then\n"
-    cmds   << "  echo ERROR: unable to find any #{command_name} executable\n"
-    cmds   << "  exit 1\n"
-    cmds   << "fi\n"
-    cmds   << "echo #{command_name} executable set to ${#{variable}}.\n"
-    cmds   << "\n"
-    return cmds.join
+    command <<-END
+      # Looks for #{command_name} executable
+      unset #{variable}
+      for cmd in #{command_list}
+      do
+        which ${cmd} &>/dev/null
+        if [ $? = 0 ]
+        then
+          #{variable}=${cmd}
+          break
+      fi
+      done
+      if [ -z \"${#{variable}}\" ]
+      then
+        echo ERROR: unable to find any #{command_name} executable
+        exit 1
+      fi
+      echo #{command_name} executable set to ${#{variable}}.
+    END
+    return command
   end
 end

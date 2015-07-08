@@ -22,6 +22,9 @@
 class FslMelodicOutput < FileCollection
   Revision_info=CbrainFileRevision[__FILE__] #:nodoc:
 
+  fsl_logo_name  = "fsl-logo-big.jpg"
+  fsl_img_url    = "http://fsl.fmrib.ox.ac.uk/fsl/wiki_static/fsl/img"
+  
   has_viewer :name => "Melodic Viewer",  :partial => :melodic_viewer
 
   ##################################################################################################
@@ -44,9 +47,9 @@ class FslMelodicOutput < FileCollection
     # The file is processed line by line to speed up substitutions.
     File.open(file_path).each do |line|
       # Tweaks hrefs.
-      new_line = tweak_hrefs_in_line line,dir_name
+      new_line = tweak_hrefs_in_line(line,dir_name)
       # Tweaks imgs.
-      new_line = tweak_imgs_in_line new_line,"#{self.name}/#{dir_name}"
+      new_line = tweak_imgs_in_line(new_line,"#{self.name}/#{dir_name}")
       # Remove specific tags.
       new_line = new_line.gsub(/<object.*object>/i,"")
       new_line = new_line.gsub(/<link.*stylesheet.*>/i,"")
@@ -75,27 +78,27 @@ class FslMelodicOutput < FileCollection
   
   private
 
-  # Returns the min of two values.
-  def min2 a,b
-    return nil if a.nil? and b.nil?
-    min = a
-    min = b if min.nil? or (not b.nil? and b<min)
-    return min
-  end
-  
-  # Returns the min of three values.
-  def min3 a,b,c
-    return min2(min2(a,b),c)
-  end
-
-  # Appends a string to a link (string will be appended after the first occurrence of key).
+  # Appends a string to the href attribute of a link, making sure that the string is appended after 'key'.
+  # Examples:
+  # * href attribute is not quoted (not sure it's valid, but it happens in FSL pages)
+  #    append_string_to_link("<a href=someplace?file_name=foo&param=bar   > hello","file_name","AAA")
+  #         => "<a href=someplace?file_name=foo&param=barAAA   > hello"
+  # * href attribute is quoted, and it has trailing spaces.
+  #      append_string_to_link "<a href=\"someplace?file_name=foo&param=bar \"   > hello","file_name","AAA"
+  #         => "<a href=\"someplace?file_name=foo&param=barAAA \"   > hello"
+  # * another attribute is after href
+  #    append_string_to_link "<a href=\"someplace?file_name=foo&param=bar alt=\"coin\"   > hello","file_name","AAA"
+  #        => "<a href=\"someplace?file_name=foo&param=barAAA alt=\"coin\"   > hello"
+  # * another tag is before href, that contains the string "href"
+  #    append_string_to_link "<a alt=\"href link\" href=\"someplace?file_name=foo&param=bar \"   > hello","file_name","AAA"
+  #        => "<a alt=\"href link\" href=\"someplace?file_name=foo&param=barAAA \"   > hello"
   def append_string_to_link link,key,string
     new_link = link
-    return link if key == "" or key.nil? or new_link.index(key).nil?
+    return link if (! key.present?) || new_link.index(key).nil?
     index_space = new_link.index(' ',new_link.index(key))
     index_quote = new_link.index('"',new_link.index(key))
     index_greater = new_link.index('>',new_link.index(key))
-    index_min = min3(index_space,index_quote,index_greater)
+    index_min = [index_space,index_quote,index_greater].min rescue nil
     return link if index_min.nil?
     new_link.insert(index_min,string)
     return new_link
@@ -118,14 +121,14 @@ class FslMelodicOutput < FileCollection
     else
       new_link = new_link.gsub(/HREF=/i,'href=./userfile.id?file_name=@dirname')
     end
-    new_link.gsub! "userfile.id","#{self.id}"
-    new_link.gsub! "@dirname","#{dir_name}"
-    new_link.gsub! '/"',"/"
+    new_link.gsub!("userfile.id","#{self.id}")
+    new_link.gsub!("@dirname","#{dir_name}")
+    new_link.gsub!('/"',"/")
 
     # Append #file_content to the URL
-    new_link = append_string_to_link new_link,"file_name","#file_content"
+    new_link = append_string_to_link(new_link,"file_name","#file_content")
 
-    new_link.gsub! /file_name=(.*?)gica\//,"file_name="
+    new_link.gsub!(/file_name=(.*?)gica\//,"file_name=")
     
     return new_link
   end
@@ -135,7 +138,7 @@ class FslMelodicOutput < FileCollection
     new_line = line
     line.split(/<a/i).each do |link|
       next if link == ""
-      new_link = tweak_href_of_link link,dir_name
+      new_link = tweak_href_of_link(link,dir_name)
       new_line = new_line.gsub(link,new_link)
     end
     return new_line
@@ -151,20 +154,20 @@ class FslMelodicOutput < FileCollection
     # Replaces local link to FSL logo
     # (which is not in the file collection)
     # with external link.
-    if link.include? "fsl-logo-big.jpg"
-      return "<img src=\"http://fsl.fmrib.ox.ac.uk/fsl/wiki_static/fsl/img/fsl-logo-big.jpg\" width=165/>"
+    if link.include?(fsl_logo_name)
+      return "<img src=\"#{fsl_img_url}/#{fsl_logo_name}\" width=165/>"
     end
-    if new_link.downcase.gsub(" ","").include? "src=\""
+    if new_link.downcase.gsub(" ","").include?("src=\"")
       new_link = new_link.gsub(/src="/i,'src="userfile.id/content?arguments=@dirname')
     else
       new_link = new_link.gsub(/src=/i,'src=userfile.id/content?arguments=@dirname')
     end
-    new_link.gsub! "userfile.id","#{self.id}"
-    new_link.gsub! "@dirname","#{dir_name}"
-    new_link.gsub! '/"',"/"            
+    new_link.gsub!("userfile.id","#{self.id}")
+    new_link.gsub!("@dirname","#{dir_name}")
+    new_link.gsub!('/"',"/")            
 
-    new_link = append_string_to_link new_link,"arguments","&content_loader=collection_file&content_viewer=off&viewer=image_file&viewer_userfile_class=ImageFile"
-    new_link.gsub! /gica(.*?)gica/,"gica"
+    new_link = append_string_to_link(new_link,"arguments","&content_loader=collection_file&content_viewer=off&viewer=image_file&viewer_userfile_class=ImageFile")
+    new_link.gsub!(/gica(.*?)gica/,"gica")
     
     return new_link
   end
@@ -173,7 +176,7 @@ class FslMelodicOutput < FileCollection
   def tweak_imgs_in_line line,dir_name
     new_line = line
     line.scan(/<img.*>/i) do |img,y|
-      new_img = tweak_img img,dir_name
+      new_img = tweak_img(img,dir_name)
       new_line = new_line.gsub(img,new_img)
     end
     return new_line

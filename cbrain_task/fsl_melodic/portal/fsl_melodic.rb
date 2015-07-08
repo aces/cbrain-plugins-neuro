@@ -65,11 +65,11 @@ class CbrainTask::FslMelodic < PortalTask
       cb_error "Error: input file #{id} doesn't exist." unless u
       cb_error "Error: '#{u.name}' does not seem to be a single file." unless u.is_a?(SingleFile)
       cb_error "Error: found a #{u.type}. \n #{usage}" unless ( u.is_a?(CSVFile) || u.is_a?(FSLDesignFile) || u.name.end_with?(".csv") || u.name.end_with?(".fsf"))
-      if u.is_a?(FSLDesignFile) or u.name.end_with?(".fsf")
+      if u.is_a?(FSLDesignFile) || u.name.end_with?(".fsf")
         cb_error "Error: you may select only 1 design file. \n #{usage}" unless params[:design_file_id].nil?
         params[:design_file_id] = id
       end
-      if u.is_a?(CSVFile) or u.name.end_with?(".csv")
+      if u.is_a?(CSVFile) || u.name.end_with?(".csv")
         cb_error "Error: you may select only 1 CSV file. \n #{usage}" unless params[:csv_file_id].nil?
         params[:csv_file_id] = id
       end
@@ -86,7 +86,7 @@ class CbrainTask::FslMelodic < PortalTask
       line.each_with_index do |file_name,index|
         file_name.strip!
         # Checks files in line
-        cb_error "Error: file #{file_name} (present in #{csv_file.name}) doesn't look like a Nifti or MINC file (must have a .mnc, .nii or .nii.gz extension)" unless file_name.end_with? ".nii" or file_name.end_with? ".nii.gz" or file_name.end_with? ".mnc"
+        cb_error "Error: file #{file_name} (present in #{csv_file.name}) doesn't look like a Nifti or MINC file (must have a .mnc, .nii or .nii.gz extension)" unless ( file_name.end_with?(".nii") || file_name.end_with?(".nii.gz") || file_name.end_with?(".mnc") )
         file_array = Userfile.where(:name => file_name)
         current_user = User.find(self.user_id)
         file_array = Userfile.find_accessible_by_user(file_array.map { |x| x.id }, current_user) rescue [] # makes sure that files accessible by the user are selected
@@ -107,45 +107,17 @@ class CbrainTask::FslMelodic < PortalTask
     design_file.sync_to_cache unless design_file.is_locally_synced?
     design_file_content = File.read(design_file.cache_full_path)
 
-    params[:tr]                            = get_option_value_from_design_file_content design_file_content,    "tr"
-    params[:ndelete]                       = get_option_value_from_design_file_content design_file_content,    "ndelete"
-    params[:filtering_yn]                  = get_option_value_from_design_file_content design_file_content,    "filtering_yn"
-    params[:brain_thresh]                  = get_option_value_from_design_file_content design_file_content,    "brain_thresh"
-    params[:mc]                            = get_option_value_from_design_file_content design_file_content,    "mc"
-    params[:te]                            = get_option_value_from_design_file_content design_file_content,    "te"
-    params[:bet_yn]                        = get_option_value_from_design_file_content design_file_content,    "bet_yn"
-    params[:smooth]                        = get_option_value_from_design_file_content design_file_content,    "smooth"
-    params[:st]                            = get_option_value_from_design_file_content design_file_content,    "st"
-    params[:norm_yn]                       = get_option_value_from_design_file_content design_file_content,    "norm_yn"
-    params[:temphp_yn]                     = get_option_value_from_design_file_content design_file_content,    "temphp_yn"
-    params[:templp_yn]                     = get_option_value_from_design_file_content design_file_content,    "templp_yn"
-    params[:motionevs]                     = get_option_value_from_design_file_content design_file_content,    "motionevs"
-    params[:bgimage]                       = get_option_value_from_design_file_content design_file_content,    "bgimage"
-    #Commented out as this option is not properly supported by CBRAIN yet
-    #params[:reginitial_highres_yn]         = get_option_value_from_design_file_content design_file_content,    "reginitial_highres_yn"
-    #params[:reginitial_highres_search]     = get_option_value_from_design_file_content design_file_content,    "reginitial_highres_search"
-    #params[:reginitial_highres_dof]        = get_option_value_from_design_file_content design_file_content,    "reginitial_highres_dof"
-    params[:reghighres_yn]                 = get_option_value_from_design_file_content design_file_content,    "reghighres_yn"
-    params[:reghighres_search]             = get_option_value_from_design_file_content design_file_content,    "reghighres_search"
-    params[:reghighres_dof]                = get_option_value_from_design_file_content design_file_content,    "reghighres_dof"
-    params[:regstandard_yn]                = get_option_value_from_design_file_content design_file_content,    "regstandard_yn"
-    params[:regstandard_search]            = get_option_value_from_design_file_content design_file_content,    "regstandard_search"
-    params[:regstandard_dof]               = get_option_value_from_design_file_content design_file_content,    "regstandard_dof"
-    params[:regstandard_nonlinear_yn]      = get_option_value_from_design_file_content design_file_content,    "regstandard_nonlinear_yn"
-    params[:regstandard_nonlinear_warpres] = get_option_value_from_design_file_content design_file_content,    "regstandard_nonlinear_warpres"
-    params[:regstandard_res]               = get_option_value_from_design_file_content design_file_content,    "regstandard_res"
-    params[:varnorm]                       = get_option_value_from_design_file_content design_file_content,    "varnorm"
-    params[:dim_yn]                        = get_option_value_from_design_file_content design_file_content,    "dim_yn"
-    params[:dim]                           = get_option_value_from_design_file_content design_file_content,    "dim"
-    params[:thresh_yn]                     = get_option_value_from_design_file_content design_file_content,    "thresh_yn"
-    params[:mmthresh]                      = get_option_value_from_design_file_content design_file_content,    "mmthresh"
-    params[:ostats]                        = get_option_value_from_design_file_content design_file_content,    "ostats"
-    params[:icaopt]                        = get_option_value_from_design_file_content design_file_content,    "icaopt"
-    params[:analysis]                      = get_option_value_from_design_file_content design_file_content,    "analysis"
-    params[:paradigm_hp]                   = get_option_value_from_design_file_content design_file_content,    "paradigm_hp"
-    params[:npts]                          = get_option_value_from_design_file_content design_file_content,    "npts"
-    params[:alternatereference_yn]         = get_option_value_from_design_file_content design_file_content,    "alternateReference_yn"
-    params[:totalvoxels]                   = get_option_value_from_design_file_content design_file_content,    "totalVoxels"
+    option_values = get_option_values_from_design_file_content
+    options = ["tr","ndelete","filtering_yn","brain_thresh",
+               "mc","te","bet_yn","smooth","st","norm_yn",
+               "temphp_yn","templp_yn","motionevs","bgimage",
+               "reghighres_yn","reghighres_search","reghighres_dof",
+               "regstandard_yn","regstandard_search","regstandard_dof",
+               "regstandard_nonlinear_yn","regstandard_nonlinear_warpres",
+               "regstandard_res","varnorm","dim_yn","dim","thresh_yn",
+               "mmthresh","ostats","icaopt","analysis","paradigm_hp",
+               "npts","alternateReference_yn","totalVoxels"]
+    options.each { |option| params[option.to_sym] = option_values[option] }  
 
     params[:template_files]                = get_template_files
     
@@ -156,31 +128,28 @@ class CbrainTask::FslMelodic < PortalTask
     
     ""
   end
-  def get_option_value_from_design_file_content design_file_content,option
+
+  def get_option_values_from_design_file_content design_file_content
+    options = Hash.new
     design_file_content.each_line do |line|
       line.strip!
       line.downcase!
       next if line.start_with? "#"
       tokens = line.split(" ")
-      return tokens[2] if tokens[0] == "set" and tokens[1] == "fmri(#{option})".downcase
+      options[(tokens[1].downcase.split(/[(,)]/))[1]] = tokens[2] if tokens[0] == "set"
     end
-    return nil
+    return options
   end
   
   def after_form #:nodoc:
-    output_name = (params[:output_name].strip.eql? "") ? output_name : params[:output_name].strip 
+    output_name = (! params[:output_name].strip.present?) ? output_name : params[:output_name].strip 
     ""
   end
   
   def final_task_list #:nodoc:
-    functional_ids = []
-    structural_ids = []
 
-    params[:functional_file_ids].each { |key,value| functional_ids << value }
-    params[:structural_file_ids].each { |key,value| structural_ids << value }
-
-    params[:functional_file_ids] = functional_ids
-    params[:structural_file_ids] = structural_ids
+    params[:functional_file_ids] = params[:functional_file_ids].values
+    params[:structural_file_ids] = params[:structural_file_ids].values
 
     mytasklist = []
     if params[:icaopt] == "1" # creates 1 task per functional file
@@ -207,7 +176,7 @@ class CbrainTask::FslMelodic < PortalTask
     ids = task.params[:functional_file_ids].dup
     ids.concat params[:structural_file_ids]
     ids << task.params[:design_file_id]
-    ids << task.params[:regstandard_file_id] if task.params[:regstandard_file_id].present? and task.params[:alternatereference_yn] == "1"
+    ids << task.params[:regstandard_file_id] if task.params[:regstandard_file_id].present? && task.params[:alternatereference_yn] == "1"
     
     description_strings = []
     task.params[:functional_file_ids].each do |id|
