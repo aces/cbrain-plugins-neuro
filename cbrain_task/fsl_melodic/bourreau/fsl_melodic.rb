@@ -183,20 +183,24 @@ class CbrainTask::FslMelodic < ClusterTask
     ### Processes regstandard file
     ###
 
-    # Conversion to MINC
-    regstandard_file, regstandard_conversion_command = converted_file_name_and_command(params[:regstandard_file_id])
-    if regstandard_conversion_command.present?
-      cmds << regstandard_conversion_command
-      params[:converted_files][regstandard_file_id] = regstandard_file
+    if params[:regstandard_file_id].present? 
+      
+      # Conversion to MINC
+      regstandard_file, regstandard_conversion_command = converted_file_name_and_command(params[:regstandard_file_id])
+      if regstandard_conversion_command.present?
+        cmds << regstandard_conversion_command
+        params[:converted_files][regstandard_file_id] = regstandard_file
+      end
+      
+      
+      # Modifies paths of file in the design file when task goes to VM.    
+      regstandard_file  = modify_file_path_for_vm(regstandard_file) if self.respond_to?("job_template_goes_to_vm?") && self.job_template_goes_to_vm? 
+      
+      # Adds new option to design file
+      new_options["fmri(regstandard)"] = "\"#{regstandard_file}\""
+
     end
-
-    # Modifies paths of file in the design file when task goes to VM.    
-    regstandard_file  = modify_file_path_for_vm(regstandard_file) if self.respond_to?("job_template_goes_to_vm?") && self.job_template_goes_to_vm? 
-    
-
-    # Adds new option to design file
-    new_options["fmri(regstandard)"] = "\"#{regstandard_file}\""
-
+      
     ###
     ### Design file modifications on the execution machine, i.e. done
     ### in the qsub script rather than in the Bourreau.
@@ -473,7 +477,7 @@ class CbrainTask::FslMelodic < ClusterTask
     count = 0
     name  = file_name
     current_user = User.find(self.user_id)
-    while !(Userfile.find_all_accessible_by_user(current_user).exists?(:name => name))
+    while Userfile.find_all_accessible_by_user(current_user).exists?(:name => name)
       count += 1
       extname = File.extname(name)
       name = "#{File.basename(name,extname)}-#{count}#{extname}"
