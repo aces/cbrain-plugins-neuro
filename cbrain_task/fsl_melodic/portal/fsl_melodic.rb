@@ -142,6 +142,7 @@ class CbrainTask::FslMelodic < PortalTask
   end
   
   def after_form #:nodoc:
+    params.delete :regstandard_file_id unless params[:alternatereference_yn] == "1"
     output_name = (! params[:output_name].strip.present?) ? output_name : params[:output_name].strip 
     ""
   end
