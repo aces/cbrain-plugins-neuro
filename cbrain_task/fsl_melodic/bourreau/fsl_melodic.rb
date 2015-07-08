@@ -330,7 +330,7 @@ class CbrainTask::FslMelodic < ClusterTask
     if params[:functional_file_ids].size == 1
       outputfile.move_to_child_of(Userfile.find(params[:functional_file_ids][0]))
     else
-      outputfile.move_to_child_of(Userfile.find(params[:csv_file]))
+      outputfile.move_to_child_of(Userfile.find(params[:csv_file_id]))
     end
 
     # Saves files converted to MINC
