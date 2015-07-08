@@ -284,7 +284,7 @@ class CbrainTask::FslMelodic < ClusterTask
     cmds   << find_command("Feat","feat fsl5.0-feat")
     
     # FSL melodic execution commands
-    command <<-END
+    command=<<-END
       # Executes FSL melodic
       echo Starting melodic
       ${FEAT} #{modified_design_file_path}
@@ -497,7 +497,7 @@ class CbrainTask::FslMelodic < ClusterTask
   # A bash command to find a command among a list of possible commands. 
   def find_command command_name,command_list
     variable = command_name.gsub(' ','').upcase
-    command <<-END
+    command=<<-END
       # Looks for #{command_name} executable
       unset #{variable}
       for cmd in #{command_list}
