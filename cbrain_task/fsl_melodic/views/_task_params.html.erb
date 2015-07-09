@@ -37,14 +37,32 @@
   Make sure that the CSV file was correctly parsed (first column: functional files, second column: structural files).
 </p>
 <table>
-  <tr><th>Task</th><th>Functional files</th><th>Structural files</th></tr>
-  <% (0..params[:functional_file_ids].size-1).each do |i| %>
-  <tr><td><%="#{i}"%></td><td><%= link_to_userfile_if_accessible(params[:functional_file_ids][i]) %><%= form.params_hidden_field "functional_file_ids[#{i}]" %></td>
-    <% if !params[:structural_file_ids].blank? %>
-    <td><%= link_to_userfile_if_accessible(params[:structural_file_ids][i])  %><%= form.params_hidden_field "structural_file_ids[#{i}]" %></td>
-    <% end %>
+  <tr>
+    <th>Task</th>
+    <th>Active?</th>
+    <th>Functional files</th>
+    <th>Structural files</th>
   </tr>
-    <% end %>
+  <% (0..params[:functional_file_ids].size-1).each do |i| %>
+    <tr>
+      <td>
+        <%="#{i}"%>
+      </td>
+      <td>
+        <input type="checkbox" class="fsl-file-toggle" checked="checked" />
+      </td>
+      <td class="fsl-file">
+        <%= link_to_userfile_if_accessible(params[:functional_file_ids][i]) %>
+        <%= form.params_hidden_field "functional_file_ids[#{i}]" %>
+      </td>
+      <% unless params[:structural_file_ids].blank? %>
+        <td class="fsl-file">
+          <%= link_to_userfile_if_accessible(params[:structural_file_ids][i]) %>
+          <%= form.params_hidden_field "structural_file_ids[#{i}]" %>
+        </td>
+      <% end %>
+    </tr>
+  <% end %>
 </table>
 <ul>
   <li><label>Total volumes:</label> <%= form.params_text_field :npts %> <b>auto-correct:</b> <%= form.params_check_box :npts_auto%> (uses the value returned by fslnvols) </li>
@@ -201,6 +219,16 @@
 <script type="application/javascript">
 $(function () {
   "use strict";
+
+  (function (fcn) {
+    $('.fsl-file-toggle').each(fcn).change(fcn);
+  })(function () {
+    $(this)
+      .parent()
+      .siblings('.fsl-file')
+      .find('input')
+      .prop('disabled', !$(this).prop('checked'));
+  });
 
   $('#cbrain_task_params_analysis, #cbrain_task_params_st')
     .addClass('fsl-hide-warning');
