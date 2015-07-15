@@ -106,7 +106,14 @@
   <li><label>Spatial smoothing FWHM (mm):</label>              <%= form.params_text_field :smooth %>       </li>
   <li><label>Slice timing correction:</label>                  <%= form.params_select :st, ["0","1","2","5"] %>
     <br/>
-    0 : None, 1 : Regular up (0, 1, 2, 3, ...), 2 : Regular down, 3 : Use slice order file (<b>not supported yet</b>), 4 : Use slice timings file (<b>not supported yet</b>), 5 : Interleaved (0, 2, 4 ... 1, 3, 5 ... ).
+    <ol start="0">
+      <li>None</li>
+      <li>Regular up (0, 1, 2, 3, ...)</li>
+      <li>Regular down</li>
+      <li>Use slice order file (<b>not supported yet</b>)</li>
+      <li>Use slice timings file (<b>not supported yet</b>)</li>
+      <li>Interleaved (0, 2, 4 ... 1, 3, 5 ... )</li>
+    </ol>
     <% if params[:st] == "3" or params[:st] == "4" %>
       <span class="fsl-warning">
         <br/>
@@ -129,12 +136,15 @@
 <!--   <li><label>Degrees of Freedom for registration to initial structural:</label>        <%= form.params_select :reginitial_highres_dof, ["3","6","9","12"] %></li> -->
 <!-- <br/> -->
   <div>
+    <%
+      forced = params[:reghighres_yn] != "1"
+      params[:reghighres_yn] = "1"
+    %>
     <h4>
       Registration to main structural
       <%= form.params_check_box :reghighres_yn, :class => 'fsl-group-toggle' %>
     </h4>
-    <% if params[:reghighres_yn] != "1" %>
-      <% params[:reghighres_yn] = "1" %>
+    <% if forced %>
       <span class="fsl-group">
         <b>Warning:</b> this option was not enabled in your design file (we enabled it for you).
         <br/>
