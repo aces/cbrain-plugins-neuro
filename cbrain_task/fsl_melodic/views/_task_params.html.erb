@@ -185,6 +185,7 @@
           <label>Alternate reference image:</label>
           <% if params[:template_files].present? %>
             <%= form.params_select 'regstandard_file_id', params[:template_files], {}, {:multiple => false, :class => "form-control"} %><br/>
+            To add files to this list, tag them as "template" in the Files view.
           <% else %>
             <%= link_to_userfile_if_accessible(params[:regstandard_file_id]) %>
             <%= form.params_hidden_field "regstandard_file_id" %>
