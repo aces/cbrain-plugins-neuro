@@ -384,7 +384,7 @@ class CbrainTask::FslMelodic < ClusterTask
     end
     # Add new option line(s)
     options.each do |option,value|
-      modified_design_file_content << "set #{option} #{value} \n"
+      modified_design_file_content << "set #{option} #{value} \n" if value.present?
     end
     return modified_design_file_content.join
   end
