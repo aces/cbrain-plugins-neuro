@@ -98,7 +98,7 @@ class FslMelodicOutput < FileCollection
     index_space = new_link.index(' ',new_link.index(key))
     index_quote = new_link.index('"',new_link.index(key))
     index_greater = new_link.index('>',new_link.index(key))
-    index_min = [index_space,index_quote,index_greater].min rescue nil
+    index_min = [index_space,index_quote,index_greater].compact.min 
     return link if index_min.nil?
     new_link.insert(index_min,string)
     return new_link
