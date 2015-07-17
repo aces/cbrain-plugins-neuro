@@ -45,8 +45,6 @@ class CbrainTask::FslMelodic < PortalTask
      --- The file type (MINC or Nifti) is determined based on the file extension (.mnc, .nii or .nii.gz). 
      --- The first file in the pair will be treated as a functional file. 
      --- The second file in the pair will be treated as an anatomical file. 
-     You MAY select: 
-     * A MINC or Nifti file, used as the standard brain. 
     "
   end
   
