@@ -35,7 +35,7 @@
 %>
 <% lower = false %>
 <% @userfile.list_first_level_dirs.each do |directory| %>
-   <% if directory.end_with? "ica" && (! directory.end_with? "filtered_func_data.ica" ) %>
+   <% if directory.end_with?("ica") && (! directory.end_with?("filtered_func_data.ica") ) %>
      <% if !lower %>
        <% lower = true
          lines << "<b>Lower-level analyses</b>\n<ul>\n"

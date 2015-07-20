@@ -22,8 +22,8 @@
 class FslMelodicOutput < FileCollection
   Revision_info=CbrainFileRevision[__FILE__] #:nodoc:
 
-  fsl_logo_name  = "fsl-logo-big.jpg"
-  fsl_img_url    = "http://fsl.fmrib.ox.ac.uk/fsl/wiki_static/fsl/img"
+  @@fsl_logo_name  = "fsl-logo-big.jpg"
+  @@fsl_img_url    = "http://fsl.fmrib.ox.ac.uk/fsl/wiki_static/fsl/img"
   
   has_viewer :name => "Melodic Viewer",  :partial => :melodic_viewer
 
@@ -98,7 +98,7 @@ class FslMelodicOutput < FileCollection
     index_space = new_link.index(' ',new_link.index(key))
     index_quote = new_link.index('"',new_link.index(key))
     index_greater = new_link.index('>',new_link.index(key))
-    index_min = [index_space,index_quote,index_greater].min rescue nil
+    index_min = [index_space,index_quote,index_greater].compact.min 
     return link if index_min.nil?
     new_link.insert(index_min,string)
     return new_link
@@ -154,8 +154,8 @@ class FslMelodicOutput < FileCollection
     # Replaces local link to FSL logo
     # (which is not in the file collection)
     # with external link.
-    if link.include?(fsl_logo_name)
-      return "<img src=\"#{fsl_img_url}/#{fsl_logo_name}\" width=165/>"
+    if link.include?(@@fsl_logo_name)
+      return "<img src=\"#{@@fsl_img_url}/#{@@fsl_logo_name}\" width=165/>"
     end
     if new_link.downcase.gsub(" ","").include?("src=\"")
       new_link = new_link.gsub(/src="/i,'src="userfile.id/content?arguments=@dirname')
