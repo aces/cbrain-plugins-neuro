@@ -17,7 +17,7 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.  
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
 # A subclass of CbrainTask to launch FslBet.
@@ -39,15 +39,15 @@ class CbrainTask::FslMelodic < PortalTask
 
   def usage
     "You MUST select:
-     * an FSL design file, with extension .fsf or CBRAIN type FSLDesignFile. 
-     * a CSV file containing pairs of Nifti or MINC file names, separated by commas. 
-     --- The corresponding files must be registered in CBRAIN and you must have access to them. 
-     --- The file type (MINC or Nifti) is determined based on the file extension (.mnc, .nii or .nii.gz). 
-     --- The first file in the pair will be treated as a functional file. 
-     --- The second file in the pair will be treated as an anatomical file. 
+     * an FSL design file, with extension .fsf or CBRAIN type FSLDesignFile.
+     * a CSV file containing pairs of Nifti or MINC file names, separated by commas.
+     --- The corresponding files must be registered in CBRAIN and you must have access to them.
+     --- The file type (MINC or Nifti) is determined based on the file extension (.mnc, .nii or .nii.gz).
+     --- The first file in the pair will be treated as a functional file.
+     --- The second file in the pair will be treated as an anatomical file.
     "
   end
-  
+
   def before_form #:nodoc:
 
     params   = self.params
@@ -76,9 +76,11 @@ class CbrainTask::FslMelodic < PortalTask
     cb_error "Error: CSV file missing. \n #{usage}" if params[:csv_file_id].nil?
 
     # Parses CSV file
-    csv_file = Userfile.find(params[:csv_file_id])
+    csv_file  = Userfile.find(params[:csv_file_id]q)
     csv_file.sync_to_cache unless csv_file.is_locally_synced?
-    lines = CSVFile.new.create_csv_array("\"",",",csv_file) # third parameter needed when csv_file is not a CSVFile. Might be cleaner to define create_csv_array as a class method of CSVFile.
+
+    lines    = csv_file.becomes(CSVFile).create_csv_array("\"",",") # Patch used becomes to pretend to be a CSVFile
+
     lines.each do |line|
       cb_error "Error: lines in CSV file must contain two elements separated by a comma (wrong format: #{line})." unless line.size == 2
       line.each_with_index do |file_name,index|
@@ -115,15 +117,15 @@ class CbrainTask::FslMelodic < PortalTask
                "regstandard_res","varnorm","dim_yn","dim","thresh_yn",
                "mmthresh","ostats","icaopt","analysis","paradigm_hp",
                "npts","alternateReference_yn","totalVoxels"]
-    options.each { |option| params[option.to_sym] = option_values[option] }  
+    options.each { |option| params[option.to_sym] = option_values[option] }
 
     params[:template_files]                = get_template_files
-    
+
     # initializes parameters that are not in the design file
     params[:tr_auto]   = "1"
     params[:npts_auto] = "1"
     params[:totalvoxels_auto] = "1"
-    
+
     ""
   end
 
@@ -138,13 +140,13 @@ class CbrainTask::FslMelodic < PortalTask
     end
     return options
   end
-  
+
   def after_form #:nodoc:
     params.delete :regstandard_file_id unless params[:alternatereference_yn] == "1"
-    output_name = (! params[:output_name].strip.present?) ? output_name : params[:output_name].strip 
+    output_name = (! params[:output_name].strip.present?) ? output_name : params[:output_name].strip
     ""
   end
-  
+
   def final_task_list #:nodoc:
 
     params[:functional_file_ids] = params[:functional_file_ids].values
@@ -167,21 +169,21 @@ class CbrainTask::FslMelodic < PortalTask
     end
     return mytasklist
   end
-  
+
   def set_task_parameters task
     ids = []
-    
+
 
     ids = task.params[:functional_file_ids].dup
     ids.concat params[:structural_file_ids]
     ids << task.params[:design_file_id]
     ids << task.params[:regstandard_file_id] if task.params[:regstandard_file_id].present? && task.params[:alternatereference_yn] == "1"
-    
+
     description_strings = []
     task.params[:functional_file_ids].each do |id|
       description << Userfile.find(id).name+" "
     end
-    
+
     task.params[:task_file_ids] = ids
     task.description = description_strings.join if task.description.blank?
 
@@ -198,10 +200,10 @@ class CbrainTask::FslMelodic < PortalTask
     end
     return template_files.map { |f| [f.name,f.id.to_s]}
   end
-  
+
   def untouchable_params_attributes #:nodoc:
     { :inputfile_id => true, :output_name => true, :outfile_id => true}
   end
-  
+
 end
 
