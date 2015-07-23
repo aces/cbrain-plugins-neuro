@@ -76,7 +76,7 @@ class CbrainTask::FslMelodic < PortalTask
     cb_error "Error: CSV file missing. \n #{usage}" if params[:csv_file_id].nil?
 
     # Parses CSV file
-    csv_file  = Userfile.find(params[:csv_file_id]q)
+    csv_file  = Userfile.find(params[:csv_file_id])
     csv_file.sync_to_cache unless csv_file.is_locally_synced?
 
     lines    = csv_file.becomes(CSVFile).create_csv_array("\"",",") # Patch used becomes to pretend to be a CSVFile
