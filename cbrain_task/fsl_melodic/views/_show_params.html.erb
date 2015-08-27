@@ -1,0 +1,58 @@
+
+<%-
+#
+# CBRAIN Project
+#
+# Copyright (C) 2008-2012
+# The Royal Institution for the Advancement of Learning
+# McGill University
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.  
+#
+-%>
+<p>
+<STRONG>Design file:</STRONG>
+<ul>
+  <li><%= link_to_userfile_if_accessible(params[:design_file_id]) %></li>
+</ul>
+</p>
+
+<p>
+<STRONG>Functional file(s):</STRONG>
+<ul>
+  <% params[:functional_file_ids].each do |id| %>
+  <li><%= link_to_userfile_if_accessible(id) %></li>
+  <% end %> 
+</ul>
+</p>
+
+<% if !params[:structural_file_ids].blank? %>
+<p>
+<STRONG>Structural file(s):</STRONG>
+<ul>
+  <% params[:structural_file_ids].each do |id| %>
+  <li><%= link_to_userfile_if_accessible(id) %></li>
+  <% end %>
+</ul>
+</p>
+<% end %>
+
+<p>
+<STRONG>Output:</STRONG>
+</p>
+<UL>
+  <li><%= link_to_userfile_if_accessible params[:outfile_id] %></li>
+</UL>
+
+See this task's <%= link_to "edit page", edit_task_path(task) %> for more information.

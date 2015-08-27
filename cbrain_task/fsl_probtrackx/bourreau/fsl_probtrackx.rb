@@ -1,0 +1,95 @@
+
+# A subclass of ClusterTask to run FslProbtrackx.
+class CbrainTask::FslProbtrackx < ClusterTask
+
+  Revision_info=CbrainFileRevision[__FILE__] #:nodoc:
+
+  #include RestartableTask
+  #include RecoverableTask
+
+  def setup #:nodoc:
+    params       = self.params
+    input_collection  = FileCollection.find(params[:collection_id])
+    self.results_data_provider_id ||= input_collection.data_provider_id
+    input_collection.sync_to_cache
+
+    safe_symlink(input_collection.cache_full_path.to_s, input_collection.name)
+
+    return true
+  end
+
+  def cluster_commands #:nodoc:
+    params          = self.params
+    input_collection  = FileCollection.find(params[:collection_id])
+    input_collection_name = input_collection.name
+
+    mode            = params[:mode].to_s                           #--mode
+    curve_thresh    = params[:curve_thresh].to_f                   #-c
+    num_steps       = params[:num_steps].to_i                      #-S
+    step_length     = params[:step_length].to_f                    #--steplength
+    seed_volume     = params[:seed_volume].to_s                    #-x  (path)
+    num_samples     = params[:num_samples].to_i                    #-P
+    transform       = params[:transform].to_s                      #-xfm (path)
+    stop_mask       = params[:stop_mask].to_s                      #--stop (path)
+    sample_basename = params[:sample_basename].to_s                #-s (path)
+    binary_mask     = params[:binary_mask].to_s                    #-m (path)
+    waypoints       = params[:waypoints].to_s                      #--waypoints (path)
+    rseed           = params[:rseed].to_i                          #--rseed
+
+    name_regex = /^#{input_collection_name}\//
+    raise "Seed volume outside task work directory!" if seed_volume !~ name_regex || seed_volume =~ /\.\./
+    raise "Transform outside task work directory!" if transform !~ name_regex || transform =~ /\.\./
+    raise "Stop mask outside task work directory!" if stop_mask !~ name_regex || stop_mask =~ /\.\./
+    raise "Sample basename outside task work directory!" if sample_basename !~ name_regex || sample_basename =~ /\.\./
+    raise "Binary mask outside task work directory!" if binary_mask !~ name_regex || binary_mask =~ /\.\./
+    raise "Waypoint mask outside task work directory!" if waypoints !~ name_regex || waypoints =~ /\.\./
+
+    [
+      "probtrackx --mode=#{mode.bash_escape} -x #{seed_volume.bash_escape} -V 1 -c #{curve_thresh} -S #{num_steps} --steplength=#{step_length} -P #{num_samples} --xfm=#{transform.bash_escape} --stop=#{stop_mask.bash_escape} --forcedir --opd -s #{sample_basename} -m #{binary_mask} --dir=output_directory --waypoints=#{waypoints.bash_escape} --rseed=#{rseed}"
+    ]
+  end
+
+  def save_results #:nodoc:
+    params       = self.params
+
+    input_collection  = FileCollection.find(params[:collection_id])
+    unless File.exists?("output_directory")
+      cb_error("Output directory doesn't seem to exist!")
+    end
+
+    now = Time.now
+    output_name = "probtrackx-output-#{self.id}-#{self.bourreau.name}-#{self.run_number}-#{now.strftime("%Y-%m-%d")}-#{now.strftime("%H:%M:%S")}"
+
+    output_collection = safe_userfile_find_or_new(FileCollection,
+      :name             => output_name,
+      :data_provider_id => self.results_data_provider_id
+    )
+
+    output_collection.cache_copy_from_local_file("output_directory")
+    if output_collection.save
+      output_collection.move_to_child_of(input_collection)
+      params[:output_id] = output_collection.id
+      self.addlog("Saved new file collection #{output_collection.name}")
+    else
+      cb_error("Could not save back result file '#{output_collection.name}'.")
+    end
+
+    self.addlog_to_userfiles_these_created_these([ input_collection ], [ output_collection ])
+
+    return true
+  end
+
+  def job_walltime_estimate #:nodoc:
+    return 2.days.to_i
+  end
+
+  def recover_from_post_processing_failure #:nodoc:
+    return true
+  end
+
+  def restart_at_post_processing #:nodoc:
+    return true
+  end
+
+end
+

@@ -1,0 +1,109 @@
+
+<%-
+#
+# CBRAIN Project
+#
+# Copyright (C) 2008-2012
+# The Royal Institution for the Advancement of Learning
+# McGill University
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+%>
+
+<div class="no_wrap">
+
+  <strong>Mode</strong></br>
+
+  <% if params[:interface_userfile_ids].count == 2 %>
+    Input image -> Reference image</br>
+    <small>This task can also work with low and high resolution files if you choose more than 2 files.</small>
+    <%= form.params_hidden_field :mode %>
+  <% else %>
+    <%= form.params_select :mode,
+                    options_for_select([["Input image -> Reference image","input_ref"],["Low res image -> High res image -> Reference image","low_high_ref"]], :selected => params[:mode]),
+                   {},
+                   :class => "submit_onchange",
+                   "data-commit" => "refresh" %>
+  <% end %>
+
+
+
+  </P>
+
+  <strong>Input and Output</strong></br>
+  <% input_files = Userfile.where(:id => params[:interface_userfile_ids]).all.map {|u| [u.name,u.id.to_s] } %>
+  Reference file (-ref):<%= form.params_select :ref, input_files %></br>
+
+  <% if params[:mode] != "low_high_ref" %>
+    Input file:<%= form.params_select :in,  input_files %></br>
+  <% else %>
+    High res image:<%= form.params_select :high,  input_files %></br>
+    Low res image:<%= form.params_select :low,  input_files%></br>
+  <% end %>
+
+
+
+  <% number_of_remaining_file = params[:mode] != "low_high_ref" ? input_files.count - 2 : input_files.count - 3 %>
+  <% if number_of_remaining_file > 0 %>
+    Remaining <%=  number_of_remaining_file %> input file(s) will be used as secondary image.</br>
+  <% end %>
+  </p>
+
+  Output file (-out):<%= form.params_text_field :out,:size => 20%></br>
+  <small>
+      Results will always be stored in a directory named "Flirt-Out-{task_number}-{run_number}".
+      </br>
+      If you leave -out blank the output file inside it will be called "Flirt".
+  </small>
+  </p>
+  <%= form.params_check_box  :failed_restriction %> Fail only if all commands have failed, otherwise record the partial results.
+
+  </P>
+  <strong>Model/DOF</strong></br>
+  Model/DOF (input to ref) (-dof):</br>
+  <%= form.params_select :model, [ ["2D to 2D registration", "2D"], ["3D to 3D registration", "3D"] ] %></br>
+  <%= form.params_select :dof, [ ["Rigid Body (2D->2D) or Translation Only (3D->3D) (3 parameter model)", "3"],
+                                 ["Rigid Body (6 parameter model)","6"],
+                                 ["Global Rescale (7 parameter model)","7"],
+                                 ["Traditional (9 parameter model)","9"],
+                                 ["Affine (12 parameter model)","12"] ] %>
+
+  </P>
+  <strong>Search</strong></br>
+  Search Angles:</br>
+  X-axis (degrees) (-searchrx):
+  min<%= form.params_text_field :searchrx_min, :size => 4 %> max<%= form.params_text_field :searchrx_max, :size => 4 %></br>
+  Y-axis (degrees) (-searchry):
+  min<%= form.params_text_field :searchry_min, :size => 4 %> max<%= form.params_text_field :searchry_max, :size => 4 %></br>
+  Z-axis (degrees) (-searchrz):
+  min<%= form.params_text_field :searchrz_min, :size => 4 %> max<%= form.params_text_field :searchrz_max, :size => 4 %></br>
+
+  </P>
+
+  <strong>Cost Function</strong></br>
+  Cost (-cost):
+  <%= form.params_select :cost, [ ["Correlation Ratio","corratio"], ["Mutual Information","mutualinfo"],
+                                  ["Normalised Mutual Information","normmi"], ["Normalised Correlation (intra-model)","normcorr"],
+                                  ["Least Squares (intra-model)","leastsq"]] %></br>
+  Number of histogram bins (-bins):
+  <%= form.params_text_field :bins,:size => 5 %></br>
+
+  </P>
+  <strong>Interpolation</strong></br>
+  Final interpolation method (reslice only) (-interp):
+  <%= form.params_select :interp, [ ["Tri-Linear","trilinear"], ["Nearest Neighbour","nearestneighbour"], ["Sinc","sinc"]] %></br>
+
+</div>
+

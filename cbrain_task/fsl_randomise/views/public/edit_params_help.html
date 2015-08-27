@@ -1,0 +1,56 @@
+
+<!--
+# CBRAIN Project
+#
+# Copyright (C) 2008-2012
+# The Royal Institution for the Advancement of Learning
+# McGill University
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+-->
+
+<h1>Randomise Options</h1>
+
+<b><center>Not all options listed are provided on CBRAIN</center></b>
+<center>To request additional options, leave feedback.</center>
+
+<br>
+
+<b>How to run randomise:</b>
+<br><br>
+Randomise allows you to run statistical tests for a given GLM, on many 4D input files.
+On the file menu, choose the following:
+  <ul>
+    <li> One or more 4D files</li>
+    <li> One mask file </li>
+    <li> A design matrix collection. Please note that the design matrix collection can be one directory, or it can be different files you get from a typical GLM design (i.e. files with extensions .mat, .con, .grp etc). Note that you can choose either a directory or several files. If a directory is chosen, then CBRAIN will automatically assign the files to the appropriate randomise option. Make sure that if you choose a design directory, then you have included all necessary design files.</li>
+</ul>
+
+<b>CBRAIN options:</b>
+<ul>
+    <li><b>Number of permtation (-n):</b> number of permutations (default 5000, set to 0 for exhaustive).</li>
+    <li><b>Cluster-based thresholding (-c):</b> carry out cluster-based thresholding.</li>
+    <li><b>Threshold-Free Cluster Enhancement (-T):</b> carry out Threshold-Free Cluster Enhancement.</li>
+    <li><b>f cluster thresholding (-F):</b> carry out f cluster thresholding</li>
+    <li><b>Output voxelwise (-x):</b> output voxelwise (corrected and uncorrected) p-value images.</li>
+    <li><b>Output raw (-R):</b> output raw ( unpermuted ) statistic images.</li>
+    <li><b>Design matrix file (-d):</b> design matrix file.</li>
+    <li><b>t contrasts file (-t):</b> t contrasts file.</li>
+    <li><b>f contrasts file (-f):</b> f contrasts file.</li>
+    <li><b>Exchangeability block labels file (-e):</b> exchangeability block labels file.</li>
+    <li><b>Mask image (-m):</b> mask image.</li>
+    <li><b>Input (-i):</b> 4D input image.</li>
+    <li><b>Output (-o):</b> output file-rootname.</li>
+</ul>
