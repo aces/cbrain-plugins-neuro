@@ -1,0 +1,49 @@
+
+<%-
+#
+# CBRAIN Project
+#
+# Copyright (C) 2008-2012
+# The Royal Institution for the Advancement of Learning
+# McGill University
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+-%>
+
+<strong>Input file:</strong>
+  <ul>
+  <% params[:interface_userfile_ids].each do |id| %>
+    <li><%= link_to_userfile_if_accessible id %></li>
+  <% end %>
+  </ul>
+<p>
+
+<strong>Workflow directives:</strong> <%= params[:workflow_directives] %><br/>
+
+<strong>Output file:</strong> <%= link_to_userfile_if_accessible params[:outfile_id] %><br/>
+
+
+<% if params[:with_qcache].to_i == 1 %>
+  Run with qcache option.<br/>
+<% end %>
+<% if params[:with_mprage].to_i == 1 %>
+  Run with mprage option.<br/>
+<% end %>
+<% if params[:with_3T_data].to_i == 1 %>
+  Run with 3T data.<br/>
+<% end %>
+<% if params[:with_cw256].to_i == 1 %>
+  Run with cw256 flag.<br/>
+<% end %>
