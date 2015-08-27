@@ -1,0 +1,78 @@
+
+<!--
+#
+# CBRAIN Project
+#
+# Copyright (C) 2008-2012
+# The Royal Institution for the Advancement of Learning
+# McGill University
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.  
+#
+-->
+
+<h1>Task options for NuCorrect</h1>
+
+<p>
+This document is, temporarily, just a copy of the raw
+nu_correct tool's help output. A better explanation
+will be provided later.
+</p>
+
+<pre>
+Summary of options:
+
+-- General options -------------------------------------------------------------
+   -verbose          be noisy [default; opposite is -quiet]
+   -quiet            opposite of -verbose
+   -execute          actually execute planned commands [default]
+   -noexecute        opposite of -execute
+   -clobber          overwrite output files [default: -noclobber]
+   -noclobber        opposite of -clobber
+   -tmpdir           temporary working directory [default:
+                     /usr/tmp/nu_correct_29184/]
+   -keeptmp          don't delete temporary files [default: -nokeeptmp]
+   -nokeeptmp        opposite of -keeptmp
+   -version          print version and quit
+
+-- Protocol options ------------------------------------------------------------
+   -mask &lt;mask.mnc&gt;  specify region for processing
+   -distance &lt;value&gt; characteristic distance over which field varies in mm
+                     (default 200) [default: 200]
+   -iterations &lt;number&gt;
+                     maximum number of iterations to run
+   -options options ...
+                     method specific options (quoted if more than one)
+                     [default: ""]
+   -mapping_dir &lt;directory&gt;
+                     specifiy directory to put imp files in
+
+-- N3 specific options ---------------------------------------------------------
+   -stop &lt;threshold&gt; CV of change in field estimate below which iteration
+                     stops (suggest 0.01 to 0.0001)
+   -shrink &lt;factor&gt;  specify a smaller workspace; the sampling in each
+                     dimension is reduced to that of the finest sampling
+                     divided by factor or the current sampling which ever is
+                     less. (suggest 2 or 3)
+   -normalize_field  normalize final correction field to have mean 1.0
+   -V0.9             use default options of original (beta) release
+   -V1.0             use improved options of release 1.0.  This is equivalent
+                     to -fwhm 0.15 -stop 0.001 -iterations 50 -shrink 4
+                     -distance 200.  (default)
+   -fwhm &lt;width&gt;     width of deconvolution kernal used to sharpen histogram.
+                     Larger values give faster convergence while smaller
+                     values give greater accuracy.  (suggest 0.05 to 0.5,
+                     default is 0.15) [default: 0.15]
+</pre>
+

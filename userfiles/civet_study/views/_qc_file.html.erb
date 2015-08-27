@@ -1,0 +1,68 @@
+
+<%-
+#
+# CBRAIN Project
+#
+# Copyright (C) 2008-2012
+# The Royal Institution for the Advancement of Learning
+# McGill University
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+-%>
+
+<%
+  if params[:qc_file] == "base"
+    qc_file = @userfile.list_files("QC", :file).find{ |qc| qc.name =~ /\.html$/ && !@userfile.subject_ids.include?(Pathname.new(qc.name).basename.to_s.sub(/\.html$/, "")) }
+    qc_file = qc_file.name if qc_file
+    qc_file ||= ""
+  else
+    qc_file = @userfile.name + "/QC/" + params[:qc_file]
+  end
+  qc_file = "" unless @userfile.list_files.find { |f| f.name == qc_file }
+%>
+
+<h1>QC</h1>
+
+<% if File.file?(@userfile.cache_full_path.parent + qc_file) %>
+  <div id="fragment-wrapper"></div>
+
+  <%= javascript_include_tag "jquery" %>
+  <script>
+    (function() {
+      var fragment = $(<%= html_for_js(File.read(@userfile.cache_full_path.parent + qc_file)).html_safe %>);
+      var base_link_url = "/userfiles/" + <%= @userfile.id %> + "/display?apply_div=false&viewer=qc_file&qc_file=";
+      var base_image_url = "/userfiles/" + <%= @userfile.id %> + "/content?content_loader=collection_file&arguments=";
+      var file_list = [<%= @userfile.list_files.map {|f| "\"#{f.name}\"" }.join(",").html_safe %>];
+
+      fragment.find("a").each(function() {
+        this.href = base_link_url + $(this).attr("href");
+      });
+
+      fragment.find("img, image").each(function() {
+        var image = this;
+        var image_src = $(this).attr("src");
+        var image_name = file_list.filter(function(f) { return f.match(new RegExp(image_src + "$")); })[0];
+        image.src = base_image_url + image_name;
+      });
+
+      $("#fragment-wrapper").append(fragment);
+    })();
+  </script>
+<% else %>
+  Error: the QC report seems to be missing in this study. Maybe the QC task did
+  not complete successfully.
+<% end %>
+
+

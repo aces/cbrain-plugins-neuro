@@ -1,0 +1,47 @@
+
+<%-
+#
+# CBRAIN Project
+#
+# Copyright (C) 2008-2012
+# The Royal Institution for the Advancement of Learning
+# McGill University
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+-%>
+
+<strong>Name of the combined Study:</strong><BR>
+<%= text_field_tag :civet_study_name.to_la, params[:civet_study_name] %>
+<br>
+
+<table>
+  <tr>
+    <th>CivetOutput Names To Be Merged</th>
+  </tr>
+<% params[:interface_userfile_ids].each do |id| %>
+  <tr>
+    <% u = Userfile.find_by_id(id) %>
+    <% if u.is_a?(CivetOutput) || u.is_a?(CivetStudy) %>
+      <td>OK: <%= h(u.class.to_s) %> <%= link_to_userfile_if_accessible u %> <%= hidden_field_tag 'cbrain_task[params][civet_collection_ids][]', id %></td>
+    <% else %>
+      <td>Error: <%= link_to_userfile_if_accessible u %> is NOT a CivetOutput or CivetStudy.</td>
+    <% end %>
+  </tr>
+<% end %>
+</table>
+
+After the Study is successfully created, <strong>destroy permanently</strong>
+the CivetOutputs used? <%= check_box_tag( :destroy_sources.to_la, 'YeS') %>
+

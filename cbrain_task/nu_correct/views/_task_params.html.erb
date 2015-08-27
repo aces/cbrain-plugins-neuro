@@ -1,0 +1,114 @@
+
+<%-
+#
+# CBRAIN Project
+#
+# Copyright (C) 2008-2012
+# The Royal Institution for the Advancement of Learning
+# McGill University
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.  
+#
+-%>
+
+<p class="short_paragraphs">
+<STRONG>
+This is a preliminary implementation of nu_correct.
+</STRONG>
+Better documentation
+and functionality will be provided later on, but feel free to contact
+us and make requests or give us feedback about problems!
+</p>
+
+<fieldset>
+<legend>MINC files to process (with mask files, if found)</legend>
+<table class="resource_list">
+<tr>
+   <th>Launch it?</th>
+   <th>Input MINC files</th>
+   <th>Mask MINC file found?</th>
+   <th>Use mask?</th>
+</tr>
+<% params[:launch_table].each do |idx,entry| %>
+  <tr class="<%= cycle('list-odd', 'list-even') %>">
+    <td><%= form.params_check_box "launch_table[#{idx}][do_it]" %></td>
+    <td>
+        <%= link_to_userfile_if_accessible(entry[:in_id]) %>
+        <%= form.params_hidden_field "launch_table[#{idx}][in_id]" %>
+    </td>
+    <% if (! entry[:mk_id].blank?) && entry[:mk_id] != "0" %>
+      <td><%= html_colorize("Yes:", 'green') %>
+        <%= link_to_userfile_if_accessible(entry[:mk_id]) %>
+        <%= form.params_hidden_field "launch_table[#{idx}][mk_id]" %>
+      </td>
+      <td><%= form.params_check_box "launch_table[#{idx}][use_mask]" %></td>
+    <% else %>
+      <td><%= html_colorize("No") %></td>
+      <td><%= form.params_check_box "launch_table[#{idx}][use_mask]", { :disabled => true } %></td>
+    <% end %>
+  </tr>
+<% end %>
+</table>
+
+<br/>
+
+<strong>Note:</strong> mask files are found when they match exactly the names of the input<br/>
+files except that they have "_mask" or "_mk" just before the ".mnc" extension.
+
+</fieldset>
+
+<P>
+
+<fieldset>
+<legend>Protocol Options</legend>
+
+<table class="simple">
+  <tr>
+    <td><%= form.params_label      :distance, "Characteristic distance over which field varies, in mm" %></td>
+    <td><%= form.params_text_field :distance, :size => 4 %></td>
+  </tr>
+  <tr>
+    <td><%= form.params_label      :iterations, "Maximum number of iterations to run" %></td>
+    <td><%= form.params_text_field :iterations, :size => 4 %></td>
+  </tr>
+</table>
+
+</fieldset>
+
+<P>
+
+<fieldset>
+<legend>N3 Options</legend>
+
+<table class="simple">
+  <tr>
+    <td><%= form.params_label      :stop, "CV of change in field estimate below which iteration stops" %></td>
+    <td><%= form.params_text_field :stop, :size => 4 %></td>
+  </tr>
+  <tr>
+    <td><%= form.params_label      :shrink, "Workspace size shrink factor" %></td>
+    <td><%= form.params_text_field :shrink, :size => 4 %></td>
+  </tr>
+  <tr>
+    <td><%= form.params_label      :fwhm, "Width of deconvolution kernal used to sharpen histogram" %></td>
+    <td><%= form.params_text_field :fwhm, :size => 4 %></td>
+  </tr>
+  <tr>
+    <td><%= form.params_label      :normalize_field, "Normalize final correction field to have mean 1.0" %></td>
+    <td><%= form.params_check_box  :normalize_field %></td>
+  </tr>
+</table>
+
+</fieldset>
+

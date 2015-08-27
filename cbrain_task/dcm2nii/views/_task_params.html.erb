@@ -1,0 +1,156 @@
+
+<%
+#
+# CBRAIN Project
+#
+# Copyright (C) 2008-2012
+# The Royal Institution for the Advancement of Learning
+# McGill University
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+-%>
+
+This task runs dcm2nii, a converter for transforming a
+collection of DICOM files into NIfTI files.
+<p>
+
+Input files selected:<BR>
+<UL>
+  <% params[:interface_userfile_ids].each do |id| %>
+  <LI><%= link_to_userfile_if_accessible(id) %></LI>
+  <% end %>
+</UL>
+
+<fieldset class="groupentry">
+
+<legend>Options</legend>
+<%= form.params_check_box :anonymize %><%= form.params_label(:anonymize, "-a Anonymize [remove identifying information]") %></br>
+<%= form.params_check_box :date %><%= form.params_label(:date, "-d Date in filename [filename.dcm -> 20061230122032.nii]") %></br>
+<%= form.params_check_box :events %><%= form.params_label(:events, "-e events (series/acq) in filename [filename.dcm -> s002a003.nii]") %></br>
+<%= form.params_check_box :gzip %><%= form.params_label(:gzip, "-g gzip output, filename.nii.gz") %></br>
+<%= form.params_check_box :id %><%= form.params_label(:id, "-i ID in filename [filename.dcm -> johndoe.nii]") %></br>
+<%= form.params_check_box :protocol %><%= form.params_label(:protocol, "-p Protocol in filename [filename.dcm -> TFE_T1.nii]") %></br>
+
+</fieldset>
+
+<fieldset class="groupentry">
+
+<legend>Output filenames renaming</legend>
+
+<p>
+
+Created NIfTI files will be renamed with names that match this pattern:
+<br>
+<%= form.params_text_field :output_filename_pattern, :size => 80 %><br>
+<small>(Leave blank to let Dcm2nii name the files automatically like it normally does)</small>
+
+<P>
+Patterns can include the following special
+<em>{keywords}</em> in curly brackets that will be substituted
+automatically. The supported keywords are:
+
+<dl>
+
+  <dt>{date}</dt>
+  <dd>The current date in this format: YYYY-MM-DD</dd>
+
+  <dt>{time}</dt>
+  <dd>The current time in this format: HH:MM:SS</dd>
+
+  <dt>{task_id}</dt>
+  <dd>A unique number ID for each Dcm2nii task, which
+      doesn't change if the task is restarted</dd>
+
+  <dt>{run_number}</dt>
+  <dd>A numeric run number that increases everytime the Dcm2nii
+      task is restarted, initially set to '1'</dd>
+
+  <dt>{dicom-1}, {dicom-2}, {dicom-3} etc</dt>
+  <dd>These are string components are extracted from the original DICOM
+      file collection name; the components are extracted from blocks of<br>
+      consecutive letters and digits. For instance, if your DICOM file
+      collection is named "ab23-2tesla=John_Wu.dicom", then the values<br>
+      for these <em>{keywords}</em> would be
+      <ul>
+        <li>{dicom-1} = "ab23"</li>
+        <li>{dicom-2} = "2tesla"</li>
+        <li>{dicom-3} = "John"</li>
+        <li>{dicom-4} = "Wu"</li>
+        <li>{dicom-5} = "dicom"</li>
+      </ul>
+  </dd>
+
+  <dt>{nii-1}, {nii-2}, {nii-3} etc</dt>
+  <dd>Just like for <em>{dicom-1}</em> etc, these string components are
+      extracted from the NIfTI filenames normally created by dcm2nii.<br>
+      This is useful if you already have a good idea of the
+      built-in filename generation rules that dcm2nii uses.<br>
+      For instance, if a NIfTI file is created with the name
+      "20080117_102201ep2dpacemocos008a001.nii.gz ", then the values<br>
+      for these <em>{keywords}</em> would be
+      <ul>
+        <li>{nii-1} = "20080117"</li>
+        <li>{nii-2} = "102201ep2dpacemocos008a001"</li>
+        <li>{nii-3} = "nii"</li>
+        <li>{nii-4} = "gz"</li>
+      </ul>
+      Note that one way to figure out what NIfTI filenames dcm2nii
+      normally creates is to run this task once then look<br>
+      at the task's summary page, which will show the
+      original NIfTI filenames even if you've chosen to rename<br>
+      them with this pattern mechanism.
+  </dd>
+
+</dl>
+
+<p>
+
+</fieldset>
+
+<%
+  previous_minc_ids = params[:created_mincfile_ids] || []
+  previous_mincs = []
+  previous_minc_ids.each do |id|
+    u = Userfile.find_by_id(id)
+    previous_mincs << u if u
+  end
+%>
+
+<% if ! @task.new_record? && previous_mincs.size > 0 %>
+
+  <P>
+
+  <fieldset class="groupentry">
+
+  <legend>Auto-cleanup of previous runs</legend>
+
+  <p>
+
+  Upon successful completion of this task,
+  erase these mincfiles created by a previous run:
+  <%= form.params_check_box :erase_old_results %>
+  <br>
+  <ul>
+    <% previous_mincs.each do |u| %>
+      <li><%= link_to_userfile_if_accessible(u) %></li>
+    <% end %>
+  </ul>
+
+  <p>
+
+  </fieldset>
+
+<% end %>
+

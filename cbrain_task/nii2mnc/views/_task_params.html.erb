@@ -1,0 +1,135 @@
+
+<%-
+#
+# CBRAIN Project
+#
+# Copyright (C) 2008-2012
+# The Royal Institution for the Advancement of Learning
+# McGill University
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+-%>
+
+
+<%
+  before_2_0_0  = !@tool_config || !@tool_config.is_at_least_version("2.0.0")
+%>
+
+<strong>List of Userfiles selected:</strong>
+<BR>
+
+<UL>
+  <% params[:interface_userfile_ids].each do |id| %>
+  <LI><%= link_to_userfile_if_accessible id %></LI>
+  <% end %>
+</UL>
+
+<strong>Voxel Convertion Parameters</strong>
+<BR>
+
+
+Write voxel data in type: <%= select_tag :voxel_type.to_la,
+                              options_for_select( [ [ "(Select data type)",              "" ],
+                                                    [ "'byte': 8-bit integer",           "byte" ],
+                                                    [ "'short': 16-bit integer",         "short" ],
+                                                    [ "'int': 32-bit integer",           "int" ],
+                                                    [ "'float': 32-bit floating point",  "float" ],
+                                                    [ "'double': 64-bit floating point", "double" ],
+                                                    [ "'default': let the program choose!", "default" ]
+                                                  ], params[:voxel_type] ) %>
+<BR>
+For <strong>integer</strong> voxel data types, use <%= select_tag :voxel_int_signity.to_la,
+                              options_for_select( [ [ "(Select sign)",                "" ],
+                                                    [ "signed integers",              "signed" ],
+                                                    [ "unsigned integers",            "unsigned" ],
+                                                    [ "default: let the program choose!", "default" ]
+                                                  ], params[:voxel_int_signity] ) %>
+<BR>
+
+<% if before_2_0_0 %>
+  Option: do NOT automatically scan the range of data values: <%= form.params_check_box :noscan %>
+
+  <P>
+
+  <strong>XYZ Space Parameters</strong>
+  <BR>
+
+  The NIfTI files use this ordering for spatial dimensions:
+   <%= select_tag :space_ordering.to_la,
+       options_for_select( [ [ "(Select ordering)",              "" ],
+                             [ "ZYX a.k.a. 'transverse'",        "transverse" ],
+                             [ "XZY a.k.a. 'sagittal'",          "sagittal" ],
+                             [ "YZX a.k.a 'coronal'",            "coronal" ],
+                             [ "XYZ",                            "xyz" ],
+                             [ "YXZ",                            "yxz" ],
+                             [ "ZXY",                            "zxy" ],
+                             [ "'default': let the program choose!", "default" ]
+                           ], params[:space_ordering] )
+   %>
+
+  <P>
+
+  <fieldset class="groupentry">
+  <legend>Axis flipping options</legend>
+  <P>
+  Flip the direction of certain dimensions:
+  <%= select_tag :flip_order.to_la,
+      grouped_options_for_select(
+        [
+          [
+            "Do not flip any axis.",
+                          [ [ "No, do not flip any axis.", "" ] ],
+          ],
+          [
+            "Flip one axis",
+                          [
+                            [ "Flip X", "x" ],
+                            [ "Flip Y", "y" ],
+                            [ "Flip Z", "z" ],
+                          ]
+          ],
+          [
+            "Flip two axis",
+                          [
+                            [ "Flip X, then Y", "xy" ],
+                            [ "Flip X, then Z", "xz" ],
+                            [ "Flip Y, then X", "yx" ],
+                            [ "Flip Y, then Z", "yz" ],
+                            [ "Flip Z, then X", "zx" ],
+                            [ "Flip Z, then Y", "zy" ],
+                          ]
+          ],
+          [
+            "Flip three axis",
+                          [
+                            [ "Flip X, then Y, then Z", "xyz" ],
+                            [ "Flip X, then Z, then Y", "xzy" ],
+                            [ "Flip Y, then X, then Z", "yxz" ],
+                            [ "Flip Y, then Z, then X", "yzx" ],
+                            [ "Flip Z, then X, then Y", "zxy" ],
+                            [ "Flip Z, then Y, then X", "zyx" ],
+                          ],
+          ],
+        ],
+        params[:flip_order] )
+   %>
+
+
+  </fieldset>
+
+  <P>
+
+  Rectify cosines using <em>minc_modify_header</em>: <%= form.params_check_box :rectify_cosines %>
+<% end %>

@@ -1,0 +1,72 @@
+
+<%-
+#
+# CBRAIN Project
+#
+# Copyright (C) 2008-2012
+# The Royal Institution for the Advancement of Learning
+# McGill University
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+-%>
+
+<tr>
+
+<td><%= form.params_check_box "file_args[#{idx}][launch]", :class => "launch_it" %></td>
+
+<td>
+  <%= h(file[:t1_name]) %>
+  <%= form.params_hidden_field "file_args[#{idx}][t1_name]" %>
+  <%= form.params_hidden_field "file_args[#{idx}][t1_id]"   %>
+  <%= form.params_hidden_field "file_args[#{idx}][t2_id]"   %>
+  <%= form.params_hidden_field "file_args[#{idx}][pd_id]"   %>
+  <%= form.params_hidden_field "file_args[#{idx}][mk_id]"   %>
+</td>
+
+<td><%= form.params_text_field "file_args[#{idx}][prefix]" %></td>
+<td><%= form.params_text_field "file_args[#{idx}][dsid]"   %></td>
+
+<% if file[:t2_id].blank? %>
+  <td><FONT COLOR="red">&times;</FONT></td>
+<% else %>
+  <td><FONT COLOR="green">&#10004;</FONT></td>
+<% end %>
+
+<% if file[:pd_id].blank? %>
+  <td><FONT COLOR="red">&times;</FONT></td>
+<% else %>
+  <td><FONT COLOR="green">&#10004;</FONT></td>
+<% end %>
+
+<% if file[:mk_id].blank? %>
+  <td><FONT COLOR="red">&times;</FONT></td>
+<% else %>
+  <td><FONT COLOR="green">&#10004;</FONT></td>
+<% end %>
+
+<% if file[:t2_id].blank? && file[:pd_id].blank? %>
+  <td></td>
+<% else %>
+  <td><%= form.params_check_box "file_args[#{idx}][multispectral]", :class => "use_multispectral" %></td>
+<% end %>
+
+<% if file[:mk_id].blank? %>
+  <td></td>
+<% else %>
+  <td><%= form.params_check_box "file_args[#{idx}][spectral_mask]", :class => "use_spectral_mask" %></td>
+<% end %>
+
+</tr>
+
