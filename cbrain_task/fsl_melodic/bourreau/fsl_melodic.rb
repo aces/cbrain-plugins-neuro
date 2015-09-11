@@ -47,7 +47,8 @@ class CbrainTask::FslMelodic < ClusterTask
   end
 
   def job_walltime_estimate #:nodoc:
-    return 1.hours
+    return 1.hours  if params[:icaopt] == "1"
+    return [ 1.hours , 15.minutes * ( params[:functional_file_ids].size ) ].max
   end
 
   def cluster_commands #:nodoc:
@@ -93,12 +94,12 @@ class CbrainTask::FslMelodic < ClusterTask
       unless auto_correction_done
 
         auto_correction_done = true
-
-        # Auto-correction needs to be done on
-        # the task node (i.e. in the task script), not on the Bourreau
-        # host.  Otherwise, FSL needs to be installed on the Bourreau
-        # node, which might not be the case.
-
+        
+        # Auto-correction needs to be done on the task node (i.e. in
+        # the task script), not on the Bourreau host.  Otherwise, FSL
+        # needs to be installed on the Bourreau node, which might not
+        # be the case (e.g. in case the task runs in a Docker container).
+        
         if params[:npts_auto] == "1"
           cmds << find_command("FSLNVOLS","fslnvols fsl5.0-fslnvols")
           command=<<-END
@@ -150,9 +151,10 @@ class CbrainTask::FslMelodic < ClusterTask
 
       end
 
-      # Modifies paths of file in the design file when task goes to VM.
-      functional_file = modify_file_path_for_vm(functional_file) if self.respond_to?("job_template_goes_to_vm?") and self.job_template_goes_to_vm?
-
+      
+      # Modifies paths of file in the design file when task goes to VM.    
+      functional_file = modify_file_path_for_vm(functional_file) if self.respond_to?("job_template_goes_to_vm?") and self.job_template_goes_to_vm? 
+      
       # Adds new option to design file
       new_options["feat_files(#{index+1})"] = "\"#{functional_file}\""
 
@@ -311,7 +313,7 @@ class CbrainTask::FslMelodic < ClusterTask
     # Finds and renames output directory.
     outputname         = "#{params[:output_dir_name]}.ica"
     outputname         = "#{params[:output_dir_name]}.gica" unless File.exists? outputname
-    raise "Cannot find output file #{outputname}/.ica"      unless File.exists? outputname
+    raise "Cannot find output file #{outputname}.ica or #{outputname}.gica"      unless File.exists? outputname
 
     input_files = []
     params[:task_file_ids].each do |id|
