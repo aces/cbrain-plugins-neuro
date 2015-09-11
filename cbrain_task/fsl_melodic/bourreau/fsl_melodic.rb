@@ -48,7 +48,7 @@ class CbrainTask::FslMelodic < ClusterTask
 
   def job_walltime_estimate #:nodoc:
     return 1.hours  if params[:icaopt] == "1"
-    return 15.minutes * ( params[:functional_file_ids].size )
+    return [ 1.hours , 15.minutes * ( params[:functional_file_ids].size ) ].max
   end
 
   def cluster_commands #:nodoc:
