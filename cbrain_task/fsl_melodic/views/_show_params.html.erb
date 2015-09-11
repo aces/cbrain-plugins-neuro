@@ -31,7 +31,7 @@
 <p>
 <STRONG>Functional file(s):</STRONG>
 <ul>
-  <% params[:functional_file_ids].each_value do |id| %>
+  <% params[:functional_file_ids].each do |id| %>
   <li><%= link_to_userfile_if_accessible(id) %></li>
   <% end %>
 </ul>
@@ -41,7 +41,7 @@
 <p>
 <STRONG>Structural file(s):</STRONG>
 <ul>
-  <% params[:structural_file_ids].each_value do |id| %>
+  <% params[:structural_file_ids].each do |id| %>
   <li><%= link_to_userfile_if_accessible(id) %></li>
   <% end %>
 </ul>

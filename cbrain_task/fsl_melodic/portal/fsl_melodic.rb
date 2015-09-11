@@ -149,19 +149,19 @@ class CbrainTask::FslMelodic < PortalTask
 
   def final_task_list #:nodoc:
 
-    params[:functional_file_ids] = params[:functional_file_ids].values
-    params[:structural_file_ids] = params[:structural_file_ids].values
-
     mytasklist = []
     if params[:icaopt] == "1" # creates 1 task per functional file
-      n_tasks    = params[:functional_file_ids].size-1
-      (0..n_tasks).each do |i|
+      functional_file_ids = params[:functional_file_ids]
+      structural_file_ids = params[:structural_file_ids]
+
+      functional_file_ids.each_with_index do |id,idx|
         task=self.dup # not .clone, as of Rails 3.1.10
-        task.params[:functional_file_ids] = [ params[:functional_file_ids]["#{i}".to_i] ]
-        task.params[:structural_file_ids] = [ params[:structural_file_ids]["#{i}".to_i] ]
+        task.params[:functional_file_ids] = [ id ]
+        task.params[:structural_file_ids] = [ structural_file_ids[idx] ]
         set_task_parameters(task)
         mytasklist << task
       end
+
     else # creates only 1 task
       task=self.dup # not .clone, as of Rails 3.1.10
       set_task_parameters(task)
