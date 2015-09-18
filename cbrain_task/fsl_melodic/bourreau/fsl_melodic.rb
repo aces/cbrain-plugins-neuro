@@ -80,24 +80,30 @@ class CbrainTask::FslMelodic < ClusterTask
     ###
     auto_correction_done = false
     params[:functional_file_ids].each_with_index do |functional_file_id,index|
-      functional_file_name = pre_process_input_data_file(functional_file_id,
-                                                         cmds,
+      functional_file_name = pre_process_input_data_file(cmds,
+                                                         functional_file_id,
                                                          "feat_files(#{index+1})",
                                                          new_options)
+      # If the task is a group analysis, extract the file dimensions so that they can be checked.
+      add_cmd_extract_file_dimensions(cmds,functional_file_name) if params[:icaopt]=="2" || params[:icaopt]=="3"
       # Performs auto-corrections in the design file based on the first functional file.
       unless auto_correction_done
         auto_correction_done = true
-        cmds_auto_correct_design_file(cmds,functional_file_name,modified_design_file_path)
+        add_cmd_auto_correct_design_file(cmds,
+                                         functional_file_name,
+                                         modified_design_file_path)
       end
       
     end
+    # If the task is a group analysis, check the file dimensions.
+    add_cmd_check_file_dimensions(cmds) if params[:icaopt]=="2" || params[:icaopt]=="3"
     
     ###
     ### Pre-processes structural files.
     ###
     params[:structural_file_ids].each_with_index do |structural_file_id,index|
-      pre_process_input_data_file(structural_file_id,
-                                  cmds,
+      pre_process_input_data_file(cmds,
+                                  structural_file_id,
                                   "highres_files(#{index+1})",
                                   new_options)
     end
@@ -106,8 +112,8 @@ class CbrainTask::FslMelodic < ClusterTask
     ### Processes regstandard file
     ###
     if params[:regstandard_file_id].present?
-      pre_process_input_data_file(regstandard_file_id,
-                                  cmds,
+      pre_process_input_data_file(cmds,
+                                  regstandard_file_id,
                                   "fmri(regstandard)",
                                   new_options)                
     end
@@ -470,11 +476,11 @@ class CbrainTask::FslMelodic < ClusterTask
   # * modify the path of the file in the design file if the task goes to a VM
   # * adds the (possibly converted) file path to the design file
   # Parameters:
-  #   * file_id: the id of the input file to pre-process
   #   * cmds: an array that receives the (bash) commands required for the conversion
+  #   * file_id: the id of the input file to pre-process
   #   * design_file_option: the corresponding option in the design file (e.g. "feat_files(42)")
   #   * new_options: the hash storing the new options of the design file
-  def pre_process_input_data_file file_id,cmds,design_file_option,new_options
+  def pre_process_input_data_file cmds,file_id,design_file_option,new_options
     
       # Converts minc files to nifti.
       converted_file_name , conversion_command  = converted_file_name_and_command(file_id)
@@ -496,13 +502,12 @@ class CbrainTask::FslMelodic < ClusterTask
   # * cmds: an array that receives the (bash) commands needed for the auto correction.
   # * functional_file_name: the name of a functional file used to correct parameters.
   # * modified_design_file_path: the path of the modified design file.
-  def cmds_auto_correct_design_file cmds,functional_file_name,modified_design_file_path
+  def cmd_auto_correct_design_file cmds,functional_file_name,modified_design_file_path
     
     # Auto-correction needs to be done on the task node (i.e. in
     # the task script), not on the Bourreau host.  Otherwise, FSL
     # needs to be installed on the Bourreau node, which might not
     # be the case (e.g. in case the task runs in a Docker container).
-    
     if params[:npts_auto] == "1"
       cmds << find_command("FSLNVOLS","fslnvols fsl5.0-fslnvols")
       command=<<-END
@@ -551,5 +556,32 @@ class CbrainTask::FslMelodic < ClusterTask
       cmds << command
       cmds << set_design_file_option(modified_design_file_path,"totalVoxels","${NVOX}")
     end
+  end
+
+  # Extracts the dimensions of a file and puts them in a .fslinfo file
+  # Parameters:
+  #   * functional_file_name: name of the file.
+  #   * cmds: array that receives the (bash) commands to perform the check.
+  def add_cmd_extract_file_dimensions cmds,functional_file_name
+     cmds << "fslinfo #{functional_file_name} | awk '$1==\"dim1\" || $1==\"dim2\" || $1==\"dim3\" {print}'> #{functional_file_name}.fslinfo"
+  end
+
+  # Check that all .fslinfo files (created by method extract_file_dimenstions)
+  # are identical, i.e. all the files have the same file dimensions.
+  # Parameters:
+  #  * cmds: an array that receives the (bash) commands to perform the check. 
+  def add_cmd_check_file_dimensions cmds
+    cmds << "md5sum *.fslinfo | awk 'NR>1&&$1!=last{exit 1}{last=$1}'"
+    cmds << "if [ $? != 0 ]"
+    cmds << "then"
+    cmds << "  for file in `ls *.fslinfo`"
+    cmds << "    do"
+    cmds << "      basename ${file} .fslinfo"
+    cmds << "      cat ${file}"
+    cmds << "    end"
+    cmds << "   echo ERROR: functional files don't all have the same dimensions. Check the dimensions reported above and exclude the problematic file(s)."
+    cmds << "else"
+    cmds << "  echo All functional files have the same dimensions."
+    cmds << "fi"
   end
 end
