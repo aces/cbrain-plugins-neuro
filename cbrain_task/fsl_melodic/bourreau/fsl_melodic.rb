@@ -58,12 +58,13 @@ class CbrainTask::FslMelodic < ClusterTask
     # The list of bash commands to be executed.
     cmds      = []
 
-    # A hash containing the files converted from Nifti to MINC.
-    # Used in save_results to save the MINC files.
-    # key: file id of Nifti file.
-    # value: file name of corresponding MINC file.
-    params[:converted_files] = Hash.new
-
+    # Searches for FSL executables
+    cmds << find_command("Feat","feat fsl5.0-feat")
+    cmds << find_command("FSLHD","fslhd fsl5.0-fslhd")
+    cmds << find_command("FSLNVOLS","fslnvols fsl5.0-fslnvols")
+    cmds << find_command("FSLSTATS","fslstats fsl5.0-fslstats")
+    cmds << find_command("FSLINFO","fslinfo fsl5.0-fslinfo")
+        
     # Finds a name for the modified design file.
     modified_design_file_path = "design-cbrain.fsf"
     count = 1
@@ -75,28 +76,46 @@ class CbrainTask::FslMelodic < ClusterTask
     # A hash containing the options to change in the design file
     new_options = Hash.new
 
+    # A hash containing the files converted from Nifti to MINC.
+    # Used in save_results to save the MINC files.
+    # key: file id of Nifti file.
+    # value: file name of corresponding MINC file.
+    params[:converted_files] = Hash.new
+    
     ###
     ### Processes functional files.
     ###
-    auto_correction_done = false
     params[:functional_file_ids].each_with_index do |functional_file_id,index|
-      functional_file_name = pre_process_input_data_file(cmds,
+          functional_file_name = pre_process_input_data_file(cmds,
                                                          functional_file_id,
                                                          "feat_files(#{index+1})",
                                                          new_options)
-      # If the task is a group analysis, extract the file dimensions so that they can be checked.
-      add_cmd_extract_file_dimensions(cmds,functional_file_name) if params[:icaopt]=="2" || params[:icaopt]=="3"
-      # Performs auto-corrections in the design file based on the first functional file.
-      unless auto_correction_done
-        auto_correction_done = true
-        add_cmd_auto_correct_design_file(cmds,
-                                         functional_file_name,
-                                         modified_design_file_path)
-      end
-      
+          # Extract the file dimensions and TRs so that they can be checked.
+          add_cmd_extract_file_dimensions(cmds,functional_file_name)
+          add_cmd_extract_trs(cmds,functional_file_name)
+          cmds << "\n"
+          
+          if index == 0
+            # Performs auto-corrections in the design file
+            add_cmd_auto_correct_design_file(cmds,
+                                             functional_file_name,
+                                             modified_design_file_path)
+            # Check that file t dimension is greater than 20 after removal
+            # of the first ndelete volumes. In case of a group analysis (icaopt = 2 or icaopt = 3)
+            # then it guarantees that all the files have more than 20 volumes because we check later
+            # that all the files have the same dimensions.
+            add_cmd_check_t_dimension_greater_than(cmds,
+                                                   functional_file_name,
+                                                   20+params[:ndelete].to_i)
+          end
     end
-    # If the task is a group analysis, check the file dimensions.
-    add_cmd_check_file_dimensions(cmds) if params[:icaopt]=="2" || params[:icaopt]=="3"
+    
+    # If the task is a group analysis, check that all the functional files have
+    # the same file dimensions and TRs.
+    if params[:icaopt]=="2" || params[:icaopt]=="3"
+      add_cmd_check_file_dimensions_identical(cmds)
+      add_cmd_check_trs_identical(cmds)
+    end
     
     ###
     ### Pre-processes structural files.
@@ -124,10 +143,9 @@ class CbrainTask::FslMelodic < ClusterTask
 
     # $HOME has to be replaced on the machine where the task is
     # executed, not on the Bourreau's machine
-    cmds << "# echo Replacing '$HOME' with $HOME in the design file.\n"
-    cmds << "echo Replacing '$HOME' with $HOME in the design file.\n"
+    cmds << "echo Replacing '$HOME' with $HOME in the design file."
     cmds << sed_design_file(modified_design_file_path,"\\\$HOME","$HOME")
-    cmds << "\n"
+
 
     # Updates path of the standard brain to the local path.
     # $FSLDIR has to be replaced on the machine where the task is
@@ -135,10 +153,9 @@ class CbrainTask::FslMelodic < ClusterTask
     # of FSL, e.g. Neurodebian's, FSLDIR is not defined before feat is
     # called (it is set in the feat wrapper). In that case, FSLDIR
     # should be set in CBRAIN's tool configuration.
-    cmds << "# Corrects path of standard brain\n"
-    cmds << "echo Replacing path of standard file with its path on the current machine.\n"
+    cmds << "# Corrects path of standard brain"
+    cmds << "echo Replacing path of standard file with its path on the current machine."
     cmds << sed_design_file(modified_design_file_path,'\\"\.*/data/standard','\\"${FSLDIR}/data/standard')
-    cmds << "\n"
 
     ###
     ### Modifies the design file to take into account the task parameters.
@@ -198,21 +215,18 @@ class CbrainTask::FslMelodic < ClusterTask
     ###
     ### Execution of melodic
     ###
-
-    # Searches for the feat executable
-    cmds   << find_command("Feat","feat fsl5.0-feat")
-
+    
     # FSL melodic execution commands
     command=<<-END
-      # Executes FSL melodic
-      echo Starting melodic
-      ${FEAT} #{modified_design_file_path}
-      if [ $? != 0 ]
-      then
-       echo ERROR: melodic exited with a non-zero exit code
-      fi
-      chmod -R o+rx *ica 
-    END
+# Executes FSL melodic
+echo Starting melodic
+${FEAT} #{modified_design_file_path}
+if [ $? != 0 ]
+then
+    echo ERROR: melodic exited with a non-zero exit code
+fi
+chmod -R o+rx *ica 
+END
     cmds << command
     params[:output_dir_name] = output
 
@@ -227,7 +241,7 @@ class CbrainTask::FslMelodic < ClusterTask
     # Finds and renames output directory.
     main_output_file_name         = "#{params[:output_dir_name]}.ica"
     main_output_file_name         = "#{params[:output_dir_name]}.gica" unless File.exists? main_output_file_name
-    raise "Cannot find output file #{main_output_file_name}.ica or #{main_output_file_name}.gica"      unless File.exists? main_output_file_name
+    raise "Cannot find output file #{params[:output_dir_name]}.ica or #{params[:output_dir_name]}.gica"      unless File.exists? main_output_file_name
 
     # Builds an array containing the input files (not the input file ids).
     # This array is used later to create the task log (in invocations
@@ -328,7 +342,7 @@ class CbrainTask::FslMelodic < ClusterTask
   # Bash command to replace old_value with new_value anywhere in design_file_path.
   # old_value and new_value cannot contain commas.
   def sed_design_file design_file_path,old_value,new_value
-    return "sed s,#{old_value},#{new_value},g #{design_file_path} > #{design_file_path}.temp \n \mv -f #{design_file_path}.temp #{design_file_path}\n"
+    return "sed s,#{old_value},#{new_value},g #{design_file_path} > #{design_file_path}.temp \n\mv -f #{design_file_path}.temp #{design_file_path}\n"
   end
 
   # Bash command to add a line to a file.
@@ -340,7 +354,7 @@ class CbrainTask::FslMelodic < ClusterTask
   # The parameter name and value cannot contain commas.
   def set_design_file_option design_file_path,parameter_name,value
     cmds = []
-    cmds << "# Sets option ${parameter_name} in the design file\n"
+    cmds << "# Sets option #{parameter_name} in the design file\n"
     cmds << sed_design_file(design_file_path,"\'set.*fmri(#{parameter_name})\'","\'# Line commented by CBRAIN set fmri(#{parameter_name})\'")
     cmds << add_line_to_file(design_file_path,"'set fmri(#{parameter_name})' #{value}")
     cmds << "\n"
@@ -450,24 +464,24 @@ class CbrainTask::FslMelodic < ClusterTask
   def find_command command_name,command_list
     variable = command_name.gsub(' ','').upcase
     command=<<-END
-      # Looks for #{command_name} executable
-      unset #{variable}
-      for cmd in #{command_list}
-      do
-        which ${cmd} &>/dev/null
-        if [ $? = 0 ]
-        then
-          #{variable}=${cmd}
-          break
-      fi
-      done
-      if [ -z \"${#{variable}}\" ]
-      then
-        echo ERROR: unable to find any #{command_name} executable
-        exit 1
-      fi
-      echo #{command_name} executable set to ${#{variable}}.
-    END
+# Looks for #{command_name} executable
+unset #{variable}
+for cmd in #{command_list}
+do
+   which ${cmd} &>/dev/null
+   if [ $? = 0 ]
+   then
+     #{variable}=${cmd}
+     break
+   fi
+done
+if [ -z \"${#{variable}}\" ]
+then
+    echo ERROR: unable to find any #{command_name} executable
+    exit 1
+fi
+echo #{command_name} executable set to ${#{variable}}.
+END
     return command
   end
 
@@ -502,57 +516,54 @@ class CbrainTask::FslMelodic < ClusterTask
   # * cmds: an array that receives the (bash) commands needed for the auto correction.
   # * functional_file_name: the name of a functional file used to correct parameters.
   # * modified_design_file_path: the path of the modified design file.
-  def cmd_auto_correct_design_file cmds,functional_file_name,modified_design_file_path
+  def add_cmd_auto_correct_design_file cmds,functional_file_name,modified_design_file_path
     
     # Auto-correction needs to be done on the task node (i.e. in
     # the task script), not on the Bourreau host.  Otherwise, FSL
     # needs to be installed on the Bourreau node, which might not
     # be the case (e.g. in case the task runs in a Docker container).
     if params[:npts_auto] == "1"
-      cmds << find_command("FSLNVOLS","fslnvols fsl5.0-fslnvols")
       command=<<-END
-            # Auto-corrects parameter fmri(npts)
-            NPTS=`${FSLNVOLS} #{functional_file_name}`
-            if [ $? != 0 ]
-            then
-              echo ERROR: cannot auto-correct number of volumes in #{functional_file_name} '(fslnvols failed)'.
-              exit 1
-            fi
-            echo Auto-corrected number of volumes to ${NPTS}.
-          END
+# Auto-corrects parameter fmri(npts)
+NPTS=`${FSLNVOLS} #{functional_file_name}`
+if [ $? != 0 ]
+then
+  echo ERROR: cannot auto-correct number of volumes in #{functional_file_name} '(fslnvols failed)'.
+  exit 1
+fi
+echo Auto-corrected number of volumes to ${NPTS}.
+END
       cmds << command
       cmds << set_design_file_option(modified_design_file_path,"npts","${NPTS}")
     end
 
     
     if params[:tr_auto] == "1"
-      cmds << find_command("FSLHD","fslhd fsl5.0-fslhd")
       command=<<-END
-            # Auto-corrects parameter fmri(tr)
-            TR=`${FSLHD} #{functional_file_name} | awk '$1==\"pixdim4\" {print $2}'`
-            if [ $? != 0 ]
-            then
-              echo ERROR: cannot auto-correct TR in #{functional_file_name} '(fslhd failed)'.
-              exit 1
-            fi
-            echo Auto-corrected TR to ${TR}.
-          END
+# Auto-corrects parameter fmri(tr)
+TR=`${FSLHD} #{functional_file_name} | awk '$1==\"pixdim4\" {print $2}'`
+if [ $? != 0 ]
+then
+  echo ERROR: cannot auto-correct TR in #{functional_file_name} '(fslhd failed)'.
+  exit 1
+fi
+echo Auto-corrected TR to ${TR}.
+END
       cmds << command
       cmds << set_design_file_option(modified_design_file_path,"tr","${TR}")
     end
     
     if params[:totalvoxels_auto] == "1"
-      cmds << find_command("FSLSTATS","fslstats fsl5.0-fslstats")
       command=<<-END
-            # Auto-corrects parameter fmri(totalVoxels)
-            NVOX=`${FSLSTATS} #{functional_file_name} -v | awk '{print $1}'`
-            if [ $? != 0 ]
-            then
-              echo ERROR: cannot auto-correct number of voxels in #{functional_file_name} '(fslstats failed)'.
-              exit 1
-            fi
-            echo Auto-corrected total voxels to ${NVOX}.
-          END
+# Auto-corrects parameter fmri(totalVoxels)
+NVOX=`${FSLSTATS} #{functional_file_name} -v | awk '{print $1}'`
+if [ $? != 0 ]
+then
+  echo ERROR: cannot auto-correct number of voxels in #{functional_file_name} '(fslstats failed)'.
+  exit 1
+fi
+echo Auto-corrected total voxels to ${NVOX}.
+END
       cmds << command
       cmds << set_design_file_option(modified_design_file_path,"totalVoxels","${NVOX}")
     end
@@ -563,25 +574,87 @@ class CbrainTask::FslMelodic < ClusterTask
   #   * functional_file_name: name of the file.
   #   * cmds: array that receives the (bash) commands to perform the check.
   def add_cmd_extract_file_dimensions cmds,functional_file_name
-     cmds << "fslinfo #{functional_file_name} | awk '$1==\"dim1\" || $1==\"dim2\" || $1==\"dim3\" {print}'> #{functional_file_name}.fslinfo"
+    cmds << "# Extracts dimensions of file #{functional_file_name}"
+    cmds << "${FSLINFO} #{functional_file_name} | awk '$1==\"dim1\" || $1==\"dim2\" || $1==\"dim3\" || $1==\"dim4\" {print}'> #{functional_file_name}.fslinfo"
   end
 
+  # Extracts the TR of a file and puts them in a .trvalue file
+  # Parameters:
+  #   * functional_file_name: name of the file.
+  #   * cmds: array that receives the (bash) commands to perform the check.
+  def add_cmd_extract_trs cmds,functional_file_name
+    cmds << "# Extracts TR of file #{functional_file_name}"
+    cmds << "${FSLHD} #{functional_file_name} | awk '$1==\"pixdim4\" {print $2}' > #{functional_file_name}.trvalue"
+  end
+
+  # Check that all .trvalue files (created by method extract_trs)
+  # are identical, i.e. all the files have the same TR. If this is
+  # not the case, prints a warning.
+  # Parameters:
+  #  * cmds: an array that receives the (bash) commands to perform the check. 
+  def add_cmd_check_trs_identical cmds
+    command=<<-END
+# Checks if all files have the same TR.
+md5sum *.trvalue | awk 'NR>1&&$1!=last{exit 1}{last=$1}'
+if [ $? != 0 ]
+then
+  for file in `ls *.trvalue`
+  do
+    basename ${file} .trvalue
+    cat ${file}
+  done
+  echo "Warning: functional files do not all have the same TR (see TR values above)."
+else
+  echo "All functional files have the same TR."
+fi
+END
+    cmds << command
+  end
+
+  
   # Check that all .fslinfo files (created by method extract_file_dimenstions)
   # are identical, i.e. all the files have the same file dimensions.
   # Parameters:
   #  * cmds: an array that receives the (bash) commands to perform the check. 
-  def add_cmd_check_file_dimensions cmds
-    cmds << "md5sum *.fslinfo | awk 'NR>1&&$1!=last{exit 1}{last=$1}'"
-    cmds << "if [ $? != 0 ]"
-    cmds << "then"
-    cmds << "  for file in `ls *.fslinfo`"
-    cmds << "    do"
-    cmds << "      basename ${file} .fslinfo"
-    cmds << "      cat ${file}"
-    cmds << "    end"
-    cmds << "   echo ERROR: functional files don't all have the same dimensions. Check the dimensions reported above and exclude the problematic file(s)."
-    cmds << "else"
-    cmds << "  echo All functional files have the same dimensions."
-    cmds << "fi"
+  def add_cmd_check_file_dimensions_identical cmds
+    command=<<-END
+# Checks if all files have the same dimensions.
+md5sum *.fslinfo | awk 'NR>1&&$1!=last{exit 1}{last=$1}'
+if [ $? != 0 ]
+then
+  for file in `ls *.fslinfo`
+  do
+    basename ${file} .fslinfo
+    cat ${file}
+  done
+  echo "ERROR: functional files do not all have the same dimensions. Check the dimensions reported above and exclude the problematic file(s)."
+  exit 1
+else
+  echo "All functional files have the same dimensions."
+fi
+END
+    cmds << command
+  end
+
+  # Check that the number of volumes of a functional file is greater than a threshold.
+  # Parameters:
+  #  * cmds: an array that receives the (bash) commands to do the check.
+  #  * file_name: the name of the structural file to check. Method 'add_cmd_extract_file_dimensions'
+  #     must have been called on this file before the present method is called.
+  #  * min_value: the threshold value.
+  def add_cmd_check_t_dimension_greater_than cmds,file_name,min_value
+    command=<<-END
+# Checking number of volumes in #{file_name}
+test -f #{file_name}.fslinfo || ( echo "ERROR: Cannot check the dimension of file #{file_name} (#{file_name}.fslinfo does not exist)" ; exit 1)
+NVOLS=`awk '$1=="dim4" {print $2}' #{file_name}.fslinfo`
+if [ $NVOLS -lt #{min_value} ]
+then
+  echo "ERROR: Refusing to process functional files with only ${NVOLS} volumes. Minimal number of volumes must be greater than 20, after initial volume deletion (ndelete parameter)."
+  exit 1
+else 
+  echo "Number of functional volumes ($NVOLS) is greater than #{min_value}: proceeding."
+fi
+END
+    cmds << command
   end
 end
