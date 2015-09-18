@@ -58,11 +58,11 @@ class CbrainTask::FslMelodic < ClusterTask
     # The list of bash commands to be executed.
     cmds      = []
 
-    # A hash containing the files converted from Nifti to MINC
+    # A hash containing the files converted from Nifti to MINC.
+    # Used in save_results to save the MINC files.
     # key: file id of Nifti file.
     # value: file name of corresponding MINC file.
     params[:converted_files] = Hash.new
-
 
     # Finds a name for the modified design file.
     modified_design_file_path = "design-cbrain.fsf"
@@ -78,134 +78,42 @@ class CbrainTask::FslMelodic < ClusterTask
     ###
     ### Processes functional files.
     ###
-
     auto_correction_done = false
-
     params[:functional_file_ids].each_with_index do |functional_file_id,index|
-
-      # Converts minc files to nifti.
-      functional_file , functional_conversion_command  = converted_file_name_and_command(functional_file_id)
-      if functional_conversion_command.present?
-        cmds << functional_conversion_command
-        params[:converted_files][functional_file_id] = functional_file
-      end
-
-      # Performs auto-correction based on the first functional file.
+      functional_file_name = pre_process_input_data_file(functional_file_id,
+                                                         cmds,
+                                                         "feat_files(#{index+1})",
+                                                         new_options)
+      # Performs auto-corrections in the design file based on the first functional file.
       unless auto_correction_done
-
         auto_correction_done = true
-        
-        # Auto-correction needs to be done on the task node (i.e. in
-        # the task script), not on the Bourreau host.  Otherwise, FSL
-        # needs to be installed on the Bourreau node, which might not
-        # be the case (e.g. in case the task runs in a Docker container).
-        
-        if params[:npts_auto] == "1"
-          cmds << find_command("FSLNVOLS","fslnvols fsl5.0-fslnvols")
-          command=<<-END
-            # Auto-corrects parameter fmri(npts)
-            NPTS=`${FSLNVOLS} #{functional_file}`
-            if [ $? != 0 ]
-            then
-              echo ERROR: cannot auto-correct number of volumes in #{functional_file} '(fslnvols failed)'.
-              exit 1
-            fi
-            echo Auto-corrected number of volumes to ${NPTS}.
-          END
-          cmds << command
-          cmds << set_design_file_option(modified_design_file_path,"npts","${NPTS}")
-        end
-
-
-        if params[:tr_auto] == "1"
-          cmds << find_command("FSLHD","fslhd fsl5.0-fslhd")
-          command=<<-END
-            # Auto-corrects parameter fmri(tr)
-            TR=`${FSLHD} #{functional_file} | awk '$1==\"pixdim4\" {print $2}'`
-            if [ $? != 0 ]
-            then
-              echo ERROR: cannot auto-correct TR in #{functional_file} '(fslhd failed)'.
-              exit 1
-            fi
-            echo Auto-corrected TR to ${TR}.
-          END
-          cmds << command
-          cmds << set_design_file_option(modified_design_file_path,"tr","${TR}")
-        end
-
-        if params[:totalvoxels_auto] == "1"
-          cmds << find_command("FSLSTATS","fslstats fsl5.0-fslstats")
-          command=<<-END
-            # Auto-corrects parameter fmri(totalVoxels)
-            NVOX=`${FSLSTATS} #{functional_file} -v | awk '{print $1}'`
-            if [ $? != 0 ]
-            then
-              echo ERROR: cannot auto-correct number of voxels in #{functional_file} '(fslstats failed)'.
-              exit 1
-            fi
-            echo Auto-corrected total voxels to ${NVOX}.
-          END
-          cmds << command
-          cmds << set_design_file_option(modified_design_file_path,"totalVoxels","${NVOX}")
-        end
-
+        cmds_auto_correct_design_file(cmds,functional_file_name,modified_design_file_path)
       end
-
       
-      # Modifies paths of file in the design file when task goes to VM.    
-      functional_file = modify_file_path_for_vm(functional_file) if self.respond_to?("job_template_goes_to_vm?") and self.job_template_goes_to_vm? 
-      
-      # Adds new option to design file
-      new_options["feat_files(#{index+1})"] = "\"#{functional_file}\""
-
     end
-
+    
     ###
-    ### Processes structural files.
+    ### Pre-processes structural files.
     ###
-
     params[:structural_file_ids].each_with_index do |structural_file_id,index|
-
-      # Converts minc files to nifti.
-      structural_file , structural_conversion_command  = converted_file_name_and_command(structural_file_id)
-      if structural_conversion_command.present?
-        cmds << structural_conversion_command
-        params[:converted_files][structural_file_id] = structural_file
-      end
-
-      # Modifies paths of file in the design file when task goes to VM.
-      structural_file = modify_file_path_for_vm(structural_file) if self.respond_to?("job_template_goes_to_vm?") && self.job_template_goes_to_vm?
-
-      # Adds new option to design file
-      new_options["highres_files(#{index+1})"] = "\"#{structural_file}\""
-
+      pre_process_input_data_file(structural_file_id,
+                                  cmds,
+                                  "highres_files(#{index+1})",
+                                  new_options)
     end
-
+    
     ###
     ### Processes regstandard file
     ###
-
     if params[:regstandard_file_id].present?
-
-      # Conversion to MINC
-      regstandard_file, regstandard_conversion_command = converted_file_name_and_command(params[:regstandard_file_id])
-      if regstandard_conversion_command.present?
-        cmds << regstandard_conversion_command
-        params[:converted_files][regstandard_file_id] = regstandard_file
-      end
-
-
-      # Modifies paths of file in the design file when task goes to VM.
-      regstandard_file  = modify_file_path_for_vm(regstandard_file) if self.respond_to?("job_template_goes_to_vm?") && self.job_template_goes_to_vm?
-
-      # Adds new option to design file
-      new_options["fmri(regstandard)"] = "\"#{regstandard_file}\""
-
+      pre_process_input_data_file(regstandard_file_id,
+                                  cmds,
+                                  "fmri(regstandard)",
+                                  new_options)                
     end
 
     ###
-    ### Design file modifications on the execution machine, i.e. done
-    ### in the qsub script rather than in the Bourreau.
+    ### Design file modifications on the execution machine.
     ###
 
     # $HOME has to be replaced on the machine where the task is
@@ -227,9 +135,8 @@ class CbrainTask::FslMelodic < ClusterTask
     cmds << "\n"
 
     ###
-    ### Design file modifications done in the Bourreau.
+    ### Modifies the design file to take into account the task parameters.
     ###
-
     output  = (! params[:output_name].present?) ? "melodic-#{self.run_id}" : "#{params[:output_name]}-#{self.run_id}"
 
     new_options["fmri(outputdir)"]                     =     "\"#{output}\""
@@ -312,23 +219,26 @@ class CbrainTask::FslMelodic < ClusterTask
     params  = self.params
 
     # Finds and renames output directory.
-    outputname         = "#{params[:output_dir_name]}.ica"
-    outputname         = "#{params[:output_dir_name]}.gica" unless File.exists? outputname
-    raise "Cannot find output file #{outputname}.ica or #{outputname}.gica"      unless File.exists? outputname
+    main_output_file_name         = "#{params[:output_dir_name]}.ica"
+    main_output_file_name         = "#{params[:output_dir_name]}.gica" unless File.exists? main_output_file_name
+    raise "Cannot find output file #{main_output_file_name}.ica or #{main_output_file_name}.gica"      unless File.exists? main_output_file_name
 
+    # Builds an array containing the input files (not the input file ids).
+    # This array is used later to create the task log (in invocations
+    # of method 'addlog_to_userfiles_these_created_these')
     input_files = []
     params[:task_file_ids].each do |id|
       input_files << Userfile.find(id)
     end
 
-    # Saves main result file.
-    cbrain_output_name  = unique_file_name(outputname)
+    # Saves the main result file.
+    cbrain_output_name  = unique_file_name(main_output_file_name)
     cbrain_parent_file  = params[:functional_file_ids].size == 1 ?
                            Userfile.find(params[:functional_file_ids][0]) :
                             Userfile.find(params[:csv_file_id])
     main_output_file    = save_file(FslMelodicOutput,
                                     cbrain_output_name,
-                                    outputname,
+                                    main_output_file_name,
                                     cbrain_parent_file,
                                     input_files)    
     params[:outfile_id] = main_output_file.id
@@ -336,15 +246,17 @@ class CbrainTask::FslMelodic < ClusterTask
     # Saves additional result files (individual analyses when the main
     # analysis is a group analysis).
     Dir.glob("*.ica").each do |result_directory|
-      break if main_output_file == result_directory
-      save_file(FslMelodicOutput,
-                result_directory,
-                result_directory,
-                main_output_file,
-                input_files)
+      unless main_output_file_name == result_directory
+        self.addlog("Saving additional result file: #{result_directory}")
+        save_file(FslMelodicOutput,
+                  result_directory,
+                  result_directory,
+                  main_output_file,
+                  input_files)
+      end
     end
     
-    # Saves files converted to MINC
+    # Saves the files converted to MINC
     params[:converted_files].each do |nifti_file_id,minc_file_name|
       save_file(NiftiFile,
                 unique_file_name(File.basename(minc_file_name)),
@@ -369,7 +281,6 @@ class CbrainTask::FslMelodic < ClusterTask
 
     return true
   end
-
 
   private
 
@@ -501,12 +412,14 @@ class CbrainTask::FslMelodic < ClusterTask
   end
 
   # Saves a local file in CBRAIN
-  # cbrain_file_type  : the type of the file created in CBRAIN (e.g. SingleFile)
-  # cbrain_file_name  : the name of the file created in CBRAIN (e.g. "foo.txt")
-  # local_file_name   : the name of the local file to synchronize (e.g. "bar.txt")
-  # cbrain_parent_file: the name of the CBRAIN file under which the new CBRAIN file will be created
-  # input_files       : an array containing the CBRAIN files that were used to produce this file.   
+  # Parameters:
+  # * cbrain_file_type  : the type of the file created in CBRAIN (e.g. SingleFile)
+  # * cbrain_file_name  : the name of the file created in CBRAIN (e.g. "foo.txt")
+  # * local_file_name   : the name of the local file to synchronize (e.g. "bar.txt")
+  # * cbrain_parent_file: the name of the CBRAIN file under which the new CBRAIN file will be created
+  # * input_files       : an array containing the CBRAIN files that were used to produce this file.   
   def save_file cbrain_file_type,cbrain_file_name,local_file_name,cbrain_parent_file,input_files
+    self.addlog("Saving result file #{cbrain_file_name} as a child of #{cbrain_parent_file.name}")
     outputfile= safe_userfile_find_or_new(cbrain_file_type, :name => cbrain_file_name)
     outputfile.save!
     outputfile.cache_copy_from_local_file(local_file_name)
@@ -516,7 +429,18 @@ class CbrainTask::FslMelodic < ClusterTask
     return outputfile
   end  
  
-  # A bash command to find a command among a list of possible commands. 
+  # A bash command to find a command among a list of possible
+  # commands.
+  # Parameters:
+  # * command_name: the name of the command to
+  #   look for. A bash variable named command_name.upcase will
+  #   eventually contain the name of the actual command found on the
+  #   host.
+  # * command_list: the list of possible commands. The first
+  #   command of this list found on the execution host will be selected.
+  # Example: find_command("Feat","feat fsl5.0-feat") will define a bash
+  #          variable named FEAT that will contain either "feat" or
+  #          "fsl5.0-feat" depending on what is found on the execution host.
   def find_command command_name,command_list
     variable = command_name.gsub(' ','').upcase
     command=<<-END
@@ -539,5 +463,93 @@ class CbrainTask::FslMelodic < ClusterTask
       echo #{command_name} executable set to ${#{variable}}.
     END
     return command
+  end
+
+  # Pre-processes an input data file, i.e.:
+  # * converts it to nifti if it's a MINC file
+  # * modify the path of the file in the design file if the task goes to a VM
+  # * adds the (possibly converted) file path to the design file
+  # Parameters:
+  #   * file_id: the id of the input file to pre-process
+  #   * cmds: an array that receives the (bash) commands required for the conversion
+  #   * design_file_option: the corresponding option in the design file (e.g. "feat_files(42)")
+  #   * new_options: the hash storing the new options of the design file
+  def pre_process_input_data_file file_id,cmds,design_file_option,new_options
+    
+      # Converts minc files to nifti.
+      converted_file_name , conversion_command  = converted_file_name_and_command(file_id)
+      if conversion_command.present?
+        cmds << structural_conversion_command
+        params[:converted_files][file_id] = converted_file_name
+      end
+
+      # Modifies paths of file in the design file when task goes to VM.
+      converted_file_name = modify_file_path_for_vm(converted_file_name) if self.respond_to?("job_template_goes_to_vm?") && self.job_template_goes_to_vm?
+
+      # Adds new file to design file
+      new_options[design_file_option] = "\"#{converted_file_name}\""
+      
+      return converted_file_name
+  end
+
+  # Adds commands to auto-correct the design file based on input file characteristics.
+  # * cmds: an array that receives the (bash) commands needed for the auto correction.
+  # * functional_file_name: the name of a functional file used to correct parameters.
+  # * modified_design_file_path: the path of the modified design file.
+  def cmds_auto_correct_design_file cmds,functional_file_name,modified_design_file_path
+    
+    # Auto-correction needs to be done on the task node (i.e. in
+    # the task script), not on the Bourreau host.  Otherwise, FSL
+    # needs to be installed on the Bourreau node, which might not
+    # be the case (e.g. in case the task runs in a Docker container).
+    
+    if params[:npts_auto] == "1"
+      cmds << find_command("FSLNVOLS","fslnvols fsl5.0-fslnvols")
+      command=<<-END
+            # Auto-corrects parameter fmri(npts)
+            NPTS=`${FSLNVOLS} #{functional_file_name}`
+            if [ $? != 0 ]
+            then
+              echo ERROR: cannot auto-correct number of volumes in #{functional_file_name} '(fslnvols failed)'.
+              exit 1
+            fi
+            echo Auto-corrected number of volumes to ${NPTS}.
+          END
+      cmds << command
+      cmds << set_design_file_option(modified_design_file_path,"npts","${NPTS}")
+    end
+
+    
+    if params[:tr_auto] == "1"
+      cmds << find_command("FSLHD","fslhd fsl5.0-fslhd")
+      command=<<-END
+            # Auto-corrects parameter fmri(tr)
+            TR=`${FSLHD} #{functional_file_name} | awk '$1==\"pixdim4\" {print $2}'`
+            if [ $? != 0 ]
+            then
+              echo ERROR: cannot auto-correct TR in #{functional_file_name} '(fslhd failed)'.
+              exit 1
+            fi
+            echo Auto-corrected TR to ${TR}.
+          END
+      cmds << command
+      cmds << set_design_file_option(modified_design_file_path,"tr","${TR}")
+    end
+    
+    if params[:totalvoxels_auto] == "1"
+      cmds << find_command("FSLSTATS","fslstats fsl5.0-fslstats")
+      command=<<-END
+            # Auto-corrects parameter fmri(totalVoxels)
+            NVOX=`${FSLSTATS} #{functional_file_name} -v | awk '{print $1}'`
+            if [ $? != 0 ]
+            then
+              echo ERROR: cannot auto-correct number of voxels in #{functional_file_name} '(fslstats failed)'.
+              exit 1
+            fi
+            echo Auto-corrected total voxels to ${NVOX}.
+          END
+      cmds << command
+      cmds << set_design_file_option(modified_design_file_path,"totalVoxels","${NVOX}")
+    end
   end
 end
