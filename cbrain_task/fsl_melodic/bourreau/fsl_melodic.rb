@@ -298,6 +298,7 @@ class CbrainTask::FslMelodic < ClusterTask
       then 
        echo ERROR: melodic exited with a non-zero exit code 
       fi
+      chmod -R o+rx *ica 
     END
     cmds << command    
     params[:output_dir_name] = output
@@ -320,24 +321,36 @@ class CbrainTask::FslMelodic < ClusterTask
       input_files << Userfile.find(id)
     end
 
-    # Saves result file.
-    outputname_unique  = unique_file_name outputname
-    outputfile         = safe_userfile_find_or_new(FslMelodicOutput, :name => outputname_unique)
-    outputfile.save!
-    outputfile.cache_copy_from_local_file(outputname)
-    self.addlog_to_userfiles_these_created_these( input_files, [ outputfile ] )
-    self.addlog("Saved result file #{params[:output_dir_name]}")
-    
-    params[:outfile_id] = outputfile.id
-    if params[:functional_file_ids].size == 1
-      outputfile.move_to_child_of(Userfile.find(params[:functional_file_ids][0]))
-    else
-      outputfile.move_to_child_of(Userfile.find(params[:csv_file_id]))
-    end
+    # Saves main result file.
+    cbrain_output_name  = unique_file_name(outputname)
+    cbrain_parent_file  = params[:functional_file_ids].size == 1 ?
+                           Userfile.find(params[:functional_file_ids][0]) :
+                            Userfile.find(params[:csv_file_id])
+    main_output_file    = save_file(FslMelodicOutput,
+                                    cbrain_output_name,
+                                    outputname,
+                                    cbrain_parent_file,
+                                    input_files)    
+    params[:outfile_id] = main_output_file.id
 
+    # Saves additional result files (individual analyses when the main
+    # analysis is a group analysis).
+    Dir.glob("*.ica").each do |result_directory|
+      break if main_output_file == result_directory
+      save_file(FslMelodicOutput,
+                result_directory,
+                result_directory,
+                main_output_file,
+                input_files)
+    end
+    
     # Saves files converted to MINC
-    params[:converted_files].each do |key,value|
-      save_converted_file(value,Userfile.find(key))
+    params[:converted_files].each do |nifti_file_id,minc_file_name|
+      save_file(NiftiFile,
+                unique_file_name(File.basename(minc_file_name)),
+                output_file_name,
+                Userfile.find(nifti_file_id),
+                [ parent_file ] )
     end
     
     # Verifies if all tasks exited without error (do this after saving
@@ -486,20 +499,23 @@ class CbrainTask::FslMelodic < ClusterTask
     end
     return name
   end
-  
-  # Saves and returns converted file.
-  def save_converted_file converted_file_name,parent_file
-    output_file_name = File.basename(converted_file_name)
-    self.addlog("Saving result file #{output_file_name}")
-    converted_file = safe_userfile_find_or_new(NiftiFile, :name => unique_file_name(output_file_name))
-    converted_file.save!
-    converted_file.cache_copy_from_local_file(output_file_name)
-    self.addlog_to_userfiles_these_created_these( [ parent_file ], [ converted_file ] )
-    self.addlog("Saved result file #{converted_file.name}")
-    converted_file.move_to_child_of(parent_file)
-    return converted_file
-  end
 
+  # Saves a local file in CBRAIN
+  # cbrain_file_type  : the type of the file created in CBRAIN (e.g. SingleFile)
+  # cbrain_file_name  : the name of the file created in CBRAIN (e.g. "foo.txt")
+  # local_file_name   : the name of the local file to synchronize (e.g. "bar.txt")
+  # cbrain_parent_file: the name of the CBRAIN file under which the new CBRAIN file will be created
+  # input_files       : an array containing the CBRAIN files that were used to produce this file.   
+  def save_file cbrain_file_type,cbrain_file_name,local_file_name,cbrain_parent_file,input_files
+    outputfile= safe_userfile_find_or_new(cbrain_file_type, :name => cbrain_file_name)
+    outputfile.save!
+    outputfile.cache_copy_from_local_file(local_file_name)
+    outputfile.move_to_child_of(cbrain_parent_file)
+    self.addlog_to_userfiles_these_created_these( input_files, [ outputfile ] )
+    self.addlog("Saved result file #{cbrain_file_name}")
+    return outputfile
+  end  
+ 
   # A bash command to find a command among a list of possible commands. 
   def find_command command_name,command_list
     variable = command_name.gsub(' ','').upcase
