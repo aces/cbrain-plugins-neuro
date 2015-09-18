@@ -173,9 +173,8 @@ class CbrainTask::FslMelodic < PortalTask
   def set_task_parameters task
     ids = []
 
-
     ids = task.params[:functional_file_ids].dup
-    ids.concat params[:structural_file_ids]
+    ids.concat task.params[:structural_file_ids]
     ids << task.params[:design_file_id]
     ids << task.params[:regstandard_file_id] if task.params[:regstandard_file_id].present? && task.params[:alternatereference_yn] == "1"
 
