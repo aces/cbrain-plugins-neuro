@@ -132,7 +132,7 @@ class CbrainTask::FslMelodic < ClusterTask
     ###
     if params[:regstandard_file_id].present?
       pre_process_input_data_file(cmds,
-                                  regstandard_file_id,
+                                  params[:regstandard_file_id],
                                   "fmri(regstandard)",
                                   new_options)                
     end
@@ -499,7 +499,7 @@ END
       # Converts minc files to nifti.
       converted_file_name , conversion_command  = converted_file_name_and_command(file_id)
       if conversion_command.present?
-        cmds << structural_conversion_command
+        cmds << conversion_command
         params[:converted_files][file_id] = converted_file_name
       end
 
