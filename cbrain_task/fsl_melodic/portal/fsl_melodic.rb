@@ -164,15 +164,15 @@ class CbrainTask::FslMelodic < PortalTask
                "regstandard_nonlinear_yn","regstandard_nonlinear_warpres",
                "regstandard_res","varnorm","dim_yn","dim","thresh_yn",
                "mmthresh","ostats","icaopt","analysis","paradigm_hp",
-               "npts","alternateReference_yn","totalVoxels"]
+               "npts","alternatereference_yn","totalVoxels"]
     options.each { |option| params[option.to_sym] = option_values[option] }
     
     params[:template_files]                = get_template_files
     
     # initializes parameters that are not in the design file
-    params[:tr_auto]   = "1"
-    params[:npts_auto] = "1"
-    params[:totalvoxels_auto] = "1"
+    params[:tr_auto]   = params[:tr_auto].present? ? params[:tr_auto] : "1"
+    params[:npts_auto] = params[:npts_auto].present? ? params[:npts_auto] : "1"
+    params[:totalvoxels_auto] = params[:totalvoxels_auto].present? ? params[:totalvoxels_auto] : "1"
   end
 
 
