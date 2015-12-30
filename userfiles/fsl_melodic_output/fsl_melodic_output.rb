@@ -40,12 +40,20 @@ class FslMelodicOutput < FileCollection
   #  * file_path: the path of the HTML file whose content will be read, modified and returned. 
   #  * dir_name: the directory name of the HTML file in the melodic file collection.
   ##################################################################################################
-  
+
+ 
   def modified_file_content file_path,dir_name
     return nil unless File.exists?(file_path)
+    
+    # Specific pages
+    return modify_report_first_level   if file_path.end_with?("report_firstlevel.html")
+    file_contents = File.open(file_path).read    
+    return modify_high_level_reg_report  if file_path.end_with?("report_reg.html") &&  file_contents.include?("Summary of first-level registrations and masks")
+
+    # Other pages
     lines = Array.new
     # The file is processed line by line to speed up substitutions.
-    File.open(file_path).each do |line|
+    file_contents.each_line do |line|
       # Tweaks hrefs.
       new_line = tweak_hrefs_in_line(line,dir_name)
       # Tweaks imgs.
@@ -60,6 +68,9 @@ class FslMelodicOutput < FileCollection
       new_line = new_line.gsub(/<head>/i,"")
       new_line = new_line.gsub(/<\/head>/i,"")
       new_line = new_line.gsub(/<title>.*<\/title>/i,"")
+      new_line = new_line.gsub("<TABLE","<TABLE style=\"border:0px\"")
+      new_line = new_line.gsub("<TD","<TD style=\"border:0px\"")
+      new_line = new_line.gsub("<td","<td style=\"border:0px\"")
       # Handles iframes.
       keep_line = true
       new_line.scan(/<IFRAME.*src=(.*) /i) do |x,y|
@@ -180,6 +191,38 @@ class FslMelodicOutput < FileCollection
       new_line = new_line.gsub(img,new_img)
     end
     return new_line
+  end
+
+  # Re-build a complete page with correct links for the first-level
+  # report (report_firstlevel.html) in group analyses.
+  def modify_report_first_level
+    lines = Array.new
+    lines << "<h2>Inputs to higher-level analysis</h2>(lower-level processing)<p>"
+    input_files = Userfile.where(:parent_id => self.id)
+    if input_files.empty?
+      lines << "No input file found."
+    else
+      input_files.each_with_index do |f,i|
+        lines << "#{i} <a href=\"#{f.id}\">#{f.name}</a><br/>"
+      end
+    end
+    return lines
+  end
+
+  # Re-build a complete page for high-level registration report
+  def modify_high_level_reg_report
+    lines = Array.new
+    lines << "<h2>Summary of first-level registrations and masks</h2> <p><b>Summaries of functional-to-standard registrations for all inputs</b><br>"
+    input_files = Userfile.where(:parent_id => self.id)
+    if input_files.empty?
+      lines << "No input file found."
+    else
+      input_files.each_with_index do |f,i|
+        lines << "#{i} <a href=\"#{f.id}?file_name=report_reg.html\">#{f.name}</a><br/>"
+        lines << "<IMG BORDER=0 SRC=#{f.id}/content?arguments=#{f.name}/reg/example_func2standard1.png&content_loader=collection_file&content_viewer=off&viewer=image_file&viewer_userfile_class=ImageFile WIDTH=100%>"
+      end
+    end
+    return lines
   end
   
 end
