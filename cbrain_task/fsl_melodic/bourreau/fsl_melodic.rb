@@ -29,6 +29,10 @@ class CbrainTask::FslMelodic < ClusterTask
   include RestartableTask
   include RecoverableTask
 
+  def self.properties #:nodoc:
+    super.merge :can_submit_new_tasks => true
+  end
+  
   def setup #:nodoc:
     params       = self.params
     params[:task_file_ids].each do |inputfile_id|
@@ -64,7 +68,7 @@ class CbrainTask::FslMelodic < ClusterTask
     cmds << find_command("FSLNVOLS","fslnvols fsl5.0-fslnvols")
     cmds << find_command("FSLSTATS","fslstats fsl5.0-fslstats")
     cmds << find_command("FSLINFO","fslinfo fsl5.0-fslinfo")
-        
+    
     # Finds a name for the modified design file.
     modified_design_file_path = "design-cbrain.fsf"
     count = 1
@@ -86,28 +90,28 @@ class CbrainTask::FslMelodic < ClusterTask
     ### Processes functional files.
     ###
     params[:functional_file_ids].each_with_index do |functional_file_id,index|
-          functional_file_name = pre_process_input_data_file(cmds,
+      functional_file_name = pre_process_input_data_file(cmds,
                                                          functional_file_id,
                                                          "feat_files(#{index+1})",
                                                          new_options)
-          # Extract the file dimensions and TRs so that they can be checked.
-          add_cmd_extract_file_dimensions(cmds,functional_file_name)
-          add_cmd_extract_trs(cmds,functional_file_name)
-          cmds << "\n"
-          
-          if index == 0
-            # Performs auto-corrections in the design file
-            add_cmd_auto_correct_design_file(cmds,
-                                             functional_file_name,
-                                             modified_design_file_path)
-            # Check that file t dimension is greater than 20 after removal
-            # of the first ndelete volumes. In case of a group analysis (icaopt = 2 or icaopt = 3)
-            # then it guarantees that all the files have more than 20 volumes because we check later
-            # that all the files have the same dimensions.
-            add_cmd_check_t_dimension_greater_than(cmds,
-                                                   functional_file_name,
-                                                   20+params[:ndelete].to_i)
-          end
+      # Extract the file dimensions and TRs so that they can be checked.
+      add_cmd_extract_file_dimensions(cmds,functional_file_name)
+      add_cmd_extract_trs(cmds,functional_file_name)
+      cmds << "\n"
+      
+      if index == 0
+        # Performs auto-corrections in the design file
+        add_cmd_auto_correct_design_file(cmds,
+                                         functional_file_name,
+                                         modified_design_file_path)
+        # Check that file t dimension is greater than 20 after removal
+        # of the first ndelete volumes. In case of a group analysis (icaopt = 2 or icaopt = 3)
+        # then it guarantees that all the files have more than 20 volumes because we check later
+        # that all the files have the same dimensions.
+        add_cmd_check_t_dimension_greater_than(cmds,
+                                               functional_file_name,
+                                               20+params[:ndelete].to_i)
+      end
     end
     
     # If the task is a group analysis, check that all the functional files have
@@ -146,16 +150,16 @@ class CbrainTask::FslMelodic < ClusterTask
     cmds << "echo Replacing '$HOME' with $HOME in the design file."
     cmds << sed_design_file(modified_design_file_path,"\\\$HOME","$HOME")
 
-
-    # Updates path of the standard brain to the local path.
-    # $FSLDIR has to be replaced on the machine where the task is
-    # executed, not on the Bourreau's machine.  In some installations
-    # of FSL, e.g. Neurodebian's, FSLDIR is not defined before feat is
-    # called (it is set in the feat wrapper). In that case, FSLDIR
-    # should be set in CBRAIN's tool configuration.
-    cmds << "# Corrects path of standard brain"
-    cmds << "echo Replacing path of standard file with its path on the current machine."
-    cmds << sed_design_file(modified_design_file_path,'\\"\.*/data/standard','\\"${FSLDIR}/data/standard')
+    if !params[:regstandard_file_id].present?
+      # Set regstandard path to default, as documented in the task launch form.
+      # $FSLDIR has to be replaced on the machine where the task is
+      # executed, not on the Bourreau's machine.  In some installations
+      # of FSL, e.g. Neurodebian's, FSLDIR is not defined before feat is
+      # called (it is set in the feat wrapper). In that case, FSLDIR
+      # should be set in CBRAIN's tool configuration.
+      cmds << "# Corrects path of standard brain"
+      cmds << set_design_file_option(modified_design_file_path,"regstandard","\\\"${FSLDIR}/data/standard/MNI152_T1_2mm_brain\\\"")
+    end
 
     ###
     ### Modifies the design file to take into account the task parameters.
@@ -177,11 +181,11 @@ class CbrainTask::FslMelodic < ClusterTask
     new_options["fmri(templp_yn)"]                     =     params[:templp_yn]
     new_options["fmri(motionevs)"]                     =     params[:motionevs]
     new_options["fmri(bgimage)"]                       =     params[:bgimage]
-    new_options["fmri(reg_yn)"]                        =     ( params[:reghighres_yn] == "1" or params[:regstandard_yn] == "1" ) ? "1" : "0"
-#    Commented out as this option is not properly supported by CBRAIN yet.
-#    new_options["fmri(reginitial_highres_yn)"]        =     params[:reginitial_highres_yn]
-#    new_options["fmri(reginitial_highres_search)"]    =     params[:reginitial_highres_search]
-#    new_options["fmri(reginitial_highres_dof)"]       =     params[:reginitial_highres_dof]
+    new_options["fmri(reg_yn)"]                        =     ( params[:reghighres_yn] == "1" || params[:regstandard_yn] == "1" ) ? "1" : "0"
+    #    Commented out as this option is not properly supported by CBRAIN yet.
+    #    new_options["fmri(reginitial_highres_yn)"]        =     params[:reginitial_highres_yn]
+    #    new_options["fmri(reginitial_highres_search)"]    =     params[:reginitial_highres_search]
+    #    new_options["fmri(reginitial_highres_dof)"]       =     params[:reginitial_highres_dof]
     new_options["fmri(reghighres_yn)"]                 =     params[:reghighres_yn]
     new_options["fmri(reghighres_search)"]             =     params[:reghighres_search]
     new_options["fmri(reghighres_dof)"]                =     params[:reghighres_dof]
@@ -202,7 +206,6 @@ class CbrainTask::FslMelodic < ClusterTask
     new_options["fmri(analysis)"]                      =     params[:analysis]
     new_options["fmri(paradigm_hp)"]                   =     params[:paradigm_hp]
     new_options["fmri(npts)"]                          =     params[:npts]                      unless params[:npts_auto] == "1"
-    new_options["fmri(alternateReference_yn)"]         =     params[:alternatereference_yn]
     new_options["fmri(totalVoxels)"]                   =     params[:totalvoxels]               unless params[:totalvoxels_auto] == "1"
 
     # Writes the new design file
@@ -220,6 +223,7 @@ class CbrainTask::FslMelodic < ClusterTask
     command=<<-END
 # Executes FSL melodic
 echo Starting melodic
+export CBRAIN_WORKDIR="#{self.full_cluster_workdir}" # To make fsl_sub submit tasks to CBRAIN 
 ${FEAT} #{modified_design_file_path}
 if [ $? != 0 ]
 then
@@ -235,13 +239,44 @@ END
   end
 
   def save_results #:nodoc:
-
+    # Extracted from the documentation in ClusterTask:
+    # returning false will mark
+    # the job with a final status "Failed On Cluster".
+    # Raising an exception will mark the job with
+    # a final status "Failed To PostProcess".
     params  = self.params
+    em = error_messages?
+    begin
+      # Try to transfer output files even when
+      # error messages are found
+      # (output files contain important debugging information).
+      save_output_files
+    rescue Exception => msg
+      self.addlog(msg)
+      # Output files couldn't be transferred:
+      #  * raise an exception if no error messages
+      #     were found so that task is put in status "Failed To PostProcess".
+      #  * return false otherwise so that task is put in status "Failed on Cluster".
+      raise msg if !em 
+    end
+    # At this stage, em=true if save_output_file raised an exception. 
+    return !em
+  end
 
+  private
+
+  ####################################################
+  ################# File saving and results checking #
+  ####################################################
+  
+  
+  # Transfer all *.ica and *.gica directories
+  # Raises an exception if none are found
+  def save_output_files
     # Finds and renames output directory.
     main_output_file_name         = "#{params[:output_dir_name]}.ica"
     main_output_file_name         = "#{params[:output_dir_name]}.gica" unless File.exists? main_output_file_name
-    raise "Cannot find output file #{params[:output_dir_name]}.ica or #{params[:output_dir_name]}.gica"      unless File.exists? main_output_file_name
+    raise "Cannot find output file #{params[:output_dir_name]}.ica or #{params[:output_dir_name]}.gica"    unless File.exists? main_output_file_name
 
     # Builds an array containing the input files (not the input file ids).
     # This array is used later to create the task log (in invocations
@@ -254,7 +289,7 @@ END
     # Saves the main result file.
     cbrain_output_name  = unique_file_name(main_output_file_name)
     cbrain_parent_file  = params[:functional_file_ids].size == 1 ?
-                           Userfile.find(params[:functional_file_ids][0]) :
+                            Userfile.find(params[:functional_file_ids][0]) :
                             Userfile.find(params[:csv_file_id])
     main_output_file    = save_file(FslMelodicOutput,
                                     cbrain_output_name,
@@ -278,32 +313,53 @@ END
     
     # Saves the files converted to MINC
     params[:converted_files].each do |nifti_file_id,minc_file_name|
+      nifti_file = Userfile.find(nifti_file_id)
       save_file(NiftiFile,
                 unique_file_name(File.basename(minc_file_name)),
-                output_file_name,
-                Userfile.find(nifti_file_id),
-                [ parent_file ] )
+                minc_file_name,
+                nifti_file,
+                [ nifti_file ] )
     end
+  end
 
+  # Saves a local file in CBRAIN
+  # Parameters:
+  # * cbrain_file_type  : the type of the file created in CBRAIN (e.g. SingleFile)
+  # * cbrain_file_name  : the name of the file created in CBRAIN (e.g. "foo.txt")
+  # * local_file_name   : the name of the local file to synchronize (e.g. "bar.txt")
+  # * cbrain_parent_file: the name of the CBRAIN file under which the new CBRAIN file will be created
+  # * input_files       : an array containing the CBRAIN files that were used to produce this file.   
+  def save_file cbrain_file_type,cbrain_file_name,local_file_name,cbrain_parent_file,input_files
+    self.addlog("Saving result file #{cbrain_file_name} as a child of #{cbrain_parent_file.name}")
+    outputfile= safe_userfile_find_or_new(cbrain_file_type, :name => cbrain_file_name)
+    outputfile.save!
+    outputfile.cache_copy_from_local_file(local_file_name)
+    outputfile.move_to_child_of(cbrain_parent_file)
+    self.addlog_to_userfiles_these_created_these( input_files, [ outputfile ] )
+    self.addlog("Saved result file #{cbrain_file_name}")
+    return outputfile
+  end  
+
+  
+  # Returns true if error messages were detected.
+  def error_messages?
     # Verifies if all tasks exited without error (do this after saving
     # the files because important debug information is found in the
     # melodic logs).
     stderr = File.read(self.stderr_cluster_filename) rescue ""
     if stderr =~ /ERROR:/
       self.addlog("melodic task failed (see Standard Error)")
-      return false
+      return true
     end
     stdout = File.read(self.stdout_cluster_filename) rescue ""
     if stdout =~ /ERROR:/
       self.addlog("melodic task failed (see Standard Output)")
-      return false
+      return true
     end
-
-    return true
+    return false
   end
 
-  private
-
+  
   ##################################################
   ################# Utils methods ##################
   ##################################################
@@ -430,25 +486,7 @@ END
     end
     return name
   end
-
-  # Saves a local file in CBRAIN
-  # Parameters:
-  # * cbrain_file_type  : the type of the file created in CBRAIN (e.g. SingleFile)
-  # * cbrain_file_name  : the name of the file created in CBRAIN (e.g. "foo.txt")
-  # * local_file_name   : the name of the local file to synchronize (e.g. "bar.txt")
-  # * cbrain_parent_file: the name of the CBRAIN file under which the new CBRAIN file will be created
-  # * input_files       : an array containing the CBRAIN files that were used to produce this file.   
-  def save_file cbrain_file_type,cbrain_file_name,local_file_name,cbrain_parent_file,input_files
-    self.addlog("Saving result file #{cbrain_file_name} as a child of #{cbrain_parent_file.name}")
-    outputfile= safe_userfile_find_or_new(cbrain_file_type, :name => cbrain_file_name)
-    outputfile.save!
-    outputfile.cache_copy_from_local_file(local_file_name)
-    outputfile.move_to_child_of(cbrain_parent_file)
-    self.addlog_to_userfiles_these_created_these( input_files, [ outputfile ] )
-    self.addlog("Saved result file #{cbrain_file_name}")
-    return outputfile
-  end  
- 
+  
   # A bash command to find a command among a list of possible
   # commands.
   # Parameters:
@@ -496,20 +534,20 @@ END
   #   * new_options: the hash storing the new options of the design file
   def pre_process_input_data_file cmds,file_id,design_file_option,new_options
     
-      # Converts minc files to nifti.
-      converted_file_name , conversion_command  = converted_file_name_and_command(file_id)
-      if conversion_command.present?
-        cmds << conversion_command
-        params[:converted_files][file_id] = converted_file_name
-      end
+    # Converts minc files to nifti.
+    converted_file_name , conversion_command  = converted_file_name_and_command(file_id)
+    if conversion_command.present?
+      cmds << conversion_command
+      params[:converted_files][file_id] = converted_file_name
+    end
 
-      # Modifies paths of file in the design file when task goes to VM.
-      converted_file_name = modify_file_path_for_vm(converted_file_name) if self.respond_to?("job_template_goes_to_vm?") && self.job_template_goes_to_vm?
+    # Modifies paths of file in the design file when task goes to VM.
+    converted_file_name = modify_file_path_for_vm(converted_file_name) if self.respond_to?("job_template_goes_to_vm?") && self.job_template_goes_to_vm?
 
-      # Adds new file to design file
-      new_options[design_file_option] = "\"#{converted_file_name}\""
-      
-      return converted_file_name
+    # Adds new file to design file
+    new_options[design_file_option] = "\"#{converted_file_name}\""
+    
+    return converted_file_name
   end
 
   # Adds commands to auto-correct the design file based on input file characteristics.
