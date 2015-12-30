@@ -1,0 +1,25 @@
+{
+  "name": "fsl_sub",
+  "tool-version": "1.1",
+  "description": "A wrapper for FSL sub. Assumes that task will run on a file system shared with the submission process, that input files are already in place, and that output files will be handled by another process.",
+  "command-line": "fsl_sub [FSL_SUB_OPTIONS]",
+  "docker-image": "glatard/nipype_fsl_minc2nii",
+  "docker-index": "http://index.docker.io",
+  "schema-version": "0.2",
+  "inputs": [
+    {
+      "id": "fsl_sub_options",
+      "name": "Options",
+      "type": "String",
+      "description": "Options passed to fsl_sub.",
+      "command-line-key": "[FSL_SUB_OPTIONS]",
+      "list": false,
+      "optional": false,
+      "command-line-flag": "",
+      "required-inputs": [],
+      "disabled-by-inputs": [],
+      "default-value": null
+    }
+  ],
+  "output-files": []
+}
