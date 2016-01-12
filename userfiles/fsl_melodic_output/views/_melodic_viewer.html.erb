@@ -30,28 +30,16 @@
    file_path = "#{cache_path}/#{file_name}"
    return raw("Page not found!") unless File.exist? file_path 
    lines = Array.new
-   lines << "<hr/><b>Higher-level analysis</b> "
-   lines << "<ul><li><a href=\"#{@userfile.id}?file_name=report.html\">#{@userfile.name}</a></li></ul>\n"
 %>
-<% lower = false %>
-<% @userfile.list_first_level_dirs.each do |directory| %>
-   <% if directory.end_with?("ica") && (! directory.end_with?("filtered_func_data.ica") ) %>
-     <% if !lower %>
-       <% lower = true
-         lines << "<b>Lower-level analyses</b>\n<ul>\n"
-       %> 
-     <% end %>
-     <%
-        basedir = File.basename(directory)
-	report_name = "report.html"
-	report_name = "report/00index.html" if directory.end_with? "groupmelodic.ica"
-        lines << "<li><a href=\"#{@userfile.id}?file_name=#{basedir}/#{report_name}\">#{basedir}</a></li>\n"
-     %>
-   <% end %>
+<% if file_name != "report.html" %>
+  <%      	     
+   lines<< @userfile.modified_file_content("#{cache_path}/report.html","")
+  %>
 <% end %>
 <% 
-   lines << "</ul>\n<hr/><hr/>"
    lines << @userfile.modified_file_content(file_path,(File.dirname(file_name)+"/").gsub("./",""))
+%>
+<%
    content = lines.join
 %>
 <a name="file_content"></a>
