@@ -61,6 +61,9 @@ class CbrainTask::FslMelodic < ClusterTask
     # The list of bash commands to be executed.
     cmds      = []
 
+    # Add task bin directory to the path
+    cmds << "export PATH=#{Rails.root.join("cbrain_plugins/installed-plugins/cbrain_task/fsl_melodic/bin")}:$PATH"
+
     # Searches for FSL executables
     cmds << find_command("Feat","feat fsl5.0-feat")
     cmds << find_command("FSLHD","fslhd fsl5.0-fslhd")
