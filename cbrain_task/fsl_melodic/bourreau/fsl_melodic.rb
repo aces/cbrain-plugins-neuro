@@ -224,7 +224,7 @@ class CbrainTask::FslMelodic < ClusterTask
     # fsl_sub to determine if task has to be parallelized.
     # In our case, workdir is exported only for group analyses because
     # individual analyses will not be parallelized. 
-    export_workdir_command = (params[:icaopt]=="2" || params[:icaopt]=="3") ? "" :
+    export_workdir_command = (params[:icaopt]=="1") ? "" :
                              "export CBRAIN_WORKDIR=#{self.full_cluster_workdir} # To make fsl_sub submit tasks to CBRAIN"
     command=<<-END
 # Executes FSL melodic
