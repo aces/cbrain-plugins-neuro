@@ -61,6 +61,9 @@ class CbrainTask::FslMelodic < ClusterTask
     # The list of bash commands to be executed.
     cmds      = []
 
+    # Add task bin directory to the path
+    cmds << "export PATH=#{Rails.root.join("cbrain_plugins/installed-plugins/cbrain_task/fsl_melodic/bin")}:$PATH"
+
     # Searches for FSL executables
     cmds << find_command("Feat","feat fsl5.0-feat")
     cmds << find_command("FSLHD","fslhd fsl5.0-fslhd")
@@ -219,10 +222,17 @@ class CbrainTask::FslMelodic < ClusterTask
     ###
     
     # FSL melodic execution commands
+
+    # Export of the CBRAIN_WORKDIR variable is used by 
+    # fsl_sub to determine if task has to be parallelized.
+    # In our case, workdir is exported only for group analyses because
+    # individual analyses will not be parallelized. 
+    export_workdir_command = (params[:icaopt]=="1") ? "" :
+                             "export CBRAIN_WORKDIR=#{self.full_cluster_workdir} # To make fsl_sub submit tasks to CBRAIN"
     command=<<-END
 # Executes FSL melodic
 echo Starting melodic
-export CBRAIN_WORKDIR="#{self.full_cluster_workdir}" # To make fsl_sub submit tasks to CBRAIN 
+#{export_workdir_command}
 ${FEAT} #{modified_design_file_path}
 if [ $? != 0 ]
 then
