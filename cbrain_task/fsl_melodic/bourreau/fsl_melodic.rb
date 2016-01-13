@@ -82,10 +82,10 @@ class CbrainTask::FslMelodic < ClusterTask
     # A hash containing the options to change in the design file
     new_options = Hash.new
 
-    # A hash containing the files converted from Nifti to MINC.
-    # Used in save_results to save the MINC files.
-    # key: file id of Nifti file.
-    # value: file name of corresponding MINC file.
+    # A hash containing the files converted from MINC to Nifti.
+    # Used in save_results to save the Nifti files.
+    # key: file id of MINC file.
+    # value: file name of corresponding Nifti file.
     params[:converted_files] = Hash.new
     
     ###
@@ -320,14 +320,14 @@ END
       end
     end
     
-    # Saves the files converted to MINC
-    params[:converted_files].each do |nifti_file_id,minc_file_name|
-      nifti_file = Userfile.find(nifti_file_id)
+    # Saves the files converted to Nifti
+    params[:converted_files].each do |minc_file_id,nifti_file_name|
+      minc_file = Userfile.find(minc_file_id)
       save_file(NiftiFile,
-                unique_file_name(File.basename(minc_file_name)),
-                minc_file_name,
-                nifti_file,
-                [ nifti_file ] )
+                unique_file_name(File.basename(nifti_file_name)),
+                nifti_file_name,
+                minc_file,
+                [ minc_file ] )
     end
   end
 
