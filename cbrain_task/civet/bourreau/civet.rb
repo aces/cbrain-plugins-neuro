@@ -418,7 +418,7 @@ class CbrainTask::Civet < ClusterTask
     mincfiles_dir = "mincfiles_#{arg_idx}"
     civet_command = "CIVET_Processing_Pipeline -prefix #{prefix.bash_escape} -source #{mincfiles_dir} -target civet_out -spawn #{args} -run #{dsid}"
 
-    self.addlog("Full CIVET command:\n  #{civet_command.gsub(/ -/, "\n  -")}")
+    self.addlog("Full CIVET command:\n  #{civet_command.gsub(/ -/, "\n  -")}") if self.user.has_role? :admin_user
 
     local_script = [
       "echo ==============================================",
