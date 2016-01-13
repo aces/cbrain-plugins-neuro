@@ -178,12 +178,12 @@
       </span>
     <% end %>
     <li class="fsl-group">
-      <label>Use alternate reference image?</label>
-      <%= form.params_check_box :alternatereference_yn, :class => 'fsl-group-toggle' %> <br/>
+      <label>Use custom template file?</label>
+      <%= form.params_check_box :custom_regstandard, :class => 'fsl-group-toggle' %> <br/>
       Default is $FSLDIR/data/standard/MNI152_T1_2mm_brain.
       <ul class="fsl-group">
         <li>
-          <label>Alternate reference image:</label>
+          <label>Custom template file:</label>
           <% if params[:template_files].present? %>
             <%= form.params_select 'regstandard_file_id', params[:template_files], {}, {:multiple => false, :class => "form-control"} %><br/>
             To add files to this list, tag them as "template" in the Files view.
