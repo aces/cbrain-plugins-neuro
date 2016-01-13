@@ -61,7 +61,7 @@ class CbrainTask::FslMelodic < PortalTask
 
   def after_form #:nodoc:
     before_form if ! params[:functional_file_ids].present? # happens when the API is used
-    params.delete :regstandard_file_id unless params[:alternatereference_yn] == "1"    
+    params.delete :regstandard_file_id unless params[:custom_regstandard] == "1"    
     output_name = ( (! params[:output_name].present?) || (! params[:output_name].strip.present?) ) ? output_name : params[:output_name].strip
     ""
   end
@@ -164,7 +164,7 @@ class CbrainTask::FslMelodic < PortalTask
                "regstandard_nonlinear_yn","regstandard_nonlinear_warpres",
                "regstandard_res","varnorm","dim_yn","dim","thresh_yn",
                "mmthresh","ostats","icaopt","analysis","paradigm_hp",
-               "npts","alternatereference_yn","totalVoxels"]
+               "npts","totalVoxels"]
     options.each { |option| params[option.to_sym] = option_values[option] }
     
     params[:template_files]                = get_template_files
@@ -211,7 +211,7 @@ class CbrainTask::FslMelodic < PortalTask
     ids = task.params[:functional_file_ids].dup 
     ids.concat task.params[:structural_file_ids] 
     ids << task.params[:design_file_id]
-    ids << task.params[:regstandard_file_id] if task.params[:regstandard_file_id].present? && task.params[:alternatereference_yn] == "1"
+    ids << task.params[:regstandard_file_id] if task.params[:regstandard_file_id].present?
 
     description_strings = []
     if task.params[:functional_file_ids].present?
