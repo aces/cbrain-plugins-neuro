@@ -61,6 +61,9 @@ class CbrainTask::FslMelodic < ClusterTask
     # The list of bash commands to be executed.
     cmds      = []
 
+    # Add task bin directory to the path
+    cmds << "export PATH=#{Rails.root.join("cbrain_plugins/installed-plugins/cbrain_task/fsl_melodic/bin")}:$PATH"
+
     # Searches for FSL executables
     cmds << find_command("Feat","feat fsl5.0-feat")
     cmds << find_command("FSLHD","fslhd fsl5.0-fslhd")
@@ -79,10 +82,10 @@ class CbrainTask::FslMelodic < ClusterTask
     # A hash containing the options to change in the design file
     new_options = Hash.new
 
-    # A hash containing the files converted from Nifti to MINC.
-    # Used in save_results to save the MINC files.
-    # key: file id of Nifti file.
-    # value: file name of corresponding MINC file.
+    # A hash containing the files converted from MINC to Nifti.
+    # Used in save_results to save the Nifti files.
+    # key: file id of MINC file.
+    # value: file name of corresponding Nifti file.
     params[:converted_files] = Hash.new
     
     ###
@@ -219,10 +222,17 @@ class CbrainTask::FslMelodic < ClusterTask
     ###
     
     # FSL melodic execution commands
+
+    # Export of the CBRAIN_WORKDIR variable is used by 
+    # fsl_sub to determine if task has to be parallelized.
+    # In our case, workdir is exported only for group analyses because
+    # individual analyses will not be parallelized. 
+    export_workdir_command = (params[:icaopt]=="1") ? "" :
+                             "export CBRAIN_WORKDIR=#{self.full_cluster_workdir} # To make fsl_sub submit tasks to CBRAIN"
     command=<<-END
 # Executes FSL melodic
 echo Starting melodic
-export CBRAIN_WORKDIR="#{self.full_cluster_workdir}" # To make fsl_sub submit tasks to CBRAIN 
+#{export_workdir_command}
 ${FEAT} #{modified_design_file_path}
 if [ $? != 0 ]
 then
@@ -310,14 +320,14 @@ END
       end
     end
     
-    # Saves the files converted to MINC
-    params[:converted_files].each do |nifti_file_id,minc_file_name|
-      nifti_file = Userfile.find(nifti_file_id)
+    # Saves the files converted to Nifti
+    params[:converted_files].each do |minc_file_id,nifti_file_name|
+      minc_file = Userfile.find(minc_file_id)
       save_file(NiftiFile,
-                unique_file_name(File.basename(minc_file_name)),
-                minc_file_name,
-                nifti_file,
-                [ nifti_file ] )
+                unique_file_name(File.basename(nifti_file_name)),
+                nifti_file_name,
+                minc_file,
+                [ minc_file ] )
     end
   end
 
