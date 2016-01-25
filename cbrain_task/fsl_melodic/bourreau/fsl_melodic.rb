@@ -651,6 +651,8 @@ then
 else
   echo "All functional files have the same TR."
 fi
+# Remove .trvalue files so that they are not considered if task is restarted.
+rm -f *.trvalue
 END
     cmds << command
   end
@@ -672,10 +674,13 @@ then
     cat ${file}
   done
   echo "ERROR: functional files do not all have the same dimensions. Check the dimensions reported above and exclude the problematic file(s)."
+  # Remove .fslinfo files so that they are not considered if task is restarted.
+  rm -f *.fslinfo
   exit 1
-else
-  echo "All functional files have the same dimensions."
 fi
+echo "All functional files have the same dimensions."
+# Remove .fslinfo files so that they are not considered if task is restarted.
+rm -f *.fslinfo
 END
     cmds << command
   end
