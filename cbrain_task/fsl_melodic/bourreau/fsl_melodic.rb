@@ -651,6 +651,8 @@ then
 else
   echo "All functional files have the same TR."
 fi
+# Remove .trvalue files so that they are not considered if task is restarted.
+rm -f *.trvalue
 END
     cmds << command
   end
@@ -676,6 +678,8 @@ then
 else
   echo "All functional files have the same dimensions."
 fi
+# Remove .fslinfo files so that they are not considered if task is restarted.
+rm -f *.fslinfo
 END
     cmds << command
   end
