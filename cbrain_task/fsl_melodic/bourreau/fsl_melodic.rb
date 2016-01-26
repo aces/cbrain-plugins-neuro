@@ -26,9 +26,6 @@ class CbrainTask::FslMelodic < ClusterTask
 
   Revision_info=CbrainFileRevision[__FILE__] #:nodoc:
 
-  include RestartableTask
-  include RecoverableTask
-
   def self.properties #:nodoc:
     super.merge :can_submit_new_tasks => true
   end
@@ -642,11 +639,14 @@ END
 md5sum *.trvalue | awk 'NR>1&&$1!=last{exit 1}{last=$1}'
 if [ $? != 0 ]
 then
+  echo "# File TRvalue"
   for file in `ls *.trvalue`
   do
-    basename ${file} .trvalue
-    cat ${file}
-  done
+    FILE_NAME=`basename ${file} .trvalue`
+    INDEX=`grep ${FILE_NAME} design-cbrain.fsf | awk '{print $2}' | sed s,feat_files\\\(,,g | sed s,\\\),,g`
+    TR=`cat ${file}`
+    echo ${INDEX} ${FILE_NAME} ${TR}
+  done | sort -g
   echo "Warning: functional files do not all have the same TR (see TR values above)."
 else
   echo "All functional files have the same TR."
@@ -668,11 +668,17 @@ END
 md5sum *.fslinfo | awk 'NR>1&&$1!=last{exit 1}{last=$1}'
 if [ $? != 0 ]
 then
+  echo "# File dim1 dim2 dim3 dim4"
   for file in `ls *.fslinfo`
   do
-    basename ${file} .fslinfo
-    cat ${file}
-  done
+    FILE_NAME=`basename ${file} .fslinfo`
+    INDEX=`grep ${FILE_NAME} design-cbrain.fsf | awk '{print $2}' | sed s,feat_files\\\(,,g | sed s,\\\),,g`
+    X=`awk '$1=="dim1" {print $2}' ${file}`
+    Y=`awk '$1=="dim2" {print $2}' ${file}`
+    Z=`awk '$1=="dim3" {print $2}' ${file}`
+    T=`awk '$1=="dim4" {print $2}' ${file}`
+    echo ${INDEX} ${FILE_NAME} ${X} ${Y} ${Z} ${T}
+  done | sort -g
   echo "ERROR: functional files do not all have the same dimensions. Check the dimensions reported above and exclude the problematic file(s)."
   # Remove .fslinfo files so that they are not considered if task is restarted.
   rm -f *.fslinfo
