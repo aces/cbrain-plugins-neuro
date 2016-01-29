@@ -25,9 +25,7 @@ class CbrainTask::CivetCombiner < PortalTask
 
   Revision_info=CbrainFileRevision[__FILE__] #:nodoc:
 
-  def self.properties #:nodoc:
-    { :no_presets => true }
-  end
+  task_properties :readonly_input_files, :no_presets
 
   def self.default_launch_args #:nodoc:
     { :civet_collection_ids => [],

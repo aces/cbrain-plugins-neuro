@@ -25,9 +25,7 @@ class CbrainTask::Dcm2nii < PortalTask
 
   Revision_info=CbrainFileRevision[__FILE__] #:nodoc:
 
-  def self.properties #:nodoc:
-    { :use_parallelizer => true }
-  end
+  task_properties  :use_parallelizer, :readonly_input_files
 
   def self.default_launch_args #:nodoc:
     {

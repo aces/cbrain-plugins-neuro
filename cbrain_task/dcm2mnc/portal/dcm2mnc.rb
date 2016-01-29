@@ -25,9 +25,7 @@ class CbrainTask::Dcm2mnc < PortalTask
 
   Revision_info=CbrainFileRevision[__FILE__] #:nodoc:
 
-  def self.properties #:nodoc:
-    { :no_presets => true, :use_parallelizer => true }
-  end
+  task_properties :no_presets, :use_parallelizer, :readonly_input_files
 
   # Returns the scientific parameters common to all the CIVET
   # jobs we're about to launch

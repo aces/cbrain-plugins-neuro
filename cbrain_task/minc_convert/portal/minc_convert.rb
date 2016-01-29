@@ -27,12 +27,7 @@ class CbrainTask::MincConvert < PortalTask
 
  Revision_info=CbrainFileRevision[__FILE__] #:nodoc:
 
-
-  def self.properties #:nodoc:
-    {
-      :use_parallelizer => true
-    }
-  end
+  task_properties :readonly_input_files, :use_parallelizer
 
   def self.default_launch_args #:nodoc:
     {

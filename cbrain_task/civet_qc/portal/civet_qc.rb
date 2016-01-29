@@ -25,9 +25,7 @@ class CbrainTask::CivetQc < PortalTask
 
   Revision_info=CbrainFileRevision[__FILE__] #:nodoc:
 
-  def self.properties #:nodoc:
-    { :no_presets => true }
-  end
+  task_properties :no_presets
 
   def before_form #:nodoc:
 
