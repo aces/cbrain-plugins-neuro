@@ -4,6 +4,8 @@ class CbrainTask::FslProbtrackx < PortalTask
 
   Revision_info=CbrainFileRevision[__FILE__] #:nodoc:
 
+  task_properties :readonly_input_files
+
   def self.default_launch_args #:nodoc:
     {
       :num_samples  => 1000,

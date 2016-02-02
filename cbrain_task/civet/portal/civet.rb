@@ -85,6 +85,8 @@ class CbrainTask::Civet < PortalTask
     verify_civet
   )
 
+  task_properties :readonly_input_files
+
   # Returns the scientific parameters common to all the CIVET
   # jobs we're about to launch
   def self.default_launch_args #:nodoc:

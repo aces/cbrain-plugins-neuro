@@ -25,6 +25,8 @@ class CbrainTask::FslRandomise < PortalTask
 
   Revision_info=CbrainFileRevision[__FILE__] #:nodoc:
 
+  task_properties :readonly_input_files
+
   def self.default_launch_args #:nodoc:
     {
       :n_perm                      => "5000",

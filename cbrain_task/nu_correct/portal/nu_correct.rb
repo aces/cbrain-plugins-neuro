@@ -25,6 +25,8 @@ class CbrainTask::NuCorrect < PortalTask
 
   Revision_info=CbrainFileRevision[__FILE__] #:nodoc:
 
+  task_properties :readonly_input_files
+
   # RDOC comments here, if you want, although the method
   # is created with #:nodoc: in this template.
   def self.default_launch_args #:nodoc:
