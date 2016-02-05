@@ -59,6 +59,7 @@ class CbrainTask::FslMelodic < PortalTask
 
   def after_form #:nodoc:
     before_form if ! params[:functional_file_ids].present? # happens when the API is used
+    params_errors.add(params[:output_name], "is not a legal output filename") unless Userfile.is_legal_filename?(params[:output_name])
     params.delete :regstandard_file_id unless params[:custom_regstandard] == "1"    
     output_name = ( (! params[:output_name].present?) || (! params[:output_name].strip.present?) ) ? output_name : params[:output_name].strip
     ""
