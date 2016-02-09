@@ -125,7 +125,12 @@ class CbrainTask::FslMelodic < PortalTask
     csv_file  = Userfile.find(params[:csv_file_id])
     csv_file.sync_to_cache unless csv_file.is_locally_synced?
     
-    lines    = csv_file.becomes(CSVFile).create_csv_array("\"",",") # Patch used becomes to pretend to be a CSVFile
+    lines = ""
+    begin
+      lines    = csv_file.becomes(CSVFile).create_csv_array("\"",",")
+    rescue => ex
+      cb_error "Cannot create array from CSV file (#{ex.message}). Maybe the format of your CSV file is wrong."
+    end
     
     lines.each do |line|
       cb_error "Error: lines in CSV file must contain two elements separated by a comma (wrong format: #{line})." unless line.size == 2
