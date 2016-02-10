@@ -51,7 +51,7 @@ class CbrainTask::FslBedpostx < ClusterTask
   end
 
   def job_walltime_estimate #:nodoc:
-    12.hours
+    30.hours
   end
 
   def cluster_commands #:nodoc:
@@ -68,7 +68,9 @@ class CbrainTask::FslBedpostx < ClusterTask
     command =  "bedpostx input -n #{fibres} -w #{weight} -b #{burn_in}"
     self.addlog("Command: #{command}")
     [
-      command
+      "echo CBRAIN BedPostX Starting",
+      command,
+      "echo CBRAIN BedPostX Finished"
     ]
   end
 
@@ -77,11 +79,26 @@ class CbrainTask::FslBedpostx < ClusterTask
     input_colid  = params[:interface_userfile_ids][0]
     collection   = FileCollection.find(input_colid)
 
+    # Check that output dir has been created at least
     if ! File.exist?("input.bedpostX") || ! File.directory?("input.bedpostX")
       self.addlog("Could not find expected output directory 'input.bedpostX'.")
       return false
     end
 
+    # This file should be in there too
+    if ! File.exist?("input.bedpostX/dyads1.nii.gz") || ! File.exist?("input.bedpostX/dyads2.nii.gz")
+      self.addlog("Could not find expected output files 'dyads1.nii.gz' and 'dyads2.nii.gz'.")
+      return false
+    end
+
+    # Check that stdout contains the final echo message
+    stdout = File.read(self.stdout_cluster_filename) rescue ""
+    if (! stdout =~ /CBRAIN BedPostX Finished/)
+      self.addlog("It seems the cluster process did not proceed to completion.")
+      return false
+    end
+
+    # Create output
     outfile = safe_userfile_find_or_new(FileCollection,
       :name             => "#{collection.name}.#{self.run_id}.bedpostX",
       :data_provider_id => self.results_data_provider_id
