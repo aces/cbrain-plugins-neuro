@@ -17,20 +17,22 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.  
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
 # Model for NiFTI medical data files.
 class NiftiFile < SingleFile
 
   Revision_info=CbrainFileRevision[__FILE__] #:nodoc:
-  
+
+  has_viewer MincFile.find_viewer(:volume_viewer)
+
   def self.pretty_type #:nodoc:
     "NIfTI file"
   end
 
   def self.file_name_pattern #:nodoc:
-    /\.nii(\.gz)?$/i 
+    /\.nii(\.gz)?$/i
   end
 
 end

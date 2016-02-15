@@ -1,0 +1,21 @@
+
+/////////////////////
+// Load the volumes.
+/////////////////////
+
+console.log("MINC")
+
+viewer.loadVolumes({
+      volumes: [
+        {
+          type: "minc",
+          header_url:   "<%= content_userfile_path(@userfile) + "?content_loader=get_headers_to_json" %>",
+          raw_data_url: "<%= content_userfile_path(@userfile) + "?content_loader=get_raw_data" %>",
+        },
+      ],
+      complete: function() {
+        loading_div.hide();
+        $("#brainbrowser-wrapper").slideDown({duration: 600});
+      }
+    });
+

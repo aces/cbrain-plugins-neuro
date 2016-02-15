@@ -1,0 +1,19 @@
+
+/////////////////////
+// Load the volumes.
+/////////////////////
+
+console.log("NIFTI")
+
+viewer.loadVolumes({
+  volumes: [
+    {
+      type: "nifti1",
+      nii_url:   "<%= content_userfile_path(@userfile) %>",
+    },
+  ],
+  complete: function() {
+    loading_div.hide();
+    $("#brainbrowser-wrapper").slideDown({duration: 600});
+  }
+});
