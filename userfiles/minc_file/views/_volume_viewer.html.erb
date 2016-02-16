@@ -512,6 +512,20 @@
     /////////////////////
     // Load the volumes.
     /////////////////////
+
+    // The line below inserts as-is a piece of javascript code within the
+    // current javascript function. This code will load the content of the
+    // volume to be displayed based on the type of the Rails userfile. The
+    // code is thus specific to each userfile model that supports being loaded
+    // into the brainbrowser viewer. The code is stored in a tiny partial
+    // file specific to the class of the userfile, and found in its
+    // plugin directory.
+    //
+    // For example, if @userfile is a MincFile, the partial inserted here
+    // comes from:
+    //   cbrain-plugins-neuro/userfiles/minc_file/views/_volume_viewer_loader.html.erb
+    // For a NiftiFile, the partial inserted here comes from:
+    //   cbrain-plugins-neuro/userfiles/nifti_file/views/_volume_viewer_loader.html.erb
     <%= render :file => @userfile.view_path("volume_viewer_loader") %>
   });
 </script>
