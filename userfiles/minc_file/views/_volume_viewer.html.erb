@@ -68,7 +68,7 @@
           Threshold:
         </div>
         <div class="thresh-inputs">
-          <input id="min-threshold-0" class="control-inputs thresh-input-left" value="0"/>
+          <input id="min-threshold-0" class="control-inputs thresh-input-left"  value="0"/>
           <input id="max-threshold-0" class="control-inputs thresh-input-right" value="255"/>
         </div>
         <div class="slider volume-viewer-threshold" id="threshold-slider-0"></div>
@@ -99,12 +99,12 @@
     BrainBrowser.config.set("color_maps", [
       {
         name: "Gray",
-        url: "<%= @userfile.public_path("color_maps/gray-scale.txt") %>",
+        url: "<%= MincFile.public_path("color_maps/gray-scale.txt") %>",
         cursor_color: "#FF0000"
       },
       {
         name: "Spectral",
-        url: "<%= @userfile.public_path("color_maps/spectral-brainview.txt") %>",
+        url: "<%= MincFile.public_path("color_maps/spectral-brainview.txt") %>",
         cursor_color: "#FFFFFF"
       },
     ]);
@@ -239,7 +239,6 @@
 
       $("#color-map-" + vol_id).append(color_map_select);
 
-
       // Change the range of intensities that will be displayed.
       $(".threshold-div").each(function() {
         var div = $(this);
@@ -251,11 +250,17 @@
         // Slider to modify min and max thresholds.
         var slider = div.find(".slider");
 
+        var volume = viewer.volumes[vol_id];
+
+        // Update the input fields.
+        min_input.val(volume.getVoxelMin());
+        max_input.val(volume.getVoxelMax());
+
         slider.slider({
           range: true,
-          min: 0,
-          max: 255,
-          values: [0, 255],
+          min: volume.getVoxelMin(),
+          max: volume.getVoxelMax(),
+          values: [volume.getVoxelMin(), volume.getVoxelMax()],
           step: 1,
           slide: function(event, ui){
             var values = ui.values;
@@ -274,22 +279,23 @@
           }
         });
 
-        // Input field for minimum threshold.
+      // Input field for minimum threshold.
         min_input.change(function() {
           var value = parseFloat(this.value);
 
           // Make sure input is numeric and in range.
           if (!BrainBrowser.utils.isNumeric(value)) {
-            value = 0;
+            value = volume.getVoxelMin();
           }
-          value = Math.max(0, Math.min(value, 255));
+          value = Math.max(volume.getVoxelMin(),
+                           Math.min(value, volume.getVoxelMax()));
           this.value = value;
 
           // Update the slider.
           slider.slider("values", 0, value);
 
           // Update the volume and redraw.
-          volume.min = value;
+          volume.intensity_min = value;
           viewer.redrawVolumes();
         });
 
@@ -298,16 +304,17 @@
 
           // Make sure input is numeric and in range.
           if (!BrainBrowser.utils.isNumeric(value)) {
-            value = 255;
+            value = volume.getVoxelMax();
           }
-          value = Math.max(0, Math.min(value, 255));
+          value = Math.max(volume.getVoxelMin(),
+                           Math.min(value, volume.getVoxelMax()));
           this.value = value;
 
           // Update the slider.
           slider.slider("values", 1, value);
 
           // Update the volume and redraw.
-          volume.max = value;
+          volume.intensity_max = value;
           viewer.redrawVolumes();
         });
 
@@ -405,7 +412,7 @@
           var i, x, y;
 
           // Canvas on which to draw the images.
-          var canvas = document.createElement("canvas");
+          var canvas  = document.createElement("canvas");
           var context = canvas.getContext("2d");
 
           // Get first slice to set dimensions of the canvas.
@@ -505,18 +512,20 @@
     /////////////////////
     // Load the volumes.
     /////////////////////
-    viewer.loadVolumes({
-      volumes: [
-        {
-          type: "minc",
-          header_url:   "<%= content_userfile_path(@userfile) + "?content_loader=get_headers_to_json" %>",
-          raw_data_url: "<%= content_userfile_path(@userfile) + "?content_loader=get_raw_data" %>",
-        },
-      ],
-      complete: function() {
-        loading_div.hide();
-        $("#brainbrowser-wrapper").slideDown({duration: 600});
-      }
-    });
+
+    // The line below inserts as-is a piece of javascript code within the
+    // current javascript function. This code will load the content of the
+    // volume to be displayed based on the type of the Rails userfile. The
+    // code is thus specific to each userfile model that supports being loaded
+    // into the brainbrowser viewer. The code is stored in a tiny partial
+    // file specific to the class of the userfile, and found in its
+    // plugin directory.
+    //
+    // For example, if @userfile is a MincFile, the partial inserted here
+    // comes from:
+    //   cbrain-plugins-neuro/userfiles/minc_file/views/_volume_viewer_loader.html.erb
+    // For a NiftiFile, the partial inserted here comes from:
+    //   cbrain-plugins-neuro/userfiles/nifti_file/views/_volume_viewer_loader.html.erb
+    <%= render :file => @userfile.view_path("volume_viewer_loader") %>
   });
 </script>
