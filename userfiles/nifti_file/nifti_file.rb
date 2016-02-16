@@ -25,6 +25,11 @@ class NiftiFile < SingleFile
 
   Revision_info=CbrainFileRevision[__FILE__] #:nodoc:
 
+  # We are using the MincFile's volume viewer code almost
+  # exactly as-is. The only difference will be in a tiny
+  # snippet of javascript code that we provide in
+  # our model's "views" subdirectory, "_volume_viewer_loader.html.erb"
+  # which will be substituted inside Minc's volume viewer javascript code.
   has_viewer MincFile.find_viewer(:volume_viewer)
 
   def self.pretty_type #:nodoc:
