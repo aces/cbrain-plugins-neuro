@@ -27,7 +27,7 @@ class MincFile < SingleFile
 
   has_viewer :name => "Volume Viewer",  :partial => :volume_viewer,           :if =>
              Proc.new { |u| u.size.present? &&
-                            u.size < 80.megabytes &&
+                            u.size < 400.megabytes &&
                             u.is_locally_synced? &&
                             ( ! u.is_a?(MincFile) || u.class.has_minctools?([2,0,0]))
                       }
