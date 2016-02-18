@@ -20,8 +20,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-# Model for MGZ structural files.
-class MgzFile < SingleFile
+# Model for MGH structural files.
+class MghFile < SingleFile
 
   Revision_info=CbrainFileRevision[__FILE__] #:nodoc:
 
@@ -36,11 +36,11 @@ class MgzFile < SingleFile
 
 
   def self.file_name_pattern #:nodoc:
-    /\.mgz$/i
+    /\.mg(h|z)$/i
   end
 
   def self.pretty_type #:nodoc:
-      "MGZ Structural File"
+      "MGH Structural File"
   end
 
   def stream_unzip_content
