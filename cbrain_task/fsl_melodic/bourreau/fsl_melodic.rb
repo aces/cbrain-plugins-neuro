@@ -588,7 +588,7 @@ END
     if params[:npts_auto] == "1"
       command=<<-END
 # Auto-corrects fmri(npts) unless #{functional_file_name} was excluded or correction was already done.
-if [ -z ${EXCLUDE[\'#{functional_file_name}\']+x} && -z ${NPTS_CORRECTED+z} ]
+if [ -z ${EXCLUDE[\'#{functional_file_name}\']+x} ] && [ -z ${NPTS_CORRECTED+z} ]
 then
   NPTS=`${FSLNVOLS} #{functional_file_name}`
   if [ $? != 0 ]
@@ -607,7 +607,7 @@ END
     if params[:tr_auto] == "1"
       command=<<-END
 # Auto-corrects parameter fmri(tr) unless #{functional_file_name} was excluded or correction was already done.
-if [ -z ${EXCLUDE[\'#{functional_file_name}\']+x} && -z ${TR_CORRECTED+z} ]
+if [ -z ${EXCLUDED_FILES[\'#{functional_file_name}\']+x} ] && [ -z ${TR_CORRECTED+z} ]
 then
   TR=`${FSLHD} #{functional_file_name} | awk '$1==\"pixdim4\" {print $2}'`
   if [ $? != 0 ]
@@ -625,7 +625,7 @@ END
     if params[:totalvoxels_auto] == "1"
       command=<<-END
 # Auto-corrects parameter fmri(totalVoxels) unless #{functional_file_name} was excluded or correction was already done.
-if [ -z ${EXCLUDE[\'#{functional_file_name}\']+x} && -z ${NVOX_CORRECTED+z} ]
+if [ -z ${EXCLUDED_FILES[\'#{functional_file_name}\']+x} ] && [ -z ${NVOX_CORRECTED+z} ]
 then
   NVOX=`${FSLSTATS} #{functional_file_name} -v | awk '{print $1}'`
   if [ $? != 0 ]
