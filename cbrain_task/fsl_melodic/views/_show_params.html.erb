@@ -30,14 +30,18 @@
 
 <p>
 <STRONG>Functional file(s):</STRONG>
-<ul>
-  <% params[:functional_file_ids].each do |id| %>
-  <li><%= link_to_userfile_if_accessible(id) %></li>
+  <% if !params[:functional_file_ids].present? %>
+    <b>Error:</b> Cannot find any functional file in this execution...
+  <% else %>
+    <ul>
+    <% params[:functional_file_ids].each do |id| %>
+      <li><%= link_to_userfile_if_accessible(id) %></li>
+    <% end %>
+    </ul>
   <% end %>
-</ul>
 </p>
 
-<% if !params[:structural_file_ids].blank? %>
+<% if params[:structural_file_ids].present? %>
 <p>
 <STRONG>Structural file(s):</STRONG>
 <ul>
