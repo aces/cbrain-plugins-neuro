@@ -722,7 +722,7 @@ function clean_all_indices {
     fi
   done
   # Updates parameter fmri(multiple) to current_index - 1 (new total number of files in the analysis)
-  local new_fmri_multiple = $(( current_index - 1 ))
+  local new_fmri_multiple=$(( current_index - 1 ))
   sed s,'set.*fmri(multiple)','# Line commented by CBRAIN due to dimension violation set fmri(multiple)',g ${design_file_path} > ${design_file_path}.temp
   mv -f ${design_file_path}.temp ${design_file_path}
   echo "set fmri(multiple) ${new_fmri_multiple}" >> ${design_file_path}
