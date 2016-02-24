@@ -588,7 +588,7 @@ END
     if params[:npts_auto] == "1"
       command=<<-END
 # Auto-corrects fmri(npts) unless #{functional_file_name} was excluded or correction was already done.
-if [ -z ${EXCLUDE[\'#{functional_file_name}\']+x} ] && [ -z ${NPTS_CORRECTED+z} ]
+if [ -z ${EXCLUDED_FILES[\'#{functional_file_name}\']+x} ] && [ -z ${NPTS_CORRECTED+z} ]
 then
   NPTS=`${FSLNVOLS} #{functional_file_name}`
   if [ $? != 0 ]
