@@ -32,19 +32,23 @@ class MghFile < SingleFile
   # which will be substituted inside Minc's volume viewer javascript code.
   has_viewer MincFile.find_viewer(:volume_viewer)
 
-  has_content :method => :stream_unzip_content, :type => :text
+  has_content :method => :raw_content, :type => :text
 
 
   def self.file_name_pattern #:nodoc:
-    /\.mg(h|z)$/i
+    /(\.mgh|\.mgz|\.mgh\.gz)$/i
   end
 
   def self.pretty_type #:nodoc:
-      "MGH Structural File"
+    "MGH Structural File"
   end
 
-  def stream_unzip_content
-    if self.name =~ /\.mgz$/i
+  def pretty_type #:nodoc:
+    self.class.pretty_type + (name =~ /(\.mgz|\.mgh\.gz)$/i ? " (compressed)" : "")
+  end
+
+  def raw_content
+    if self.name =~ /(\.mgz|\.mgh\.gz)$/i
       IO.popen("gunzip -c #{self.cache_full_path}") { |fh| fh.readlines.join }
     else
       File.open(self.cache_full_path, "r").read

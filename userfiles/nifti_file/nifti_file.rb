@@ -32,7 +32,7 @@ class NiftiFile < SingleFile
   # which will be substituted inside Minc's volume viewer javascript code.
   has_viewer MincFile.find_viewer(:volume_viewer)
 
-  has_content :method => :stream_unzip_content, :type => :text
+  has_content :method => :raw_content, :type => :text
 
   def self.pretty_type #:nodoc:
     "NIfTI file"
@@ -42,7 +42,7 @@ class NiftiFile < SingleFile
     /\.nii(\.gz)?$/i
   end
 
-  def stream_unzip_content
+  def raw_content
     if self.name =~ /\.gz$/i
       IO.popen("gunzip -c #{self.cache_full_path}") { |fh| fh.readlines.join }
     else
