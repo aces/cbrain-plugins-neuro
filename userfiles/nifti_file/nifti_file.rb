@@ -46,7 +46,7 @@ class NiftiFile < SingleFile
     if self.name =~ /\.gz$/i
       IO.popen("gunzip -c #{self.cache_full_path.to_s.bash_escape}") { |fh| fh.readlines.join }
     else
-      File.open(self.cache_full_path.to_s.bash_escape, "r").read
+      File.open(self.cache_full_path, "r").read
     end
   end
 
