@@ -42,7 +42,7 @@ class CbrainTask::ReconAll < PortalTask
     files.each do |file|
       cb_error "Error: this task can only run on MGZ, MINC1, NifTi files
       or on a Recon-all Cross-Sectional Output (FreeSurfer subject directory)." unless
-         file.is_a?(MgzFile) || file.is_a?(NiftiFile) ||
+         file.is_a?(MghFile) || file.is_a?(NiftiFile) ||
         (file.is_a?(MincFile) && file.which_minc_version != :minc2) ||
          file.is_a?(ReconAllCrossSectionalOutput)
     end
