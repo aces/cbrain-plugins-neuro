@@ -20,8 +20,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-# Model for MGZ structural files.
-class MgzFile < SingleFile
+# Model for MGH structural files.
+class MghFile < SingleFile
 
   Revision_info=CbrainFileRevision[__FILE__] #:nodoc:
 
@@ -32,20 +32,24 @@ class MgzFile < SingleFile
   # which will be substituted inside Minc's volume viewer javascript code.
   has_viewer MincFile.find_viewer(:volume_viewer)
 
-  has_content :method => :stream_unzip_content, :type => :text
+  has_content :method => :raw_content, :type => :text
 
 
   def self.file_name_pattern #:nodoc:
-    /\.mgz$/i
+    /(\.mgh|\.mgz|\.mgh\.gz)$/i
   end
 
   def self.pretty_type #:nodoc:
-      "MGZ Structural File"
+    "MGH Structural File"
   end
 
-  def stream_unzip_content
-    if self.name =~ /\.mgz$/i
-      IO.popen("gunzip -c #{self.cache_full_path}") { |fh| fh.readlines.join }
+  def pretty_type #:nodoc:
+    self.class.pretty_type + (name =~ /(\.mgz|\.mgh\.gz)$/i ? " (compressed)" : "")
+  end
+
+  def raw_content
+    if self.name =~ /(\.mgz|\.mgh\.gz)$/i
+      IO.popen("gunzip -c #{self.cache_full_path.to_s.bash_escape}") { |fh| fh.readlines.join }
     else
       File.open(self.cache_full_path, "r").read
     end
