@@ -58,6 +58,9 @@ class CbrainTask::FslMelodic < ClusterTask
     # The list of bash commands to be executed.
     cmds      = []
 
+    # Function and variable declarations
+    add_cmd_declarations(cmds)
+
     # Searches for FSL executables
     cmds << find_command("Feat","feat fsl5.0-feat")
     cmds << find_command("FSLHD","fslhd fsl5.0-fslhd")
@@ -90,26 +93,37 @@ class CbrainTask::FslMelodic < ClusterTask
                                                          functional_file_id,
                                                          "feat_files(#{index+1})",
                                                          new_options)
-      # Extract the file dimensions and TRs so that they can be checked.
+
+      # Extracts the file dimensions and TRs so that they can be checked.
       add_cmd_extract_file_dimensions(cmds,functional_file_name)
       add_cmd_extract_trs(cmds,functional_file_name)
       cmds << "\n"
-      
-      if index == 0
-        # Performs auto-corrections in the design file
-        add_cmd_auto_correct_design_file(cmds,
-                                         functional_file_name,
-                                         modified_design_file_path)
-        # Check that file t dimension is greater than 20 after removal
-        # of the first ndelete volumes. In case of a group analysis (icaopt = 2 or icaopt = 3)
-        # then it guarantees that all the files have more than 20 volumes because we check later
-        # that all the files have the same dimensions.
-        add_cmd_check_t_dimension_greater_than(cmds,
-                                               functional_file_name,
-                                               20+params[:ndelete].to_i)
-      end
+
+      # Excludes files that violate dimension requirements
+      add_cmd_check_file_dimension_violations(cmds,
+                                              functional_file_name,
+                                              modified_design_file_path,
+                                              index)
+
+      # Performs auto-corrections in the design file
+      add_cmd_auto_correct_design_file(cmds,
+                                       functional_file_name,
+                                       modified_design_file_path)
+      # Check that file t dimension is greater than 20 after removal
+      # of the first ndelete volumes. In case of a group analysis (icaopt = 2 or icaopt = 3)
+      # then it guarantees that all the files have more than 20 volumes because we check later
+      # that all the files have the same dimensions.
+      add_cmd_check_t_dimension_greater_than(cmds,
+                                             functional_file_name,
+                                             20+params[:ndelete].to_i)
+
     end
-    
+
+    # Check if all the files were excluded due to dimension violations
+    add_cmd_check_if_all_files_were_excluded_and_reindex(cmds,
+                                             modified_design_file_path,
+                                             params[:functional_file_ids].size)
+
     # If the task is a group analysis, check that all the functional files have
     # the same file dimensions and TRs.
     if params[:icaopt]=="2" || params[:icaopt]=="3"
@@ -143,7 +157,7 @@ class CbrainTask::FslMelodic < ClusterTask
 
     # $HOME has to be replaced on the machine where the task is
     # executed, not on the Bourreau's machine
-    cmds << "echo Replacing '$HOME' with $HOME in the design file."
+    cmds << "info Replacing '$HOME' with $HOME in the design file."
     cmds << sed_design_file(modified_design_file_path,"\\\$HOME","$HOME")
 
     if !params[:regstandard_file_id].present?
@@ -225,12 +239,12 @@ class CbrainTask::FslMelodic < ClusterTask
                              "export CBRAIN_WORKDIR=#{self.full_cluster_workdir} # To make fsl_sub submit tasks to CBRAIN"
     command=<<-END
 # Executes FSL melodic
-echo Starting melodic
+info Starting melodic
 #{export_workdir_command}
 ${FEAT} #{modified_design_file_path}
 if [ $? != 0 ]
 then
-    echo ERROR: melodic exited with a non-zero exit code
+    error "Melodic exited with a non-zero exit code"
 fi
 chmod -R o+rx *ica 
 END
@@ -350,12 +364,12 @@ END
     # the files because important debug information is found in the
     # melodic logs).
     stderr = File.read(self.stderr_cluster_filename) rescue ""
-    if stderr =~ /ERROR:/
+    if stderr =~ /ERROR/
       self.addlog("melodic task failed (see Standard Error)")
       return true
     end
     stdout = File.read(self.stdout_cluster_filename) rescue ""
-    if stdout =~ /ERROR:/
+    if stdout =~ /ERROR/
       self.addlog("melodic task failed (see Standard Output)")
       return true
     end
@@ -414,8 +428,17 @@ END
   def set_design_file_option design_file_path,parameter_name,value
     cmds = []
     cmds << "# Sets option #{parameter_name} in the design file\n"
-    cmds << sed_design_file(design_file_path,"\'set.*fmri(#{parameter_name})\'","\'# Line commented by CBRAIN set fmri(#{parameter_name})\'")
+    cmds << comment_out_design_file_option(design_file_path,parameter_name)
     cmds << add_line_to_file(design_file_path,"'set fmri(#{parameter_name})' #{value}")
+    cmds << "\n"
+    return cmds.join
+  end
+
+  # Bash command to set the value of a parameter in the design file.
+  # The parameter name and value cannot contain commas.
+  def comment_out_design_file_option design_file_path,parameter_name
+    cmds = []
+    cmds << sed_design_file(design_file_path,"\'set.*fmri(#{parameter_name})\'","\'# Line commented by CBRAIN set fmri(#{parameter_name})\'")
     cmds << "\n"
     return cmds.join
   end
@@ -430,12 +453,12 @@ END
     nii_file_name = nifti_file_name minc_file_name
     # removes the minc file after conversion otherwise feat crashes...
     command=<<-END
-      # File converstion to Nifti
-      echo Converting file #{minc_file_name} to Nifti
+      # File conversion to Nifti
+      info Converting file #{minc_file_name} to Nifti
       mnc2nii -nii #{minc_file_name} `pwd`/#{File.basename nii_file_name}
       if [ $? != 0 ]
       then
-        echo \"ERROR: cannot convert file #{minc_file_name} to nii\"
+        error "Cannot convert file #{minc_file_name} to nii"
         exit 1
       fi
       rm -f #{minc_file_name}
@@ -518,10 +541,10 @@ do
 done
 if [ -z \"${#{variable}}\" ]
 then
-    echo ERROR: unable to find any #{command_name} executable
+    error "Unable to find any #{command_name} executable."
     exit 1
 fi
-echo #{command_name} executable set to ${#{variable}}.
+info "#{command_name} executable set to ${#{variable}}."
 END
     return command
   end
@@ -534,7 +557,6 @@ END
   #   * cmds: an array that receives the (bash) commands required for the conversion
   #   * file_id: the id of the input file to pre-process
   #   * design_file_option: the corresponding option in the design file (e.g. "feat_files(42)")
-  #   * new_options: the hash storing the new options of the design file
   def pre_process_input_data_file cmds,file_id,design_file_option,new_options
     
     # Converts minc files to nifti.
@@ -558,21 +580,24 @@ END
   # * functional_file_name: the name of a functional file used to correct parameters.
   # * modified_design_file_path: the path of the modified design file.
   def add_cmd_auto_correct_design_file cmds,functional_file_name,modified_design_file_path
-    
+
     # Auto-correction needs to be done on the task node (i.e. in
     # the task script), not on the Bourreau host.  Otherwise, FSL
     # needs to be installed on the Bourreau node, which might not
     # be the case (e.g. in case the task runs in a Docker container).
     if params[:npts_auto] == "1"
       command=<<-END
-# Auto-corrects parameter fmri(npts)
-NPTS=`${FSLNVOLS} #{functional_file_name}`
-if [ $? != 0 ]
+# Auto-corrects fmri(npts) unless #{functional_file_name} was excluded or correction was already done.
+if [ -z ${EXCLUDED_FILES[\'#{functional_file_name}\']+x} ] && [ -z ${NPTS_CORRECTED+z} ]
 then
-  echo ERROR: cannot auto-correct number of volumes in #{functional_file_name} '(fslnvols failed)'.
-  exit 1
+  NPTS=`${FSLNVOLS} #{functional_file_name}`
+  if [ $? != 0 ]
+  then
+    error "Cannot auto-correct number of volumes in #{functional_file_name} '(fslnvols failed)'."
+  fi
+  info "Auto-corrected number of volumes to ${NPTS}."
+  NPTS_CORRECTED=true
 fi
-echo Auto-corrected number of volumes to ${NPTS}.
 END
       cmds << command
       cmds << set_design_file_option(modified_design_file_path,"npts","${NPTS}")
@@ -581,14 +606,17 @@ END
     
     if params[:tr_auto] == "1"
       command=<<-END
-# Auto-corrects parameter fmri(tr)
-TR=`${FSLHD} #{functional_file_name} | awk '$1==\"pixdim4\" {print $2}'`
-if [ $? != 0 ]
+# Auto-corrects parameter fmri(tr) unless #{functional_file_name} was excluded or correction was already done.
+if [ -z ${EXCLUDED_FILES[\'#{functional_file_name}\']+x} ] && [ -z ${TR_CORRECTED+z} ]
 then
-  echo ERROR: cannot auto-correct TR in #{functional_file_name} '(fslhd failed)'.
-  exit 1
+  TR=`${FSLHD} #{functional_file_name} | awk '$1==\"pixdim4\" {print $2}'`
+  if [ $? != 0 ]
+  then
+    error "Cannot auto-correct TR in #{functional_file_name} '(fslhd failed)'."
+  fi
+  info "Auto-corrected TR to ${TR}."
+  TR_CORRECTED=true
 fi
-echo Auto-corrected TR to ${TR}.
 END
       cmds << command
       cmds << set_design_file_option(modified_design_file_path,"tr","${TR}")
@@ -596,14 +624,17 @@ END
     
     if params[:totalvoxels_auto] == "1"
       command=<<-END
-# Auto-corrects parameter fmri(totalVoxels)
-NVOX=`${FSLSTATS} #{functional_file_name} -v | awk '{print $1}'`
-if [ $? != 0 ]
+# Auto-corrects parameter fmri(totalVoxels) unless #{functional_file_name} was excluded or correction was already done.
+if [ -z ${EXCLUDED_FILES[\'#{functional_file_name}\']+x} ] && [ -z ${NVOX_CORRECTED+z} ]
 then
-  echo ERROR: cannot auto-correct number of voxels in #{functional_file_name} '(fslstats failed)'.
-  exit 1
+  NVOX=`${FSLSTATS} #{functional_file_name} -v | awk '{print $1}'`
+  if [ $? != 0 ]
+  then
+    error "Cannot auto-correct number of voxels in #{functional_file_name} '(fslstats failed)'."
+  fi
+  info "Auto-corrected total voxels to ${NVOX}."
+  NVOX_CORRECTED=true
 fi
-echo Auto-corrected total voxels to ${NVOX}.
 END
       cmds << command
       cmds << set_design_file_option(modified_design_file_path,"totalVoxels","${NVOX}")
@@ -617,6 +648,168 @@ END
   def add_cmd_extract_file_dimensions cmds,functional_file_name
     cmds << "# Extracts dimensions of file #{functional_file_name}"
     cmds << "${FSLINFO} #{functional_file_name} | awk '$1==\"dim1\" || $1==\"dim2\" || $1==\"dim3\" || $1==\"dim4\" {print}'> #{functional_file_name}.fslinfo"
+  end
+
+
+  # Adds functions and variable declarations.
+  # * cmds: an array that receives the (bash) commands needed for the auto correction.
+  def add_cmd_declarations cmds
+    command=<<-END
+# Will contain the list of functional
+# files that were excluded due to dimenstion violations
+declare -A EXCLUDED_FILES # Associative array, requires bash 4
+
+# Will contain the list of file indices
+# that were excluded due to dimenstion violations
+declare -a EXCLUDED_INDICES # Indices (in FSL design file) of excluded files
+
+# Excludes a functional file that violates dimension
+# requirements. Parameters:
+# * functional_file_name: name of the functional file to exclude
+# * index: index of the functional file in the FSL design file
+# * design_file_path: path to the FSL design file
+function exclude {
+  local functional_file_name=$1
+  local index=$2
+  local design_file_path=$3
+  EXCLUDED_FILES["${functional_file_name}"]=true
+  EXCLUDED_INDICES=("${EXCLUDED_INDICES[@]}" "${index}")
+  rm -f ${functional_file_name}.fslinfo
+  rm -f ${functional_file_name}.trvalue
+  for variable in feat_files highres_files initial_highres_files
+  do
+    sed s,'set '${variable}\\\(${index}\\\),'# Line commented by CBRAIN due to dimension violation set '${variable}\\\(${index}\\\),g ${design_file_path} > ${design_file_path}.temp
+    mv -f ${design_file_path}.temp ${design_file_path}
+  done
+}
+
+# Updates the index of a file in the design file
+function replace_index {
+  local design_file_path=$1
+  local old_index=$2
+  local new_index=$3
+  for variable in feat_files highres_files initial_highres_files
+  do
+    sed s,'set '${variable}\\\(${old_index}\\\),'set '${variable}\\\(${new_index}\\\),g ${design_file_path} > ${design_file_path}.temp
+    mv -f ${design_file_path}.temp ${design_file_path}
+  done
+}
+
+# Returns 0 if element is contained in array
+# * $1: element to test
+# * other arguments: array elements
+function containsElement {
+  local e
+  for e in "${@:2}"; do [[ "$e" == "$1" ]] && return 0; done
+  return 1
+}
+
+# Re-indexes the files in design file so that
+# there is a continuous sequence of indices (0,1,2,...)
+# even if some files were excluded
+function clean_all_indices {
+  local design_file_path=$1
+  local n_files=$2
+  local current_index=1
+  for i in `seq 1 ${n_files}`
+  do
+    containsElement "${i}" "${EXCLUDED_INDICES[@]}"
+    if [ $? != 0 ]
+    then
+      # i was not excluded
+      replace_index ${design_file_path} ${i} ${current_index}
+      current_index=$(( current_index + 1 ))
+    fi
+  done
+  # Updates parameter fmri(multiple) to current_index - 1 (new total number of files in the analysis)
+  local new_fmri_multiple=$(( current_index - 1 ))
+  sed s,'set.*fmri(multiple)','# Line commented by CBRAIN due to dimension violation set fmri(multiple)',g ${design_file_path} > ${design_file_path}.temp
+  mv -f ${design_file_path}.temp ${design_file_path}
+  echo "set fmri(multiple) ${new_fmri_multiple}" >> ${design_file_path}
+}
+
+# Log functions
+function timestamped_log {
+  D=`date`
+  echo "[ ${D} ] $*"
+}
+
+function info {
+  timestamped_log "INFO $*"
+}
+
+function warning {
+  timestamped_log "WARNING $*"
+}
+
+function error {
+  timestamped_log "ERROR $*"
+  exit 1
+}
+# End log functions
+
+END
+    cmds << command
+  end
+
+  # Adds commands to check if functional files violate dimension requirements.
+  # * cmds: an array that receives the (bash) commands needed for the auto correction.
+  # * functional_file_name: the name of the functional file to test.
+  # * design_file_path: the path of the modified design file.
+  # * index: index of the functional file in the list of functional files (CBRAIN index, starts a 0)
+  def add_cmd_check_file_dimension_violations cmds,functional_file_name,design_file_path,index
+    if(params[:check_x_dim] == "1")
+      command=<<-END
+XDIM=`awk '$1==\"dim1\" {print $2}' #{functional_file_name}.fslinfo`
+if [ ${XDIM} -eq #{params[:required_x]} ]
+then
+ info "#{functional_file_name} has required X dimension (${XDIM})"
+else
+ warning "Excluding file #{functional_file_name} because it doesn't have the required X dimension (${XDIM} != #{params[:required_x]})"
+ exclude #{functional_file_name} #{index+1} #{design_file_path}
+fi
+END
+      cmds << command
+    end
+    if(params[:check_y_dim] == "1")
+      command=<<-END
+YDIM=`awk '$1==\"dim2\" {print $2}' #{functional_file_name}.fslinfo`
+if [ ${YDIM} -eq #{params[:required_y]} ]
+then
+ info "#{functional_file_name} has required Y dimension (${YDIM})"
+else
+ warning "Excluding file #{functional_file_name} because it doesn't have the required Y dimension (${YDIM} != #{params[:required_y]})"
+ exclude #{functional_file_name} #{index+1} #{design_file_path}
+fi
+END
+      cmds << command
+    end
+    if(params[:check_z_dim] == "1")
+      command=<<-END
+ZDIM=`awk '$1==\"dim3\" {print $2}' #{functional_file_name}.fslinfo`
+if [ ${ZDIM} -eq #{params[:required_z]} ]
+then
+ info "#{functional_file_name} has required Z dimension (${ZDIM})"
+else
+ warning "Excluding file #{functional_file_name} because it doesn't have the required Z dimension (${ZDIM} != #{params[:required_z]})"
+ exclude #{functional_file_name} #{index+1} #{design_file_path}
+fi
+END
+      cmds << command
+    end
+    if(params[:check_t_dim] == "1")
+      command=<<-END
+TDIM=`awk '$1==\"dim4\" {print $2}' #{functional_file_name}.fslinfo`
+if [ ${TDIM} -eq #{params[:required_t]} ]
+then
+ info "#{functional_file_name} has required T dimension (${TDIM})"
+else
+ warning "Excluding file #{functional_file_name} because it doesn't have the required T dimension (${TDIM} != #{params[:required_t]})"
+ exclude #{functional_file_name} #{index+1} #{design_file_path}
+fi
+END
+      cmd << command
+    end
   end
 
   # Extracts the TR of a file and puts them in a .trvalue file
@@ -635,7 +828,7 @@ END
   #  * cmds: an array that receives the (bash) commands to perform the check. 
   def add_cmd_check_trs_identical cmds
     command=<<-END
-# Checks if all files have the same TR.
+# Checks if all files have the same TR (excluded files have no *.trvalue file).
 md5sum *.trvalue | awk 'NR>1&&$1!=last{exit 1}{last=$1}'
 if [ $? != 0 ]
 then
@@ -647,9 +840,9 @@ then
     TR=`cat ${file}`
     echo ${INDEX} ${FILE_NAME} ${TR}
   done | sort -g
-  echo "Warning: functional files do not all have the same TR (see TR values above)."
+  warning "Functional files do not all have the same TR (see TR values above)."
 else
-  echo "All functional files have the same TR."
+  info "All functional files have the same TR."
 fi
 # Remove .trvalue files so that they are not considered if task is restarted.
 rm -f *.trvalue
@@ -658,13 +851,13 @@ END
   end
 
   
-  # Check that all .fslinfo files (created by method extract_file_dimenstions)
+  # Check that all .fslinfo files (created by method extract_file_dimensions)
   # are identical, i.e. all the files have the same file dimensions.
   # Parameters:
   #  * cmds: an array that receives the (bash) commands to perform the check. 
   def add_cmd_check_file_dimensions_identical cmds
     command=<<-END
-# Checks if all files have the same dimensions.
+# Checks if all files have the same dimensions (excluded files have no .fslinfo file.
 md5sum *.fslinfo | awk 'NR>1&&$1!=last{exit 1}{last=$1}'
 if [ $? != 0 ]
 then
@@ -679,12 +872,12 @@ then
     T=`awk '$1=="dim4" {print $2}' ${file}`
     echo ${INDEX} ${FILE_NAME} ${X} ${Y} ${Z} ${T}
   done | sort -g
-  echo "ERROR: functional files do not all have the same dimensions. Check the dimensions reported above and exclude the problematic file(s)."
+  error "Functional files do not all have the same dimensions. Check the dimensions reported above and exclude the problematic file(s)."
   # Remove .fslinfo files so that they are not considered if task is restarted.
   rm -f *.fslinfo
   exit 1
 fi
-echo "All functional files have the same dimensions."
+info "All functional files have the same dimensions."
 # Remove .fslinfo files so that they are not considered if task is restarted.
 rm -f *.fslinfo
 END
@@ -697,18 +890,41 @@ END
   #  * file_name: the name of the structural file to check. Method 'add_cmd_extract_file_dimensions'
   #     must have been called on this file before the present method is called.
   #  * min_value: the threshold value.
-  def add_cmd_check_t_dimension_greater_than cmds,file_name,min_value
+  def add_cmd_check_t_dimension_greater_than cmds,functional_file_name,min_value
     command=<<-END
-# Checking number of volumes in #{file_name}
-test -f #{file_name}.fslinfo || ( echo "ERROR: Cannot check the dimension of file #{file_name} (#{file_name}.fslinfo does not exist)" ; exit 1)
-NVOLS=`awk '$1=="dim4" {print $2}' #{file_name}.fslinfo`
-if [ $NVOLS -lt #{min_value} ]
+# Checking number of volumes in #{functional_file_name} unless file was excluded
+if [ -z ${EXCLUDED_FILES[\'#{functional_file_name}\']+x} ]
 then
-  echo "ERROR: Refusing to process functional files with only ${NVOLS} volumes. Minimal number of volumes must be greater than 20, after initial volume deletion (ndelete parameter)."
-  exit 1
-else 
-  echo "Number of functional volumes ($NVOLS) is greater than #{min_value}: proceeding."
+  test -f #{functional_file_name}.fslinfo || ( error "Cannot check the dimension of file #{functional_file_name} (#{functional_file_name}.fslinfo does not exist)." )
+  NVOLS=`awk '$1=="dim4" {print $2}' #{functional_file_name}.fslinfo`
+  if [ $NVOLS -lt #{min_value} ]
+  then
+    error "Refusing to process functional files with only ${NVOLS} volumes. Minimal number of volumes must be greater than 20, after initial volume deletion (ndelete parameter)."
+  else
+    info "Number of functional volumes ($NVOLS) is greater than #{min_value}: proceeding."
+  fi
 fi
+END
+    cmds << command
+  end
+
+  # Adds commands to check if all the functional files were excluded (in this case the script will end).
+  # Re-indexes all the files in the design file so that indices are a continuous sequence (0,1,2,3,...) even
+  # if some files were excluded.
+  # * cmds: an array that receives the (bash) commands needed for the auto correction.
+  # * design_file_path: the path of the modified design file.
+  # * number_of_files: total number of functional files
+  def add_cmd_check_if_all_files_were_excluded_and_reindex cmds,design_file_path,number_of_files
+    command=<<-END
+# Check if there are files remaining (not excluded) in the design file
+if [ ${#EXCLUDED_FILES[@]} = #{number_of_files} ]
+then
+  error "All the ${#EXCLUDED_FILES[@]} functional files were excluded due to dimension violations."
+fi
+
+# Re-index files in design file
+clean_all_indices #{design_file_path} #{number_of_files}
+
 END
     cmds << command
   end

@@ -66,10 +66,18 @@
   <% end %>
 </table>
 <ul>
-  <li><label>Total volumes:</label> <%= form.params_text_field :npts %> <b>auto-correct:</b> <%= form.params_check_box :npts_auto%> (uses the value returned by fslnvols) </li>
-  <li><label>TR (s):       </label> <%= form.params_text_field :tr %>   <b>auto-correct:</b> <%= form.params_check_box :tr_auto%>   (uses the value returned by fslhd)    </li>
-  <li><label>EPI TE (s):   </label> <%= form.params_text_field :te %>                                                               </li>
-  <li><label>Total voxels: </label> <%= form.params_text_field :totalvoxels %> <b>auto-correct:</b> <%= form.params_check_box :totalvoxels_auto%>   (uses the value returned by fslstats -v)    </li>                                                              </li>
+  <li><label>Total volumes:</label> <%= form.params_text_field :npts, :maxlength=>"10" %><%= form.params_check_box :npts_auto%><b>auto:</b> (uses the value returned by fslnvols)                  </li>
+  <li><label>TR (s):       </label> <%= form.params_text_field :tr,   :maxlength=>"10" %><%= form.params_check_box :tr_auto%>  <b>auto:</b> (uses the value returned by fslhd)                     </li>
+  <li><label>EPI TE (s):   </label> <%= form.params_text_field :te,   :maxlength=>"10" %>                                                                                                                  </li>
+  <li><label>Total voxels: </label> <%= form.params_text_field :totalvoxels, :maxlength=>"10" %><%= form.params_check_box :totalvoxels_auto%><b>auto:</b> (uses the value returned by fslstats -v) </li>
+  <li><label>Check dimensions (violating files will be excluded):</label><br/>
+    <ul>
+    <li><label>x</label><%= form.params_text_field :required_x, :maxlength=>"5" %> <%= form.params_check_box :check_x_dim%><br/></li>
+    <li><label>y</label><%= form.params_text_field :required_y, :maxlength=>"5" %> <%= form.params_check_box :check_y_dim%><br/></li>
+    <li><label>z</label><%= form.params_text_field :required_z, :maxlength=>"5" %> <%= form.params_check_box :check_z_dim%><br/></li>
+    <li><label>t</label><%= form.params_text_field :required_t, :maxlength=>"5" %> <%= form.params_check_box :check_t_dim%><br/></li>
+    </ul>
+  </li>
 </ul>
 <br/>
 
@@ -287,18 +295,29 @@ $(function () {
   });
 
   $.each([
-      [ 'npts',        'npts_auto' ],
-      [ 'tr',          'tr_auto' ],
-      [ 'totalvoxels', 'totalvoxels_auto' ],
-      [ 'dim',         'dim_yn' ]
+      [ 'npts',        'npts_auto', true ],
+      [ 'tr',          'tr_auto', true ],
+      [ 'totalvoxels', 'totalvoxels_auto', true ],
+      [ 'dim',         'dim_yn', true ],
+      [ 'required_x',  'check_x_dim', false ],
+      [ 'required_y',  'check_y_dim', false ],
+      [ 'required_z',  'check_z_dim', false ],
+      [ 'required_t',  'check_t_dim', false ]
   ], function (index, value) {
     var field  = $('#cbrain_task_params_' + value[0]),
-        toggle = $('#cbrain_task_params_' + value[1]);
+        toggle = $('#cbrain_task_params_' + value[1]),
+        enable_field_if_checked = value[2];
 
-    field.prop('disabled', toggle.prop('checked'));
+    if(enable_field_if_checked)
+      field.prop('disabled', toggle.prop('checked'));
+    else
+      field.prop('disabled', !toggle.prop('checked'));
 
     toggle.click(function () {
-      field.prop('disabled', toggle.prop('checked'));
+      if(enable_field_if_checked)
+        field.prop('disabled', toggle.prop('checked'));
+      else
+        field.prop('disabled', !toggle.prop('checked'));
     });
   });
 
