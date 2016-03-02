@@ -28,7 +28,7 @@ For Freesurfer tools:
 | ReconAllBaseOutput           | Model for recon-all unbiased base output, result of the second step in longitudinal studies     |
 | ReconAllLongiOutput          | Model for recon-all longitudinal output, result of the third step in longitudinal studies       |
 | ReconAllOutput               | Model for recon-all collection (not directly used). All the ReconAll*Output inherits this model |
-| MghFile                      | Model for MGZ structural files                                                                  |
+| MghFile                      | Model for MGH structural files                                                                  |
 
 For FSL tools:
 
