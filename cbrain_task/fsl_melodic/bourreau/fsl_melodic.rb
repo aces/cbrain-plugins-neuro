@@ -453,7 +453,7 @@ END
     nii_file_name = nifti_file_name minc_file_name
     # removes the minc file after conversion otherwise feat crashes...
     command=<<-END
-      # File converstion to Nifti
+      # File conversion to Nifti
       info Converting file #{minc_file_name} to Nifti
       mnc2nii -nii #{minc_file_name} `pwd`/#{File.basename nii_file_name}
       if [ $? != 0 ]
