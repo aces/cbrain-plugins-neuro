@@ -184,10 +184,11 @@ class CbrainTask::Civet < ClusterTask
     if !self.tool_config.is_at_least_version("1.1.12") # lower than 1.1.12
       7.hours # 4.5 normally
     else
+      # Added 2 extra hours, just in case user specify ANIMAL.
       if mybool(params[:high_res_surfaces])
-        params[:template] == "1.00" ? 14.hours : 20.hours
+        params[:template] == "1.00" ? 16.hours : 22.hours
       else
-        params[:template] == "1.00" ? 8.hours : 10.hours
+        params[:template] == "1.00" ? 10.hours : 12.hours
       end
     end
   end
