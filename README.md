@@ -160,7 +160,7 @@ rake cbrain:plugins:install:plugins
   * If you want FSL tools to be parallelized in CBRAIN (limited to FSL Melodic for now), replace the fsl_sub script in your FSL installation with the one in the plugin:
 
 ```bash
-cp cbrain-plugins-neuro/cbrain_task/fsl_melodic/bin/fsl_sub ${FSLDIR}/bin
+cp cbrain-plugins-neuro/bin/fsl_sub ${FSLDIR}/bin
 ```
 
   * Restart your execution server (with the interface, click stop, then start).

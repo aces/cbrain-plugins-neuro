@@ -28,6 +28,10 @@ class CbrainTask::FslRandomise < ClusterTask
   include RestartableTask
   include RecoverableTask
 
+  def self.properties #:nodoc:
+    super.merge :can_submit_new_tasks => true
+  end
+
   def setup #:nodoc:
     params       = self.params
 
@@ -103,13 +107,15 @@ class CbrainTask::FslRandomise < ClusterTask
 
     output_option = "#{output_dir}/#{common_string}"
 
+    # FSL randomise_parallel execution commands
+
     # All boolean options
     with_T    = params[:carry_t]          == "1" ? "-T"  : ""
     with_F    = params[:carry_f]          == "1" ? "-F"  : ""
     with_x    = params[:output_voxelwise] == "1" ? "-x"  : ""
     with_R    = params[:output_raw]       == "1" ? "-R"  : ""
 
-    cmd   = "randomise"
+    cmd   = "randomise_parallel"
     cmd  += " -i #{inputfile}"
     cmd  += " -o #{output_option}"
     cmd  += " -d #{mat}"
@@ -121,6 +127,12 @@ class CbrainTask::FslRandomise < ClusterTask
     cmd  += " -m #{mask}"
     cmd  += " #{with_T} #{with_F} #{with_x} #{with_R}"
 
+    # Export of the CBRAIN_WORKDIR variable is used by
+    # fsl_sub to determine if task has to be parallelized.
+    # In our case, workdir is exported only for group analyses because
+    # individual analyses will not be parallelized.
+    cmds << "export CBRAIN_WORKDIR=#{self.full_cluster_workdir} # To make fsl_sub submit tasks to CBRAIN"
+    cmds << "export CBRAIN_SHARE_WD_TID=#{self.id}" 
     cmds << "echo Starting Randomise"
     cmds << "echo running #{cmd}"
     cmds << cmd
