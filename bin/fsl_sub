@@ -1,7 +1,7 @@
 #!/bin/sh
 
-# Copyright (C) 2007-2013 University of Oxford
-# Authors: Dave Flitney, Stephen Smith and Matthew Webster
+# Copyright (C) 2007-2014 University of Oxford
+# Authors: Dave Flitney, Stephen Smith, Matthew Webster and Duncan Mortimer
 
 #   Part of FSL - FMRIB's Software Library
 #   http://www.fmrib.ox.ac.uk/fsl
@@ -64,6 +64,7 @@
 #   Innovation Limited ("Isis"), the technology transfer company of the
 #   University, to negotiate a licence. Contact details are:
 #   innovation@isis.ox.ac.uk quoting reference DE/9564.
+export LC_ALL=C
 
 ###########################################################################
 # Edit this file in order to setup FSL to use your local compute
@@ -82,11 +83,27 @@
 METHOD=SGE
 unset module
 if [ "x$SGE_ROOT" = "x" ] ; then
-    if [ "x$CBRAIN_WORKDIR" = "x" ] ; then
 	METHOD=NONE
-    else
-        METHOD=CBRAIN
-    fi
+else
+	QCONF=`which qconf`
+	if [ "x$QCONF" = "x" ]; then
+		METHOD=NONE
+		echo "Warning: SGE_ROOT environment variable is set but Grid Engine software not found, will run locally" >&2
+	fi
+fi
+
+#############################
+# CBRAIN ADDENDUM #1
+# Support for method 'CBRAIN'
+#
+# Triggered by having the following
+# environment variables set:
+#   - CBRAIN_WORKDIR
+# Also uses optionally:
+#   - CBRAIN_SHARE_WD_TID
+#############################
+if test -n "$CBRAIN_WORKDIR" ; then
+  METHOD="CBRAIN"
 fi
 
 # stop submitted scripts from submitting jobs themselves
@@ -95,6 +112,9 @@ if [ "X$FSLSUBALREADYRUN" = "Xtrue" ] ; then
     echo "Warning: job on queue attempted to submit parallel jobs - running jobs serially instead" >&2
 fi
 
+if [ "X$METHOD" = "XNONE" ]; then
+	QCONF=echo
+fi
 FSLSUBALREADYRUN=true
 export FSLSUBALREADYRUN
 
@@ -219,7 +239,7 @@ omp_pe='openmp'
 queue=long.q
 queueCmd=" -q long.q "
 mailto=`whoami`@fmrib.ox.ac.uk
-MailOpts="n"
+MailOpts="a"
 
 
 ###########################################################################
@@ -269,7 +289,7 @@ while [ $1 != -- ] ; do
     -q)
       queue=$2
       queueCmd=" -q $queue " 
-      qconf -sq $queue 2>&1 >/dev/null
+      $QCONF -sq $queue >/dev/null 2>&1
       if [ $? -eq 1 ]; then
 	  echo "Invalid queue specified!"
 	  exit 127
@@ -303,8 +323,19 @@ while [ $1 != -- ] ; do
       shift;;
     -t)
       taskfile=$2
-      tasks=`wc -l $taskfile | awk '{print $1}'`
-      sge_tasks="-t 1-$tasks"
+      if [ -f "$taskfile" ] ; then
+	      tasks=`wc -l $taskfile | awk '{print $1}'`
+	      if [ $tasks -ne 0 ]; then
+    	  	sge_tasks="-t 1-$tasks"
+    	  else
+    	    echo "Task file ${taskfile} is empty"
+    	    echo "Should be a text file listing all the commands to run!"
+    	    exit -1
+    	  fi
+      else
+          echo "Task file (${taskfile}) does not exist"
+          exit -1
+      fi
       shift;;
     -N)
       JobName=$2;
@@ -315,7 +346,15 @@ while [ $1 != -- ] ; do
     -l)
       LogOpts="-o $2 -e $2";
       LogDir="${2}/";
-      mkdir -p $2;
+      if [ ! -e ${2} ]; then 
+	  mkdir -p $2
+      else
+	  echo ${2} | grep '/dev/null' >/dev/null 2>&1
+	  if [ $? -eq 1 ] && [ -f ${2} ]; then
+	      echo "Log destination is a file (should be a folder)"
+	      exit -1
+	  fi
+      fi
       shift;;
     -F)
       scriptmode=1;
@@ -337,6 +376,19 @@ shift
 # Don't change the following (but keep scrolling down!)
 ###########################################################################
 
+if [ -z "$taskfile" ] && [ -z "$1" ]; then
+	echo "Either supply a command to run or a parallel task file"
+	exit -1
+fi
+
+if [ -z "$taskfile" ] && [ ! -x "$1" ]; then
+	which $1 >/dev/null 2>&1
+	if [ $? -ne 0 ]; then
+		echo "The command you have requested cannot be found or is not executable"
+		exit -1
+	fi
+fi
+
 if [ "x$JobName" = x ] ; then 
     if [ "x$taskfile" != x ] ; then
 	JobName=`basename $taskfile`
@@ -345,15 +397,9 @@ if [ "x$JobName" = x ] ; then
     fi
 fi
 
-if [ "x$tasks" != x ] && [ ! -f "$taskfile" ] ; then
-    echo $taskfile: invalid input!
-    echo Should be a text file listing all the commands to run!
-    exit -1
-fi
-
 if [ "x$tasks" != "x" ] && [ "x$@" != "x" ] ; then
-    echo $@
-    echo Spurious input after parsing command line!
+    echo "Spurious input after parsing command line: \"$@\"!"
+    echo "You appear to have specified both a task file and a command to run"
     exit -1
 fi
 
@@ -383,7 +429,7 @@ case $METHOD in
 	if [ "x$peName" != x ]; then
             # Is this a configured PE?
 
-	    qconf -sp $peName 2>&1 >/dev/null
+	    $QCONF -sp $peName >/dev/null 2>&1
 
 	    if [ $? -eq 1 ]; then
 		echo $@
@@ -393,13 +439,13 @@ case $METHOD in
 
             # Get a list of queues configured for this PE and confirm that the queue
             # we have submitted to has that PE set up.
-	    qstat -g c -pe $peName 2>&1 >/dev/null
+	    qstat -g c -pe $peName >/dev/null 2>&1
 	    if [ $? -eq 1 ]; then
 		echo "No parallel environments configured!"
 		exit -1
 	    fi
 
-	    qstat -g c -pe $peName | sed '1,2d' | awk '{ print $1 }' | grep ^$queue 2>&1 >/dev/null
+	    qstat -g c -pe $peName | sed '1,2d' | awk '{ print $1 }' | grep ^$queue >/dev/null 2>&1
 
 	    if [ $? -eq 1 ]; then
 		echo $@
@@ -452,16 +498,9 @@ EOF
 	    if [ $verbose -eq 1 ] ; then 
 		echo executing: $@ >&2
 	    fi
-            # Security check: won't run anything else than FSL commands
-            if [[ $1 != ${FSLDIR}* ]]
-            then
-              echo "Refusing to run command '$*' because it doesn't start with '${FSLDIR}'."
-              exit 1
-            fi
 
 	    /bin/sh <<EOF1 > ${LogDir}${JobName}.o$$ 2> ${LogDir}${JobName}.e$$
-# use 'exec $@' rather than just '$@' to avoid injections (e.g. 'ls ; rm * -Rf')
-exec $@ 
+$@
 EOF1
 	    ERR=$?
 	    if [ $ERR -ne 0 ] ; then
@@ -488,58 +527,99 @@ EOF2
 	echo $$
 	;;
 
+
+#############################
+# CBRAIN ADDENDUM #2
+# Support for method "CBRAIN"
+#############################
+
     CBRAIN)
+
+        # This function preps a set of files that
+        # CBRAIN will recuperate, and cause the creation
+        # of a new CBRAIN task of type 'FslSub'.
+        #
+        # The function receives in $1 a number, usually an
+        # arbitrary task counter, and in the rest of the arguments
+        # a full command to run. E.g.
+        #
+        #    submit_cbrain 2 ls -l
+        #
+        # The function will create a ".sh" file with the command, and
+        # a ".json" descriptor file for CBRAIN to pick up and process.
         function submit_cbrain {
+
+          cbrain_subtask_number="$1"; shift;
+
           if [ $verbose -eq 1 ] ; then
-            echo Submitting to CBRAIN: $* >&2
+            echo Submitting subtask $cbrain_subtask_number to CBRAIN: $* >&2
           fi
-          # Uses CBRAIN's mechanism for 
-          # CBRAIN tasks to submit new tasks
-          FILE=`mktemp ${CBRAIN_WORKDIR}/new-task-XXXX.json`
-          cat << NEWTASK > ${FILE}
+
+          pushd "$CBRAIN_WORKDIR" >/dev/null # save current workdir and switch to CBRAIN's
+
+          # Prepare an ID to uses CBRAIN's mechanism for
+          # submit new subtasks.
+          sub_id=`mktemp ${cbrain_subtask_number}_XXXX`  # e.g. "0_u3JK"
+          rm -f "$sub_id" # handle non-needed empty file just created
+          prefix=".new-task-$sub_id" # used for both .json and .sh files
+
+          # Create the bash script
+          cat <<BASH_SCRIPT >"$prefix.sh"
+#
+# This file created automatically by $0
+#
+# This is the code for CBRAIN local subtask $prefix
+#
+
+$@
+
+BASH_SCRIPT
+
+          # Create the JSON descriptor
+          cat <<JSON_FILE >"$prefix.json"
 {
 "tool-class": "CbrainTask::FslSub",
-"description": "$*",
+"description": "$JobName",
+"share-wd-tid": "$CBRAIN_SHARE_WD_TID",
 "parameters": {
-          "fsl_sub_options": "$*"
+          "subtask_id": "$sub_id"
       },
-"prerequisites": "${jid}",
+"prerequisites": "$jid",
 "required-to-post-process": true
 }
-NEWTASK
+JSON_FILE
 
           # Waits for the task id for up to 300 seconds
-          TASK_FILE="${FILE%%.*}.cbid"
-          x=0
-          while [ "$x" -lt 300 -a ! -e ${TASK_FILE} ]; do
-            x=$((x+1))
-            sleep 1
+          cbrain_id_file="$prefix.cbid"
+          SECONDS=0 # bash auto-increment magical variable magic magic
+          while [ "$SECONDS" -lt 300 -a ! -e "$cbrain_id_file" ] ; do
+            sleep 3
           done
-          if [ -e ${TASK_FILE} ]
-          then
-            cat ${TASK_FILE} # prints CBRAIN task id
-          else
-            echo "Error"
-          fi
+          test   -r "$cbrain_id_file" && cat "$cbrain_id_file"
+          test ! -r "$cbrain_id_file" && echo "NoIDForCbrainSubtask"
 
-        } # end of function submit_cbrain
+          popd >/dev/null # return to current directory, wherever it was
+        } # end of generic function submit_cbrain
 
-        if [ "x$tasks" = "x" ] ; then
-            submit_cbrain $@
+        # Main CBRAIN handling for FSL starts here
+        if [ "x$tasks" = "x" ] ; then  # tasks is actually just the number of tasks if -t was supplied.
+            submit_cbrain 0 "$@"
         else
             if [ $verbose -eq 1 ] ; then
                 echo "Submitting commands in: $taskfile" >&2
             fi
 
-            n=1
-            while [ $n -le $tasks ] ; do
-                line=`sed -n -e ''${n}'p' $taskfile`
-                if [ $verbose -eq 1 ] ; then
-                    echo Submitting to CBRAIN: $line >&2
-                fi
-                submit_cbrain ${line}
-                n=`expr $n + 1`
-            done
+            subtask_counter=0
+            cb_subtask_ids=""
+            cat "$taskfile" | perl -ne 'print unless /^\s*$|^\s*#/' > "$taskfile.cleaned"
+            while read -r command ; do
+                subtask_counter=$(( $subtask_counter + 1 ))
+                cbid=`submit_cbrain $subtask_counter "$command"`
+                test -n "$cb_subtask_ids" && cb_subtask_ids="$cb_subtask_ids,"
+                cb_subtask_ids="$cb_subtask_ids$cbid"
+            done < "$taskfile.cleaned"
+            rm -f "$taskfile.cleaned"
+            echo $cb_subtask_ids  # all subtask IDs separated by commas
         fi
         ;;
 

@@ -1,16 +1,16 @@
 {
   "name": "fsl_sub",
-  "tool-version": "1.1",
+  "tool-version": "2.0",
   "description": "A wrapper for FSL sub. Assumes that task will run on a file system shared with the submission process, that input files are already in place, and that output files will be handled by another process.",
-  "command-line": "fsl_sub [FSL_SUB_OPTIONS]",
+  "command-line": "fsl_sub /bin/bash .new-task-[SUBTASK_ID].sh",
   "schema-version": "0.2",
   "inputs": [
     {
-      "id": "fsl_sub_options",
-      "name": "Options",
+      "id": "subtask_id",
+      "name": "Subtask ID",
       "type": "String",
-      "description": "Options passed to fsl_sub.",
-      "command-line-key": "[FSL_SUB_OPTIONS]",
+      "description": "The ID of a subtask descriptor created by fsl_sub",
+      "command-line-key": "[SUBTASK_ID]",
       "list": false,
       "optional": false,
       "command-line-flag": "",
