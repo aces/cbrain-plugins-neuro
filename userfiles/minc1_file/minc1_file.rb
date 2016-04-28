@@ -33,5 +33,11 @@ class Minc1File < MincFile
     "Minc1 File"
   end
 
+  # Overwrite the method in order to
+  # call the "volume_viewer_loader" of MincFile
+  def view_path(partial_name=nil)
+     MincFile.view_path(partial_name)
+  end
+
 end
 
