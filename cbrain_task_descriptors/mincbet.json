@@ -3,13 +3,12 @@
 	"tool-version" : "1.0.0",
 	"description" : "Automated brain extraction tool wrapper for the MINC libraries",
 	"command-line" : "mincbet [INPUT_FILE] [MASK] [FRACTIONAL_INTENSITY] [VERTICAL_GRADIENT] [HYPERINTENSE_THRESHOLD] [OVERLAY_FLAG] [BINARY_MASK_FLAG] [APPROX_SKULL_FLAG] [NO_SEG_OUTPUT_FLAG] [BIC_VIEW_FLAG] [REVERSED_FLAG] [THRESHOLDING_FLAG]",
-	"docker-index" : "http://index.docker.io",
 	"schema-version" : "0.2",
 	"inputs" : [{
 		"id" : "infile",
 		"name" : "Input file",
 		"type" : "File",
-		"description" : " Input image file in mnc format",
+		"description" : "Input image file in mnc format",
 		"optional": false,
 		"command-line-key" : "[INPUT_FILE]"
 	}, {
