@@ -1,0 +1,134 @@
+{
+	"name" : "MINCBet",
+	"tool-version" : "1.0.0",
+	"description" : "Automated brain extraction tool wrapper for the MINC libraries",
+	"command-line" : "mincbet [INPUT_FILE] [MASK] [FRACTIONAL_INTENSITY] [VERTICAL_GRADIENT] [HYPERINTENSE_THRESHOLD] [OVERLAY_FLAG] [BINARY_MASK_FLAG] [APPROX_SKULL_FLAG] [NO_SEG_OUTPUT_FLAG] [BIC_VIEW_FLAG] [REVERSED_FLAG] [THRESHOLDING_FLAG]",
+	"docker-index" : "http://index.docker.io",
+	"schema-version" : "0.2",
+	"inputs" : [{
+		"id" : "infile",
+		"name" : "Input file",
+		"type" : "File",
+		"description" : " Input image file in mnc format",
+		"optional": false,
+		"command-line-key" : "[INPUT_FILE]"
+	}, {
+		"id" : "maskfile",
+		"name" : "Mask file",
+		"type" : "String", 
+		"description" : "Output brain mask in mnc format",
+		"optional": false,
+		"command-line-key" : "[MASK]"
+	}, {
+		"id" : "fractional_intensity",
+		"name" : "Fractional intensity threshold",
+		"type" : "Number",
+		"description" : "Fractional intensity threshold (0->1); default=0.5; smaller values give larger brain outline estimates",
+		"command-line-flag": "-f",
+		"optional": true,
+		"command-line-key" : "[FRACTIONAL_INTENSITY]"
+	}, {
+		"id" : "vg_fractional_intensity",
+		"name" : "Vertical gradient fractional intensity threshold",
+		"type" : "Number",
+		"description" : "Vertical gradient in fractional intensity threshold (-1->1); default=0; positive values give larger brain outline at bottom, smaller at top",
+		"command-line-flag": "-g",
+		"optional": true,
+		"command-line-key" : "[VERTICAL_GRADIENT]"
+	}, {
+		"id" : "hyperintensity_threshold",
+		"name" : "Hyperintensity ratio threshold",
+		"type" : "Number",
+		"description" : "Ratio for hyperintense voxels (>1) (best for t1); smaller values remove more brain; default=none",
+		"command-line-flag": "-h",
+		"optional": true,
+		"command-line-key" : "[HYPERINTENSE_THRESHOLD]"
+	}, {
+		"id" : "overlay_flag",
+		"name" : "Overlay flag",
+		"type" : "Flag",
+		"description" : "Generate brain surface outline overlaid onto original image",
+		"command-line-flag": "-o",
+		"optional": true,
+		"command-line-key" : "[OVERLAY_FLAG]"
+	}, {
+		"id" : "binary_mask_flag",
+		"name" : "Binary mask flag",
+		"type" : "Flag",
+		"description" : "Generate binary brain mask",
+		"command-line-flag": "-m",
+		"optional": true,
+		"command-line-key" : "[BINARY_MASK_FLAG]"
+	}, {
+		"id" : "approx_skull_flag",
+		"name" : "Approximate skull flag",
+		"type" : "Flag",
+		"description" : "Generate approximate skull image",
+		"command-line-flag": "-s",
+		"optional": true,
+		"command-line-key" : "[APPROX_SKULL_FLAG]"
+	}, {
+		"id" : "no_seg_output_flag",
+		"name" : "No segmented brain image flag",
+		"type" : "Flag",
+		"description" : "Don't generate segmented brain image output",
+		"command-line-flag": "-n",
+		"optional": true,
+		"command-line-key" : "[NO_SEG_OUTPUT_FLAG]"
+	}, {
+		"id" : "bic_view_flag",
+		"name" : "BIC brain-view format flag",
+		"type" : "Flag",
+		"description" : "Generate surface mask in BIC brain-view format",
+		"command-line-flag": "-b",
+		"optional": true,
+		"command-line-key" : "[BIC_VIEW_FLAG]"
+	}, {
+		"id" : "reversed_flag",
+		"name" : "Intensity reversal flag",
+		"type" : "Flag",
+		"description" : "Reversed intensities, like t2 and pd",
+		"command-line-flag": "-r",
+		"optional": true,
+		"command-line-key" : "[REVERSED_FLAG]"
+	}, {
+		"id" : "thresholding_flag",
+		"name" : "Threshold segmented image flag",
+		"type" : "Flag",
+		"description" : "Apply thresholding to segmented brain image and mask",
+		"command-line-flag": "-t",
+		"optional": true,
+		"command-line-key" : "[THRESHOLDING_FLAG]"
+	}],
+	"output-files" :  [{
+		"id" : "output_mask",
+		"name" : "Output mask file",
+		"description" : "Segmented brain mask file in mnc format",
+		"path-template" : "[MASK].mnc",
+		"optional" : true		
+	}, {
+		"id" : "mask_overlay",
+		"name" : "Surface overlay file",
+		"description" : "Overlaid brain surface onto original image in mnc format",
+		"path-template" : "[MASK]_overlay.mnc",
+		"optional" : true		
+	}, {
+		"id" : "approx_skull_img",
+		"name" : "Approximate skull file",
+		"description" : "Approximate skull image file in mnc format",
+		"path-template" : "[MASK]_skull.mnc",
+		"optional" : true		
+	}, {
+		"id" : "binary_mask",
+		"name" : "Binary brain mask file",
+		"description" : "Binary brain mask file in mnc format",
+		"path-template" : "[MASK]_mask.mnc",
+		"optional" : true	
+	}, {
+		"id" : "bic_surface_mask",
+		"name" : "BIC brain-view mask file",
+		"description" : "Surface mask in BIC brain-view format",
+		"path-template" : "[MASK].obj",
+		"optional" : true	
+	}]
+}
