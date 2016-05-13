@@ -37,6 +37,7 @@ class MincFile < SingleFile
 
   has_content :method => :get_headers_to_json, :type => :text
   has_content :method => :get_raw_data,        :type => :text
+  has_content :method => :raw_content,         :type => :text
 
   def self.file_name_pattern #:nodoc:
     /\.mi?nc(\.gz|\.Z|\.gz2)?$/i
@@ -113,6 +114,15 @@ class MincFile < SingleFile
     cache_path   = self.cache_full_path
     escaped_path = cache_path.to_s.bash_escape
     @raw_data = IO.popen("minctoraw -byte -unsigned -normalize #{escaped_path}") { |fh| fh.readlines.join }
+  end
+
+  #For content
+  def raw_content
+    if self.name =~ /(\.gz|\.Z|\.gz2)$/i
+      IO.popen("gunzip -c #{self.cache_full_path.to_s.bash_escape}") { |fh| fh.readlines.join }
+    else
+      File.open(self.cache_full_path, "r").read
+    end
   end
 
   def minc_get_data #:nodoc:

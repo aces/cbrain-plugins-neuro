@@ -58,7 +58,6 @@ For MNI and DICOM tools:
 | MincFile                     | Model for MINC files; superclass of MINC1 and MINC2                                             |
 
 
-
 #### 2. CbrainTasks
 
 For Freesurfer tools:
@@ -95,7 +94,7 @@ For MNI and DICOM tools:
 | Mnc2nii       | To run mnc2nii, in order to convert MINC to NIfTI                                              |
 | Nii2mnc       | To run nii2mnc, in order to convert NIfTI to MINC                                              |
 | NuCorrect     | To run nu_correct                                                                              |
-
+| MincBet       | To run brain extraction tool wrapper (Requires issue 373 to be resolved)                       |
 
 
 ## How to install this package
