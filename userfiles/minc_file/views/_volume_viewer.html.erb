@@ -282,7 +282,7 @@
           }
         });
 
-      // Input field for minimum threshold.
+        // Input field for minimum threshold.
         min_input.change(function() {
           var value = parseFloat(this.value);
 
@@ -464,16 +464,16 @@
 
       if (BrainBrowser.utils.isFunction(volume.getWorldCoords)) {
         world_coords = volume.getWorldCoords();
-        $("#world-x-" + vol_id).val(world_coords.x.toPrecision(6));
-        $("#world-y-" + vol_id).val(world_coords.y.toPrecision(6));
-        $("#world-z-" + vol_id).val(world_coords.z.toPrecision(6));
+        $("#world-x-<%= userfile_id %>").val(world_coords.x.toPrecision(6));
+        $("#world-y-<%= userfile_id %>").val(world_coords.y.toPrecision(6));
+        $("#world-z-<%= userfile_id %>").val(world_coords.z.toPrecision(6));
       }
 
       if (BrainBrowser.utils.isFunction(volume.getVoxelCoords)) {
         voxel_coords = volume.getVoxelCoords();
-        $("#voxel-i-" + vol_id).val(parseInt(voxel_coords.i, 10));
-        $("#voxel-j-" + vol_id).val(parseInt(voxel_coords.j, 10));
-        $("#voxel-k-" + vol_id).val(parseInt(voxel_coords.k, 10));
+        $("#voxel-i-<%= userfile_id %>").val(parseInt(voxel_coords.i, 10));
+        $("#voxel-j-<%= userfile_id %>").val(parseInt(voxel_coords.j, 10));
+        $("#voxel-k-<%= userfile_id %>").val(parseInt(voxel_coords.k, 10));
       }
 
       value = volume.getIntensityValue();
