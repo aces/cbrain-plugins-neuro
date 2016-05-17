@@ -246,11 +246,11 @@
         var div = $(this);
 
         // Input fields to input min and max thresholds directly.
-        var min_input = div.find("#min-threshold-" + vol_id);
-        var max_input = div.find("#max-threshold-" + vol_id);
+        var min_input = div.find("#min-threshold-<%= userfile_id %>" + vol_id);
+        var max_input = div.find("#max-threshold-<%= userfile_id %>" + vol_id);
 
         // Slider to modify min and max thresholds.
-        var slider = div.find(".slider");
+        var slider = div.find("#threshold-slider-<%= userfile_id %>");
 
         var volume = viewer.volumes[vol_id];
 
