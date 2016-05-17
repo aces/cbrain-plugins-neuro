@@ -25,64 +25,66 @@
 <%= stylesheet_link_tag    MincFile.public_path("stylesheets/volume_viewer.css").to_s, :media => "all" %>
 <%= javascript_include_tag MincFile.public_path("javascripts/brainbrowser.volume-viewer.min.js").to_s %>
 
-<div id="brainbrowser-wrapper">
-  <div id="volume-viewer">
-    <div id="global-controls" class="volume-viewer-controls">
-      <span id="brainbrowser_volume_screenshot" class="button">Screenshot</span>
+<% userfile_id = @userfile.id %>
+
+<div id="brainbrowser-wrapper-<%= userfile_id %>">
+  <div id="volume-viewer-<%= userfile_id %>">
+    <div id="global-controls-<%= userfile_id %>" class="volume-viewer-controls">
+      <span id="brainbrowser_volume_screenshot-<%= userfile_id %>" class="button">Screenshot</span>
     </div>
 
-    <div id="brainbrowser-volume"></div>
-    <div id="display">
-      <div id="loading" style="display: none"><img src="/images/brainbrowser-loader.gif" /></div>
+    <div id="brainbrowser-volume-<%= userfile_id %>"></div>
+    <div id="display-<%= userfile_id %>">
+      <div id="loading-<%= userfile_id %>" style="display: none"><img src="/images/brainbrowser-loader.gif" /></div>
     </div>
 
     <div class="volume-viewer-controls volume-controls">
 
       <div class="coords">
-        <div class="control-heading" id="voxel-coordinates-heading-0">
+        <div class="control-heading" id="voxel-coordinates-heading-<%= userfile_id %>">
           Voxel Coordinates:
         </div>
-        <div class="voxel-coords" data-volume-id="0">
-          I:<input id="voxel-i-0" class="control-inputs">
-          J:<input id="voxel-j-0" class="control-inputs">
-          K:<input id="voxel-k-0" class="control-inputs">
+        <div class="voxel-coords" data-volume-id="<%= userfile_id %>">
+          I:<input id="voxel-i-<%= userfile_id %>" class="control-inputs">
+          J:<input id="voxel-j-<%= userfile_id %>" class="control-inputs">
+          K:<input id="voxel-k-<%= userfile_id %>" class="control-inputs">
         </div>
-        <div class="control-heading" id="world-coordinates-heading-0">
+        <div class="control-heading" id="world-coordinates-heading-<%= userfile_id %>">
           World Coordinates:
         </div>
-        <div class="world-coords" data-volume-id="0">
-          X:<input id="world-x-0" class="control-inputs">
-          Y:<input id="world-y-0" class="control-inputs">
-          Z:<input id="world-z-0" class="control-inputs">
+        <div class="world-coords" data-volume-id="<%= userfile_id %>">
+          X:<input id="world-x-<%= userfile_id %>" class="control-inputs">
+          Y:<input id="world-y-<%= userfile_id %>" class="control-inputs">
+          Z:<input id="world-z-<%= userfile_id %>" class="control-inputs">
         </div>
       </div>
 
-      <div id="color-map-0">
-        <span class="control-heading" id="color-map-heading-0">
+      <div id="color-map-<%= userfile_id %>">
+        <span class="control-heading" id="color-map-heading-<%= userfile_id %>">
           Color Map:
         </span>
       </div>
 
-      <div class="threshold-div" data-volume-id="0">
+      <div class="threshold-div" data-volume-id="<%= userfile_id %>">
         <div class="control-heading">
           Threshold:
         </div>
         <div class="thresh-inputs">
-          <input id="min-threshold-0" class="control-inputs thresh-input-left"  value="0"/>
-          <input id="max-threshold-0" class="control-inputs thresh-input-right" value="255"/>
+          <input id="min-threshold-<%= userfile_id %>" class="control-inputs thresh-input-left"  value="0"/>
+          <input id="max-threshold-<%= userfile_id %>" class="control-inputs thresh-input-right" value="255"/>
         </div>
-        <div class="slider volume-viewer-threshold" id="threshold-slider-0"></div>
+        <div class="slider volume-viewer-threshold" id="threshold-slider-<%= userfile_id %>"></div>
       </div>
 
-      <div id="time-0" class="time-div" data-volume-id="0" style="display:none">
+      <div id="time-<%= userfile_id %>" class="time-div" data-volume-id="<%= userfile_id %>" style="display:none">
         <span class="control-heading">Time:</span>
-        <input class="control-inputs" value="0" id="time-val-0"/>
-        <div class="slider volume-viewer-threshold" id="threshold-time-slider-0"></div>
-        <input type="checkbox" class="button" id="play-0"><label for="play-0">Play</label>
+        <input class="control-inputs" value="0" id="time-val-<%= userfile_id %>"/>
+        <div class="slider volume-viewer-threshold" id="threshold-time-slider-<%= userfile_id %>"></div>
+        <input type="checkbox" class="button" id="play-<%= userfile_id %>"><label for="play-<%= userfile_id %>">Play</label>
       </div>
 
-      <div id="slice-series-0" class="slice-series-div" data-volume-id="0">
-        <div class="control-heading" id="slice-series-heading-0">All slices: </div>
+      <div id="slice-series-<%= userfile_id %>" class="slice-series-div" data-volume-id="0">
+        <div class="control-heading" id="slice-series-heading-<%= userfile_id %>">All slices: </div>
         <span class="slice-series-button button" data-axis="xspace">Sagittal</span>
         <span class="slice-series-button button" data-axis="yspace">Coronal</span>
         <span class="slice-series-button button" data-axis="zspace">Transverse</span>
@@ -93,8 +95,8 @@
 </div>
 
 <script type="text/javascript">
-  BrainBrowser.VolumeViewer.start("brainbrowser-volume", function(viewer) {
-    var loading_div = $("#loading");
+  BrainBrowser.VolumeViewer.start("brainbrowser-volume-<%= userfile_id %>", function(viewer) {
+    var loading_div = $("#loading-<%= userfile_id %>");
 
     BrainBrowser.config.set("color_maps", [
       {
@@ -109,7 +111,7 @@
       },
     ]);
 
-    $("#brainbrowser_volume_screenshot").click(function() {
+    $("#brainbrowser_volume_screenshot-<%= userfile_id %>").click(function() {
       var width        = 0;
       var height       = 0;
       var active_panel = viewer.active_panel;
@@ -175,9 +177,9 @@
       $(".world-coords").change(function() {
         var div = $(this);
 
-        var x = parseFloat(div.find("#world-x-" + vol_id).val());
-        var y = parseFloat(div.find("#world-y-" + vol_id).val());
-        var z = parseFloat(div.find("#world-z-" + vol_id).val());
+        var x = parseFloat(div.find("#world-x-<%= userfile_id %>" + vol_id).val());
+        var y = parseFloat(div.find("#world-y-<%= userfile_id %>" + vol_id).val());
+        var z = parseFloat(div.find("#world-z-<%= userfile_id %>" + vol_id).val());
 
         // Make sure the values are numeric.
         if (!BrainBrowser.utils.isNumeric(x)) {
@@ -200,9 +202,9 @@
       $(".voxel-coords").change(function() {
         var div = $(this);
 
-        var i = parseInt(div.find("#voxel-i-" + vol_id).val(), 10);
-        var j = parseInt(div.find("#voxel-j-" + vol_id).val(), 10);
-        var k = parseInt(div.find("#voxel-k-" + vol_id).val(), 10);
+        var i = parseInt(div.find("#voxel-i-<%= userfile_id %>" + vol_id).val(), 10);
+        var j = parseInt(div.find("#voxel-j-<%= userfile_id %>" + vol_id).val(), 10);
+        var k = parseInt(div.find("#voxel-k-<%= userfile_id %>" + vol_id).val(), 10);
 
         // Make sure the values are numeric.
         if (!BrainBrowser.utils.isNumeric(i)) {
