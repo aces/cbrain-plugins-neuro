@@ -78,6 +78,7 @@
         <div class="control-heading">
           Threshold:
         </div>
+        <br>
         <div class="thresh-inputs">
           <input id="min-threshold-<%= userfile_id %>" class="control-inputs thresh-input-left"  value="0"/>
           <input id="max-threshold-<%= userfile_id %>" class="control-inputs thresh-input-right" value="255"/>
@@ -89,6 +90,7 @@
         <span class="control-heading">Time:</span>
         <input class="control-inputs" value="0" id="time-val-<%= userfile_id %>"/>
         <div class="slider volume-viewer-threshold" id="threshold-time-slider-<%= userfile_id %>"></div>
+        <br>
         <input type="checkbox" class="button" id="play-<%= userfile_id %>"><label for="play-<%= userfile_id %>">Play</label>
       </div>
 
@@ -332,23 +334,22 @@
       });
 
 
-      if (volume.data.time) {
-
-        $(".time-div").each(function() {
+      if (volume.header.time) {
+        $("#time-<%= userfile_id %>").each(function() {
           var div = $(this);
 
-          if (volume.data.time) {
+          if (volume.header.time) {
             div.show();
           } else {
             return;
           }
 
-          var slider = div.find(".slider");
-          var time_input = div.find("#time-val-" + vol_id);
-          var play_button = div.find("#play-" + vol_id);
+          var slider      = div.find("#threshold-time-slider-<%= userfile_id %>");
+          var time_input  = div.find("#time-val-<%= userfile_id %>");
+          var play_button = div.find("#play-<%= userfile_id %>");
 
           var min = 0;
-          var max = volume.data.time.space_length - 1;
+          var max = volume.header.time.space_length - 1;
           var play_interval;
 
           slider.slider({
@@ -495,9 +496,9 @@
       }))
       .html(Math.floor(value));
 
-      if (volume.data && volume.data.time) {
-        $("#time-slider-" + vol_id).slider("option", "value", volume.current_time);
-        $("#time-val-" + vol_id).val(volume.current_time);
+      if (volume.data && volume.header.time) {
+        $("#time-slider-<%= userfile_id %>").slider("option", "value", volume.current_time);
+        $("#time-val-<%= userfile_id %>").val(volume.current_time);
       }
     });
 
