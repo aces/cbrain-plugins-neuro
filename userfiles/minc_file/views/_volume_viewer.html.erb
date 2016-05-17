@@ -59,6 +59,14 @@
         </div>
       </div>
 
+      <div id="intensity-value-div-<%= userfile_id %>">
+        <span class="control-heading" data-volume-id="<%= userfile_id %>">
+          Value:
+        </span>
+        <span id="intensity-value-<%= userfile_id %>" class="intensity-value"></span>
+      </div>
+
+
       <div id="color-map-<%= userfile_id %>">
         <span class="control-heading" id="color-map-heading-<%= userfile_id %>">
           Color Map:
@@ -477,7 +485,7 @@
       }
 
       value = volume.getIntensityValue();
-      $("#intensity-value-" + vol_id)
+      $("#intensity-value-<%= userfile_id %>")
       .css("background-color", "#" + volume.color_map.colorFromValue(value, {
         hex: true,
         min: volume.min,
