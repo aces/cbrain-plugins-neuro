@@ -213,9 +213,9 @@
       $("#voxel-coords-<%= userfile_id %>").change(function() {
         var div = $(this);
 
-        var i = parseInt(div.find("#voxel-i-<%= userfile_id %>").val());
-        var j = parseInt(div.find("#voxel-j-<%= userfile_id %>").val());
-        var k = parseInt(div.find("#voxel-k-<%= userfile_id %>").val());
+        var i = parseInt(div.find("#voxel-i-<%= userfile_id %>").val(), 10);
+        var j = parseInt(div.find("#voxel-j-<%= userfile_id %>").val(), 10);
+        var k = parseInt(div.find("#voxel-k-<%= userfile_id %>").val(), 10);
 
         // Make sure the values are numeric.
         if (!BrainBrowser.utils.isNumeric(i)) {
