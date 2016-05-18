@@ -8,9 +8,9 @@
 		"id" : "infile",
 		"name" : "Input file",
 		"type" : "File",
-		"description" : " Input image file (for single-image use). Either this or an input dir (-d) must be specified, but not both.", 
+		"description" : "Input image file (for single-image use). Either this or an input dir (-d) must be specified, but not both.", 
 		"optional" : true,
-        "list" : false,
+		"list" : false,
 		"command-line-flag" : "-i",
 		"disabled-by-inputs" : [ "indir" ],
 		"command-line-key" : "[INPUT_FILE]"
@@ -20,7 +20,7 @@
 		"type" : "File", 
 		"description" : "Existing input directory (.anat extension) where this script will be run in place. Either this or an input file (-i) must be specified, but not both.",
 		"optional" : true,
-        "list" : false,
+		"list" : false,
 		"command-line-flag" : "-d",
 		"disabled-by-inputs" : [ "infile" ],
 		"command-line-key" : "[INPUT_DIR]"
@@ -30,7 +30,7 @@
 		"type" : "String", 
 		"description" : "Specifies the output folder name. Note that the .anat extension is automatically appended.",
 		"optional" : false,
-        "list" : false,
+		"list" : false,
 		"command-line-flag" : "-o",
 		"default-value" : "output_results", 
 		"command-line-key" : "[OUTPUT_DIR]"
@@ -40,7 +40,7 @@
 		"type" : "Flag", 
 		"description" : "If .anat directory exist (as specified by -o or default from -i) then delete it and make a new one.",
 		"optional" : true,
-        "list" : false,
+		"list" : false,
 		"command-line-flag" : "--clobber",
 		"command-line-key" : "[CLOBBER_FLAG]"
 	}, {
@@ -49,7 +49,7 @@
 		"type" : "Flag", 
 		"description" : "Used for images with little and/or smooth bias fields. For images acquired using birdcage coils or on 1.5T scanners, the --weakbias option will be faster and may produce equally good results.",
 		"optional" : true,
-        "list" : false,
+		"list" : false,
 		"command-line-flag" : "--weakbias",
 		"command-line-key" : "[WEAKBIAS_FLAG]"
 	}, {
@@ -58,7 +58,7 @@
 		"type" : "Flag", 
 		"description" : "Turn off step that does reorientation 2 standard (fslreorient2std).",
 		"optional" : true,
-        "list" : false,
+		"list" : false,
 		"command-line-flag" : "--noreorient",
 		"command-line-key" : "[NO_REORIENT_FLAG]"
 	}, {
@@ -67,7 +67,7 @@
 		"type" : "Flag", 
 		"description" : "Turn off step that does automated cropping (robustfov).",
 		"optional" : true,
-        "list" : false,
+		"list" : false,
 		"command-line-flag" : "--nocrop",
 		"command-line-key" : "[NO_CROP_FLAG]"
 	}, {
@@ -76,7 +76,7 @@
 		"type" : "Flag", 
 		"description" : "Turn off steps that do bias field correction (via FAST).",
 		"optional" : true,
-        "list" : false,
+		"list" : false,
 		"command-line-flag" : "--nobias",
 		"command-line-key" : "[NO_BIAS_FLAG]"
 	}, {
@@ -85,7 +85,7 @@
 		"type" : "Flag", 
 		"description" : "Turn off steps that do registration to standard (FLIRT and FNIRT).",
 		"optional" : true,
-        "list" : false,
+		"list" : false,
 		"command-line-flag" : "--noreg",
 		"command-line-key" : "[NO_REGISTRATION_FLAG]"
 	}, {
@@ -94,7 +94,7 @@
 		"type" : "Flag", 
 		"description" : "Turn off step that does non-linear registration (FNIRT).",
 		"optional" : true,
-        "list" : false,
+		"list" : false,
 		"command-line-flag" : "--nononlinreg",
 		"command-line-key" : "[NO_NONLINEAR_REG_FLAG]"
 	}, {
@@ -103,7 +103,7 @@
 		"type" : "Flag", 
 		"description" : "Turn off step that does tissue-type segmentation (FAST).",
 		"optional" : true,
-        "list" : false,
+		"list" : false,
 		"command-line-flag" : "--noseg",
 		"command-line-key" : "[NO_SEG_FLAG]"
 	}, {
@@ -112,7 +112,7 @@
 		"type" : "Flag", 
 		"description" : "Turn off step that does sub-cortical segmentation (FIRST).",
 		"optional" : true,
-        "list" : false,
+		"list" : false,
 		"command-line-flag" : "--nosubcortseg",
 		"command-line-key" : "[NO_SUBCORTSEG_FLAG]"
 	}, {
@@ -121,7 +121,7 @@
 		"type" : "Flag", 
 		"description" : "Specify that linear registration uses the -nosearch option (FLIRT).",
 		"optional" : true,
-        "list" : false,
+		"list" : false,
 		"command-line-flag" : "--nosearch",
 		"command-line-key" : "[NO_SEARCH_FLAG]"
 	}, {
@@ -130,7 +130,7 @@
 		"type" : "Flag", 
 		"description" : "Do not remove intermediate files.",
 		"optional" : true,
-        "list" : false,
+		"list" : false,
 		"command-line-flag" : "--nocleanup",
 		"command-line-key" : "[NO_CLEANUP_FLAG]"
 	}, {
@@ -139,7 +139,7 @@
 		"type" : "Number", 
 		"description" : "Specify the value for bias field smoothing (the -l option in FAST).",
 		"optional" : true,
-        "list" : false,
+		"list" : false,
 		"command-line-flag" : "-s",
 		"command-line-key" : "[BIAS_FIELD_SMOOTHING_VAL]"
 	}, {
@@ -148,7 +148,7 @@
 		"type" : "String", 
 		"description" : "Specify the type of image (choose one of T1 T2 PD - default is T1).",
 		"optional" : true,
-        "list" : false,
+		"list" : false,
 		"command-line-flag" : "-t",
 		"command-line-key" : "[IMAGE_TYPE]"
 	}, {
@@ -157,17 +157,17 @@
 		"type" : "Number", 
 		"description" : "specify the f parameter for BET (only used if not running non-linear reg and also wanting brain extraction done).",
 		"optional" : true,
-        "list" : false,
+		"list" : false,
 		"command-line-flag" : "--betfparam", 
 		"command-line-flag-separator" : "=",
 		"command-line-key" : "[BET_F_PARAM]"
 	}],
 	"output-files" :  [{
-        "id" : "folder_out",
-        "name" : "Output folder",
-        "description" : "A folder containing the output files for fsl_anat.",
-        "path-template" : "[OUTPUT_DIR].anat",
-        "list" : false,
-        "optional" : false		
+		"id" : "folder_out",
+		"name" : "Output folder",
+		"description" : "A folder containing the output files for fsl_anat.",
+		"path-template" : "[OUTPUT_DIR].anat",
+		"list" : false,
+		"optional" : false		
 	}]
 }
