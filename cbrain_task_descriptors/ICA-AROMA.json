@@ -6,6 +6,7 @@
 	"docker-image": "mcin/ica-aroma:latest",
 	"docker-index": "http://index.docker.io",
 	"schema-version" : "0.2",
+	"walltime-estimate" : 900,
 	"inputs" : [{
 		"id" : "outdir",
 		"name" : "Output directory",
