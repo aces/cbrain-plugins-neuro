@@ -57,7 +57,7 @@ For MNI and DICOM tools:
 | MincCollection               | Model for a collection of MINC files                                                            |
 | MincFile                     | Model for MINC files; superclass of MINC1 and MINC2                                             |
 
-BIDS
+For BIDS:
 
 | Name                         | Description                                                                                     |
 |------------------------------|-------------------------------------------------------------------------------------------------|
@@ -133,8 +133,10 @@ rake cbrain:plugins:install:all
 
   * The BIDS dataset viewer requires the `bids-validator` command-line tool to be installed on the portal host:
 1. Install [`nodejs`](https://nodejs.org/en/download/package-manager)
-2. Install `bids-validator`: ```bash 
-npm install -g  bids-validator```
+2. Install `bids-validator`:
+```bash 
+npm install -g  bids-validator
+```
 
   * Restart all the instances of your BrainPortal Rails application.
 
