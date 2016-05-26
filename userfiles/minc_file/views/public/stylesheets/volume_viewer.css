@@ -19,11 +19,13 @@
 .thresh-input-left {
   position: absolute;
   left: 3px;
+  margin-bottom: 2em;
 }
 
 .thresh-input-right {
   position: absolute;
   right: 10px;
+  margin-bottom: 2em;
 }
 
 
@@ -35,7 +37,7 @@
   font-size: 12px;
   padding: 10px;
   margin: 3px 5px;
-  padding-bottom: 18px; 
+  padding-bottom: 18px;
 }
 
 .volume-viewer-controls > div {

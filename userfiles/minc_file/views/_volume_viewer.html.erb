@@ -468,7 +468,6 @@
     viewer.addEventListener("sliceupdate", function(event) {
       var panel  = event.target;
       var volume = event.volume;
-      var vol_id = panel.volume_id;
       var value;
 
       if (BrainBrowser.utils.isFunction(volume.getWorldCoords)) {
