@@ -28,7 +28,10 @@
 
 <% if @userfile.is_locally_synced? %>
 
-<!-- Checkboxes -->
+<% qc = ( params[:action] == "quality_control_panel" ) %>
+
+<% unless qc #checkboxes don't work in QC mode yet %> 
+  <!-- Checkboxes -->
 <input type="checkbox"
        <%= params[:verbose]=="true" ? "checked" : "" %>
        onchange="reloadViewer('verbose',<%= params[:verbose]!="true" %>)">
@@ -43,10 +46,11 @@ Ignore Warnings<br>
        <%= params[:ignore_nifti_headers]=="true" ? "checked" : "" %>
        onchange="reloadViewer('ignore_nifti_headers',<%= params[:ignore_nifti_headers]!="true" %>)">
 Ignore Nifti headers<br>
+<% end %>
 
 <%# Command-line construction and system call to BIDS validator %>
 <% command_line = "bids-validator" %>
-<% command_line += " --verbose"              if params[:verbose] == "true" %>
+<% command_line += " --verbose"              if qc || params[:verbose] == "true" %>
 <% command_line += " --ignoreWarnings"       if params[:ignore_warnings] == "true" %>
 <% command_line += " --ignoreNiftiHeaders"   if params[:ignore_nifti_headers] == "true" %>
 <% command_line += " #{@userfile.cache_full_path}" %>
@@ -66,10 +70,15 @@ Ignore Nifti headers<br>
 
 <!-- Functions -->
 <script>
-  function reloadViewer(param,status){
+  // Reloads the viewer with option "param" set to "value"
+  // (options are passed in the URL).
+  function reloadViewer(param,value){
     var cleanUrl = removeParam(param,window.location.href);
-    location.replace(cleanUrl+"&"+param+"="+status);
+    location.replace(cleanUrl+"&"+param+"="+value);
   }
+  // This function removes parameter "key" from "sourceURL".
+  // For instance, if sourceURL is http://foo.org?verbose=true&bar=false and key="verbose",
+  // it will return http://foo.org?bar=false
   function removeParam(key, sourceURL) {
   var rtn = sourceURL.split("?")[0],
       param,
