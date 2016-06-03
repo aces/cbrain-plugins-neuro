@@ -22,7 +22,10 @@
 #
 -%>
 
-
+<% file_args = params[:file_args].presence || {} %>
+<% if file_args.size > 1 && ! @task.new_record? %>
+  <%= render :partial => task_partial(:deprecated_warning) %>
+<% end %>
 
 <%= form.params_hidden_field :collection_id %> <!-- can be nil -->
 
@@ -59,9 +62,9 @@
       <%= form.params_label  :reset_from, "Restart from this stage:", :title => "Stage to restart from" %>
       <%= form.params_select :reset_from, [ "" ] + CbrainTask::Civet::StagesNames %>
   </fieldset>
+  <P>
 <% end %>
 
-<P>
 
 
 
@@ -435,23 +438,6 @@ job's output doesn't crush another job's output!</strong>.
 
 <!-- #################################################################### -->
 
-<fieldset>
-<legend>Other control options <%= show_hide_toggle "(Show)", "#other_control_options", :class  => 'action_link' %></legend>
-
-<div id="other_control_options" style="display: none">
-  <%= form.params_label     :save_partial_results, "Save results despite partial failures:" %>
-  <%= form.params_check_box :save_partial_results %>
-  <span class="field_explanation" style="max-width: 80em">(When checked, a CivetOuput will be created even if some intermediate CIVET stages have not completed successfully. Use with care!)</span>
-</div>
-
-</fieldset>
-
-<p>
-
-
-
-<!-- #################################################################### -->
-
 <% if @task.new_record? %>
   <%
     bourreau_ids          = @tool_configs.collect { |tc| tc.bourreau }.compact.map(&:id).uniq
@@ -474,6 +460,16 @@ job's output doesn't crush another job's output!</strong>.
       <legend>Optional post-CIVET operations <%= show_hide_toggle "(Show)", "#combiner_qc_panel", :class  => 'action_link' %></legend>
 
       <div id="combiner_qc_panel" style="display: none">
+
+      <div class="medium_paragraphs">
+      This panel allows you to configure one or two further tasks to launch.
+      First, a <strong>CivetCombiner</strong> task can be created such that once all your CIVETs
+      are run, their outputs will be combined into a file of type <em>CivetStudy</em>.
+      Second, on that <em>CivetStudy</em>, you can launch a <strong>CivetQC</strong> task
+      to perform an analysis of the quality of the results.
+      <p>
+      <strong>Note that you can also launch these tasks manually separately later on!</strong>
+      </div>
 
       <ul>
 

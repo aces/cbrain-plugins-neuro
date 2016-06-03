@@ -18,25 +18,30 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.  
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 -%>
+
+<% file_args = params[:file_args].presence || {} %>
+<% if file_args.size > 1 %>
+  <%= render :partial => task_partial(:deprecated_warning) %>
+<% end %>
 
 <P>
 <STRONG>Input:</STRONG>
 <P>
 
-<% if ! params[:collection_id].blank? %>
+<% if params[:collection_id].present? %>
 MINC collection: <%= link_to_userfile_if_accessible params[:collection_id] %>
 <% end  %>
 
 <P>
 
-<% if params[:file_args] %>
-  T1 MINC file(s):
+<% if file_args.present? %>
+  T1 MINC file:
   <ul>
-  <% params[:file_args].keys.sort { |a,b| a.to_i <=> b.to_i }.each do |arg_idx| %>
-    <% file = params[:file_args][arg_idx] %>
+  <% file_args.keys.sort { |a,b| a.to_i <=> b.to_i }.each do |arg_idx| %>
+    <% file = file_args[arg_idx] %>
     <% if params[:collection_id].blank? %>
       <li><%= link_to_userfile_if_accessible file[:t1_id] %></li>
     <% else %>
@@ -50,7 +55,7 @@ MINC collection: <%= link_to_userfile_if_accessible params[:collection_id] %>
 <STRONG>Output:</STRONG>
 <P>
 
-<% if params[:output_civetcollection_ids].blank? && ! params[:output_civetcollection_id].blank? %>
+<% if params[:output_civetcollection_ids].blank? && params[:output_civetcollection_id].present? %>
   CIVET Output: <%= link_to_userfile_if_accessible params[:output_civetcollection_id] %>
 <% else %>
   <% ids = params[:output_civetcollection_ids] || [] %>
@@ -65,9 +70,13 @@ MINC collection: <%= link_to_userfile_if_accessible params[:collection_id] %>
   <% end %>
 <% end %>
 
+<% if file_args.size == 1 %>
+
 <P>
 <STRONG>Other parameters:</STRONG>
 <P>
 
 See this task's <%= link_to "edit page", edit_task_path(task) %> for more information.
+
+<% end %>
 
