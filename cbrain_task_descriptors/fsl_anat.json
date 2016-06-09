@@ -13,7 +13,7 @@
 		"optional" : true,
 		"list" : false,
 		"command-line-flag" : "-i",
-		"disabled-by-inputs" : [ "indir" ],
+		"disables-inputs" : [ "indir" ],
 		"command-line-key" : "[INPUT_FILE]"
 	}, {
 		"id" : "indir",
@@ -23,7 +23,7 @@
 		"optional" : true,
 		"list" : false,
 		"command-line-flag" : "-d",
-		"disabled-by-inputs" : [ "infile" ],
+		"disables-inputs" : [ "infile" ],
 		"command-line-key" : "[INPUT_DIR]"
 	}, {
 		"id" : "outdir",
