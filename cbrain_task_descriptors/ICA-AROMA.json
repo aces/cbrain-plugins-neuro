@@ -26,7 +26,7 @@
 		"list" : false,
 		"command-line-flag" : "-in",
 		"command-line-key" : "[INPUT_FILE]",
-		"requires-inputs" : ["realignment_file", "affine_file", "warp_file", "mask_file"]
+		"requires-inputs" : ["realignment_file", "affine_file", "warp_file"]
 	}, {
 		"id" : "affine_file",
 		"name" : "Affine registration file",
@@ -61,7 +61,7 @@
 		"id" : "mask_file",
 		"name" : "Mask file",
 		"type" : "File", 
-		"description" : "Input fMRI data should be masked (i.e. brain-extracted) or a specific mask has to be specified (-m, -mask) when running ICA-AROMA. Note the mask determined by FEAT is not recommended to be used; rather, a mask can be created via the Brain Extraction Tool of FSL (e.g. bet input output -f 0.3 -n -m -R). (Usually .nii.gz format.)",
+		"description" : "Input fMRI data should be masked (i.e. brain-extracted) or a specific mask has to be specified (-m, -mask) when running ICA-AROMA. Note the mask determined by FEAT is not recommended to be used; rather, a mask can be created via the Brain Extraction Tool of FSL (e.g. bet input output -f 0.3 -n -m -R). Not strictly required in generic mode. (Usually .nii.gz format.)",
 		"optional" : true,
 		"list" : false,
 		"command-line-flag" : "-mask",
@@ -80,7 +80,7 @@
 		"id" : "feat_dir",
 		"name" : "FEAT directory",
 		"type" : "File", 
-		"description" : "Runs ICA-AROMA in post-FEAT mode. In this case, only the FEAT directory has to be specified, as well as an output directory. ICA-AROMA will automatically define the appropriate files, create an appropriate mask (see ICA-AROMA manual, section 4.1) and use the melodic.ica directory if available, in case ‘MELODIC ICA data exploration’ was checked in FEAT. (Usually .feat extension.)",
+		"description" : "Runs ICA-AROMA in post-FEAT mode. In this case, only the FEAT directory has to be specified, as well as an output directory. ICA-AROMA will automatically define the appropriate files, create an appropriate mask (see ICA-AROMA manual, section 4.1) and use the melodic.ica directory if available, in case ‘MELODIC ICA data exploration’ was checked in FEAT. (.feat extension.)",
 		"optional" : true,
 		"list" : false,
 		"command-line-flag" : "-feat",
@@ -132,7 +132,7 @@
 	}, {
 		"id" : "generic_mode_group",
 		"name" : "Generic Mode Parameters",
-		"description" : "Input files required in generic mode.",
+		"description" : "Input files used in generic mode. The realignment, affine registration, and warp files are required in this mode.",
 		"members" : ["realignment_file","affine_file","warp_file","mask_file"]
 	}, {
 		"id" : "optional_args_group",
