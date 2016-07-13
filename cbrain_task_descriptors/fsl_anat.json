@@ -1,7 +1,7 @@
 {
 	"name" : "fsl_anat",
 	"tool-version" : "5.0.0",
-	"description" : "General pipeline for processing anatomical images (e.g. T1-weighted scans) via FSL tools.",
+	"description" : "General pipeline for processing anatomical images (e.g. T1-weighted scans) via FSL tools. The stages include reorienting the images to the standard (MNI) orientation [fslreorient2std], automatically cropping the image [robustfov], bias-field correction (RF/B1-inhomogeneity-correction) [FAST], registration to standard space (linear and non-linear) [FLIRT and FNIRT], brain-extraction [FNIRT-based or BET], tissue-type segmentation [FAST], and subcortical structure segmentation [FIRST]",
 	"command-line" : "fsl_anat [INPUT_FILE] [INPUT_DIR] [OUTPUT_DIR] [CLOBBER_FLAG] [WEAKBIAS_FLAG] [NO_REORIENT_FLAG] [NO_CROP_FLAG] [NO_BIAS_FLAG] [NO_REGISTRATION_FLAG] [NO_NONLINEAR_REG_FLAG] [NO_SEG_FLAG] [NO_SUBCORTSEG_FLAG] [NO_SEARCH_FLAG] [NO_CLEANUP_FLAG] [BIAS_FIELD_SMOOTHING_VAL] [IMAGE_TYPE] [BET_F_PARAM]",
 	"schema-version" : "0.2",
 	"walltime-estimate" : 16000,
@@ -9,11 +9,11 @@
 		"id" : "infile",
 		"name" : "Input file",
 		"type" : "File",
-		"description" : "Input image file (for single-image use). Either this or an input dir (-d) must be specified, but not both.", 
+		"description" : "Input image file (for single-image use), such as .nii.gz. Either this or an input dir (-d) must be specified, but not both.", 
 		"optional" : true,
 		"list" : false,
 		"command-line-flag" : "-i",
-		"disabled-by-inputs" : [ "indir" ],
+		"disables-inputs" : [ "indir" ],
 		"command-line-key" : "[INPUT_FILE]"
 	}, {
 		"id" : "indir",
@@ -23,7 +23,7 @@
 		"optional" : true,
 		"list" : false,
 		"command-line-flag" : "-d",
-		"disabled-by-inputs" : [ "infile" ],
+		"disables-inputs" : [ "infile" ],
 		"command-line-key" : "[INPUT_DIR]"
 	}, {
 		"id" : "outdir",
@@ -160,15 +160,29 @@
 		"optional" : true,
 		"list" : false,
 		"command-line-flag" : "--betfparam", 
+		"requires" : ["no_nonlin_reg_flag"],
 		"command-line-flag-separator" : "=",
 		"command-line-key" : "[BET_F_PARAM]"
 	}],
 	"output-files" :  [{
 		"id" : "folder_out",
 		"name" : "Output folder",
-		"description" : "A folder containing the output files for fsl_anat.",
+		"description" : "A folder containing the output files for fsl_anat. Includes outputs for the images, reorientation, cropping, bias correction, registration, brain extraction, and segmentation.",
 		"path-template" : "[OUTPUT_DIR].anat",
 		"list" : false,
 		"optional" : false		
+	}],
+	"groups" : [{
+		"id" : "group_1",
+		"name" : "Input Data",
+		"description" : "Either a single structural image file (e.g. .nii.gz) or directory (.anat extension) may be given as input",
+		"members" : ["infile", "indir"],
+		"one-is-required" : true,
+		"mutually-exclusive" : true
+	}, {
+		"id" : "group_2",
+		"name" : "Optional Parameters",
+		"description" : "Parameters for controlling the execution of the fsl_anat task",
+		"members" : ["clobber_flag","weak_bias","no_reorient_flag","no_crop_flag","no_bias_flag","no_reg_flag","no_nonlin_reg_flag","no_seg_flag","no_subcort_seg_flag","no_search_flag","no_cleanup_flag","bias_field_smoothing_val","image_type","bet_f_param"]
 	}]
 }
