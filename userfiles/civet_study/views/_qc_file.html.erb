@@ -42,19 +42,37 @@
   <script>
     (function() {
       var fragment = $(<%= html_for_js(File.read(@userfile.cache_full_path.parent + qc_file)).html_safe %>);
-      var base_link_url = "/userfiles/" + <%= @userfile.id %> + "/display?apply_div=false&viewer=qc_file&qc_file=";
+      var base_link_url  = "/userfiles/" + <%= @userfile.id %> + "/display?apply_div=false&viewer=qc_file&qc_file=";
       var base_image_url = "/userfiles/" + <%= @userfile.id %> + "/content?content_loader=collection_file&arguments=";
-      var file_list = [<%= @userfile.list_files.map {|f| "\"#{f.name}\"" }.join(",").html_safe %>];
+      var file_list = [
+        <%= @userfile.list_files
+            .map(&:name)
+            .select { |name| name =~ /\.(png|jpg|jpeg|gif)$/i }
+            .map    { |name| "\"#{name}\"" }
+            .join(",\n")
+            .html_safe
+        %>
+      ];
 
       fragment.find("a").each(function() {
         this.href = base_link_url + $(this).attr("href");
       });
 
-      fragment.find("img, image").each(function() {
-        var image = this;
-        var image_src = $(this).attr("src");
-        var image_name = file_list.filter(function(f) { return f.match(new RegExp(image_src + "$")); })[0];
-        image.src = base_image_url + image_name;
+      // This code should be improved to parse the image path
+      // relative to the path of qc_file itself!
+      fragment.find("img").each(function() {
+        var image      = this;
+        var image_src  = $(image).attr("src"); // usually a relative path
+        image_src      = image_src.replace(/^[\/\.]+/,"");  // remove leading ../../../
+        var image_name = file_list.filter(function(f) {
+          return f.match(new RegExp(image_src + "$"));
+        })[0];
+        if (image_src) {
+          image.src = base_image_url + image_name;
+        } else {
+          // don't know what to do, really
+          image.src = ""
+        }
       });
 
       $("#fragment-wrapper").append(fragment);
