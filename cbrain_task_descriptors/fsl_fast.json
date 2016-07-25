@@ -1,14 +1,14 @@
 {
 	"name" : "fsl_fast",
 	"tool-version" : "5.0.0",
-	"description" : "FAST (FMRIB's Automated Segmentation Tool) segments a 3D image of the brain into different tissue types (Grey Matter, White Matter, CSF, etc.), whilst also correcting for spatial intensity variations (also known as bias field or RF inhomogeneities), via a hidden Markov random field model and an associated EM algorithm.",
-	"command-line" : "fsl5.0-fast [NUM_CLASSES] [LOOP_ITERS] [BF_SMOOTHING] [IMG_TYPE] [INIT_SEG_SMOOTHNESS] [BINARY_SEGMENTS] [PRIOR_INIT] [ALT_PRIORS] [NO_PVE] [BIAS_FIELD] [BIAS_CORR_IMG] [NO_BIAS_RM] [NUM_IN_IMGS] [OUTPUT_BASENAME] [PRIORS_THROUGHOUT] [SEG_INIT_ITERS] [MIXEL_SMOOTHNESS] [NUM_MAIN_LOOP_ITERS] [HYPER_SEG_SMOOTHNESS] [VERBOSE] [MANUAL_INTENSITIES_FILE] [OUTPUT_PROB_MAPS] [IN_FILES]; mkdir [OUTPUT_DIRECTORY]; ",
+	"description" : "FAST (FMRIB's Automated Segmentation Tool) segments a 3D image of the brain into different tissue types (Grey Matter, White Matter, CSF, etc.), whilst also correcting for spatial intensity variations (also known as bias field or RF inhomogeneities), via a hidden Markov random field model and an associated EM algorithm. Note that the alternative priors option is not supported at this time.",
+	"command-line" : "fsl5.0-fast [NUM_CLASSES] [LOOP_ITERS] [BF_SMOOTHING] [IMG_TYPE] [INIT_SEG_SMOOTHNESS] [BINARY_SEGMENTS] [PRIOR_INIT] [NO_PVE] [BIAS_FIELD] [BIAS_CORR_IMG] [NO_BIAS_RM] [NUM_IN_IMGS] [OUTPUT_BASENAME] [PRIORS_THROUGHOUT] [SEG_INIT_ITERS] [MIXEL_SMOOTHNESS] [NUM_MAIN_LOOP_ITERS] [HYPER_SEG_SMOOTHNESS] [VERBOSE] [MANUAL_INTENSITIES_FILE] [OUTPUT_PROB_MAPS] [IN_FILES]; mkdir [OUTPUT_DIRECTORY]; mv [OUTPUT_DIRECTORY]_* [OUTPUT_DIRECTORY]",
 	"schema-version" : "0.2",
 	"inputs" : [{
 		"id" : "num_classes",
 		"name" : "Number of tissue-type classes",
 		"type" : "Number",
-		"description" : "Number of tissue-type classes; default=3.",
+		"description" : "Number of tissue-type classes; default = 3.",
 		"optional" : true,
 		"list" : false,
 		"command-line-flag" : "-n",
@@ -74,15 +74,6 @@
 		"command-line-flag" : "-a",
 		"command-line-key" : "[PRIOR_INIT]"
 	}, {
-		"id" : "alt_priors",
-		"name" : "Alternative priors",
-		"type" : "File",
-		"description" : "Alternative prior images",
-		"optional" : true,
-		"list" : true,
-		"command-line-flag" : "",
-		"command-line-key" : "[ALT_PRIORS]"
-	}, {
 		"id" : "no_pve",
 		"name" : "No PVE",
 		"type" : "Flag",
@@ -134,9 +125,10 @@
 		"name" : "Output basename",
 		"type" : "String",
 		"description" : "The basename of the output files.",
-		"optional" : true,
+		"optional" : false,
 		"list" : false,
 		"command-line-flag" : "-o",
+		"default-value" : "fast",
 		"command-line-key" : "[OUTPUT_BASENAME]"
 	}, {
 		"id" : "priors_throughout",
@@ -183,7 +175,7 @@
 		"id" : "hyper_seg_smoothness",
 		"name" : "Segmentation spatial smoothness",
 		"type" : "Number",
-		"description" : "Segmentation spatial smoothness; default=0.1.",
+		"description" : "Segmentation spatial smoothness; default = 0.1.",
 		"optional" : true,
 		"list" : false,
 		"command-line-flag" : "-H",
@@ -221,21 +213,15 @@
 		"type" : "File",
 		"description" : "Input file(s)",
 		"optional" : false,
-		"list" : true,
+		"list" : false,
 		"command-line-key" : "[IN_FILES]"
 	}],
 	"output-files" :  [{
 		"id" : "output_dir",
 		"name" : "Output Directory",
 		"description" : "Output files from FSL FAST",
-		"path-template" : "Fast_Output",
+		"path-template" : "[OUTPUT_BASENAME]",
 		"command-line-key" : "[OUTPUT_DIRECTORY]",
-		"optional" : false	
-	}],
-	"groups" : [{
-		"id" : "",
-		"name" : "",
-		"description" : "",
-		"members" : []
+		"optional" : false
 	}]
 }

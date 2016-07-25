@@ -1,0 +1,89 @@
+{
+	"name" : "fsl_first",
+	"tool-version" : "5.0.0",
+	"description" : "FIRST is a model-based segmentation and registration tool, based on a Bayesian model of shape and appearance for subcortical structures.",
+	"command-line" : "run_first_all [METHOD] [BRAIN_EXTRACTED] [SPECIFIED_STRUCTURE] [AFFINE] [THREE_STAGE] [VERBOSE] [INPUT_FILE] [OUTPUT_NAME]",
+	"schema-version" : "0.2",
+	"inputs" : [{
+		"id" : "method",
+		"name" : "Method",
+		"type" : "String",
+		"description" : "Method must be one of 'auto' (default), 'fast', 'none', or it can be a numerical threshold value. This specifies the boundary correction method. Auto chooses different options for different structures using the settings that were found to be empirically optimal for each structure. Other options use: fast (using FAST-based, mixture-model, tissue-type classification) or threshold (thresholds a simple single-Gaussian intensity model).",
+		"optional" : true,
+		"list" : false,
+		"command-line-flag" : "-m",
+		"command-line-key" : "[METHOD]"
+	}, {
+		"id" : "input_file",
+		"name" : "Input file",
+		"type" : "File",
+		"description" : "Input image file (e.g. img.nii.gz).",
+		"optional" : false,
+		"list" : false,
+		"command-line-flag" : "-i",
+		"command-line-key" : "[INPUT_FILE]"
+	}, {
+		"id" : "output_name",
+		"name" : "Output name",
+		"type" : "String",
+		"description" : "Output name to use for first",
+		"optional" : false,
+		"list" : false,
+		"default-value" : "first_output",
+		"command-line-flag" : "-o",
+		"command-line-key" : "[OUTPUT_NAME]"
+	}, {
+		"id" : "brain_extracted",
+		"name" : "Brain extracted",
+		"type" : "Flag",
+		"description" : "Whether the input is already brain extracted.",
+		"optional" : true,
+		"list" : false,
+		"command-line-flag" : "-b",
+		"command-line-key" : "[BRAIN_EXTRACTED]"
+	}, {
+		"id" : "specified_structure",
+		"name" : "Specify structure",
+		"type" : "String",
+		"description" : "Run only on one specified structure (e.g. L_Hipp) or a comma-separated list (no spaces). Choose from: 'L_Hipp', 'R_Hipp', 'L_Accu', 'R_Accu', 'L_Amyg', 'R_Amyg', 'L_Caud', 'R_Caud', 'L_Pall', 'R_Pall', 'L_Puta', 'R_Puta', 'L_Thal', 'R_Thal', 'BrStem'.",
+		"optional" : true,
+		"list" : false,
+		"command-line-flag" : "-s",
+		"command-line-key" : "[SPECIFIED_STRUCTURE]"
+	}, {
+		"id" : "affine",
+		"name" : "Use Affine Matrix",
+		"type" : "File",
+		"description" : "Use affine matrix (i.e. do not re-run registration).",
+		"optional" : true,
+		"list" : false,
+		"command-line-flag" : "-a",
+		"command-line-key" : "[AFFINE]"
+	}, {
+		"id" : "three_stage",
+		"name" : "Three stage registration",
+		"type" : "Flag",
+		"description" : "Use 3-stage affine registration. Only currently implemented for the hippocampus.",
+		"optional" : true,
+		"list" : false,
+		"command-line-flag" : "-3",
+		"command-line-key" : "[THREE_STAGE]"
+	}, {
+		"id" : "verbose",
+		"name" : "Verbose",
+		"type" : "Flag",
+		"description" : "Verbose output.",
+		"optional" : true,
+		"list" : false,
+		"command-line-flag" : "-v",
+		"command-line-key" : "[VERBOSE]"
+	}],
+	"output-files" :  [{
+		"id" : "output_directory",
+		"name" : "First Output Directory",
+		"description" : "Collection of files from first",
+		"path-template" : "[OUTPUT_NAME]*",
+		"list" : true,
+		"optional" : false
+	}]
+}
