@@ -14,7 +14,7 @@
 	}, {
 		"id" : "maskfile",
 		"name" : "Mask file",
-		"type" : "String", 
+		"type" : "String",
 		"description" : "Output brain mask in mnc format",
 		"optional": false,
 		"command-line-key" : "[MASK]"
@@ -24,7 +24,9 @@
 		"type" : "Number",
 		"description" : "Fractional intensity threshold (0->1); default=0.5; smaller values give larger brain outline estimates",
 		"command-line-flag": "-f",
-		"optional": true,
+		"optional" : true,
+    "minimum" : 0,
+    "maximum" : 1,
 		"command-line-key" : "[FRACTIONAL_INTENSITY]"
 	}, {
 		"id" : "vg_fractional_intensity",
@@ -32,7 +34,9 @@
 		"type" : "Number",
 		"description" : "Vertical gradient in fractional intensity threshold (-1->1); default=0; positive values give larger brain outline at bottom, smaller at top",
 		"command-line-flag": "-g",
-		"optional": true,
+		"optional" : true,
+    "minimum" : -1,
+    "maximum" : 1,
 		"command-line-key" : "[VERTICAL_GRADIENT]"
 	}, {
 		"id" : "hyperintensity_threshold",
@@ -40,7 +44,9 @@
 		"type" : "Number",
 		"description" : "Ratio for hyperintense voxels (>1) (best for t1); smaller values remove more brain; default=none",
 		"command-line-flag": "-h",
-		"optional": true,
+		"optional" : true,
+    "minimum" : 1,
+    "exclusive-minimum" : true,
 		"command-line-key" : "[HYPERINTENSE_THRESHOLD]"
 	}, {
 		"id" : "overlay_flag",
@@ -104,30 +110,30 @@
 		"name" : "Output mask file",
 		"description" : "Segmented brain mask file in mnc format",
 		"path-template" : "[MASK].mnc",
-		"optional" : true		
+		"optional" : true
 	}, {
 		"id" : "mask_overlay",
 		"name" : "Surface overlay file",
 		"description" : "Overlaid brain surface onto original image in mnc format",
 		"path-template" : "[MASK]_overlay.mnc",
-		"optional" : true		
+		"optional" : true
 	}, {
 		"id" : "approx_skull_img",
 		"name" : "Approximate skull file",
 		"description" : "Approximate skull image file in mnc format",
 		"path-template" : "[MASK]_skull.mnc",
-		"optional" : true		
+		"optional" : true
 	}, {
 		"id" : "binary_mask",
 		"name" : "Binary brain mask file",
 		"description" : "Binary brain mask file in mnc format",
 		"path-template" : "[MASK]_mask.mnc",
-		"optional" : true	
+		"optional" : true
 	}, {
 		"id" : "bic_surface_mask",
 		"name" : "BIC brain-view mask file",
 		"description" : "Surface mask in BIC brain-view format",
 		"path-template" : "[MASK].obj",
-		"optional" : true	
+		"optional" : true
 	}]
 }
