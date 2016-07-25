@@ -110,7 +110,8 @@
   }, {
     "id" : "denoising_strategy",
     "name" : "Denoising strategy",
-    "type" : "String",
+    "type" : "Enum",
+    "enum-value-choices" : ["no","nonaggr","aggr","both"],
     "description" : "Type of denoising strategy (default is nonaggr). Can be \"no\" (only classification, no denoising), \"nonaggr\" (non-aggressive denoising, i.e. partial component regression; default), \"aggr\" (aggressive denoising, i.e. full component regression), \"both\" (both aggressive and non-aggressive denoising, two outputs).",
     "optional" : true,
     "list" : false,
