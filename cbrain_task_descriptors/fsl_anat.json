@@ -163,7 +163,9 @@
     "command-line-flag" : "--betfparam",
     "requires" : ["no_nonlin_reg_flag"],
     "command-line-flag-separator" : "=",
-    "command-line-key" : "[BET_F_PARAM]"
+    "command-line-key" : "[BET_F_PARAM]",
+    "minimum" : 0,
+    "maximum" : 1
   }],
   "output-files" :  [{
     "id" : "folder_out",

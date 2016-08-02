@@ -158,7 +158,7 @@
 	}, {
 		"id" : "additional_surfaces_t2",
 		"name" : "Additional surfaces with T2",
-		"type" : "String",
+		"type" : "File",
 		"description" : "This is the same as -A except that a T2 image is also input, to further improve the estimated skull and scalp surfaces. As well as carrying out the standard space registration this also registers the T2 to the T1 input image.",
 		"command-line-flag": "-A2",
 		"optional": true,
