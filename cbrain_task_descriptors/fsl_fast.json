@@ -2,7 +2,7 @@
 	"name" : "fsl_fast",
 	"tool-version" : "5.0.0",
 	"description" : "FAST (FMRIB's Automated Segmentation Tool) segments a 3D image of the brain into different tissue types (Grey Matter, White Matter, CSF, etc.), whilst also correcting for spatial intensity variations (also known as bias field or RF inhomogeneities), via a hidden Markov random field model and an associated EM algorithm. Note that the alternative priors option is not supported at this time.",
-	"command-line" : "fsl5.0-fast [NUM_CLASSES] [LOOP_ITERS] [BF_SMOOTHING] [IMG_TYPE] [INIT_SEG_SMOOTHNESS] [BINARY_SEGMENTS] [PRIOR_INIT] [NO_PVE] [BIAS_FIELD] [BIAS_CORR_IMG] [NO_BIAS_RM] [OUTPUT_BASENAME] [PRIORS_THROUGHOUT] [SEG_INIT_ITERS] [MIXEL_SMOOTHNESS] [NUM_MAIN_LOOP_ITERS] [HYPER_SEG_SMOOTHNESS] [VERBOSE] [MANUAL_INTENSITIES_FILE] [OUTPUT_PROB_MAPS] [IN_FILES]; mkdir [OUTPUT_DIRECTORY]; mv [OUTPUT_DIRECTORY]_* [OUTPUT_DIRECTORY]",
+	"command-line" : "fast [NUM_CLASSES] [LOOP_ITERS] [BF_SMOOTHING] [IMG_TYPE] [INIT_SEG_SMOOTHNESS] [BINARY_SEGMENTS] [PRIOR_INIT] [NO_PVE] [BIAS_FIELD] [BIAS_CORR_IMG] [NO_BIAS_RM] [OUTPUT_BASENAME] [PRIORS_THROUGHOUT] [SEG_INIT_ITERS] [MIXEL_SMOOTHNESS] [NUM_MAIN_LOOP_ITERS] [HYPER_SEG_SMOOTHNESS] [VERBOSE] [MANUAL_INTENSITIES_FILE] [OUTPUT_PROB_MAPS] [IN_FILES]; mkdir [OUTPUT_DIRECTORY]; mv [OUTPUT_DIRECTORY]_* [OUTPUT_DIRECTORY]",
 	"schema-version" : "0.2",
 	"inputs" : [{
 		"id" : "num_classes",
