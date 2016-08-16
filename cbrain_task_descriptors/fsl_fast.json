@@ -1,0 +1,216 @@
+{
+	"name" : "fsl_fast",
+	"tool-version" : "5.0.0",
+	"description" : "FAST (FMRIB's Automated Segmentation Tool) segments a 3D image of the brain into different tissue types (Grey Matter, White Matter, CSF, etc.), whilst also correcting for spatial intensity variations (also known as bias field or RF inhomogeneities), via a hidden Markov random field model and an associated EM algorithm. Note that the alternative priors option is not supported at this time.",
+	"command-line" : "fast [NUM_CLASSES] [LOOP_ITERS] [BF_SMOOTHING] [IMG_TYPE] [INIT_SEG_SMOOTHNESS] [BINARY_SEGMENTS] [PRIOR_INIT] [NO_PVE] [BIAS_FIELD] [BIAS_CORR_IMG] [NO_BIAS_RM] [OUTPUT_BASENAME] [PRIORS_THROUGHOUT] [SEG_INIT_ITERS] [MIXEL_SMOOTHNESS] [NUM_MAIN_LOOP_ITERS] [HYPER_SEG_SMOOTHNESS] [VERBOSE] [MANUAL_INTENSITIES_FILE] [OUTPUT_PROB_MAPS] [IN_FILES]; mkdir [OUTPUT_DIRECTORY]; mv [OUTPUT_DIRECTORY]_* [OUTPUT_DIRECTORY]",
+	"schema-version" : "0.2",
+	"inputs" : [{
+		"id" : "num_classes",
+		"name" : "Number of tissue-type classes",
+		"type" : "Number",
+		"description" : "Number of tissue-type classes; default = 3.",
+		"optional" : true,
+		"list" : false,
+		"command-line-flag" : "-n",
+		"command-line-key" : "[NUM_CLASSES]",
+		"minimum" : 1,
+		"integer" : true
+	}, {
+		"id" : "loop_iters",
+		"name" : "Bias removal main-loop iterations",
+		"type" : "Number",
+		"description" : "Number of main-loop iterations during bias-field removal (default = 4).",
+		"optional" : true,
+		"list" : false,
+		"command-line-flag" : "-I",
+		"command-line-key" : "[LOOP_ITERS]",
+		"minimum" : 1,
+		"integer" : true
+	}, {
+		"id" : "bf_smoothing",
+		"name" : "Bias field smoothing",
+		"type" : "Number",
+		"description" : "Bias field smoothing extent (FWHM) in mm (default = 20).",
+		"list" : false,
+		"command-line-flag" : "-l",
+		"optional" : true,
+		"command-line-key" : "[BF_SMOOTHING]",
+		"minimum" : 0
+	}, {
+		"id" : "img_type",
+		"name" : "Image type",
+		"type" : "Enum",
+		"description" : "Type of image: 1 = T1, 2 = T2, 3 = PD. Default = T1.",
+		"optional" : true,
+		"list" : false,
+		"command-line-flag" : "-t",
+		"enum-value-choices" : ["1","2","3"],
+		"command-line-key" : "[IMG_TYPE]"
+	}, {
+		"id" : "init_seg_smoothness",
+		"name" : "Initial segmentation smoothness",
+		"type" : "Number",
+		"description" : "Initial segmentation spatial smoothness (during bias field estimation); default = 0.02.",
+		"optional" : true,
+		"list" : false,
+		"command-line-flag" : "-f",
+		"command-line-key" : "[INIT_SEG_SMOOTHNESS]"
+	}, {
+		"id" : "binary_segments",
+		"name" : "Binary images",
+		"type" : "Flag",
+		"description" : "Outputs a separate binary image for each tissue type",
+		"optional" : true,
+		"list" : false,
+		"command-line-flag" : "-g",
+		"command-line-key" : "[BINARY_SEGMENTS]"
+	}, {
+		"id" : "prior_init",
+		"name" : "Prior Initialization",
+		"type" : "File",
+		"description" : "Initialize using priors. A FLIRT transform must be provided (e.g. std2input.mat)",
+		"optional" : true,
+		"list" : false,
+		"command-line-flag" : "-a",
+		"command-line-key" : "[PRIOR_INIT]"
+	}, {
+		"id" : "no_pve",
+		"name" : "No PVE",
+		"type" : "Flag",
+		"description" : "Turn off PVE (partial volume estimation).",
+		"list" : false,
+		"command-line-flag" : "--nopve",
+		"optional" : true,
+		"command-line-key" : "[NO_PVE]"
+	}, {
+		"id" : "bias_field",
+		"name" : "Bias field",
+		"type" : "Flag",
+		"description" : "Output estimated bias field.",
+		"optional" : true,
+		"list" : false,
+		"command-line-flag" : "-b",
+		"command-line-key" : "[BIAS_FIELD]"
+	}, {
+		"id" : "bias_corr_img",
+		"name" : "Bias corrected image",
+		"type" : "Flag",
+		"description" : "Output bias corrected image.",
+		"optional" : true,
+		"list" : false,
+		"command-line-flag" : "-B",
+		"command-line-key" : "[BIAS_CORR_IMG]"
+	}, {
+		"id" : "no_bias_rm",
+		"name" : "No bias removal",
+		"type" : "Flag",
+		"description" : "Does not remove the bias field.",
+		"optional" : true,
+		"list" : false,
+		"command-line-flag" : "-N",
+		"command-line-key" : "[NO_BIAS_RM]"
+	}, {
+		"id" : "output_basename",
+		"name" : "Output basename",
+		"type" : "String",
+		"description" : "The basename of the output files.",
+		"optional" : false,
+		"list" : false,
+		"command-line-flag" : "-o",
+		"default-value" : "fast",
+		"command-line-key" : "[OUTPUT_BASENAME]"
+	}, {
+		"id" : "priors_throughout",
+		"name" : "Use priors throughout",
+		"type" : "Flag",
+		"description" : "Use priors throughout the process",
+		"optional" : true,
+		"list" : false,
+		"requires-inputs" : ["prior_init"],
+		"command-line-flag" : "-P",
+		"command-line-key" : "[PRIORS_THROUGHOUT]"
+	}, {
+		"id" : "seg_init_iters",
+		"name" : "Segmentation initialization iterations",
+		"type" : "Number",
+		"integer" : true,
+		"minimum" : 1,
+		"description" : "Number of segmentation-initialisation iterations; default = 15.",
+		"optional" : true,
+		"list" : false,
+		"command-line-flag" : "-W",
+		"command-line-key" : "[SEG_INIT_ITERS]"
+	}, {
+		"id" : "mixel_smoothness",
+		"name" : "Mixeltype Smoothness",
+		"type" : "Number",
+		"description" : "Spatial smoothness of mixeltype; default = 0.3.",
+		"optional" : true,
+		"list" : false,
+		"command-line-flag" : "-R",
+		"command-line-key" : "[MIXEL_SMOOTHNESS]"
+	}, {
+		"id" : "num_main_loop_iters",
+		"name" : "Main loop iterations",
+		"type" : "Number",
+		"integer" : true,
+		"minimum" : 1,
+		"description" : "Number of main-loop iterations after bias-field removal (default = 4).",
+		"optional" : true,
+		"list" : false,
+		"command-line-flag" : "-O",
+		"command-line-key" : "[NUM_MAIN_LOOP_ITERS]"
+	}, {
+		"id" : "hyper_seg_smoothness",
+		"name" : "Segmentation spatial smoothness",
+		"type" : "Number",
+		"description" : "Segmentation spatial smoothness; default = 0.1.",
+		"optional" : true,
+		"list" : false,
+		"command-line-flag" : "-H",
+		"command-line-key" : "[HYPER_SEG_SMOOTHNESS]"
+	}, {
+		"id" : "verbose",
+		"name" : "Verbose",
+		"type" : "Flag",
+		"description" : "Verbose mode",
+		"optional" : true,
+		"list" : false,
+		"command-line-flag" : "-v",
+		"command-line-key" : "[VERBOSE]"
+	}, {
+		"id" : "manual_intensities_file",
+		"name" : "Manual segmentation",
+		"type" : "File",
+		"description" : "Filename containing the intensities",
+		"optional" : true,
+		"list" : false,
+		"command-line-flag" : "-s",
+		"command-line-key" : "[MANUAL_INTENSITIES_FILE]"
+	}, {
+		"id" : "output_prob_maps",
+		"name" : "Single probability maps",
+		"type" : "Flag",
+		"description" : "Output individual probability maps",
+		"list" : false,
+		"command-line-flag" : "-p",
+		"optional" : true,
+		"command-line-key" : "[OUTPUT_PROB_MAPS]"
+	}, {
+		"id" : "in_files",
+		"name" : "Input file",
+		"type" : "File",
+		"description" : "Input file",
+		"optional" : false,
+		"list" : false,
+		"command-line-key" : "[IN_FILES]"
+	}],
+	"output-files" :  [{
+		"id" : "output_dir",
+		"name" : "Output Directory",
+		"description" : "Output files from FSL FAST",
+		"path-template" : "[OUTPUT_BASENAME]",
+		"command-line-key" : "[OUTPUT_DIRECTORY]",
+		"optional" : false
+	}]
+}
