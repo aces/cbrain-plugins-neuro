@@ -23,7 +23,22 @@
 # A subclass of CbrainTask to launch bet of Civet.
 class CbrainTask::Civet
 
-  # Used in order to compare CIVET version:
+  # Normally this is only on the Bourreau side but let's
+  # make this available on the portal side.
+  def job_walltime_estimate #:nodoc:
+    if !self.tool_config.is_at_least_version("1.1.12") # lower than 1.1.12
+      7.hours # 4.5 normally
+    else
+      # Added 2 extra hours, just in case user specify ANIMAL.
+      if mybool(params[:high_res_surfaces])
+        params[:template] == "1.00" ? 16.hours : 22.hours
+      else
+        params[:template] == "1.00" ? 10.hours : 12.hours
+      end
+    end
+  end
+
+  # This method compares CIVET version strings:
   # Return -1 if v1 <  v2 for example v1 = "1.1.11" and v2 = "1.1.12"
   # Return 0  if v1 == v2 for example v1 = "1.1.11" and v2 = "1.1.11"
   # Return 1  if v1 >  v2 for example v1 = "1.1.12" and v2 = "1.1.11"
@@ -47,9 +62,9 @@ class CbrainTask::Civet
     return 0  # everything is equal
   end
 
-  # Some options are interdependent for example
-  # when CIVET run with -no_surface all options
-  # for surface treatment are ignored
+  # Some options are interdependent; for example
+  # when CIVET is run with -no_surfaces all options
+  # for surface treatment are ignored.
   def clean_interdependent_params
 
     if mybool(params[:no_surfaces])
@@ -110,10 +125,10 @@ class CbrainTask::Civet
 
   # In order to validate some option that can accept
   # an integer or a list of integer such as "1" or "1:2" or "4:32:78:2" etc
-  def is_valid_integer_list(param) #:nodoc:
-    return true if !param.present?
-    return true if param =~ /^\d+$/        && !self.tool_config.is_at_least_version("2.0.0")
-    return true if param =~ /^\d+(:\d+)*$/ &&  self.tool_config.is_at_least_version("2.0.0")
+  def is_valid_integer_list(param, allow_blanks: false) #:nodoc:
+    return allow_blanks if param.blank?
+    return true if param =~ /^\d+$/
+    return true if param =~ /^\d+(:\d+)*$/ && self.tool_config.is_at_least_version("2.0.0")
     return false
   end
 

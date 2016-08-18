@@ -85,7 +85,7 @@ class CbrainTask::Civet < PortalTask
     verify_civet
   )
 
-  task_properties :readonly_input_files
+  task_properties :readonly_input_files, :use_parallelizer
 
   # Returns the scientific parameters common to all the CIVET
   # jobs we're about to launch
@@ -127,9 +127,6 @@ class CbrainTask::Civet < PortalTask
       # CBRAIN output renaming
       :output_filename_pattern => '{subject}-{cluster}-{task_id}-{run_number}',
 
-      # Control options
-      :save_partial_results => "0",
-
     }
   end
 
@@ -140,13 +137,11 @@ class CbrainTask::Civet < PortalTask
 
     file_ids  = params[:interface_userfile_ids]
 
-    userfiles = []
-    file_ids.each do |id|
-      userfiles << Userfile.find(id)
-    end
+    userfiles = Userfile.where(:id => file_ids)
 
     # The params serialization is limited to 65000 bytes, so we need to set a limit of selected file.
     cb_error "Error: Too many files selected, this task can only handle #{InterfaceUserfileIDsLimit} T1 files at a time." if userfiles.size > InterfaceUserfileIDsLimit
+    userfiles = userfiles.all
 
     # MODE A, we have a single FileCollection in argument
     if userfiles.size == 1 && userfiles[0].is_a?(FileCollection)
@@ -158,7 +153,7 @@ class CbrainTask::Civet < PortalTask
     end
 
     # MODE B, we have one or many T1s in argument
-    if userfiles.detect { |u| ! u.is_a?(SingleFile) }
+    if userfiles.any? { |u| ! u.is_a?(SingleFile) }
       cb_error "Error: CIVET can only be launched on one FileCollection\n" +
                "or a set of T1 Minc files\n"
     end
@@ -174,11 +169,14 @@ class CbrainTask::Civet < PortalTask
     # clean some params according with other one.
     clean_interdependent_params()
 
-    return "" if !self.tool_config
+    return "" if self.tool_config.blank?
 
     # file_args is returned as a hash, so
     # transform it back into an array of records (in the values)
     file_args_hash  = params[:file_args] || {}
+
+    cb_error "Cannot update this CIVET task; its structure is no longer supported." if file_args_hash.size > 1 && ! self.new_record?
+
     file_args       = file_args_hash.values
     file_args       = file_args.select { |f| f[:launch].to_s == '1' }
 
@@ -188,24 +186,41 @@ class CbrainTask::Civet < PortalTask
     end
 
     # Verify N3_distance value
-    params_errors.add(:N3_distance, " suggested values: 200 for 1.5T scan; 50-125 for 3T scan. For older 3T scans, low values nearer 50 may work best; for newer 3T scans, high values nearer 125 may work best. 0 is acceptable for version later than 1.1.12 for MP2RAGE scanner.") if
-      params[:N3_distance].blank? || params[:N3_distance] !~ /^\d+$/
+    if params[:N3_distance].blank? || params[:N3_distance] !~ /^\d+$/
+      params_errors.add(:N3_distance, <<-N3_MESSAGE)
+        suggested values: 200 for 1.5T scan; 50-125 for 3T scan.
+        For older 3T scans, low values nearer 50 may work best;
+        for newer 3T scans, high values nearer 125 may work best.
+        0 is acceptable for versions later than 1.1.12 for MP2RAGE scanner.
+      N3_MESSAGE
+    end
 
     # Verify headheight value
-    params_errors.add(:headheight,  " must be an integer") if params[:headheight].present?  && params[:headheight] !~ /^\d+$/
+    if params[:headheight].present? && params[:headheight] !~ /^\d+$/
+      params_errors.add(:headheight,  " must be an integer")
+    end
 
     # Verify thickness value
     if params[:thickness_kernel].blank?
       params[:thickness_kernel] = self.tool_config.is_at_least_version("1.1.12") ? "30" : "20"
     end
 
-    params_errors.add(:thickness_kernel,  " must be an integer (version < 2.0.0) or a list of integer separate by a ':' (version >= 2.0.0)") if
-      !is_valid_integer_list(params[:thickness_kernel])
+    # Verify thickness kernel
+    if !is_valid_integer_list(params[:thickness_kernel], allow_blanks: true)
+      params_errors.add(:thickness_kernel,
+        " must be an integer (version < 2.0.0) or a list of integers separated by a ':' (version >= 2.0.0)")
+    end
+
     # Verify resample surfaces
-    params_errors.add(:resample_surfaces_kernel_areas,  " must be an integer (version < 2.0.0) or a list of integer separate by a ':' (version >= 2.0.0)") if
-      !is_valid_integer_list(params[:resample_surfaces_kernel_areas])
-    params_errors.add(:resample_surfaces_kernel_volumes,  " must be an integer (version < 2.0.0) or a list of integer separate by a ':' (version >= 2.0.0)") if
-      !is_valid_integer_list(params[:resample_surfaces_kernel_volumes])
+    if !is_valid_integer_list(params[:resample_surfaces_kernel_areas], allow_blanks: true)
+      params_errors.add(:resample_surfaces_kernel_areas,
+        " must be an integer (version < 2.0.0) or a list of integers separated by a ':' (version >= 2.0.0)")
+    end
+
+    if !is_valid_integer_list(params[:resample_surfaces_kernel_volumes], allow_blanks: true)
+      params_errors.add(:resample_surfaces_kernel_volumes,
+        " must be an integer (version < 2.0.0) or a list of integers separated by a ':' (version >= 2.0.0)")
+    end
 
     # Verify uniqueness of subject IDs
     dsid_counts = {}
@@ -219,9 +234,11 @@ class CbrainTask::Civet < PortalTask
     file_args_hash.each do |idx,fa|
       next unless fa[:launch] == '1'
 
+      # Preprocess the subject ID
       dsid = (fa[:dsid] || "").strip
       fa[:dsid] = dsid
 
+      # Verify the subject ID
       message = nil
       if dsid.blank?
         message = " is blank?"
@@ -235,9 +252,11 @@ class CbrainTask::Civet < PortalTask
         params_errors.add(             "file_args[#{idx}][dsid]", message)
       end
 
+      # Preprocess the prefix
       prefix = (fa[:prefix] || "").strip
       fa[:prefix] = prefix
 
+      # Verify the prefix
       message = nil
       if prefix.blank?
         message = " is blank?"
@@ -255,7 +274,8 @@ class CbrainTask::Civet < PortalTask
     return "" if ! self.new_record?
 
     # Combine into a Study
-    study_name = params[:study_name] || ""
+    study_name = (params[:study_name] || "").strip
+    params[:study_name] = study_name
     if params[:qc_study] == '1' && study_name.blank?
       params_errors.add(:study_name, "needs to be given if QC is requested too.")
     end
@@ -289,24 +309,13 @@ class CbrainTask::Civet < PortalTask
     file_args_hash  = params[:file_args] || {}
     file_args       = file_args_hash.values
     file_args       = file_args.select { |f| f[:launch].to_s == '1' }
-    num_pipelines   = file_args.size
-
-    ncpus = self.tool_config.ncpus rescue 1
-    ncpus = 1 if ncpus.blank? || ncpus < 1
 
     task_list = []
-    while file_args.size > 0
-      file_slice = file_args[0,ncpus]
-      file_args[0,ncpus] = []
-      task_list << self.create_civet_for_slice(file_slice)
+    file_args.each do |fa|
+      task_list << self.create_single_civet_task(fa)
     end
 
-    messages = ""
-    if ncpus > 1 && num_pipelines > 1
-      messages = "NOTE: each task will run up to #{ncpus} CIVET pipelines in parallel."
-    end
-
-    return task_list,messages
+    return task_list
   end
 
   def after_final_task_list_saved(task_list) #:nodoc:
@@ -320,17 +329,17 @@ class CbrainTask::Civet < PortalTask
     qc_study   = params[:qc_study]   || ""
 
     messages = ""
-    unless study_name.blank?
+    if study_name.present?
       tids = task_list.map(&:id)
       combiner = create_combiner(study_name,tids)
       combiner.tool_config_id = params[:combiner_tool_config_id].to_i
       combiner.save!
-      messages += "Started CivetCombiner task '#{combiner.bname_tid}'\n"
+      messages += "Created CivetCombiner task '#{combiner.bname_tid}'\n"
       if qc_study.to_s == '1'
         qc = create_qc(combiner.id)
         qc.tool_config_id = params[:qc_tool_config_id].to_i
         qc.save!
-        messages += "Started Civet QC task '#{qc.bname_tid}'\n"
+        messages += "Created Civet QC task '#{qc.bname_tid}'\n"
       end
     end
 
@@ -381,7 +390,10 @@ class CbrainTask::Civet < PortalTask
         end
       end
     end
-    self.errors.add(:base, "Some filenames (#{warned_bad} of them) inside the collection are not correct and will be ignored.") if warned_bad > 0
+
+    if warned_bad > 0
+      self.errors.add(:base, "Some filenames (#{warned_bad} of them) inside the collection are not correct and will be ignored.")
+    end
 
     cb_error "There are no valid MINC files in this collection!" unless minc_files.size > 0
 
@@ -395,7 +407,7 @@ class CbrainTask::Civet < PortalTask
     # If we have any, we remove them from the total list of minc files.
     minc_files = minc_files - t1_files
 
-    # Prepare the structure for all the CIVET operation;
+    # Prepare the structure for all the CIVET operations;
     # each CIVET has a mandatory t1, and optional t2, pd and mk.
     minc_groups = []  #  [ t1, t2, pd, mk ]
 
@@ -414,9 +426,9 @@ class CbrainTask::Civet < PortalTask
       minc_groups << [ minc, nil, nil, nil ]
     end
 
-    # OK, build a arg structure for each minc group
+    # OK, build an arg structure for each minc group
     file_args_array = []
-    minc_groups.each do |group|
+    minc_groups.each_with_index do |group,idx|
 
       t1_name = group[0]
       t2_name = group[1]
@@ -428,7 +440,7 @@ class CbrainTask::Civet < PortalTask
         dsid   = Regexp.last_match[2]
       else
         prefix = "prefix"
-        dsid   = "dsid"
+        dsid   = "subject"   # maybe "auto_#{idx}"
       end
 
       file_args_array << {
@@ -444,24 +456,26 @@ class CbrainTask::Civet < PortalTask
         :prefix              => prefix,      # -prefix
         :dsid                => dsid,        #
 
-        :multispectral       => false,       # -multispectral for true
-        :spectral_mask       => false,       # -spectral-mask for true
+        :multispectral       => (t2_name.present? || pd_name.present?),  # -multispectral for true
+        :spectral_mask       => mk_name.present?,                        # -spectral-mask for true
       }
 
     end
 
+    # The final structure, for historical reasons, is a hash
+    # with stringified numerical keys (yuk) : { "0" => { struct }, "1" => { struct } ... }
     file_args = {}
     file_args_array.each_with_index { |file,i| file_args[i.to_s] = file }
     return file_args
   end
 
-  def old_get_default_args_for_t1list(userfiles) #:nodoc:
+  def old_get_default_args_for_t1list(minc_userfiles) #:nodoc:
 
     user    = self.user
 
     file_args_array = []
 
-    userfiles.each do |t1|
+    minc_userfiles.each_with_index do |t1,idx|
 
       t1_name = t1.name
       t1_id   = t1.id
@@ -470,7 +484,7 @@ class CbrainTask::Civet < PortalTask
       pd_id   = nil
       mk_id   = nil
 
-      # Find other userfiles with similar names, but with _t2, _pd or _mask instead of _t1
+      # Find other MINC userfiles with similar names, but with _t2, _pd or _mask instead of _t1
       if t1_name =~ /_t1/i
         all_access = SingleFile.find_all_accessible_by_user(user) # a relation
         t2_id = all_access.where(:name => t1_name.sub("_t1","_t2")).limit(1).raw_first_column("#{Userfile.table_name}.id")[0]
@@ -483,7 +497,7 @@ class CbrainTask::Civet < PortalTask
         dsid   = Regexp.last_match[2]
       else
         prefix = "prefix"
-        dsid   = "dsid"
+        dsid   = "subject"   # maybe "auto_#{idx}"
       end
 
       file_args_array << {
@@ -499,21 +513,23 @@ class CbrainTask::Civet < PortalTask
         :prefix              => prefix,      # -prefix
         :dsid                => dsid,        #
 
-        :multispectral       => false,       # -multispectral for true
-        :spectral_mask       => false,       # -spectral-mask for true
+        :multispectral       => (t2_id.present? || pd_id.present?), # -multispectral for true
+        :spectral_mask       => mk_id.present?,                     # -spectral-mask for true
       }
     end
 
+    # The final structure, for historical reasons, is a hash
+    # with stringified numerical keys (yuk) : { "0" => { struct }, "1" => { struct } ... }
     file_args = {}
     file_args_array.each_with_index { |file,i| file_args[i.to_s] = file }
     return file_args
   end
 
-  def create_civet_for_slice(file_slice) #:nodoc:
+  def create_single_civet_task(file_arg) #:nodoc:
 
     # Create the new object
-    civ             = self.dup # not .clone, as of Rails 3.1.10
-    civparams       = civ.params
+    civ             = self.dup    # not .clone, as of Rails 3.1.10
+    civparams       = civ.params  # ActiveRecord is supposed to dup the hash too
 
     # Non-civet fields not needed so let's not polute the params output in show()
     civparams.delete(:file_args)
@@ -522,33 +538,25 @@ class CbrainTask::Civet < PortalTask
     civparams.delete(:combiner_tool_config_id)
     civparams.delete(:qc_tool_config_id)
 
-    # Adjust description
+    # Clean up description
     desc  = civ.description.blank? ? "" : civ.description.strip
-    desc += "\n" if (! desc.blank?) && (civ.description !~ /\n$/)
-    desc += "\n" if (! desc.blank?) && (civ.description !~ /\n\n$/)
+    desc += "\n\n" if desc.present?
 
+    # Adjust description and list of IDs based on mode (collection vs T1 file)
     collection_id   = civparams[:collection_id]
     collection_id   = nil if collection_id.blank?
-    collection      = collection_id ? Userfile.find(collection_id) : nil
+    collection      = collection_id ? FileCollection.find(collection_id) : nil
+    t1_object       = collection || Userfile.find(file_arg[:t1_id])
+    t1_name         = collection ? file_arg[:t1_name] : t1_object.name
+    desc           += "#{t1_name}\n"
+    iuids           = collection ? [ collection.id ] : [ t1_object.id ]
 
-    desc += file_slice.size > 1 ? "Parallel CIVET x #{file_slice.size}\n\n" : ""
-    iuids = collection ? [ collection.id ] : []
-    file_slice.each do |one_file_args|
-      t1_object       = collection || Userfile.find(one_file_args[:t1_id])
-      t1_name         = collection ? one_file_args[:t1_name] : t1_object.name
-      desc += "#{t1_name}\n"
-      iuids << t1_object.id unless collection
-    end
-    civ.description = desc
-
+    # Set these things
+    civ.description                    = desc
     civparams[:interface_userfile_ids] = iuids
 
     # Initialize the new object's file_args
-    file_args_hash = {}
-    file_slice.each_with_index do |one_file_args,i|
-      file_args_hash[i.to_s] = one_file_args
-    end
-    civparams[:file_args] = file_args_hash
+    civparams[:file_args] = { "0" => file_arg } # just one fixed entry with key "0"
 
     return civ
   end
@@ -598,18 +606,20 @@ class CbrainTask::Civet < PortalTask
   # Apply the new auto-prefix and auto-dsid extraction mechanism.
   def refresh_form #:nodoc:
     params = self.params
+
     prefpat = params[:prefix_auto_comp] || ""
     dsidpat = params[:dsid_auto_comp]   || ""
     return "" if prefpat.blank? && dsidpat.blank? # nothing to do
+
     file_args = params[:file_args] || {}
     file_args.values.each do |struct|
       t1_name = struct[:t1_name]
       next if t1_name.blank?
       comps_array = t1_name.split(/([a-zA-Z0-9]+)/)
-      comps = {}
+      comps = {} # From "abc_def" will make { "0" => 'abc', "1" => 'def' ... }
       1.step(comps_array.size,2) { |i| comps[((i-1)/2+1).to_s] = comps_array[i] }
-      struct[:prefix] = prefpat.pattern_substitute(comps) if ! prefpat.blank?
-      struct[:dsid]   = dsidpat.pattern_substitute(comps) if ! dsidpat.blank?
+      struct[:prefix] = prefpat.pattern_substitute(comps) if prefpat.present?
+      struct[:dsid]   = dsidpat.pattern_substitute(comps) if dsidpat.present?
     end
     ""
   end
@@ -620,6 +630,11 @@ class CbrainTask::Civet < PortalTask
 
   private
 
+  # A destructive method; tries to find some
+  # names in the array minclist, and if found
+  # returns them while removing them from the array.
+  # Returns a quadruplet:
+  #   [ t2_name, pd_name, mk_name, modified_minclist ]
   def extract_t2_pd_mask(t1,minclist)  #:nodoc:
     t2_name = nil
     pd_name = nil
@@ -638,5 +653,6 @@ class CbrainTask::Civet < PortalTask
 
     [ t2_name, pd_name, mk_name, minclist ]
   end
+
 end
 

@@ -26,8 +26,9 @@
   <% if @userfile.list_files(".", :directory).any? { |dir| dir.name[-3, 3] == "/QC" } %>
     <%= link_to("Show QC Data",
                 display_userfile_path(@userfile,
-                            :viewer  => "qc_file",
-                            :qc_file => "base"
+                            :viewer       => "qc_file",
+                            :qc_file      => "base",
+                            :apply_layout => "yes",
                            ),
                 :class => "action_link",
                 :target => "_blank") %>
