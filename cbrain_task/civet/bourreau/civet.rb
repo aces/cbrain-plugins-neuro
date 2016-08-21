@@ -423,6 +423,7 @@ class CbrainTask::Civet < ClusterTask
       end
       self.addlog("Error: not all processing stages of this CIVET completed successfully.")
       self.addlog("We found these files in 'logs' : #{badnews.sort.join(', ')}")
+      return false # Failed On Cluster
     end
 
     # Create new CivetOutput
