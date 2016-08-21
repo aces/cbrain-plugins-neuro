@@ -1,8 +1,9 @@
-v1.3.0 -#- 2016-08-18 14:03:12 -0400 -#- CBRAIN Team -#- __cbrain-plugins-neuro_TAG__
-f79d0a480f63c253c2313a11cbb150598451df80 -#- 2016-08-18 14:00:02 -0400 -#- Pierre Rioux -#- __cbrain-plugins-neuro_HEAD__
+v1.3.1 -#- 2016-08-21 10:35:02 -0400 -#- CBRAIN Team -#- __cbrain-plugins-neuro_TAG__
+213b297f018273b93f105e26604593b2625db009 -#- 2016-08-21 10:34:12 -0400 -#- Pierre Rioux -#- __cbrain-plugins-neuro_HEAD__
 f3d83a34bfdc5b5ce84870de7fe331765a1d012e -#- 2016-07-13 09:49:19 -0400 -#- natacha-beck -#- README.md
 a654211c95d0f16f8858f3c0503bdcb9eb83f2ed -#- 2016-04-13 15:22:55 -0400 -#- Natacha Beck -#- bin/fsl_sub
-b20da6ac77a5eb4805a80d9e74cb2700acbff75f -#- 2016-06-02 20:25:12 -0400 -#- Pierre Rioux -#- cbrain_task/civet/bourreau/civet.rb
+54e555809955d2292576bc4d3e9013ea7153c16c -#- 2016-08-18 14:15:27 -0400 -#- Pierre Rioux -#- cbrain_file_revisions.csv
+213b297f018273b93f105e26604593b2625db009 -#- 2016-08-21 10:34:12 -0400 -#- Pierre Rioux -#- cbrain_task/civet/bourreau/civet.rb
 b20da6ac77a5eb4805a80d9e74cb2700acbff75f -#- 2016-06-02 20:25:12 -0400 -#- Pierre Rioux -#- cbrain_task/civet/common/civet.rb
 b20da6ac77a5eb4805a80d9e74cb2700acbff75f -#- 2016-06-02 20:25:12 -0400 -#- Pierre Rioux -#- cbrain_task/civet/portal/civet.rb
 b6809eab52aeeb67e563911bd09a8f31bc402c0b -#- 2015-01-13 14:14:12 -0500 -#- Pierre Rioux -#- cbrain_task/civet/views/_civet_file_from_col.html.erb
