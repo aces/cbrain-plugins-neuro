@@ -130,25 +130,28 @@ class CbrainTask::Civet < ClusterTask
 
       if mybool(file0[:multispectral]) || mybool(file0[:spectral_mask])
         if t2_id.present?
-          t2    = Userfile.find(t2_id)
-          t2ext = t2.match(/.gz$/i) ? ".gz" : ""
-          t2sym = "#{mincfiles_dir}/#{prefix}_#{dsid}_t2.mnc#{t2ext}"
+          t2      = Userfile.find(t2_id)
+          t2_name = t2.name
+          t2ext   = t2_name.match(/.gz$/i) ? ".gz" : ""
+          t2sym   = "#{mincfiles_dir}/#{prefix}_#{dsid}_t2.mnc#{t2ext}"
           make_available(t2,t2sym)
           return false unless validate_minc_file(t2sym)
         end
 
         if pd_id.present?
-          pd    = Userfile.find(pd_id)
-          pdext = pd.match(/.gz$/i) ? ".gz" : ""
-          pdsym = "#{mincfiles_dir}/#{prefix}_#{dsid}_pd.mnc#{pdext}"
+          pd      = Userfile.find(pd_id)
+          pd_name = pd.name
+          pdext   = pd_name.match(/.gz$/i) ? ".gz" : ""
+          pdsym   = "#{mincfiles_dir}/#{prefix}_#{dsid}_pd.mnc#{pdext}"
           make_available(pd,pdsym)
           return false unless validate_minc_file(pdsym)
         end
 
         if mk_id.present?
-          mk    = Userfile.find(mk_id)
-          mkext = mk.match(/.gz$/i) ? ".gz" : ""
-          mksym = "#{mincfiles_dir}/#{prefix}_#{dsid}_mask.mnc#{mkext}"
+          mk      = Userfile.find(mk_id)
+          mk_name = mk.name
+          mkext   = mk_name.match(/.gz$/i) ? ".gz" : ""
+          mksym   = "#{mincfiles_dir}/#{prefix}_#{dsid}_mask.mnc#{mkext}"
           make_available(mk,mksym)
           return false unless validate_minc_file(mksym)
         end
@@ -423,6 +426,7 @@ class CbrainTask::Civet < ClusterTask
       end
       self.addlog("Error: not all processing stages of this CIVET completed successfully.")
       self.addlog("We found these files in 'logs' : #{badnews.sort.join(', ')}")
+      return false # Failed On Cluster
     end
 
     # Create new CivetOutput
