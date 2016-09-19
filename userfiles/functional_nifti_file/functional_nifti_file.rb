@@ -17,20 +17,26 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.  
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
 # Model for functional NiFTI medical data files.
 class FunctionalNiftiFile < NiftiFile
 
   Revision_info=CbrainFileRevision[__FILE__] #:nodoc:
-  
+
   def self.pretty_type #:nodoc:
     "NIfTI file (functional)"
   end
 
   def self.file_name_pattern #:nodoc:
-    /\.nii(\.gz)?$/i 
+    /\.nii(\.gz)?$/i
+  end
+
+  # Overwrite the method in order to
+  # call the "volume_viewer_loader" of NiftiFile
+  def view_path(partial_name=nil)
+     NiftiFile.view_path(partial_name)
   end
 
 end
