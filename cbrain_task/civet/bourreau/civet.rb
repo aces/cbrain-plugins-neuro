@@ -221,10 +221,10 @@ class CbrainTask::Civet < ClusterTask
     # Model
     if params[:model].present?
       cb_error "Bad model name."         unless params[:model]        =~ /^\s*[\w\.]+\s*$/
-      cb_error "Model is not valid for this CIVET version" if params[:model] == "ADNInl" && !self.tool_config.is_version("1.1.12")
+      cb_error "Model is not valid for this CIVET version" if params[:model] == "ADNInl"        && !self.tool_config.is_version("1.1.12")
       cb_error "Model is not valid for this CIVET version" if params[:model] == "icbm152nl_09a" && !self.tool_config.is_at_least_version("2.0.0")
       cb_error "Model is not valid for this CIVET version" if params[:model] == "icbm152nl_09s" && !self.tool_config.is_at_least_version("2.0.0")
-      cb_error "Model is not valid for this CIVET version" if params[:model] == "ADNIhires" && !self.tool_config.is_at_least_version("2.0.0")
+      cb_error "Model is not valid for this CIVET version" if params[:model] == "ADNIhires"     && !self.tool_config.is_at_least_version("2.0.0")
     end
 
     # Interp
@@ -283,12 +283,27 @@ class CbrainTask::Civet < ClusterTask
     args += "-multispectral "                                       if mybool(file0[:multispectral])
     args += "-spectral_mask "                                       if mybool(file0[:spectral_mask])
 
+    # PVE
+    if self.tool_config.is_at_least_version("2.1.0")
+      if    params[:pve] == "classic"
+        args += "-no-correct-pve -no-subcortical -no-mask-cerebellum "
+      elsif params[:pve] == "advanced"
+        args += "-correct-pve -subcortical -mask-cerebellum "
+      end
+    end
+
     # Thickness methods and kernel
     if ( params[:thickness_method].present? &&
          params[:thickness_kernel].present? &&
          is_valid_integer_list(params[:thickness_kernel], allow_blanks: false)
        )
-      args += "-thickness #{params[:thickness_method].bash_escape} #{params[:thickness_kernel].bash_escape} "
+      if self.tool_config.is_at_least_version("2.1.0")
+        thickness_methods = params[:thickness_method].unshift(params[:thickness_method_for_qc]) if params[:thickness_method_for_qc].present?
+        thickness_string  = thickness_methods.uniq.join(":")
+      else
+        thickness_string  = params[:thickness_method]
+      end
+      args += "-thickness #{thickness_string.bash_escape} #{params[:thickness_kernel].bash_escape} "
     end
 
     # Surface resampling
@@ -331,8 +346,11 @@ class CbrainTask::Civet < ClusterTask
       args += "-reset-from #{reset_from.bash_escape} "
     end
 
-    mincfiles_dir = "mincfiles_input"
-    civet_command = "CIVET_Processing_Pipeline -prefix #{prefix.bash_escape} -source #{mincfiles_dir} -target civet_out -spawn #{args} -run #{dsid.bash_escape}"
+    mincfiles_dir  = "mincfiles_input"
+    civet_command  = "CIVET_Processing_Pipeline "
+    civet_command += "-prefix #{prefix.bash_escape} " if prefix.present?
+    civet_command += "-source #{mincfiles_dir} -target civet_out -spawn #{args} "
+    civet_command += "-run #{dsid.bash_escape}"       if dsid.present?
 
     self.addlog("Full CIVET command:\n  #{civet_command.gsub(/ -/, "\n  -")}") if self.user.has_role? :admin_user
 

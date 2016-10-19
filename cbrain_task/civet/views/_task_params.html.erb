@@ -33,6 +33,7 @@
   not_at_least_1_1_11 = !@tool_config || !@tool_config.is_at_least_version("1.1.11")
   not_at_least_1_1_12 = !@tool_config || !@tool_config.is_at_least_version("1.1.12")
   not_at_least_2_0_0  = !@tool_config || !@tool_config.is_at_least_version("2.0.0")
+  not_at_least_2_1_0  = !@tool_config || !@tool_config.is_at_least_version("2.1.0")
 
   # Models
   default_models  = [ "icbm152nl", "icbm152lin" ]
@@ -107,6 +108,13 @@
 
   <%= form.params_label      :N3_distance, "N3 distance:", :title => "N3 spline distance in mm (suggested values: 200 for 1.5T scan; 125 or 100 for 3T scan; 0 for MP2RAGE scan in later version than 1.1.12)" %>
   <%= form.params_text_field :N3_distance, :size => 4 %>
+
+  <% if !not_at_least_2_1_0 %>
+    <br>
+
+    <%= form.params_label  :pve, "PVE:", :title => "PVE: classic = -no-correct-pve -no-subcortical -no-mask-cerebellum\nadvanced = -correct-pve -subcortical -mask-cerebellum" %>
+    <%= form.params_select :pve, [ "classic", "advanced" ] %>
+  <% end %>
 </fieldset>
 
 <P>
@@ -153,16 +161,20 @@
            tmethods << old_val
          end
        end
-       # tnear only for version < 2.0.0
-       tnear_disabled = not_at_least_2_0_0 ? {} : { :disabled => '1' }
-       params[:thickness_method] = nil if tnear_disabled.present? && params[:thickness_method] == 'tnear'
-       tmethods << [ "tnear", "tnear", tnear_disabled ]
        # Add tfs for version >= 2.0.0
        tfs_disabled = not_at_least_2_0_0 ? { :disabled => '1' } : {}
        params[:thickness_method] = nil if tfs_disabled.present? && params[:thickness_method] == 'tfs'
        tmethods << [ "tfs", "tfs", tfs_disabled ]
     %>
-    <%= form.params_select     :thickness_method, tmethods %>
+
+    <% if not_at_least_2_1_0 %>
+      <%= form.params_select     :thickness_method, tmethods %>
+    <% else %>
+      <%= select_tag "cbrain_task[params][thickness_method]", options_for_select(tmethods, :selected => "tlaplace"), :multiple => true, :size => 3 %>
+      <%= form.params_label      :thickness_method_for_qc,  "Thickness method for qc:", :title => "Thickness method for qc" %>
+      <%= form.params_select     :thickness_method_for_qc, tmethods, :selected => "tlaplace" %>
+    <% end %>
+
     <%= form.params_label      :thickness_kernel, "and kernel size:",
                                :title => "FWHM for surface blurring,\n default: 20 for version 1.1.11 and lower,\n default: 30 for version 1.1.12 and later\nList of integers separated by a ':' is accepted for version 2.0.0 and later" %>
     <%= form.params_text_field :thickness_kernel, :size => not_at_least_2_0_0 ? 4 : 12 %>
