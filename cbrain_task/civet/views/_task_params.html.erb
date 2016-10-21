@@ -112,8 +112,8 @@
   <% if !not_at_least_2_1_0 %>
     <br>
 
-    <%= form.params_label  :pve, "PVE:", :title => "PVE: classic = -no-correct-pve -no-subcortical -no-mask-cerebellum\nadvanced = -correct-pve -subcortical -mask-cerebellum" %>
-    <%= form.params_select :pve, [ "classic", "advanced" ] %>
+    <%= form.params_label  :pve, "PVE:", :title => "PVE: advanced = -correct-pve -subcortical -mask-cerebellum\nclassic = -no-correct-pve -no-subcortical -no-mask-cerebellum (old behaviour)" %>
+    <%= form.params_select :pve, [ "advanced", "classic" ] %>
   <% end %>
 </fieldset>
 
