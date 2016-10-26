@@ -39,12 +39,53 @@ class CivetOutput < FileCollection
     self.list_files("verify").select { |f| f.name =~ /\.png$/ }
   end
 
-  def surface_dir
+  def surface_dir #:nodoc:
     "surfaces"
   end
 
-  def thickness_dir
+  def thickness_dir #:nodoc:
     "thickness"
   end
+
+  def surfaces_obj #:nodoc:
+    surface_dir         = self.surface_dir
+    surfaces_obj        = self.list_files(surface_dir).map(&:name).select { |n| n =~ /\.obj\z/ }
+    rsl_surfaces_obj    = surfaces_obj.select { |name| name =~ /_rsl_/ }
+    no_rsl_surfaces_obj = surfaces_obj - rsl_surfaces_obj
+    surfaces_obj        = no_rsl_surfaces_obj.sort + rsl_surfaces_obj.sort
+    surfaces_obj        = surfaces_obj.map { |file| Pathname.new(file).basename }
+    @surfaces_obj       = surfaces_obj
+  end
+
+  def overlay #:nodoc:
+    # Extract all the overlay
+    # 1. thickness
+    thickness_dir        = self.thickness_dir
+    thickness_txt        = self.list_files(thickness_dir).map(&:name).select { |n| n =~ /\.txt\z/ }
+    rsl_thickness_txt    = thickness_txt.select { |name| name =~ /_rsl_/ }
+    no_rsl_thickness_txt = thickness_txt - rsl_thickness_txt
+    thickness_txt        = no_rsl_thickness_txt.sort + rsl_thickness_txt.sort
+    thickness_txt        = thickness_txt.map { |file| Pathname.new(file).basename }
+    thickness_txt_for_select = []
+    thickness_txt.each do |path|
+      full_path = "#{self.name}/#{thickness_dir}/#{path}"
+      thickness_txt_for_select << [path, full_path]
+    end
+    # 2. surfaces
+    surfaces_txt         = self.list_files(surface_dir).map(&:name).select { |n| n =~ /\.txt\z/ }
+    rsl_surfaces_txt     = surfaces_txt.select { |name| name =~ /_rsl_/ }
+    no_rsl_surfaces_txt  = surfaces_txt - rsl_surfaces_txt
+    surfaces_txt         = no_rsl_surfaces_txt.sort + rsl_surfaces_txt.sort
+    surfaces_txt         = surfaces_txt.map { |file| Pathname.new(file).basename }
+    surfaces_txt_for_select = []
+    surfaces_txt.each do |path|
+      full_path = "#{self.name}/#{surface_dir}/#{path}"
+      surfaces_txt_for_select << [path, full_path]
+
+    end
+    # 3. Combine
+    @overlay              = thickness_txt_for_select + surfaces_txt_for_select
+  end
+
 
 end
