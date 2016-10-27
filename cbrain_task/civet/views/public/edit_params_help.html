@@ -42,6 +42,7 @@
     <li><b>Head height:</b> Head height in mm for neck cropping. Suggested value: 170. Only available for version 1.1.12 and later.</li>
     <li><b>Mask blood vessels:</b> Mask blood vessels prior to white surface extraction. Only available for version 1.1.12 and later.</li>
     <li><b>N3 distance:</b> N3 spline distance in mm (suggested values: 200 for 1.5T scan; 50-125 for 3T scan. For older 3T scans, low values nearer 50 may work best; for newer 3T scans, high values nearer 125 may work best).</li>
+    <li><b>PVE:</b> advanced = -correct-pve -subcortical -mask-cerebellum or classic = -no-correct-pve -no-subcortical -no-mask-cerebellum (default for version lower than 2.1.0).</li>
 </ul>
 
 
@@ -50,7 +51,8 @@
     <li><b>Do NOT build surfaces:</b> Don't build surfaces, if checked.</li>
     <li><b>High resolution surface:</b> Build high resolution surfaces. Only available for version 2.0.0 and later.</li>
     <li><b>Combine left/right surfaces:</b> Combine left and right cortical surfaces, if checked.</li>
-    <li><b>Thickness method:</b> Choose cortical thickness metric [default: tlink; also available:  tlaplace, tnear (only for version 2.0.0 and lower), tfs (Freesurfer's metric, only for version 2.0.0 and later)].</li>
+    <li><b>Thickness method:</b> Choose cortical thickness metric [default: tlink; also available: tlaplace, tfs (Freesurfer's metric, only for version 2.0.0 and later)], starting to version 2.1.0 you can select more than one method.</li>
+    <li><b>Thickness method for QC: Choose the cortical thickness that will be used for the QC, is accepted for version 2.1.0 and later.</b> </li>
     <li><b>Kernel size:</b> Default: 20mm for version 1.1.11 and lower and 30mm for version 1.1.12 and later.
     List of integers separated by a ':' is accepted for version 2.0.0 and later, e.g. 10:20:30.</li>
     <li><b>Resample surfaces:</b> Resample cortical surfaces, if checked.</li>

@@ -209,6 +209,10 @@ class CbrainTask::Civet < ClusterTask
     prefix = file0[:prefix] || "unkpref"
     dsid   = file0[:dsid]   || "unkdsid"
 
+    is_version_1_1_12         = self.tool_config.is_version("1.1.12")
+    is_at_least_version_2_0_0 = self.tool_config.is_at_least_version("2.0.0")
+    is_at_least_version_2_1_0 = self.tool_config.is_at_least_version("2.1.0")
+
     # -----------------------------------------------------------
     # More validations of params that are substituted in commands
     # -----------------------------------------------------------
@@ -221,10 +225,10 @@ class CbrainTask::Civet < ClusterTask
     # Model
     if params[:model].present?
       cb_error "Bad model name."         unless params[:model]        =~ /^\s*[\w\.]+\s*$/
-      cb_error "Model is not valid for this CIVET version" if params[:model] == "ADNInl" && !self.tool_config.is_version("1.1.12")
-      cb_error "Model is not valid for this CIVET version" if params[:model] == "icbm152nl_09a" && !self.tool_config.is_at_least_version("2.0.0")
-      cb_error "Model is not valid for this CIVET version" if params[:model] == "icbm152nl_09s" && !self.tool_config.is_at_least_version("2.0.0")
-      cb_error "Model is not valid for this CIVET version" if params[:model] == "ADNIhires" && !self.tool_config.is_at_least_version("2.0.0")
+      cb_error "Model is not valid for this CIVET version" if params[:model] == "ADNInl"        && !is_version_1_1_12
+      cb_error "Model is not valid for this CIVET version" if params[:model] == "icbm152nl_09a" && !is_at_least_version_2_0_0
+      cb_error "Model is not valid for this CIVET version" if params[:model] == "icbm152nl_09s" && !is_at_least_version_2_0_0
+      cb_error "Model is not valid for this CIVET version" if params[:model] == "ADNIhires"     && !is_at_least_version_2_0_0
     end
 
     # Interp
@@ -283,12 +287,29 @@ class CbrainTask::Civet < ClusterTask
     args += "-multispectral "                                       if mybool(file0[:multispectral])
     args += "-spectral_mask "                                       if mybool(file0[:spectral_mask])
 
+    # PVE
+    if is_at_least_version_2_1_0
+      if    params[:pve] == "classic"
+        args += "-no-correct-pve -no-subcortical -no-mask-cerebellum "
+      elsif params[:pve] == "advanced"
+        args += "-correct-pve -subcortical -mask-cerebellum "
+      end
+    end
+
     # Thickness methods and kernel
     if ( params[:thickness_method].present? &&
          params[:thickness_kernel].present? &&
          is_valid_integer_list(params[:thickness_kernel], allow_blanks: false)
        )
-      args += "-thickness #{params[:thickness_method].bash_escape} #{params[:thickness_kernel].bash_escape} "
+      if is_at_least_version_2_1_0
+        thickness_methods = Array(params[:thickness_method])
+        thickness_methods = thickness_methods.unshift(params[:thickness_method_for_qc]) if params[:thickness_method_for_qc].present?
+        thickness_string  = thickness_methods.uniq.join(":")
+      else
+        # Safegard should already be a String
+        thickness_string  = Array(params[:thickness_method])[0].to_s
+      end
+      args += "-thickness #{thickness_string.bash_escape} #{params[:thickness_kernel].bash_escape} "
     end
 
     # Surface resampling
@@ -302,7 +323,7 @@ class CbrainTask::Civet < ClusterTask
       # Atlas
       if params[:atlas].present? && ! options_to_ignore[:atlas]
         atlas_name = params[:atlas].strip
-        if self.tool_config.is_at_least_version("2.0.0")
+        if is_at_least_version_2_0_0
           args += "-surface-atlas #{atlas_name.bash_escape} "
         else
           args += "-surface-atlas $MNI_CIVET_ROOT/models/AAL_atlas_left.txt $MNI_CIVET_ROOT/models/AAL_atlas_right.txt " if atlas_name == "AAL"
@@ -331,8 +352,10 @@ class CbrainTask::Civet < ClusterTask
       args += "-reset-from #{reset_from.bash_escape} "
     end
 
-    mincfiles_dir = "mincfiles_input"
-    civet_command = "CIVET_Processing_Pipeline -prefix #{prefix.bash_escape} -source #{mincfiles_dir} -target civet_out -spawn #{args} -run #{dsid.bash_escape}"
+    mincfiles_dir  = "mincfiles_input"
+    civet_command  = "CIVET_Processing_Pipeline -source #{mincfiles_dir} -target civet_out -spawn #{args} "
+    civet_command += "-prefix #{prefix.bash_escape} " if prefix.present?
+    civet_command += "-run #{dsid.bash_escape}"       if dsid.present?
 
     self.addlog("Full CIVET command:\n  #{civet_command.gsub(/ -/, "\n  -")}") if self.user.has_role? :admin_user
 

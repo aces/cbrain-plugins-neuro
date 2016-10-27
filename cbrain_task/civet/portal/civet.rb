@@ -238,6 +238,8 @@ class CbrainTask::Civet < PortalTask
       dsid = (fa[:dsid] || "").strip
       fa[:dsid] = dsid
 
+      is_at_least_version_2_1_0 = self.tool_config && self.tool_config.is_at_least_version("2.1.0")
+
       # Verify the subject ID
       message = nil
       if dsid.blank?
@@ -258,7 +260,9 @@ class CbrainTask::Civet < PortalTask
 
       # Verify the prefix
       message = nil
-      if prefix.blank?
+      if prefix.blank?  && is_at_least_version_2_1_0
+        message = nil
+      elsif prefix.blank?
         message = " is blank?"
       elsif prefix !~ /^\w[\w\-]*$/
         message = " is not a simple identifier."
@@ -439,8 +443,8 @@ class CbrainTask::Civet < PortalTask
         prefix = Regexp.last_match[1]
         dsid   = Regexp.last_match[2]
       else
-        prefix = "prefix"
-        dsid   = "subject"   # maybe "auto_#{idx}"
+        prefix = self.tool_config && !self.tool_config.is_version("2.1.0") ? "prefix"  : ""
+        dsid   = "subject"  # maybe "auto_#{idx}"
       end
 
       file_args_array << {
@@ -496,8 +500,8 @@ class CbrainTask::Civet < PortalTask
         prefix = Regexp.last_match[1]
         dsid   = Regexp.last_match[2]
       else
-        prefix = "prefix"
-        dsid   = "subject"   # maybe "auto_#{idx}"
+        prefix = self.tool_config && !self.tool_config.is_version("2.1.0") ? "prefix"  : ""
+        dsid   = "subject"  # maybe "auto_#{idx}"
       end
 
       file_args_array << {

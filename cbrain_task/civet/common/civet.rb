@@ -110,6 +110,9 @@ class CbrainTask::Civet
       ignored_options[:animal]                           = true
       ignored_options[:lobe_atlas]                       = true
     end
+    if !self.tool_config.is_at_least_version("2.1.0")
+      ignored_options[:pve]                              = true
+    end
 
     ignored_options
   end
