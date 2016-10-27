@@ -32,12 +32,12 @@
 
     Surface File:
     <select id="objfile" name="surface_obj" class="surface_obj">
-      <%= options_for_select @userfile.surfaces_obj %>
+      <%= options_for_select @userfile.surfaces_objs %>
     </select>
     <br>
     Surface Overlay:
     <select id="datafile" name="overlay" class="overlay">
-      <%= options_for_select @userfile.overlay %>
+      <%= options_for_select @userfile.overlays %>
     </select>
     <br>
     Color Map: <input type="file" name="color-map" id="color-map"><br />
@@ -329,14 +329,14 @@
     ////////////////////////////////////
 
     viewer.loadModelFromURL(
-      "<%= content_userfile_path(@userfile) %>?content_loader=collection_file&arguments=<%= @userfile.name + "/" + @userfile.surface_dir %>/" + "<%= @userfile.surfaces_obj[0]%>",
+      "<%= content_userfile_path(@userfile) %>?content_loader=collection_file&arguments=<%= @userfile.name + "/" + @userfile.surfaces_dir %>/" + "<%= @userfile.surfaces_objs[0]%>",
       {
         complete: function() {
           viewer.loadColorMapFromURL(color_maps[0].url);
           viewer.loadIntensityDataFromURL(
-            "<%= content_userfile_path(@userfile) %>?content_loader=collection_file&arguments=<%= @userfile.overlay[0][1] %>",
+            "<%= content_userfile_path(@userfile) %>?content_loader=collection_file&arguments=<%= @userfile.overlays[0][1] %>",
             {
-              name: "<%= @userfile.overlay[0][0] %>",
+              name: "<%= @userfile.overlays[0][0] %>",
               complete: loadEnd
             }
           );
@@ -472,7 +472,7 @@
       viewer.clearScreen();
       loadStart();
       viewer.loadModelFromURL(
-        "<%= content_userfile_path(@userfile) %>?content_loader=collection_file&arguments=<%= @userfile.name + "/" + @userfile.surface_dir %>/" + $(event.target).val(),
+        "<%= content_userfile_path(@userfile) %>?content_loader=collection_file&arguments=<%= @userfile.name + "/" + @userfile.surfaces_dir %>/" + $(event.target).val(),
         {
           complete: loadEnd
         }

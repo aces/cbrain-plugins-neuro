@@ -39,7 +39,7 @@ class CivetOutput < FileCollection
     self.list_files("verify").select { |f| f.name =~ /\.png$/ }
   end
 
-  def surface_dir #:nodoc:
+  def surfaces_dir #:nodoc:
     "surfaces"
   end
 
@@ -47,44 +47,46 @@ class CivetOutput < FileCollection
     "thickness"
   end
 
-  def surfaces_obj #:nodoc:
-    surface_dir         = self.surface_dir
-    surfaces_obj        = self.list_files(surface_dir).map(&:name).select { |n| n =~ /\.obj\z/ }
-    rsl_surfaces_obj    = surfaces_obj.select { |name| name =~ /_rsl_/ }
-    no_rsl_surfaces_obj = surfaces_obj - rsl_surfaces_obj
-    surfaces_obj        = no_rsl_surfaces_obj.sort + rsl_surfaces_obj.sort
-    surfaces_obj        = surfaces_obj.map { |file| Pathname.new(file).basename }
-    @surfaces_obj       = surfaces_obj
+  def surfaces_objs #:nodoc:
+    return @surfaces_objs unless @surfaces_objs.nil?
+    surfaces_dir         = self.surfaces_dir
+    surfaces_objs        = self.list_files(surfaces_dir).map(&:name).select { |n| n =~ /\.obj\z/ }
+    rsl_surfaces_objs    = surfaces_objs.select { |name| name =~ /_rsl_/ }
+    no_rsl_surfaces_objs = surfaces_objs - rsl_surfaces_objs
+    surfaces_objs        = no_rsl_surfaces_objs.sort + rsl_surfaces_objs.sort
+    surfaces_objs        = surfaces_objs.map { |file| Pathname.new(file).basename }
+    @surfaces_objs       = surfaces_objs
   end
 
-  def overlay #:nodoc:
-    # Extract all the overlay
+  def overlays #:nodoc:
+    return @overlays unless @overlays.nil?
+    # Extract all the overlays
     # 1. thickness
-    thickness_dir        = self.thickness_dir
-    thickness_txt        = self.list_files(thickness_dir).map(&:name).select { |n| n =~ /\.txt\z/ }
-    rsl_thickness_txt    = thickness_txt.select { |name| name =~ /_rsl_/ }
-    no_rsl_thickness_txt = thickness_txt - rsl_thickness_txt
-    thickness_txt        = no_rsl_thickness_txt.sort + rsl_thickness_txt.sort
-    thickness_txt        = thickness_txt.map { |file| Pathname.new(file).basename }
-    thickness_txt_for_select = []
-    thickness_txt.each do |path|
+    thickness_dir           = self.thickness_dir
+    thickness_txts          = self.list_files(thickness_dir).map(&:name).select { |n| n =~ /\.txt\z/ }
+    rsl_thickness_txts      = thickness_txts.select { |name| name =~ /_rsl_/ }
+    no_rsl_thickness_txts   = thickness_txts - rsl_thickness_txts
+    thickness_txts          = no_rsl_thickness_txts.sort + rsl_thickness_txts.sort
+    thickness_txts          = thickness_txts.map { |file| Pathname.new(file).basename }
+    thickness_txts_for_select = []
+    thickness_txts.each do |path|
       full_path = "#{self.name}/#{thickness_dir}/#{path}"
-      thickness_txt_for_select << [path, full_path]
+      thickness_txts_for_select << [path, full_path]
     end
     # 2. surfaces
-    surfaces_txt         = self.list_files(surface_dir).map(&:name).select { |n| n =~ /\.txt\z/ }
-    rsl_surfaces_txt     = surfaces_txt.select { |name| name =~ /_rsl_/ }
-    no_rsl_surfaces_txt  = surfaces_txt - rsl_surfaces_txt
-    surfaces_txt         = no_rsl_surfaces_txt.sort + rsl_surfaces_txt.sort
-    surfaces_txt         = surfaces_txt.map { |file| Pathname.new(file).basename }
-    surfaces_txt_for_select = []
-    surfaces_txt.each do |path|
-      full_path = "#{self.name}/#{surface_dir}/#{path}"
-      surfaces_txt_for_select << [path, full_path]
+    surfaces_txts         = self.list_files(surfaces_dir).map(&:name).select { |n| n =~ /\.txt\z/ }
+    rsl_surfaces_txts     = surfaces_txts.select { |name| name =~ /_rsl_/ }
+    no_rsl_surfaces_txts  = surfaces_txts - rsl_surfaces_txts
+    surfaces_txts         = no_rsl_surfaces_txts.sort + rsl_surfaces_txts.sort
+    surfaces_txts         = surfaces_txts.map { |file| Pathname.new(file).basename }
+    surfaces_txts_for_select = []
+    surfaces_txts.each do |path|
+      full_path = "#{self.name}/#{surfaces_dir}/#{path}"
+      surfaces_txts_for_select << [path, full_path]
 
     end
     # 3. Combine
-    @overlay              = thickness_txt_for_select + surfaces_txt_for_select
+    @overlays             = thickness_txts_for_select + surfaces_txts_for_select
   end
 
 
