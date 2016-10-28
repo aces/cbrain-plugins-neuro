@@ -91,30 +91,31 @@ class CbrainTask::Civet < ClusterTask
 
     self.results_data_provider_id ||= collection ? collection.data_provider_id : t1.data_provider_id
 
+    input_symlink_base = prefix.present? ? "#{mincfiles_dir}/#{prefix}_#{dsid}" : "#{mincfiles_dir}/#{dsid}"
     # MODE A (collection) symlinks
     if collection
 
       t1ext = t1_name.match(/.gz$/i) ? ".gz" : ""
-      t1sym = prefix.present? ? "#{mincfiles_dir}/#{dsid}_t1.mnc#{t1ext}" : "#{mincfiles_dir}/#{prefix}_#{dsid}_t1.mnc#{t1ext}"
+      t1sym = "#{input_symlink_base}_#{dsid}_t1.mnc#{t1ext}"
       make_available(collection, t1sym, t1_name)
       return false unless validate_minc_file(t1sym)
 
       if mybool(file0[:multispectral]) || mybool(file0[:spectral_mask])
         if t2_name.present?
           t2ext = t2_name.match(/.gz$/i) ? ".gz" : ""
-          t2sym = prefix.present? ? "#{mincfiles_dir}/#{dsid}_t2.mnc#{t2ext}": "#{mincfiles_dir}/#{prefix}_#{dsid}_t2.mnc#{t2ext}"
+          t2sym = "#{input_symlink_base}_#{dsid}_t2.mnc#{t2ext}"
           make_available(collection, t2sym, t2_name)
           return false unless validate_minc_file(t2sym)
         end
         if pd_name.present?
           pdext = pd_name.match(/.gz$/i) ? ".gz" : ""
-          pdsym = prefix.present? ? "#{mincfiles_dir}/#{dsid}_pd.mnc#{pdext}" : "#{mincfiles_dir}/#{prefix}_#{dsid}_pd.mnc#{pdext}"
+          pdsym = "#{input_symlink_base}_#{dsid}_pd.mnc#{pdext}"
           make_available(collection, pdsym, pd_name)
           return false unless validate_minc_file(pdsym)
         end
         if mk_name.present?
           mkext = mk_name.match(/.gz$/i) ? ".gz" : ""
-          mksym = prefix.present? ? "#{mincfiles_dir}/#{dsid}_mask.mnc#{mkext}" : "#{mincfiles_dir}/#{prefix}_#{dsid}_mask.mnc#{mkext}"
+          mksym = "#{input_symlink_base}_#{dsid}_mask.mnc#{mkext}"
           make_available(collection, mksym, mk_name)
           return false unless validate_minc_file(mksym)
         end
@@ -124,7 +125,7 @@ class CbrainTask::Civet < ClusterTask
 
       t1_name = t1.name
       t1ext   = t1_name.match(/.gz$/i) ? ".gz" : ""
-      t1sym   = prefix.present? ? "#{mincfiles_dir}/#{dsid}_t1.mnc#{t1ext}": "#{mincfiles_dir}/#{prefix}_#{dsid}_t1.mnc#{t1ext}"
+      t1sym   = "#{input_symlink_base}_#{dsid}_t1.mnc#{t1ext}"
       make_available(t1,t1sym)
       return false unless validate_minc_file(t1sym)
 
@@ -133,7 +134,7 @@ class CbrainTask::Civet < ClusterTask
           t2      = Userfile.find(t2_id)
           t2_name = t2.name
           t2ext   = t2_name.match(/.gz$/i) ? ".gz" : ""
-          t2sym   = prefix.present? ? "#{mincfiles_dir}/#{dsid}_t2.mnc#{t2ext}" : "#{mincfiles_dir}/#{prefix}_#{dsid}_t2.mnc#{t2ext}"
+          t2sym   = "#{input_symlink_base}_#{dsid}_t2.mnc#{t2ext}"
           make_available(t2,t2sym)
           return false unless validate_minc_file(t2sym)
         end
@@ -142,7 +143,7 @@ class CbrainTask::Civet < ClusterTask
           pd      = Userfile.find(pd_id)
           pd_name = pd.name
           pdext   = pd_name.match(/.gz$/i) ? ".gz" : ""
-          pdsym   = prefix.present? ? "#{mincfiles_dir}/#{dsid}_pd.mnc#{pdext}" : "#{mincfiles_dir}/#{prefix}_#{dsid}_pd.mnc#{pdext}"
+          pdsym   = "#{input_symlink_base}_#{dsid}_pd.mnc#{pdext}"
           make_available(pd,pdsym)
           return false unless validate_minc_file(pdsym)
         end
@@ -151,7 +152,7 @@ class CbrainTask::Civet < ClusterTask
           mk      = Userfile.find(mk_id)
           mk_name = mk.name
           mkext   = mk_name.match(/.gz$/i) ? ".gz" : ""
-          mksym   = prefix.present? ? "#{mincfiles_dir}/#{dsid}_mask.mnc#{mkext}" : "#{mincfiles_dir}/#{prefix}_#{dsid}_mask.mnc#{mkext}"
+          mksym   = "#{input_symlink_base}_#{dsid}_mask.mnc#{mkext}"
           make_available(mk,mksym)
           return false unless validate_minc_file(mksym)
         end
