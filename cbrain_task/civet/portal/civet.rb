@@ -133,7 +133,11 @@ class CbrainTask::Civet < PortalTask
   def before_form #:nodoc:
     params    = self.params
 
-    params[:model] = "icbm152nl_09s" if self.tool_config && self.tool_config.is_version("2.0.0")
+    params[:model] = "icbm152nl_09s" if self.tool_config && self.tool_config.is_at_least_version("2.0.0")
+    if self.tool_config && self.tool_config.is_at_least_version("2.1.0")
+      params[:thickness_method]        = ["tlaplace"]
+      params[:thickness_method_for_qc] = "tlaplace"
+    end
 
     file_ids  = params[:interface_userfile_ids]
 

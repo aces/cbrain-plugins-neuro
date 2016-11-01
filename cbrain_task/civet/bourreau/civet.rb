@@ -304,6 +304,7 @@ class CbrainTask::Civet < ClusterTask
        )
       if is_at_least_version_2_1_0
         thickness_methods = Array(params[:thickness_method])
+        thickness_methods = thickness_methods & ["tlaplace", "tlink","tfs"]
         thickness_methods = thickness_methods.unshift(params[:thickness_method_for_qc]) if params[:thickness_method_for_qc].present?
         thickness_string  = thickness_methods.uniq.join(":")
       else
