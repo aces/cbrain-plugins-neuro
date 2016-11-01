@@ -170,11 +170,11 @@
       <%= form.params_label  :thickness_method,  "Thickness method:", :title => "Thickness method" %>
       <%= form.params_select :thickness_method, tmethods %>
     <% else %>
-      <%= form.params_label  :thickness_method,  "Thickness methods:", :title => "Thickness methods" %>
-      <%= form.params_select :thickness_method, options_for_select(tmethods, :selected => "tlaplace"), {}, :multiple => true, :size => 3 %>
+      <%= form.params_label  "thickness_method[]",  "Thickness methods:", :title => "Thickness methods" %>
+      <%= form.params_select "thickness_method[]", tmethods, {}, :multiple => true, :size => 3 %>
       <p>
       <%= form.params_label  :thickness_method_for_qc,  "Thickness method for QC:", :title => "Thickness method for QC" %>
-      <%= form.params_select :thickness_method_for_qc, tmethods, :selected => "tlaplace" %>
+      <%= form.params_select :thickness_method_for_qc, tmethods %>
     <% end %>
 
     <%= form.params_label      :thickness_kernel, "and kernel size:",
