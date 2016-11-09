@@ -249,7 +249,11 @@ class CbrainTask::Civet < ClusterTask
 
     # LSQ
     if params[:lsq].present?
-      cb_error "Bad LSQ value."         unless params[:lsq]           =~ /^\s*(?:6|9|12)\s*$/
+      if is_at_least_version_2_1_0
+        cb_error "Bad LSQ value."         unless params[:lsq]           =~ /^\s*(?:0|6|9|12)\s*$/
+      else
+        cb_error "Bad LSQ value."         unless params[:lsq]           =~ /^\s*(?:6|9|12)\s*$/
+      end
     end
 
     # Resamp surf kern area
@@ -279,7 +283,11 @@ class CbrainTask::Civet < ClusterTask
     args += "-N3-distance #{params[:N3_distance].bash_escape} "     if params[:N3_distance].present?
     args += "-headheight #{params[:headheight].bash_escape} "       if params[:headheight].present?        && !options_to_ignore[:headheight]
     args += "-mask-blood-vessels "                                  if mybool(params[:mask_blood_vessels]) && !options_to_ignore[:mask_blood_vessels]
-    args += "-lsq#{params[:lsq]} "                                  if params[:lsq] && params[:lsq].to_i != 9 # there is NO -lsq9 option!
+    if params[:lsq] != 0
+      args += "-lsq#{params[:lsq]} "                                if params[:lsq] && params[:lsq].to_i != 9 # there is NO -lsq9 option!
+    else
+      args += "-input_is_stx "
+    end
     args += "-no-surfaces "                                         if mybool(params[:no_surfaces])
     args += "-correct-pve "                                         if mybool(params[:correct_pve])
     args += "-hi-res-surfaces "                                     if mybool(params[:high_res_surfaces])  && !options_to_ignore[:high_res_surfaces]
