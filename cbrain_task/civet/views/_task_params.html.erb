@@ -52,6 +52,7 @@
 
 
   default_template = not_at_least_2_0_0 ? ["1.00"] : ["0.50","0.75","1.00"]
+  default_lsq      = not_at_least_2_1_0 ? [ "6", "9", "12" ] : [ "0", "6", "9", "12" ]
 %>
 
 
@@ -84,8 +85,9 @@
 
   <br>
 
-  <%= form.params_label  :lsq, "Degrees of freedom for linear registration:", :title => "Degrees of freedom for linear registration to stereotaxic space" %>
-  <%= form.params_select :lsq, [ "6", "9", "12" ] %>
+  <%= form.params_label  :lsq, "Degrees of freedom for linear registration:", :title => "Degrees of freedom for linear registration to stereotaxic space.\n0 means that the input volume is already in stereotaxic space and linear registration will be skipped.
+" %>
+  <%= form.params_select :lsq, default_lsq %>
 
   <br>
 
