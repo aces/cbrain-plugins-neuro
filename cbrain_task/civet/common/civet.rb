@@ -31,9 +31,9 @@ class CbrainTask::Civet
     else
       # Added 2 extra hours, just in case user specify ANIMAL.
       if mybool(params[:high_res_surfaces])
-        params[:template] == "1.00" ? 18.hours : 24.hours
+        params[:template] == "1.00" ? 24.hours : 36.hours
       else
-        params[:template] == "1.00" ? 12.hours : 14.hours
+        params[:template] == "1.00" ? 22.hours : 30.hours
       end
     end
   end
