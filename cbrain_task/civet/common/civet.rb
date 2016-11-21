@@ -31,9 +31,9 @@ class CbrainTask::Civet
     else
       # Added 2 extra hours, just in case user specify ANIMAL.
       if mybool(params[:high_res_surfaces])
-        params[:template] == "1.00" ? 16.hours : 22.hours
+        params[:template] == "1.00" ? 24.hours : 36.hours
       else
-        params[:template] == "1.00" ? 10.hours : 12.hours
+        params[:template] == "1.00" ? 22.hours : 30.hours
       end
     end
   end
@@ -109,6 +109,9 @@ class CbrainTask::Civet
       ignored_options[:surfreg_model]                    = true
       ignored_options[:animal]                           = true
       ignored_options[:lobe_atlas]                       = true
+    end
+    if !self.tool_config.is_at_least_version("2.1.0")
+      ignored_options[:pve]                              = true
     end
 
     ignored_options

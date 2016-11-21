@@ -24,58 +24,22 @@
 
 <%= stylesheet_link_tag CivetOutput.public_path("stylesheets/surface_viewer.css").to_s, :media => "all" %>
 
+
 <div id="surface_choice" class="controls">
   <h4>Files: </h4>
 
   <form id="datafile-form" method="POST"  action="/upload/minc" enctype="multipart/form-data">
-    <%-
-      # Extract obj file
-      surface_dir         = @userfile.try(:surface_dir) || "surfaces"
-      surfaces_obj        = @userfile.list_files(surface_dir).map(&:name).select { |n| n =~ /\.obj$/ }
-      rsl_surfaces_obj    = surfaces_obj.select { |name| name =~ /_rsl_/ }
-      no_rsl_surfaces_obj = surfaces_obj - rsl_surfaces_obj
-      surfaces_obj        = no_rsl_surfaces_obj.sort + rsl_surfaces_obj.sort
-      surfaces_obj        = surfaces_obj.map { |file| Pathname.new(file).basename }
-    -%>
+
     Surface File:
     <select id="objfile" name="surface_obj" class="surface_obj">
-      <%= options_for_select surfaces_obj %>
+      <%= options_for_select @userfile.surfaces_objs %>
     </select>
-
-    <%-
-      # Extract all the overlay
-      # 1. thickness
-      thickness_dir        = @userfile.try(:thickness_dir) || "thickness"
-      thickness_txt        = @userfile.list_files(thickness_dir).map(&:name).select { |n| n =~ /\.txt$/ }
-      rsl_thickness_txt    = thickness_txt.select { |name| name =~ /_rsl_/ }
-      no_rsl_thickness_txt = thickness_txt - rsl_thickness_txt
-      thickness_txt        = no_rsl_thickness_txt.sort + rsl_thickness_txt.sort
-      thickness_txt        = thickness_txt.map { |file| Pathname.new(file).basename }
-      thickness_txt_for_select = []
-      thickness_txt.each do |path|
-        full_path = "#{@userfile.name}/#{thickness_dir}/#{path}"
-        thickness_txt_for_select << [path, full_path]
-      end
-      # 2. surfaces
-      surfaces_txt         = @userfile.list_files(surface_dir).map(&:name).select { |n| n =~ /\.txt$/ }
-      rsl_surfaces_txt     = surfaces_txt.select { |name| name =~ /_rsl_/ }
-      no_rsl_surfaces_txt  = surfaces_txt - rsl_surfaces_txt
-      surfaces_txt         = no_rsl_surfaces_txt.sort + rsl_surfaces_txt.sort
-      surfaces_txt         = surfaces_txt.map { |file| Pathname.new(file).basename }
-      surfaces_txt_for_select = []
-      surfaces_txt.each do |path|
-        full_path = "#{@userfile.name}/#{surface_dir}/#{path}"
-        surfaces_txt_for_select << [path, full_path]
-      end
-      # 3. Combine
-      overlay              = thickness_txt_for_select + surfaces_txt_for_select
-    %>
-    <BR>
+    <br>
     Surface Overlay:
     <select id="datafile" name="overlay" class="overlay">
-      <%= options_for_select overlay %>
+      <%= options_for_select @userfile.overlays %>
     </select>
-    <BR>
+    <br>
     Color Map: <input type="file" name="color-map" id="color-map"><br />
   </form>
 </div>
@@ -365,14 +329,14 @@
     ////////////////////////////////////
 
     viewer.loadModelFromURL(
-      "<%= content_userfile_path(@userfile) %>?content_loader=collection_file&arguments=<%= @userfile.name + "/" + surface_dir %>/" + "<%= surfaces_obj[0]%>",
+      "<%= content_userfile_path(@userfile) %>?content_loader=collection_file&arguments=<%= @userfile.name + "/" + @userfile.surfaces_dir %>/" + "<%= @userfile.surfaces_objs[0]%>",
       {
         complete: function() {
           viewer.loadColorMapFromURL(color_maps[0].url);
           viewer.loadIntensityDataFromURL(
-            "<%= content_userfile_path(@userfile) %>?content_loader=collection_file&arguments=<%= overlay[0][1] %>",
+            "<%= content_userfile_path(@userfile) %>?content_loader=collection_file&arguments=<%= @userfile.overlays[0][1] %>",
             {
-              name: "<%= overlay[0][0] %>",
+              name: "<%= @userfile.overlays[0][0] %>",
               complete: loadEnd
             }
           );
@@ -508,7 +472,7 @@
       viewer.clearScreen();
       loadStart();
       viewer.loadModelFromURL(
-        "<%= content_userfile_path(@userfile) %>?content_loader=collection_file&arguments=<%= @userfile.name + "/" + surface_dir %>/" + $(event.target).val(),
+        "<%= content_userfile_path(@userfile) %>?content_loader=collection_file&arguments=<%= @userfile.name + "/" + @userfile.surfaces_dir %>/" + $(event.target).val(),
         {
           complete: loadEnd
         }

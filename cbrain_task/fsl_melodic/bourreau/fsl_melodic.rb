@@ -29,7 +29,7 @@ class CbrainTask::FslMelodic < ClusterTask
   def self.properties #:nodoc:
     super.merge :can_submit_new_tasks => true
   end
-  
+
   def setup #:nodoc:
     params       = self.params
     params[:task_file_ids].each do |inputfile_id|
@@ -67,7 +67,7 @@ class CbrainTask::FslMelodic < ClusterTask
     cmds << find_command("FSLNVOLS","fslnvols fsl5.0-fslnvols")
     cmds << find_command("FSLSTATS","fslstats fsl5.0-fslstats")
     cmds << find_command("FSLINFO","fslinfo fsl5.0-fslinfo")
-    
+
     # Finds a name for the modified design file.
     modified_design_file_path = "design-cbrain.fsf"
     count = 1
@@ -84,7 +84,7 @@ class CbrainTask::FslMelodic < ClusterTask
     # key: file id of MINC file.
     # value: file name of corresponding Nifti file.
     params[:converted_files] = Hash.new
-    
+
     ###
     ### Processes functional files.
     ###
@@ -130,7 +130,7 @@ class CbrainTask::FslMelodic < ClusterTask
       add_cmd_check_file_dimensions_identical(cmds)
       add_cmd_check_trs_identical(cmds)
     end
-    
+
     ###
     ### Pre-processes structural files.
     ###
@@ -140,7 +140,7 @@ class CbrainTask::FslMelodic < ClusterTask
                                   "highres_files(#{index+1})",
                                   new_options)
     end
-    
+
     ###
     ### Processes regstandard file
     ###
@@ -148,7 +148,7 @@ class CbrainTask::FslMelodic < ClusterTask
       pre_process_input_data_file(cmds,
                                   params[:regstandard_file_id],
                                   "fmri(regstandard)",
-                                  new_options)                
+                                  new_options)
     end
 
     ###
@@ -228,13 +228,13 @@ class CbrainTask::FslMelodic < ClusterTask
     ###
     ### Execution of melodic
     ###
-    
+
     # FSL melodic execution commands
 
-    # Export of the CBRAIN_WORKDIR variable is used by 
+    # Export of the CBRAIN_WORKDIR variable is used by
     # fsl_sub to determine if task has to be parallelized.
     # In our case, workdir is exported only for group analyses because
-    # individual analyses will not be parallelized. 
+    # individual analyses will not be parallelized.
     export_workdir_command = (params[:icaopt]=="1") ? "" :
                              "export CBRAIN_WORKDIR=#{self.full_cluster_workdir} # To make fsl_sub submit tasks to CBRAIN"
     command=<<-END
@@ -246,7 +246,7 @@ if [ $? != 0 ]
 then
     error "Melodic exited with a non-zero exit code"
 fi
-chmod -R o+rx *ica 
+chmod -R o+rx *ica
 END
     cmds << command
     params[:output_dir_name] = output
@@ -268,15 +268,15 @@ END
       # error messages are found
       # (output files contain important debugging information).
       save_output_files
-    rescue Exception => msg
-      self.addlog(msg)
+    rescue => msg
+      self.addlog(msg.message)
       # Output files couldn't be transferred:
       #  * raise an exception if no error messages
       #     were found so that task is put in status "Failed To PostProcess".
       #  * return false otherwise so that task is put in status "Failed on Cluster".
-      raise msg if !em 
+      raise msg if !em
     end
-    # At this stage, em=true if save_output_file raised an exception. 
+    # At this stage, em=true if save_output_file raised an exception.
     return !em
   end
 
@@ -285,8 +285,8 @@ END
   ####################################################
   ################# File saving and results checking #
   ####################################################
-  
-  
+
+
   # Transfer all *.ica and *.gica directories
   # Raises an exception if none are found
   def save_output_files
@@ -312,7 +312,7 @@ END
                                     cbrain_output_name,
                                     main_output_file_name,
                                     cbrain_parent_file,
-                                    input_files)    
+                                    input_files)
     params[:outfile_id] = main_output_file.id
 
     # Saves additional result files (individual analyses when the main
@@ -327,7 +327,7 @@ END
                   input_files)
       end
     end
-    
+
     # Saves the files converted to Nifti
     params[:converted_files].each do |minc_file_id,nifti_file_name|
       minc_file = Userfile.find(minc_file_id)
@@ -345,7 +345,7 @@ END
   # * cbrain_file_name  : the name of the file created in CBRAIN (e.g. "foo.txt")
   # * local_file_name   : the name of the local file to synchronize (e.g. "bar.txt")
   # * cbrain_parent_file: the name of the CBRAIN file under which the new CBRAIN file will be created
-  # * input_files       : an array containing the CBRAIN files that were used to produce this file.   
+  # * input_files       : an array containing the CBRAIN files that were used to produce this file.
   def save_file cbrain_file_type,cbrain_file_name,local_file_name,cbrain_parent_file,input_files
     self.addlog("Saving result file #{cbrain_file_name} as a child of #{cbrain_parent_file.name}")
     outputfile= safe_userfile_find_or_new(cbrain_file_type, :name => cbrain_file_name)
@@ -355,9 +355,9 @@ END
     self.addlog_to_userfiles_these_created_these( input_files, [ outputfile ] )
     self.addlog("Saved result file #{cbrain_file_name}")
     return outputfile
-  end  
+  end
 
-  
+
   # Returns true if error messages were detected.
   def error_messages?
     # Verifies if all tasks exited without error (do this after saving
@@ -376,7 +376,7 @@ END
     return false
   end
 
-  
+
   ##################################################
   ################# Utils methods ##################
   ##################################################
@@ -512,7 +512,7 @@ END
     end
     return name
   end
-  
+
   # A bash command to find a command among a list of possible
   # commands.
   # Parameters:
@@ -558,7 +558,7 @@ END
   #   * file_id: the id of the input file to pre-process
   #   * design_file_option: the corresponding option in the design file (e.g. "feat_files(42)")
   def pre_process_input_data_file cmds,file_id,design_file_option,new_options
-    
+
     # Converts minc files to nifti.
     converted_file_name , conversion_command  = converted_file_name_and_command(file_id)
     if conversion_command.present?
@@ -571,7 +571,7 @@ END
 
     # Adds new file to design file
     new_options[design_file_option] = "\"#{converted_file_name}\""
-    
+
     return converted_file_name
   end
 
@@ -603,7 +603,7 @@ END
       cmds << set_design_file_option(modified_design_file_path,"npts","${NPTS}")
     end
 
-    
+
     if params[:tr_auto] == "1"
       command=<<-END
 # Auto-corrects parameter fmri(tr) unless #{functional_file_name} was excluded or correction was already done.
@@ -621,7 +621,7 @@ END
       cmds << command
       cmds << set_design_file_option(modified_design_file_path,"tr","${TR}")
     end
-    
+
     if params[:totalvoxels_auto] == "1"
       command=<<-END
 # Auto-corrects parameter fmri(totalVoxels) unless #{functional_file_name} was excluded or correction was already done.
@@ -825,7 +825,7 @@ END
   # are identical, i.e. all the files have the same TR. If this is
   # not the case, prints a warning.
   # Parameters:
-  #  * cmds: an array that receives the (bash) commands to perform the check. 
+  #  * cmds: an array that receives the (bash) commands to perform the check.
   def add_cmd_check_trs_identical cmds
     command=<<-END
 # Checks if all files have the same TR (excluded files have no *.trvalue file).
@@ -850,11 +850,11 @@ END
     cmds << command
   end
 
-  
+
   # Check that all .fslinfo files (created by method extract_file_dimensions)
   # are identical, i.e. all the files have the same file dimensions.
   # Parameters:
-  #  * cmds: an array that receives the (bash) commands to perform the check. 
+  #  * cmds: an array that receives the (bash) commands to perform the check.
   def add_cmd_check_file_dimensions_identical cmds
     command=<<-END
 # Checks if all files have the same dimensions (excluded files have no .fslinfo file.
