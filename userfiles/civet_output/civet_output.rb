@@ -39,12 +39,55 @@ class CivetOutput < FileCollection
     self.list_files("verify").select { |f| f.name =~ /\.png$/ }
   end
 
-  def surface_dir
+  def surfaces_dir #:nodoc:
     "surfaces"
   end
 
-  def thickness_dir
+  def thickness_dir #:nodoc:
     "thickness"
   end
+
+  def surfaces_objs #:nodoc:
+    return @surfaces_objs unless @surfaces_objs.nil?
+    surfaces_dir         = self.surfaces_dir
+    surfaces_objs        = self.list_files(surfaces_dir).map(&:name).select { |n| n =~ /\.obj\z/ }
+    rsl_surfaces_objs    = surfaces_objs.select { |name| name =~ /_rsl_/ }
+    no_rsl_surfaces_objs = surfaces_objs - rsl_surfaces_objs
+    surfaces_objs        = no_rsl_surfaces_objs.sort + rsl_surfaces_objs.sort
+    surfaces_objs        = surfaces_objs.map { |file| Pathname.new(file).basename }
+    @surfaces_objs       = surfaces_objs
+  end
+
+  def overlays #:nodoc:
+    return @overlays unless @overlays.nil?
+    # Extract all the overlays
+    # 1. thickness
+    thickness_dir           = self.thickness_dir
+    thickness_txts          = self.list_files(thickness_dir).map(&:name).select { |n| n =~ /\.txt\z/ }
+    rsl_thickness_txts      = thickness_txts.select { |name| name =~ /_rsl_/ }
+    no_rsl_thickness_txts   = thickness_txts - rsl_thickness_txts
+    thickness_txts          = no_rsl_thickness_txts.sort + rsl_thickness_txts.sort
+    thickness_txts          = thickness_txts.map { |file| Pathname.new(file).basename }
+    thickness_txts_for_select = []
+    thickness_txts.each do |path|
+      full_path = "#{self.name}/#{thickness_dir}/#{path}"
+      thickness_txts_for_select << [path, full_path]
+    end
+    # 2. surfaces
+    surfaces_txts         = self.list_files(surfaces_dir).map(&:name).select { |n| n =~ /\.txt\z/ }
+    rsl_surfaces_txts     = surfaces_txts.select { |name| name =~ /_rsl_/ }
+    no_rsl_surfaces_txts  = surfaces_txts - rsl_surfaces_txts
+    surfaces_txts         = no_rsl_surfaces_txts.sort + rsl_surfaces_txts.sort
+    surfaces_txts         = surfaces_txts.map { |file| Pathname.new(file).basename }
+    surfaces_txts_for_select = []
+    surfaces_txts.each do |path|
+      full_path = "#{self.name}/#{surfaces_dir}/#{path}"
+      surfaces_txts_for_select << [path, full_path]
+
+    end
+    # 3. Combine
+    @overlays             = thickness_txts_for_select + surfaces_txts_for_select
+  end
+
 
 end
