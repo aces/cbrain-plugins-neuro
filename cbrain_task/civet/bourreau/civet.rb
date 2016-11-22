@@ -91,30 +91,31 @@ class CbrainTask::Civet < ClusterTask
 
     self.results_data_provider_id ||= collection ? collection.data_provider_id : t1.data_provider_id
 
+    input_symlink_base = prefix.present? ? "#{mincfiles_dir}/#{prefix}_#{dsid}" : "#{mincfiles_dir}/#{dsid}"
     # MODE A (collection) symlinks
     if collection
 
       t1ext = t1_name.match(/.gz$/i) ? ".gz" : ""
-      t1sym = "#{mincfiles_dir}/#{prefix}_#{dsid}_t1.mnc#{t1ext}"
+      t1sym = "#{input_symlink_base}_t1.mnc#{t1ext}"
       make_available(collection, t1sym, t1_name)
       return false unless validate_minc_file(t1sym)
 
       if mybool(file0[:multispectral]) || mybool(file0[:spectral_mask])
         if t2_name.present?
           t2ext = t2_name.match(/.gz$/i) ? ".gz" : ""
-          t2sym = "#{mincfiles_dir}/#{prefix}_#{dsid}_t2.mnc#{t2ext}"
+          t2sym = "#{input_symlink_base}_t2.mnc#{t2ext}"
           make_available(collection, t2sym, t2_name)
           return false unless validate_minc_file(t2sym)
         end
         if pd_name.present?
           pdext = pd_name.match(/.gz$/i) ? ".gz" : ""
-          pdsym = "#{mincfiles_dir}/#{prefix}_#{dsid}_pd.mnc#{pdext}"
+          pdsym = "#{input_symlink_base}_pd.mnc#{pdext}"
           make_available(collection, pdsym, pd_name)
           return false unless validate_minc_file(pdsym)
         end
         if mk_name.present?
           mkext = mk_name.match(/.gz$/i) ? ".gz" : ""
-          mksym = "#{mincfiles_dir}/#{prefix}_#{dsid}_mask.mnc#{mkext}"
+          mksym = "#{input_symlink_base}_mask.mnc#{mkext}"
           make_available(collection, mksym, mk_name)
           return false unless validate_minc_file(mksym)
         end
@@ -124,7 +125,7 @@ class CbrainTask::Civet < ClusterTask
 
       t1_name = t1.name
       t1ext   = t1_name.match(/.gz$/i) ? ".gz" : ""
-      t1sym   = "#{mincfiles_dir}/#{prefix}_#{dsid}_t1.mnc#{t1ext}"
+      t1sym   = "#{input_symlink_base}_t1.mnc#{t1ext}"
       make_available(t1,t1sym)
       return false unless validate_minc_file(t1sym)
 
@@ -133,7 +134,7 @@ class CbrainTask::Civet < ClusterTask
           t2      = Userfile.find(t2_id)
           t2_name = t2.name
           t2ext   = t2_name.match(/.gz$/i) ? ".gz" : ""
-          t2sym   = "#{mincfiles_dir}/#{prefix}_#{dsid}_t2.mnc#{t2ext}"
+          t2sym   = "#{input_symlink_base}_t2.mnc#{t2ext}"
           make_available(t2,t2sym)
           return false unless validate_minc_file(t2sym)
         end
@@ -142,7 +143,7 @@ class CbrainTask::Civet < ClusterTask
           pd      = Userfile.find(pd_id)
           pd_name = pd.name
           pdext   = pd_name.match(/.gz$/i) ? ".gz" : ""
-          pdsym   = "#{mincfiles_dir}/#{prefix}_#{dsid}_pd.mnc#{pdext}"
+          pdsym   = "#{input_symlink_base}_pd.mnc#{pdext}"
           make_available(pd,pdsym)
           return false unless validate_minc_file(pdsym)
         end
@@ -151,7 +152,7 @@ class CbrainTask::Civet < ClusterTask
           mk      = Userfile.find(mk_id)
           mk_name = mk.name
           mkext   = mk_name.match(/.gz$/i) ? ".gz" : ""
-          mksym   = "#{mincfiles_dir}/#{prefix}_#{dsid}_mask.mnc#{mkext}"
+          mksym   = "#{input_symlink_base}_mask.mnc#{mkext}"
           make_available(mk,mksym)
           return false unless validate_minc_file(mksym)
         end
@@ -209,6 +210,10 @@ class CbrainTask::Civet < ClusterTask
     prefix = file0[:prefix] || "unkpref"
     dsid   = file0[:dsid]   || "unkdsid"
 
+    is_version_1_1_12         = self.tool_config.is_version("1.1.12")
+    is_at_least_version_2_0_0 = self.tool_config.is_at_least_version("2.0.0")
+    is_at_least_version_2_1_0 = self.tool_config.is_at_least_version("2.1.0")
+
     # -----------------------------------------------------------
     # More validations of params that are substituted in commands
     # -----------------------------------------------------------
@@ -221,10 +226,10 @@ class CbrainTask::Civet < ClusterTask
     # Model
     if params[:model].present?
       cb_error "Bad model name."         unless params[:model]        =~ /^\s*[\w\.]+\s*$/
-      cb_error "Model is not valid for this CIVET version" if params[:model] == "ADNInl" && !self.tool_config.is_version("1.1.12")
-      cb_error "Model is not valid for this CIVET version" if params[:model] == "icbm152nl_09a" && !self.tool_config.is_at_least_version("2.0.0")
-      cb_error "Model is not valid for this CIVET version" if params[:model] == "icbm152nl_09s" && !self.tool_config.is_at_least_version("2.0.0")
-      cb_error "Model is not valid for this CIVET version" if params[:model] == "ADNIhires" && !self.tool_config.is_at_least_version("2.0.0")
+      cb_error "Model is not valid for this CIVET version" if params[:model] == "ADNInl"        && !is_version_1_1_12
+      cb_error "Model is not valid for this CIVET version" if params[:model] == "icbm152nl_09a" && !is_at_least_version_2_0_0
+      cb_error "Model is not valid for this CIVET version" if params[:model] == "icbm152nl_09s" && !is_at_least_version_2_0_0
+      cb_error "Model is not valid for this CIVET version" if params[:model] == "ADNIhires"     && !is_at_least_version_2_0_0
     end
 
     # Interp
@@ -244,7 +249,11 @@ class CbrainTask::Civet < ClusterTask
 
     # LSQ
     if params[:lsq].present?
-      cb_error "Bad LSQ value."         unless params[:lsq]           =~ /^\s*(?:6|9|12)\s*$/
+      if is_at_least_version_2_1_0
+        cb_error "Bad LSQ value."         unless params[:lsq]           =~ /^\s*(?:0|6|9|12)\s*$/
+      else
+        cb_error "Bad LSQ value."         unless params[:lsq]           =~ /^\s*(?:6|9|12)\s*$/
+      end
     end
 
     # Resamp surf kern area
@@ -274,7 +283,11 @@ class CbrainTask::Civet < ClusterTask
     args += "-N3-distance #{params[:N3_distance].bash_escape} "     if params[:N3_distance].present?
     args += "-headheight #{params[:headheight].bash_escape} "       if params[:headheight].present?        && !options_to_ignore[:headheight]
     args += "-mask-blood-vessels "                                  if mybool(params[:mask_blood_vessels]) && !options_to_ignore[:mask_blood_vessels]
-    args += "-lsq#{params[:lsq]} "                                  if params[:lsq] && params[:lsq].to_i != 9 # there is NO -lsq9 option!
+    if params[:lsq] != 0
+      args += "-lsq#{params[:lsq]} "                                if params[:lsq] && params[:lsq].to_i != 9 # there is NO -lsq9 option!
+    else
+      args += "-input_is_stx "
+    end
     args += "-no-surfaces "                                         if mybool(params[:no_surfaces])
     args += "-correct-pve "                                         if mybool(params[:correct_pve])
     args += "-hi-res-surfaces "                                     if mybool(params[:high_res_surfaces])  && !options_to_ignore[:high_res_surfaces]
@@ -283,12 +296,30 @@ class CbrainTask::Civet < ClusterTask
     args += "-multispectral "                                       if mybool(file0[:multispectral])
     args += "-spectral_mask "                                       if mybool(file0[:spectral_mask])
 
+    # PVE
+    if is_at_least_version_2_1_0
+      if    params[:pve] == "classic"
+        args += "-no-correct-pve -no-subcortical -no-mask-cerebellum "
+      elsif params[:pve] == "advanced"
+        args += "-correct-pve -subcortical -mask-cerebellum "
+      end
+    end
+
     # Thickness methods and kernel
     if ( params[:thickness_method].present? &&
          params[:thickness_kernel].present? &&
          is_valid_integer_list(params[:thickness_kernel], allow_blanks: false)
        )
-      args += "-thickness #{params[:thickness_method].bash_escape} #{params[:thickness_kernel].bash_escape} "
+      if is_at_least_version_2_1_0
+        thickness_methods = Array(params[:thickness_method])
+        thickness_methods = thickness_methods & ["tlaplace", "tlink","tfs"]
+        thickness_methods = thickness_methods.unshift(params[:thickness_method_for_qc]) if params[:thickness_method_for_qc].present?
+        thickness_string  = thickness_methods.uniq.join(":")
+      else
+        # Safegard should already be a String
+        thickness_string  = Array(params[:thickness_method])[0].to_s
+      end
+      args += "-thickness #{thickness_string.bash_escape} #{params[:thickness_kernel].bash_escape} "
     end
 
     # Surface resampling
@@ -302,7 +333,7 @@ class CbrainTask::Civet < ClusterTask
       # Atlas
       if params[:atlas].present? && ! options_to_ignore[:atlas]
         atlas_name = params[:atlas].strip
-        if self.tool_config.is_at_least_version("2.0.0")
+        if is_at_least_version_2_0_0
           args += "-surface-atlas #{atlas_name.bash_escape} "
         else
           args += "-surface-atlas $MNI_CIVET_ROOT/models/AAL_atlas_left.txt $MNI_CIVET_ROOT/models/AAL_atlas_right.txt " if atlas_name == "AAL"
@@ -331,8 +362,10 @@ class CbrainTask::Civet < ClusterTask
       args += "-reset-from #{reset_from.bash_escape} "
     end
 
-    mincfiles_dir = "mincfiles_input"
-    civet_command = "CIVET_Processing_Pipeline -prefix #{prefix.bash_escape} -source #{mincfiles_dir} -target civet_out -spawn #{args} -run #{dsid.bash_escape}"
+    mincfiles_dir  = "mincfiles_input"
+    civet_command  = "CIVET_Processing_Pipeline -source #{mincfiles_dir} -target civet_out -spawn #{args} "
+    civet_command += "-prefix #{prefix.bash_escape} " if prefix.present?
+    civet_command += "-run #{dsid.bash_escape}"       if dsid.present?
 
     self.addlog("Full CIVET command:\n  #{civet_command.gsub(/ -/, "\n  -")}") if self.user.has_role? :admin_user
 

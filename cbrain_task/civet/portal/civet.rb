@@ -133,7 +133,11 @@ class CbrainTask::Civet < PortalTask
   def before_form #:nodoc:
     params    = self.params
 
-    params[:model] = "icbm152nl_09s" if self.tool_config && self.tool_config.is_version("2.0.0")
+    params[:model] = "icbm152nl_09s" if self.tool_config && self.tool_config.is_at_least_version("2.0.0")
+    if self.tool_config && self.tool_config.is_at_least_version("2.1.0")
+      params[:thickness_method]        = ["tlaplace"]
+      params[:thickness_method_for_qc] = "tlaplace"
+    end
 
     file_ids  = params[:interface_userfile_ids]
 
@@ -238,6 +242,8 @@ class CbrainTask::Civet < PortalTask
       dsid = (fa[:dsid] || "").strip
       fa[:dsid] = dsid
 
+      is_at_least_version_2_1_0 = self.tool_config && self.tool_config.is_at_least_version("2.1.0")
+
       # Verify the subject ID
       message = nil
       if dsid.blank?
@@ -258,7 +264,9 @@ class CbrainTask::Civet < PortalTask
 
       # Verify the prefix
       message = nil
-      if prefix.blank?
+      if prefix.blank?  && is_at_least_version_2_1_0
+        message = nil
+      elsif prefix.blank?
         message = " is blank?"
       elsif prefix !~ /^\w[\w\-]*$/
         message = " is not a simple identifier."
@@ -439,8 +447,8 @@ class CbrainTask::Civet < PortalTask
         prefix = Regexp.last_match[1]
         dsid   = Regexp.last_match[2]
       else
-        prefix = "prefix"
-        dsid   = "subject"   # maybe "auto_#{idx}"
+        prefix = self.tool_config && !self.tool_config.is_version("2.1.0") ? "prefix"  : ""
+        dsid   = "subject"  # maybe "auto_#{idx}"
       end
 
       file_args_array << {
@@ -496,8 +504,8 @@ class CbrainTask::Civet < PortalTask
         prefix = Regexp.last_match[1]
         dsid   = Regexp.last_match[2]
       else
-        prefix = "prefix"
-        dsid   = "subject"   # maybe "auto_#{idx}"
+        prefix = self.tool_config && !self.tool_config.is_version("2.1.0") ? "prefix"  : ""
+        dsid   = "subject"  # maybe "auto_#{idx}"
       end
 
       file_args_array << {
@@ -569,7 +577,6 @@ class CbrainTask::Civet < PortalTask
     combiner.description      = study_name
     combiner.status           = 'New'
     combiner.group_id         = self.group_id
-    combiner.launch_time      = self.launch_time
     combiner.batch_id         = self.batch_id
     combiner.params = {
       :civet_study_name     => study_name,
@@ -595,7 +602,6 @@ class CbrainTask::Civet < PortalTask
     qc.description = params[:study_name]
     qc.status      = 'New'
     qc.group_id    = self.group_id
-    qc.launch_time = self.launch_time
     qc.batch_id    = self.batch_id
     qc.params      = { :study_from_task_id => cid }
     qc.add_prerequisites_for_setup(cid)
