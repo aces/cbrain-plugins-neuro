@@ -3,7 +3,7 @@
 	"tool-version" : "5.0.0",
 	"description" : "FIRST is a model-based segmentation and registration tool, based on a Bayesian model of shape and appearance for subcortical structures.",
 	"command-line" : "run_first_all [METHOD] [BRAIN_EXTRACTED] [SPECIFIED_STRUCTURE] [AFFINE] [THREE_STAGE] [VERBOSE] [INPUT_FILE] [OUTPUT_NAME]",
-	"schema-version" : "0.2",
+	"schema-version" : "0.4",
 	"inputs" : [{
 		"id" : "method",
 		"name" : "Method",
@@ -12,7 +12,7 @@
 		"optional" : true,
 		"list" : false,
 		"command-line-flag" : "-m",
-		"command-line-key" : "[METHOD]"
+		"value-key" : "[METHOD]"
 	}, {
 		"id" : "input_file",
 		"name" : "Input file",
@@ -21,7 +21,7 @@
 		"optional" : false,
 		"list" : false,
 		"command-line-flag" : "-i",
-		"command-line-key" : "[INPUT_FILE]"
+		"value-key" : "[INPUT_FILE]"
 	}, {
 		"id" : "output_name",
 		"name" : "Output name",
@@ -31,7 +31,7 @@
 		"list" : false,
 		"default-value" : "first_output",
 		"command-line-flag" : "-o",
-		"command-line-key" : "[OUTPUT_NAME]"
+		"value-key" : "[OUTPUT_NAME]"
 	}, {
 		"id" : "brain_extracted",
 		"name" : "Brain extracted",
@@ -40,7 +40,7 @@
 		"optional" : true,
 		"list" : false,
 		"command-line-flag" : "-b",
-		"command-line-key" : "[BRAIN_EXTRACTED]"
+		"value-key" : "[BRAIN_EXTRACTED]"
 	}, {
 		"id" : "specified_structure",
 		"name" : "Specify structure",
@@ -49,7 +49,7 @@
 		"optional" : true,
 		"list" : false,
 		"command-line-flag" : "-s",
-		"command-line-key" : "[SPECIFIED_STRUCTURE]"
+		"value-key" : "[SPECIFIED_STRUCTURE]"
 	}, {
 		"id" : "affine",
 		"name" : "Use Affine Matrix",
@@ -58,7 +58,7 @@
 		"optional" : true,
 		"list" : false,
 		"command-line-flag" : "-a",
-		"command-line-key" : "[AFFINE]"
+		"value-key" : "[AFFINE]"
 	}, {
 		"id" : "three_stage",
 		"name" : "Three stage registration",
@@ -67,7 +67,7 @@
 		"optional" : true,
 		"list" : false,
 		"command-line-flag" : "-3",
-		"command-line-key" : "[THREE_STAGE]"
+		"value-key" : "[THREE_STAGE]"
 	}, {
 		"id" : "verbose",
 		"name" : "Verbose",
@@ -76,7 +76,7 @@
 		"optional" : true,
 		"list" : false,
 		"command-line-flag" : "-v",
-		"command-line-key" : "[VERBOSE]"
+		"value-key" : "[VERBOSE]"
 	}],
 	"output-files" :  [{
 		"id" : "output_directory",

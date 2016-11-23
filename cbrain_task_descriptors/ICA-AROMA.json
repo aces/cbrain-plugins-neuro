@@ -8,7 +8,7 @@
     "image" : "mcin/ica-aroma:latest",
     "index" : "http://index.docker.io"
   },
-  "schema-version" : "0.2",
+  "schema-version" : "0.4",
   "walltime-estimate" : 5000,
   "inputs" : [{
     "id" : "outdir",
@@ -18,7 +18,7 @@
     "optional" : false,
     "list" : false,
     "command-line-flag" : "-out",
-    "command-line-key" : "[OUTPUT_DIR]",
+    "value-key" : "[OUTPUT_DIR]",
     "default-value" : "AROMA_output"
   }, {
     "id" : "infile",
@@ -28,7 +28,7 @@
     "optional" : true,
     "list" : false,
     "command-line-flag" : "-in",
-    "command-line-key" : "[INPUT_FILE]",
+    "value-key" : "[INPUT_FILE]",
     "requires-inputs" : ["realignment_file", "affine_file", "warp_file"]
   }, {
     "id" : "affine_file",
@@ -38,7 +38,7 @@
     "optional" : true,
     "list" : false,
     "command-line-flag" : "-affmat",
-    "command-line-key" : "[AFFINE_FILE]",
+    "value-key" : "[AFFINE_FILE]",
     "requires-inputs" : ["infile"]
   }, {
     "id" : "warp_file",
@@ -48,7 +48,7 @@
     "optional" : true,
     "list" : false,
     "command-line-flag" : "-warp",
-    "command-line-key" : "[WARP_FILE]",
+    "value-key" : "[WARP_FILE]",
     "requires-inputs" : ["infile"]
   }, {
     "id" : "realignment_file",
@@ -58,7 +58,7 @@
     "optional" : true,
     "list" : false,
     "command-line-flag" : "-mc",
-    "command-line-key" : "[REALIGNMENT_FILE]",
+    "value-key" : "[REALIGNMENT_FILE]",
     "requires-inputs" : ["infile"]
   }, {
     "id" : "mask_file",
@@ -68,7 +68,7 @@
     "optional" : true,
     "list" : false,
     "command-line-flag" : "-mask",
-    "command-line-key" : "[MASK_FILE]",
+    "value-key" : "[MASK_FILE]",
     "requires-inputs" : ["infile"]
   }, {
     "id" : "melodic_dir",
@@ -78,7 +78,7 @@
     "optional" : true,
     "list" : false,
     "command-line-flag" : "-md",
-    "command-line-key" : "[MELODIC_DIR]"
+    "value-key" : "[MELODIC_DIR]"
   }, {
     "id" : "feat_dir",
     "name" : "FEAT directory",
@@ -87,7 +87,7 @@
     "optional" : true,
     "list" : false,
     "command-line-flag" : "-feat",
-    "command-line-key" : "[FEAT_DIR]",
+    "value-key" : "[FEAT_DIR]",
     "disables-inputs" : ["realignment_file", "affine_file", "warp_file", "mask_file"]
   }, {
     "id" : "tr_num",
@@ -97,7 +97,7 @@
     "optional" : true,
     "list" : false,
     "command-line-flag" : "-tr",
-    "command-line-key" : "[TR_NUM]",
+    "value-key" : "[TR_NUM]",
     "minimum" : 0
   }, {
     "id" : "dims_num",
@@ -107,19 +107,19 @@
     "optional" : true,
     "list" : false,
     "command-line-flag" : "-dim",
-    "command-line-key" : "[DIMS_NUM]",
+    "value-key" : "[DIMS_NUM]",
     "integer" : true,
     "minimum" : 0
   }, {
     "id" : "denoising_strategy",
     "name" : "Denoising strategy",
-    "type" : "Enum",
-    "enum-value-choices" : ["no","nonaggr","aggr","both"],
+    "type" : "String",
+    "value-choices" : ["no","nonaggr","aggr","both"],
     "description" : "Type of denoising strategy (default is nonaggr). Can be \"no\" (only classification, no denoising), \"nonaggr\" (non-aggressive denoising, i.e. partial component regression; default), \"aggr\" (aggressive denoising, i.e. full component regression), \"both\" (both aggressive and non-aggressive denoising, two outputs).",
     "optional" : true,
     "list" : false,
     "command-line-flag" : "-den",
-    "command-line-key" : "[DENOISING_STRATEGY]"
+    "value-key" : "[DENOISING_STRATEGY]"
   }],
   "output-files" :  [{
     "id" : "folder_out",
