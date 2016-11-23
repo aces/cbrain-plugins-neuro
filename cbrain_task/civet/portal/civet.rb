@@ -409,7 +409,7 @@ class CbrainTask::Civet < PortalTask
     # that are clearly 't1' files, based on the filename.
     t1_files = []
     minc_files.each do |minc|
-      t1_files << minc if minc.match(/_t1\b/i)
+      t1_files << minc if minc.match(/(\b|_)t1(\b|_)/i)
     end
 
     # If we have any, we remove them from the total list of minc files.
@@ -430,7 +430,7 @@ class CbrainTask::Civet < PortalTask
     # For all remaining minc files, we assume they are t1s
     # and we process them without any t2, pd and mk.
     minc_files.each do |minc|
-      next if minc.match(/_(t2|pd|mask)\b/i)  # ignore spurious t2s, pds, and masks
+      next if minc.match(/(\b|_)(t2|pd|mask)(\b|_)/i)  # ignore spurious t2s, pds, and masks
       minc_groups << [ minc, nil, nil, nil ]
     end
 
@@ -443,9 +443,9 @@ class CbrainTask::Civet < PortalTask
       pd_name = group[2]
       mk_name = group[3]
 
-      if t1_name.match(/(\w+)_(\w+)_t1\b/i)
+      if t1_name.match(/(\w+)(\W+|_)(\w+)(\W+|_)t1(\b|_)/i)
         prefix = Regexp.last_match[1]
-        dsid   = Regexp.last_match[2]
+        dsid   = Regexp.last_match[3]
       else
         prefix = self.tool_config && !self.tool_config.is_version("2.1.0") ? "prefix"  : ""
         dsid   = "subject"  # maybe "auto_#{idx}"
@@ -493,16 +493,17 @@ class CbrainTask::Civet < PortalTask
       mk_id   = nil
 
       # Find other MINC userfiles with similar names, but with _t2, _pd or _mask instead of _t1
-      if t1_name =~ /_t1/i
+      if t1_name =~ /(\b|_)t1(\b|_)/i
         all_access = SingleFile.find_all_accessible_by_user(user) # a relation
-        t2_id = all_access.where(:name => t1_name.sub("_t1","_t2")).limit(1).raw_first_column("#{Userfile.table_name}.id")[0]
-        pd_id = all_access.where(:name => t1_name.sub("_t1","_pd")).limit(1).raw_first_column("#{Userfile.table_name}.id")[0]
-        mk_id = all_access.where(:name => t1_name.sub("_t1","_mask")).limit(1).raw_first_column("#{Userfile.table_name}.id")[0]
+        # Names in DB are not case sensitive, so searching for _t2 matches files with _T2
+        t2_id = all_access.where(:name => t1_name.sub(/(\b|_)t1(\b|_)/i,'\1t2\2')).limit(1).raw_first_column("#{Userfile.table_name}.id")[0]
+        pd_id = all_access.where(:name => t1_name.sub(/(\b|_)t1(\b|_)/i,'\1pd\2')).limit(1).raw_first_column("#{Userfile.table_name}.id")[0]
+        mk_id = all_access.where(:name => t1_name.sub(/(\b|_)t1(\b|_)/i,'\1mask\2')).limit(1).raw_first_column("#{Userfile.table_name}.id")[0]
       end
 
-      if t1_name.match(/(\w+)_(\w+)_t1\b/i)
+      if t1_name.match(/(\w+)(\W+|_)(\w+)(\W+|_)t1(\b|_)/i)
         prefix = Regexp.last_match[1]
-        dsid   = Regexp.last_match[2]
+        dsid   = Regexp.last_match[3]
       else
         prefix = self.tool_config && !self.tool_config.is_version("2.1.0") ? "prefix"  : ""
         dsid   = "subject"  # maybe "auto_#{idx}"
@@ -646,14 +647,14 @@ class CbrainTask::Civet < PortalTask
     pd_name = nil
     mk_name = nil
 
-    expect = t1.sub(/_t1\b/i,"_t2")
-    t2_name = expect if minclist.detect { |n| n.downcase == expect.downcase }
+    expect = t1.sub(/(\b|_)t1(\b|_)/i,'\1t2\2')
+    t2_name = minclist.detect { |n| n.downcase == expect.downcase }
 
-    expect = t1.sub(/_t1\b/i,"_pd")
-    pd_name = expect if minclist.detect { |n| n.downcase == expect.downcase }
+    expect = t1.sub(/(\b|_)t1(\b|_)/i,'\1pd\2')
+    pd_name = minclist.detect { |n| n.downcase == expect.downcase }
 
-    expect = t1.sub(/_t1\b/i,"_mask")
-    mk_name = expect if minclist.detect { |n| n.downcase == expect.downcase }
+    expect = t1.sub(/(\b|_)t1(\b|_)/i,'\1mask\2')
+    mk_name = minclist.detect { |n| n.downcase == expect.downcase }
 
     minclist = minclist - [ t2_name, pd_name, mk_name ]
 
