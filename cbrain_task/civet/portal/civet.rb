@@ -646,14 +646,14 @@ class CbrainTask::Civet < PortalTask
     pd_name = nil
     mk_name = nil
 
-    expect = t1.sub("_t1","_t2")
-    t2_name = expect if minclist.include?(expect)
+    expect = t1.sub(/_t1\b/i,"_t2")
+    t2_name = expect if minclist.detect { |n| n.downcase == expect.downcase }
 
-    expect = t1.sub("_t1","_pd")
-    pd_name = expect if minclist.include?(expect)
+    expect = t1.sub(/_t1\b/i,"_pd")
+    pd_name = expect if minclist.detect { |n| n.downcase == expect.downcase }
 
-    expect = t1.sub("_t1","_mask")
-    mk_name = expect if minclist.include?(expect)
+    expect = t1.sub(/_t1\b/i,"_mask")
+    mk_name = expect if minclist.detect { |n| n.downcase == expect.downcase }
 
     minclist = minclist - [ t2_name, pd_name, mk_name ]
 
