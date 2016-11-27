@@ -398,6 +398,26 @@ class CbrainTask::Civet < ClusterTask
       local_script << "/bin/cp -p -r #{ccol_path.to_s.bash_escape} civet_out/#{dsid}\n"
     end
 
+    # Provide logs of failed stages in STDOUT, if any.
+    local_script << <<-"FAILED_STAGED_LOGS"
+
+      # This block will print out the content of the logs
+      # of failed stages.
+      if test -d civet_out/#{dsid.bash_escape}/logs ; then
+        pushd civet_out/#{dsid.bash_escape}/logs >/dev/null
+        failed_stages=$(ls -1tr | grep -F .failed | sed -e 's/.failed//')
+        for fail in $failed_stages ; do
+          echo ""
+          echo "--------------------------------------------"
+          echo "Logs for failed stage $fail :"
+          echo "--------------------------------------------"
+          cat $fail.log
+        done
+        popd >/dev/null
+      fi
+
+    FAILED_STAGED_LOGS
+
     local_script
   end
 
