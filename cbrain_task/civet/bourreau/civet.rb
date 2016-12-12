@@ -65,7 +65,7 @@ class CbrainTask::Civet < ClusterTask
     collection_id = nil if collection_id.blank?
     collection    = nil # the variable we use to detect modes
     if collection_id # MODE A: collection
-      collection = Userfile.find(collection_id)
+      collection = FileCollection.find(collection_id)
       unless collection
         self.addlog("Could not find active record entry for FileCollection '#{collection_id}'.")
         return false
@@ -77,7 +77,7 @@ class CbrainTask::Civet < ClusterTask
       mk_name = file0[:mk_name]  # can be nil
     else # MODE B: singlefiles
       t1_id  = file0[:t1_id]  # cannot be nil
-      t1     = Userfile.find(t1_id)
+      t1     = SingleFile.find(t1_id)
       unless t1
         self.addlog("Could not find active record entry for singlefile '#{t1_id}'.")
         return false
@@ -131,7 +131,7 @@ class CbrainTask::Civet < ClusterTask
 
       if mybool(file0[:multispectral]) || mybool(file0[:spectral_mask])
         if t2_id.present?
-          t2      = Userfile.find(t2_id)
+          t2      = SingleFile.find(t2_id)
           t2_name = t2.name
           t2ext   = t2_name.match(/.gz$/i) ? ".gz" : ""
           t2sym   = "#{input_symlink_base}_t2.mnc#{t2ext}"
@@ -140,7 +140,7 @@ class CbrainTask::Civet < ClusterTask
         end
 
         if pd_id.present?
-          pd      = Userfile.find(pd_id)
+          pd      = SingleFile.find(pd_id)
           pd_name = pd.name
           pdext   = pd_name.match(/.gz$/i) ? ".gz" : ""
           pdsym   = "#{input_symlink_base}_pd.mnc#{pdext}"
@@ -149,7 +149,7 @@ class CbrainTask::Civet < ClusterTask
         end
 
         if mk_id.present?
-          mk      = Userfile.find(mk_id)
+          mk      = SingleFile.find(mk_id)
           mk_name = mk.name
           mkext   = mk_name.match(/.gz$/i) ? ".gz" : ""
           mksym   = "#{input_symlink_base}_mask.mnc#{mkext}"
@@ -205,7 +205,7 @@ class CbrainTask::Civet < ClusterTask
   def cluster_commands_single(options_to_ignore={}) #:nodoc:
     params    = self.params
     file_args = params[:file_args] || {} # this used to contain many entrie; now just one: "0"
-    file0     = params[:file_args]["0"]  # we require this single entry for info on the data files
+    file0     = file_args["0"]           # we require this single entry for info on the data files
 
     prefix = file0[:prefix] || "unkpref"
     dsid   = file0[:dsid]   || "unkdsid"
@@ -393,9 +393,9 @@ class CbrainTask::Civet < ClusterTask
       ccol.sync_to_cache
       ccol_path = ccol.cache_full_path
       FileUtils.remove_entry("civet_out/#{dsid}",true)
-      #FileUtils.cp_r(ccol_path,"civet_out/#{dsid}")
       local_script << "echo Copying fake output\n"
       local_script << "/bin/cp -p -r #{ccol_path.to_s.bash_escape} civet_out/#{dsid}\n"
+      local_script << "echo Stopped processing all pipelines." # because we check for that
     end
 
     local_script
@@ -459,7 +459,16 @@ class CbrainTask::Civet < ClusterTask
       end
       self.addlog("Error: not all processing stages of this CIVET completed successfully.")
       self.addlog("We found these files in 'logs' : #{badnews.sort.join(', ')}")
+      self.addlog("Trigger the recovery code to force a cleanup and a try again.")
       return false # Failed On Cluster
+    end
+
+    # Let's make sure it ran OK, test #3
+    out = File.read(self.stdout_cluster_filename) rescue "(No output)"
+    if out !~ /^Stopped processing all pipelines/  # ^ in regex because multi-line string
+      self.addlog("Error: could not find sentence indicating CIVET finished in its stdout.")
+      self.addlog("Trigger the recovery code to force a cleanup and a try again.")
+      return false # yep, Failed On Cluster
     end
 
     # Create new CivetOutput
@@ -535,10 +544,52 @@ class CbrainTask::Civet < ClusterTask
       end
     end
 
+    # In case they dropped out of the cache between first setup and failure recovery:
+    resync_input_files()
+
     true
   end
 
   private
+
+  # Resync input files, in case we are in recovery from Failed On Cluster.
+  def resync_input_files #:nodoc:
+    params       = self.params        || {}
+    file_args    = params[:file_args] || {}
+
+    cb_error("This CIVET task use the old multi-CIVET structure and cannot be restarted.") if file_args.size != 1
+
+    collection_id = params[:collection_id]
+    if collection_id.present? # MODE A: collection
+      addlog("Resyncing input FileCollection ##{collection_id}.")
+      collection = FileCollection.find(collection_id)
+      collection.sync_to_cache
+    else # MODE B: individual files
+      file0  = file_args["0"].presence || cb_error("Params structure error!")
+      t1_id  = file0[:t1_id]  # cannot be nil
+      t2_id  = file0[:t2_id]  # can be nil
+      pd_id  = file0[:pd_id]  # can be nil
+      mk_id  = file0[:mk_id]  # can be nil
+
+      addlog("Resyncing input T1 ##{t1_id}.")
+      SingleFile.find_by_id(t1_id).sync_to_cache
+
+      if t2_id.present?
+        addlog("Resyncing input T2 ##{t2_id}.")
+        SingleFile.find_by_id(t2_id).sync_to_cache
+      end
+
+      if pd_id.present?
+        addlog("Resyncing input PD ##{pd_id}.")
+        SingleFile.find_by_id(pd_id).sync_to_cache
+      end
+
+      if mk_id.present?
+        addlog("Resyncing input MASK ##{mk_id}.")
+        SingleFile.find_by_id(mk_id).sync_to_cache
+      end
+    end
+  end
 
   # Makes a quick check to ensure the input files
   # are really MINC files.
