@@ -8,7 +8,7 @@
     "image" : "mcin/docker-fsl:latest",
     "index" : "http://index.docker.io"
   },
-  "schema-version" : "0.2",
+  "schema-version" : "0.4",
   "walltime-estimate" : 5000,
   "inputs" : [{
     "id"          : "inputdir",
@@ -16,35 +16,35 @@
     "type"        : "File",
     "description" : "A bedpostX directory",
     "optional" : false,
-    "command-line-key" : "[INPUT_DIR]"
+    "value-key" : "[INPUT_DIR]"
   },{
     "id"          : "basename",
     "name"        : "Base name",
     "type"        : "String",
     "description" : "Basename for samples files - e.g. 'merged'",
     "optional" : false,
-    "command-line-key" : "[BASENAME]"
+    "value-key" : "[BASENAME]"
   },{
     "id"          : "maskname",
     "name"        : "Mask name",
     "type"        : "String",
     "description" : "Bet binary mask file in diffusion space",
     "optional" : false,
-    "command-line-key" : "[MASKNAME]"
+    "value-key" : "[MASKNAME]"
   },{
     "id"          : "seedfile",
     "name"        : "Seed file",
     "type"        : "File",
     "description" : "Seed volume or list (ascii text file) of volumes and/or surfaces",
     "optional" : false,
-    "command-line-key" : "[SEEDFILE]"
+    "value-key" : "[SEEDFILE]"
   },{
     "id"          : "finaldir",
     "name"        : "Directory to put the final volumes in",
     "type"        : "String",
     "description" : "Directory to put the final volumes in - code makes this directory - default='logdir'",
     "optional" : false,
-    "command-line-key" : "[FINALDIR]"
+    "value-key" : "[FINALDIR]"
   },{
     "id"          : "forcedir",
     "name"        : "Use the actual directory name given",
@@ -52,7 +52,7 @@
     "default-value" : true,
     "description" : "Use the actual directory name given - i.e. don't add + to make a new directory",
     "command-line-flag" : "--forcedir",
-    "command-line-key" : "[FORCEDIR]"
+    "value-key" : "[FORCEDIR]"
   },{
     "id"          : "outputpath",
     "name"        : "Output path",
@@ -60,7 +60,7 @@
     "description" : "Output path distribution",
     "default-value" : true,
     "command-line-flag" : "--opd",
-    "command-line-key" : "[OPD]"
+    "value-key" : "[OPD]"
   },{
     "id"          : "pathdistribution",
     "name"        : "Correct path distribution",
@@ -68,7 +68,7 @@
     "default-value" : true,
     "description" : "Correct path distribution for the length of the pathways",
     "command-line-flag" : "--pd",
-    "command-line-key" : "[PD]"
+    "value-key" : "[PD]"
   },{
     "id"          : "outseeds",
     "name"        : "Output seeds",
@@ -76,28 +76,28 @@
     "description" : "Output seeds to targets",
     "default-value" : true,
     "command-line-flag" : "--os2t",
-    "command-line-key" : "[OS2T]"
+    "value-key" : "[OS2T]"
   },{
     "id"          : "targetmasks",
     "name"        : "File containing a list of target masks",
     "type"        : "File",
     "description" : "File containing a list of target masks - for seeds_to_targets classification",
     "optional" : false,
-    "command-line-key" : "[TARGETMASKS]"
+    "value-key" : "[TARGETMASKS]"
   },{
     "id"          : "xfm",
     "name"        : "Transform taking seed space to DTI space",
     "type"        : "String",
     "description" : "Transform taking seed space to DTI space (either FLIRT matrix or FNIRT warpfield) - default is identity",
     "optional" : false,
-    "command-line-key" : "[XFM]"
+    "value-key" : "[XFM]"
   },{
     "id"          : "infxfm",
     "name"        : "Transform taking DTI space to seed space",
     "type"        : "String",
     "description" : "Transform taking DTI space to seed space (compulsory when using a warpfield for seeds_to_dti)",
     "optional" : false,
-    "command-line-key" : "[INVXFM]"
+    "value-key" : "[INVXFM]"
   },{
     "id" : "outdir",
     "name" : "Output directory",
@@ -105,7 +105,7 @@
     "description" : "Output directory name.",
     "optional" : false,
     "list" : false,
-    "command-line-key" : "[OUTPUT_DIR]",
+    "value-key" : "[OUTPUT_DIR]",
     "default-value" : "probtrackx2_output"
   }],
   "output-files" :  [{
