@@ -3,7 +3,7 @@
   "tool-version" : "5.0.0",
   "description" : "General pipeline for processing anatomical images (e.g. T1-weighted scans) via FSL tools. The stages include reorienting the images to the standard (MNI) orientation [fslreorient2std], automatically cropping the image [robustfov], bias-field correction (RF/B1-inhomogeneity-correction) [FAST], registration to standard space (linear and non-linear) [FLIRT and FNIRT], brain-extraction [FNIRT-based or BET], tissue-type segmentation [FAST], and subcortical structure segmentation [FIRST]",
   "command-line" : "fsl_anat [INPUT_FILE] [INPUT_DIR] [OUTPUT_DIR] [CLOBBER_FLAG] [WEAKBIAS_FLAG] [NO_REORIENT_FLAG] [NO_CROP_FLAG] [NO_BIAS_FLAG] [NO_REGISTRATION_FLAG] [NO_NONLINEAR_REG_FLAG] [NO_SEG_FLAG] [NO_SUBCORTSEG_FLAG] [NO_SEARCH_FLAG] [NO_CLEANUP_FLAG] [BIAS_FIELD_SMOOTHING_VAL] [IMAGE_TYPE] [BET_F_PARAM]",
-  "schema-version" : "0.2",
+  "schema-version" : "0.4",
   "walltime-estimate" : 16000,
   "inputs" : [{
     "id" : "infile",
@@ -13,7 +13,7 @@
     "optional" : true,
     "list" : false,
     "command-line-flag" : "-i",
-    "command-line-key" : "[INPUT_FILE]"
+    "value-key" : "[INPUT_FILE]"
   }, {
     "id" : "indir",
     "name" : "Input Dir",
@@ -22,7 +22,7 @@
     "optional" : true,
     "list" : false,
     "command-line-flag" : "-d",
-    "command-line-key" : "[INPUT_DIR]"
+    "value-key" : "[INPUT_DIR]"
   }, {
     "id" : "outdir",
     "name" : "Output directory",
@@ -32,7 +32,7 @@
     "list" : false,
     "command-line-flag" : "-o",
     "default-value" : "output_results",
-    "command-line-key" : "[OUTPUT_DIR]"
+    "value-key" : "[OUTPUT_DIR]"
   }, {
     "id" : "clobber_flag",
     "name" : "Clobber flag",
@@ -41,7 +41,7 @@
     "optional" : true,
     "list" : false,
     "command-line-flag" : "--clobber",
-    "command-line-key" : "[CLOBBER_FLAG]"
+    "value-key" : "[CLOBBER_FLAG]"
   }, {
     "id" : "weak_bias",
     "name" : "Weak bias flag",
@@ -50,7 +50,7 @@
     "optional" : true,
     "list" : false,
     "command-line-flag" : "--weakbias",
-    "command-line-key" : "[WEAKBIAS_FLAG]"
+    "value-key" : "[WEAKBIAS_FLAG]"
   }, {
     "id" : "no_reorient_flag",
     "name" : "No reorienation flag",
@@ -59,7 +59,7 @@
     "optional" : true,
     "list" : false,
     "command-line-flag" : "--noreorient",
-    "command-line-key" : "[NO_REORIENT_FLAG]"
+    "value-key" : "[NO_REORIENT_FLAG]"
   }, {
     "id" : "no_crop_flag",
     "name" : "No automated cropping flag",
@@ -68,7 +68,7 @@
     "optional" : true,
     "list" : false,
     "command-line-flag" : "--nocrop",
-    "command-line-key" : "[NO_CROP_FLAG]"
+    "value-key" : "[NO_CROP_FLAG]"
   }, {
     "id" : "no_bias_flag",
     "name" : "No bias field correction flag",
@@ -77,7 +77,7 @@
     "optional" : true,
     "list" : false,
     "command-line-flag" : "--nobias",
-    "command-line-key" : "[NO_BIAS_FLAG]"
+    "value-key" : "[NO_BIAS_FLAG]"
   }, {
     "id" : "no_reg_flag",
     "name" : "No registration flag",
@@ -86,7 +86,7 @@
     "optional" : true,
     "list" : false,
     "command-line-flag" : "--noreg",
-    "command-line-key" : "[NO_REGISTRATION_FLAG]"
+    "value-key" : "[NO_REGISTRATION_FLAG]"
   }, {
     "id" : "no_nonlin_reg_flag",
     "name" : "No non-linear registration flag",
@@ -95,7 +95,7 @@
     "optional" : true,
     "list" : false,
     "command-line-flag" : "--nononlinreg",
-    "command-line-key" : "[NO_NONLINEAR_REG_FLAG]"
+    "value-key" : "[NO_NONLINEAR_REG_FLAG]"
   }, {
     "id" : "no_seg_flag",
     "name" : "No tissue-type segmentation flag",
@@ -104,7 +104,7 @@
     "optional" : true,
     "list" : false,
     "command-line-flag" : "--noseg",
-    "command-line-key" : "[NO_SEG_FLAG]"
+    "value-key" : "[NO_SEG_FLAG]"
   }, {
     "id" : "no_subcort_seg_flag",
     "name" : "No subcortical segmentation flag",
@@ -113,7 +113,7 @@
     "optional" : true,
     "list" : false,
     "command-line-flag" : "--nosubcortseg",
-    "command-line-key" : "[NO_SUBCORTSEG_FLAG]"
+    "value-key" : "[NO_SUBCORTSEG_FLAG]"
   }, {
     "id" : "no_search_flag",
     "name" : "No search in linear registration flag",
@@ -122,7 +122,7 @@
     "optional" : true,
     "list" : false,
     "command-line-flag" : "--nosearch",
-    "command-line-key" : "[NO_SEARCH_FLAG]"
+    "value-key" : "[NO_SEARCH_FLAG]"
   }, {
     "id" : "no_cleanup_flag",
     "name" : "No cleanup flag",
@@ -131,7 +131,7 @@
     "optional" : true,
     "list" : false,
     "command-line-flag" : "--nocleanup",
-    "command-line-key" : "[NO_CLEANUP_FLAG]"
+    "value-key" : "[NO_CLEANUP_FLAG]"
   }, {
     "id" : "bias_field_smoothing_val",
     "name" : "Bias field smoothing value",
@@ -140,17 +140,17 @@
     "optional" : true,
     "list" : false,
     "command-line-flag" : "-s",
-    "command-line-key" : "[BIAS_FIELD_SMOOTHING_VAL]"
+    "value-key" : "[BIAS_FIELD_SMOOTHING_VAL]"
   }, {
     "id" : "image_type",
     "name" : "Image type",
-    "type" : "Enum",
+    "type" : "String",
     "description" : "Specify the type of image (choose one of T1 T2 PD - default is T1).",
     "optional" : true,
-    "enum-value-choices" : ["T1", "T2", "PD"],
+    "value-choices" : ["T1", "T2", "PD"],
     "list" : false,
     "command-line-flag" : "-t",
-    "command-line-key" : "[IMAGE_TYPE]"
+    "value-key" : "[IMAGE_TYPE]"
   }, {
     "id" : "bet_f_param",
     "name" : "F-parameter value for BET",
@@ -159,9 +159,9 @@
     "optional" : true,
     "list" : false,
     "command-line-flag" : "--betfparam",
-    "requires" : ["no_nonlin_reg_flag"],
+    "requires-inputs" : ["no_nonlin_reg_flag"],
     "command-line-flag-separator" : "=",
-    "command-line-key" : "[BET_F_PARAM]",
+    "value-key" : "[BET_F_PARAM]",
     "minimum" : 0,
     "maximum" : 1
   }],
