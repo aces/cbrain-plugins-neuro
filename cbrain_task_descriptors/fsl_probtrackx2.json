@@ -9,7 +9,7 @@
     "index" : "http://index.docker.io"
   },
   "schema-version" : "0.2",
-  "walltime-estimate" : 5000,
+  "walltime-estimate" : 172800,
   "inputs" : [{
     "id"          : "inputdir",
     "name"        : "Input Directory",
