@@ -592,23 +592,26 @@ class CbrainTask::Civet < ClusterTask
       mk_id  = file0[:mk_id]  # can be nil
 
       addlog("Resyncing input T1 ##{t1_id}.")
-      SingleFile.find_by_id(t1_id).sync_to_cache
+      SingleFile.find(t1_id).sync_to_cache
 
       if t2_id.present?
         addlog("Resyncing input T2 ##{t2_id}.")
-        SingleFile.find_by_id(t2_id).sync_to_cache
+        SingleFile.find(t2_id).sync_to_cache
       end
 
       if pd_id.present?
         addlog("Resyncing input PD ##{pd_id}.")
-        SingleFile.find_by_id(pd_id).sync_to_cache
+        SingleFile.find(pd_id).sync_to_cache
       end
 
       if mk_id.present?
         addlog("Resyncing input MASK ##{mk_id}.")
-        SingleFile.find_by_id(mk_id).sync_to_cache
+        SingleFile.find(mk_id).sync_to_cache
       end
     end
+
+  rescue ActiveRecord::RecordNotFound
+    cberror "Cannot find input file. Recovery impossible."
   end
 
   # Makes a quick check to ensure the input files
