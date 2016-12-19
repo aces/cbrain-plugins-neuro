@@ -3,7 +3,7 @@
 	"tool-version" : "5.0.0",
 	"description" : "FAST (FMRIB's Automated Segmentation Tool) segments a 3D image of the brain into different tissue types (Grey Matter, White Matter, CSF, etc.), whilst also correcting for spatial intensity variations (also known as bias field or RF inhomogeneities), via a hidden Markov random field model and an associated EM algorithm. Note that the alternative priors option is not supported at this time.",
 	"command-line" : "fast [NUM_CLASSES] [LOOP_ITERS] [BF_SMOOTHING] [IMG_TYPE] [INIT_SEG_SMOOTHNESS] [BINARY_SEGMENTS] [PRIOR_INIT] [NO_PVE] [BIAS_FIELD] [BIAS_CORR_IMG] [NO_BIAS_RM] [OUTPUT_BASENAME] [PRIORS_THROUGHOUT] [SEG_INIT_ITERS] [MIXEL_SMOOTHNESS] [NUM_MAIN_LOOP_ITERS] [HYPER_SEG_SMOOTHNESS] [VERBOSE] [MANUAL_INTENSITIES_FILE] [OUTPUT_PROB_MAPS] [IN_FILES]; mkdir [OUTPUT_DIRECTORY]; mv [OUTPUT_DIRECTORY]_* [OUTPUT_DIRECTORY]",
-	"schema-version" : "0.2",
+	"schema-version" : "0.4",
 	"inputs" : [{
 		"id" : "num_classes",
 		"name" : "Number of tissue-type classes",
@@ -12,7 +12,7 @@
 		"optional" : true,
 		"list" : false,
 		"command-line-flag" : "-n",
-		"command-line-key" : "[NUM_CLASSES]",
+		"value-key" : "[NUM_CLASSES]",
 		"minimum" : 1,
 		"integer" : true
 	}, {
@@ -23,7 +23,7 @@
 		"optional" : true,
 		"list" : false,
 		"command-line-flag" : "-I",
-		"command-line-key" : "[LOOP_ITERS]",
+		"value-key" : "[LOOP_ITERS]",
 		"minimum" : 1,
 		"integer" : true
 	}, {
@@ -34,18 +34,18 @@
 		"list" : false,
 		"command-line-flag" : "-l",
 		"optional" : true,
-		"command-line-key" : "[BF_SMOOTHING]",
+		"value-key" : "[BF_SMOOTHING]",
 		"minimum" : 0
 	}, {
 		"id" : "img_type",
 		"name" : "Image type",
-		"type" : "Enum",
+		"type" : "String",
 		"description" : "Type of image: 1 = T1, 2 = T2, 3 = PD. Default = T1.",
 		"optional" : true,
 		"list" : false,
 		"command-line-flag" : "-t",
-		"enum-value-choices" : ["1","2","3"],
-		"command-line-key" : "[IMG_TYPE]"
+		"value-choices" : ["1","2","3"],
+		"value-key" : "[IMG_TYPE]"
 	}, {
 		"id" : "init_seg_smoothness",
 		"name" : "Initial segmentation smoothness",
@@ -54,7 +54,7 @@
 		"optional" : true,
 		"list" : false,
 		"command-line-flag" : "-f",
-		"command-line-key" : "[INIT_SEG_SMOOTHNESS]"
+		"value-key" : "[INIT_SEG_SMOOTHNESS]"
 	}, {
 		"id" : "binary_segments",
 		"name" : "Binary images",
@@ -63,7 +63,7 @@
 		"optional" : true,
 		"list" : false,
 		"command-line-flag" : "-g",
-		"command-line-key" : "[BINARY_SEGMENTS]"
+		"value-key" : "[BINARY_SEGMENTS]"
 	}, {
 		"id" : "prior_init",
 		"name" : "Prior Initialization",
@@ -72,7 +72,7 @@
 		"optional" : true,
 		"list" : false,
 		"command-line-flag" : "-a",
-		"command-line-key" : "[PRIOR_INIT]"
+		"value-key" : "[PRIOR_INIT]"
 	}, {
 		"id" : "no_pve",
 		"name" : "No PVE",
@@ -81,7 +81,7 @@
 		"list" : false,
 		"command-line-flag" : "--nopve",
 		"optional" : true,
-		"command-line-key" : "[NO_PVE]"
+		"value-key" : "[NO_PVE]"
 	}, {
 		"id" : "bias_field",
 		"name" : "Bias field",
@@ -90,7 +90,7 @@
 		"optional" : true,
 		"list" : false,
 		"command-line-flag" : "-b",
-		"command-line-key" : "[BIAS_FIELD]"
+		"value-key" : "[BIAS_FIELD]"
 	}, {
 		"id" : "bias_corr_img",
 		"name" : "Bias corrected image",
@@ -99,7 +99,7 @@
 		"optional" : true,
 		"list" : false,
 		"command-line-flag" : "-B",
-		"command-line-key" : "[BIAS_CORR_IMG]"
+		"value-key" : "[BIAS_CORR_IMG]"
 	}, {
 		"id" : "no_bias_rm",
 		"name" : "No bias removal",
@@ -108,7 +108,7 @@
 		"optional" : true,
 		"list" : false,
 		"command-line-flag" : "-N",
-		"command-line-key" : "[NO_BIAS_RM]"
+		"value-key" : "[NO_BIAS_RM]"
 	}, {
 		"id" : "output_basename",
 		"name" : "Output basename",
@@ -118,7 +118,7 @@
 		"list" : false,
 		"command-line-flag" : "-o",
 		"default-value" : "fast",
-		"command-line-key" : "[OUTPUT_BASENAME]"
+		"value-key" : "[OUTPUT_BASENAME]"
 	}, {
 		"id" : "priors_throughout",
 		"name" : "Use priors throughout",
@@ -128,7 +128,7 @@
 		"list" : false,
 		"requires-inputs" : ["prior_init"],
 		"command-line-flag" : "-P",
-		"command-line-key" : "[PRIORS_THROUGHOUT]"
+		"value-key" : "[PRIORS_THROUGHOUT]"
 	}, {
 		"id" : "seg_init_iters",
 		"name" : "Segmentation initialization iterations",
@@ -139,7 +139,7 @@
 		"optional" : true,
 		"list" : false,
 		"command-line-flag" : "-W",
-		"command-line-key" : "[SEG_INIT_ITERS]"
+		"value-key" : "[SEG_INIT_ITERS]"
 	}, {
 		"id" : "mixel_smoothness",
 		"name" : "Mixeltype Smoothness",
@@ -148,7 +148,7 @@
 		"optional" : true,
 		"list" : false,
 		"command-line-flag" : "-R",
-		"command-line-key" : "[MIXEL_SMOOTHNESS]"
+		"value-key" : "[MIXEL_SMOOTHNESS]"
 	}, {
 		"id" : "num_main_loop_iters",
 		"name" : "Main loop iterations",
@@ -159,7 +159,7 @@
 		"optional" : true,
 		"list" : false,
 		"command-line-flag" : "-O",
-		"command-line-key" : "[NUM_MAIN_LOOP_ITERS]"
+		"value-key" : "[NUM_MAIN_LOOP_ITERS]"
 	}, {
 		"id" : "hyper_seg_smoothness",
 		"name" : "Segmentation spatial smoothness",
@@ -168,7 +168,7 @@
 		"optional" : true,
 		"list" : false,
 		"command-line-flag" : "-H",
-		"command-line-key" : "[HYPER_SEG_SMOOTHNESS]"
+		"value-key" : "[HYPER_SEG_SMOOTHNESS]"
 	}, {
 		"id" : "verbose",
 		"name" : "Verbose",
@@ -177,7 +177,7 @@
 		"optional" : true,
 		"list" : false,
 		"command-line-flag" : "-v",
-		"command-line-key" : "[VERBOSE]"
+		"value-key" : "[VERBOSE]"
 	}, {
 		"id" : "manual_intensities_file",
 		"name" : "Manual segmentation",
@@ -186,7 +186,7 @@
 		"optional" : true,
 		"list" : false,
 		"command-line-flag" : "-s",
-		"command-line-key" : "[MANUAL_INTENSITIES_FILE]"
+		"value-key" : "[MANUAL_INTENSITIES_FILE]"
 	}, {
 		"id" : "output_prob_maps",
 		"name" : "Single probability maps",
@@ -195,7 +195,7 @@
 		"list" : false,
 		"command-line-flag" : "-p",
 		"optional" : true,
-		"command-line-key" : "[OUTPUT_PROB_MAPS]"
+		"value-key" : "[OUTPUT_PROB_MAPS]"
 	}, {
 		"id" : "in_files",
 		"name" : "Input file",
@@ -203,14 +203,14 @@
 		"description" : "Input file",
 		"optional" : false,
 		"list" : false,
-		"command-line-key" : "[IN_FILES]"
+		"value-key" : "[IN_FILES]"
 	}],
 	"output-files" :  [{
 		"id" : "output_dir",
 		"name" : "Output Directory",
 		"description" : "Output files from FSL FAST",
 		"path-template" : "[OUTPUT_BASENAME]",
-		"command-line-key" : "[OUTPUT_DIRECTORY]",
+		"value-key" : "[OUTPUT_DIRECTORY]",
 		"optional" : false
 	}]
 }

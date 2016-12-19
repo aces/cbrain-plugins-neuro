@@ -3,21 +3,21 @@
   "tool-version" : "1.0.0",
   "description" : "Automated brain extraction tool wrapper for the MINC libraries",
   "command-line" : "mincbet [INPUT_FILE] [MASK] [FRACTIONAL_INTENSITY] [VERTICAL_GRADIENT] [HYPERINTENSE_THRESHOLD] [OVERLAY_FLAG] [BINARY_MASK_FLAG] [APPROX_SKULL_FLAG] [NO_SEG_OUTPUT_FLAG] [BIC_VIEW_FLAG] [REVERSED_FLAG] [THRESHOLDING_FLAG]",
-  "schema-version" : "0.2",
+  "schema-version" : "0.4",
   "inputs" : [{
     "id" : "infile",
     "name" : "Input file",
     "type" : "File",
     "description" : "Input image file in mnc format",
     "optional": false,
-    "command-line-key" : "[INPUT_FILE]"
+    "value-key" : "[INPUT_FILE]"
   }, {
     "id" : "maskfile",
     "name" : "Mask file",
     "type" : "String",
     "description" : "Output brain mask in mnc format",
     "optional": false,
-    "command-line-key" : "[MASK]"
+    "value-key" : "[MASK]"
   }, {
     "id" : "fractional_intensity",
     "name" : "Fractional intensity threshold",
@@ -27,7 +27,7 @@
     "optional" : true,
     "minimum" : 0,
     "maximum" : 1,
-    "command-line-key" : "[FRACTIONAL_INTENSITY]"
+    "value-key" : "[FRACTIONAL_INTENSITY]"
   }, {
     "id" : "vg_fractional_intensity",
     "name" : "Vertical gradient fractional intensity threshold",
@@ -37,7 +37,7 @@
     "optional" : true,
     "minimum" : -1,
     "maximum" : 1,
-    "command-line-key" : "[VERTICAL_GRADIENT]"
+    "value-key" : "[VERTICAL_GRADIENT]"
   }, {
     "id" : "hyperintensity_threshold",
     "name" : "Hyperintensity ratio threshold",
@@ -47,7 +47,7 @@
     "optional" : true,
     "minimum" : 1,
     "exclusive-minimum" : true,
-    "command-line-key" : "[HYPERINTENSE_THRESHOLD]"
+    "value-key" : "[HYPERINTENSE_THRESHOLD]"
   }, {
     "id" : "overlay_flag",
     "name" : "Overlay flag",
@@ -55,7 +55,7 @@
     "description" : "Generate brain surface outline overlaid onto original image",
     "command-line-flag": "-o",
     "optional": true,
-    "command-line-key" : "[OVERLAY_FLAG]"
+    "value-key" : "[OVERLAY_FLAG]"
   }, {
     "id" : "binary_mask_flag",
     "name" : "Binary mask flag",
@@ -63,7 +63,7 @@
     "description" : "Generate binary brain mask",
     "command-line-flag": "-m",
     "optional": true,
-    "command-line-key" : "[BINARY_MASK_FLAG]"
+    "value-key" : "[BINARY_MASK_FLAG]"
   }, {
     "id" : "approx_skull_flag",
     "name" : "Approximate skull flag",
@@ -71,7 +71,7 @@
     "description" : "Generate approximate skull image",
     "command-line-flag": "-s",
     "optional": true,
-    "command-line-key" : "[APPROX_SKULL_FLAG]"
+    "value-key" : "[APPROX_SKULL_FLAG]"
   }, {
     "id" : "no_seg_output_flag",
     "name" : "No segmented brain image flag",
@@ -79,7 +79,7 @@
     "description" : "Don't generate segmented brain image output",
     "command-line-flag": "-n",
     "optional": true,
-    "command-line-key" : "[NO_SEG_OUTPUT_FLAG]"
+    "value-key" : "[NO_SEG_OUTPUT_FLAG]"
   }, {
     "id" : "bic_view_flag",
     "name" : "BIC brain-view format flag",
@@ -87,7 +87,7 @@
     "description" : "Generate surface mask in BIC brain-view format",
     "command-line-flag": "-b",
     "optional": true,
-    "command-line-key" : "[BIC_VIEW_FLAG]"
+    "value-key" : "[BIC_VIEW_FLAG]"
   }, {
     "id" : "reversed_flag",
     "name" : "Intensity reversal flag",
@@ -95,7 +95,7 @@
     "description" : "Reversed intensities, like t2 and pd",
     "command-line-flag": "-r",
     "optional": true,
-    "command-line-key" : "[REVERSED_FLAG]"
+    "value-key" : "[REVERSED_FLAG]"
   }, {
     "id" : "thresholding_flag",
     "name" : "Threshold segmented image flag",
@@ -103,7 +103,7 @@
     "description" : "Apply thresholding to segmented brain image and mask",
     "command-line-flag": "-t",
     "optional": true,
-    "command-line-key" : "[THRESHOLDING_FLAG]"
+    "value-key" : "[THRESHOLDING_FLAG]"
   }],
   "output-files" :  [{
     "id" : "output_mask",
