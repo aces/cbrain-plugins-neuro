@@ -2,14 +2,14 @@
   "name"         : "fsl_probtrackx2",
   "tool-version" : "1.0.0",
   "description"  : "probabilistic tracking with crossing fibres",
-  "command-line" : "cp -r [INPUT_DIR] [OUTPUT_DIR]; probtrackx2 -s [OUTPUT_DIR]/[BASENAME] -m [OUTPUT_DIR]/[MASKNAME] -x [SEEDFILE] --dir=[OUTPUT_DIR]/[FINALDIR] [FORCEDIR] [OPD] [PD] [OS2T] --targetmasks=[TARGETMASKS] --xfm=[OUTPUT_DIR]/[XFM] --invxfm=[OUTPUT_DIR]/[INVXFM]",
+  "command-line" : "cp -rL [INPUT_DIR] [OUTPUT_DIR]; probtrackx2 -s [OUTPUT_DIR]/[BASENAME] -m [OUTPUT_DIR]/[MASKNAME] -x [SEEDFILE] --dir=[OUTPUT_DIR]/[FINALDIR] [FORCEDIR] [OPD] [PD] [OS2T] --targetmasks=[TARGETMASKS] --xfm=[OUTPUT_DIR]/[XFM] --invxfm=[OUTPUT_DIR]/[INVXFM]",
   "container-image" : {
     "type" : "docker",
     "image" : "mcin/docker-fsl:latest",
     "index" : "http://index.docker.io"
   },
   "schema-version" : "0.4",
-  "walltime-estimate" : 172800,
+  "walltime-estimate" : 331200,
   "inputs" : [{
     "id"          : "inputdir",
     "name"        : "Input Directory",
