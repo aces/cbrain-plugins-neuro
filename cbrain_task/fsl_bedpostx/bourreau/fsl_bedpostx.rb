@@ -59,13 +59,16 @@ class CbrainTask::FslBedpostx < ClusterTask
     fibres       = params[:fibres]
     weight       = params[:weight]
     burn_in      = params[:burn_in]
+    model        = params[:model]
     fibres       = "2"   if fibres.blank?
     weight       = "1"   if weight.blank?
     burn_in      = "100" if burn_in.blank?
-    cb_error "Unexpected value '#{fibres}' for number fibres." if fibres.to_s !~ /^\d+(\.\d+)?$/ # TODO real?
-    cb_error "Unexpected value '#{weight}' for weight."        if weight.to_s !~ /^\d+(\.\d+)?$/ # TODO real?
+    model        = "1"   if model.blank?
+    cb_error "Unexpected value '#{fibres}' for number fibres." if fibres.to_s  !~ /^\d+(\.\d+)?$/ # TODO real?
+    cb_error "Unexpected value '#{weight}' for weight."        if weight.to_s  !~ /^\d+(\.\d+)?$/ # TODO real?
     cb_error "Unexpected value '#{burn_in}' for burn_in."      if burn_in.to_s !~ /^\d+$/
-    command =  "bedpostx input -n #{fibres} -w #{weight} -b #{burn_in}"
+    cb_error "Unexpected value '#{model}' for model."          if model.to_s   !~ /^[123]$/
+    command =  "bedpostx input -model #{model} -n #{fibres} -w #{weight} -b #{burn_in}"
     self.addlog("Command: #{command}")
     [
       "echo CBRAIN BedPostX Starting",
