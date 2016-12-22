@@ -17,7 +17,7 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.  
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
 # A subclass of CbrainTask to launch FslBedpostx.
@@ -31,10 +31,11 @@ class CbrainTask::FslBedpostx < PortalTask
     {
       :fibres  => "2",
       :weight  => "1",
-      :burn_in => "1000"
+      :burn_in => "1000",
+      :model   => "2"
     }
   end
-  
+
   def before_form #:nodoc:
     params = self.params
     ids    = params[:interface_userfile_ids] || []
@@ -85,7 +86,7 @@ class CbrainTask::FslBedpostx < PortalTask
   # present in the task's form are not lost when the user edits
   # the task.
   ################################################################
-  
+
   def untouchable_params_attributes #:nodoc:
     { :outfile_id => true }
   end
