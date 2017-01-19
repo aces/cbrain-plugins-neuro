@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+    <script src="https://code.jquery.com/jquery-3.1.0.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.0/jquery-ui.js" type="text/javascript"></script>
+
+    <!-- Dependency: MincReaderJS -->
+    <script src="js-lib/MincReaderJS/js-lib/pako.js"></script>
+    <script src="js-lib/MincReaderJS/js/hdf5_tools.js"></script>
+    <script src="js-lib/MincReaderJS/js/hdf5_reader.js"></script>
+    <script src="js-lib/MincReaderJS/js/minc_reader.js"></script>
+    <script src="js-lib/MincReaderJS/js/VectorTools.js"></script>
+    <script src="js-lib/MincReaderJS/js/Plane.js"></script>
+    <script src="js-lib/MincReaderJS/js/CachedOblique.js"></script>
+    <script src="js-lib/MincReaderJS/js/CachedObliqueCollection.js"></script>
+    <script src="js-lib/MincReaderJS/js/ObliqueSampler.js"></script>
+
+    <!-- Dependency: VolumeNavigator -->
+    <script src="js-lib/VolumeNavigator/js-lib/dat.gui.min.js"></script>
+    <script src="js-lib/VolumeNavigator/js-lib/three.js"></script>
+    <script src="js-lib/VolumeNavigator/js-lib/OrbitControls.js"></script>
+    <script src="js-lib/VolumeNavigator/js/VolumeNavigator.js"></script>
+
+    <!-- Project: MincNavigator -->
+    <script src="js/MincNavigator.js"></script>
+
+    <!-- Project: ui and little things -->
+    <script src="js/ui.js"></script>
+
+    <!-- Because style matters... -->
+    <link href="https://fonts.googleapis.com/css?family=Lato:300,400,900" rel="stylesheet">
+    <link rel="stylesheet" href="css/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="css/layout.css" />
+
+</head>
+<body>
+
+
+
+  <div class="splashcreen">
+    <div class="splashContent">
+      <img class="logo" src="images/logo.png"/>
+      <div class="buttonBB noselect openfile" onclick="document.getElementById('fileOpener').click()"><i class="fa fa-cube" aria-hidden="true"></i>
+ Open file</div>
+      <div class="isLoading" style="display: none;">File is loading...</div>
+      <div class="splashHint">Don't have any Minc file? Try with the BigBrain at <a href="ftp://bigbrain.loris.ca/BigBrainRelease.2015/3D_Volumes/Histological_Space/full8_200um_optbal.mnc">200um</a> or <a href="ftp://bigbrain.loris.ca/BigBrainRelease.2015/3D_Volumes/Histological_Space/full8_400um_optbal.mnc">400um</a>.</div>
+    </div>
+  </div>
+
+    <div id="content">
+
+
+      <!-- Sidebar content -->
+      <div id="sideBar">
+        <img id="sideBarLogo" src="images/logo.png"/>
+
+        <a href="help.html" target="_blank">
+        <div class="buttonBB noselect"><i class="fa fa-question-circle"></i> Help</div>
+        </a>
+
+        <input type="file" id="fileOpener" class="hidden">
+        <div id="openFileBt" class="buttonBB noselect" onclick="document.getElementById('fileOpener').click()"><i class="fa fa-cube" aria-hidden="true"></i> Open file</div>
+
+        <!--
+        <div id="debugButton" class="buttonBB noselect"><i class="fa fa-bug" aria-hidden="true"></i> Debug</div>-->
+
+
+        <div class="separator"></div>
+
+
+        <div class="twoButtons">
+          <div id="undoBt" class="buttonBB noselect"><i class="fa fa-undo" aria-hidden="true"></i>Undo</div>
+          <div id="redoBt" class="buttonBB noselect"><i class="fa fa-repeat" aria-hidden="true"></i>Redo</div>
+        </div>
+
+
+        <div class="separator"></div>
+
+
+        <div class="label">Center (x, y, z)</div>
+        <div class="threeTextFields">
+          <input id="centerX" type="text" class="commonTextField" value="" autocomplete="off">
+          <input id="centerY" type="text" class="commonTextField" value="" autocomplete="off">
+          <input id="centerZ" type="text" class="commonTextField" value="" autocomplete="off">
+        </div>
+        <div class="label">Normal (x, y, z)</div>
+        <div class="threeTextFields">
+          <input id="normalX" type="text" class="commonTextField" value="" autocomplete="off">
+          <input id="normalY" type="text" class="commonTextField" value="" autocomplete="off">
+          <input id="normalZ" type="text" class="commonTextField" value="" autocomplete="off">
+        </div>
+        <div id="updateGimbalBt" class="buttonBB noselect"><i class="fa fa-refresh" aria-hidden="true"></i> Update</div>
+
+
+        <div class="separator"></div>
+
+
+        <div class="label">Two points section</div>
+        <div class="twoButtons">
+          <div id="acpcAcBt" class="buttonBB noselect"><i class="fa fa-dot-circle-o" aria-hidden="true"></i>P1</div>
+          <div id="acpcPcBt" class="buttonBB noselect"><i class="fa fa-dot-circle-o" aria-hidden="true"></i>P2</div>
+        </div>
+        <div class="twoButtons">
+          <div id="resetAcpcBt" class="buttonBB noselect"><i class="fa fa-eraser" aria-hidden="true"></i>Reset</div>
+          <div id="updateAcpcBt" class="buttonBB noselect"><i class="fa fa-refresh" aria-hidden="true"></i>Update</div>
+        </div>
+
+
+        <div class="separator"></div>
+
+
+        <div class="label">Perform rotation</div>
+        <div class="twoElements">
+          <input id="angleToRotate" type="text" class="commonTextField" value="" placeholder="angle°" autocomplete="off">
+          <select id="axisToRotate" class="dropdownMenu" autocomplete="off">
+            <option value="0">x</option>
+            <option value="1">y</option>
+            <option value="2">z</option>
+          </select>
+        </div>
+        <div id="updateAngleBt" class="buttonBB noselect"><i class="fa fa-refresh" aria-hidden="true"></i> Update</div>
+
+
+        <div class="separator"></div>
+
+
+        <div class="label">Bookmark current settings</div>
+        <input type="text" id="saveRotationLabel" class="singleTextField commonTextField" value="" placeholder="name" autocomplete="off">
+        <div id="saveRotationBt" class="buttonBB noselect"><i class="fa fa-bookmark" aria-hidden="true"></i>
+ Bookmark</div>
+
+        <div class="separator"></div>
+
+
+        <div class="label">Restore bookmark</div>
+        <select id="restoreGimbalMenu" class="dropdownMenu" onchange="restoreRotation();" autocomplete="off">
+        </select>
+
+
+        <div class="separator"></div>
+
+        <div id="toggleGimbalBt" class="buttonBB noselect"><i class="fa fa-compass" aria-hidden="true"></i>
+ Toggle gimbal</div>
+        <!-- <input type="text" class="singleTextField commonTextField" value="hello"> -->
+
+        <div class="separator"></div>
+
+        <div id="githubCredit" class="label"><a href="https://github.com/jonathanlurie/MincNavigator" target="_blank"><i class="fa fa-github" aria-hidden="true"></i> Fork me on Github!</a></div>
+
+        <div class="separator"></div>
+      </div>
+
+
+
+
+      <!-- The main view contains the 4 split panels -->
+      <div id="mainView">
+
+        <!-- The north east div -->
+        <div id="ne" class="gridCell">
+          <div id="navigatorDiv"></div>
+        </div>
+
+        <!-- The north west div -->
+        <div id="nw" class="gridCell" travel="n">
+          <div class="obliqueControls">
+            <div class="roundButton"><input type="text" value="1" autocomplete="off"></div>
+            <div class="roundButton arrowUp"><i class="fa fa-chevron-up" aria-hidden="true"></i></div>
+            <div class="roundButton arrowDown"><i class="fa fa-chevron-down" aria-hidden="true"></i></div>
+
+            <!-- Zoom buttons -->
+            <div class="roundButton zoomPlus"><i class="fa fa-search-plus" aria-hidden="true"></i></div>
+            <div class="roundButton zoomMinus"><i class="fa fa-search-minus" aria-hidden="true"></i></div>
+          </div>
+          <canvas id="ObliqueMain_canvas" class="brainSlice noselect" scale="1"></canvas>
+        </div>
+
+        <!-- The south west div -->
+        <div id="sw" class="gridCell" travel="u">
+          <div class="obliqueControls">
+            <div id="switchOrthoU" class="roundButton"><i class="fa fa-cube" aria-hidden="true"></i></div>
+            <div class="roundButton"><input type="text" value="1" autocomplete="off"></div>
+            <div class="roundButton arrowUp"><i class="fa fa-chevron-up" aria-hidden="true"></i></div>
+            <div class="roundButton arrowDown"><i class="fa fa-chevron-down" aria-hidden="true"></i></div>
+
+            <!-- Zoom buttons -->
+            <div class="roundButton zoomPlus"><i class="fa fa-search-plus" aria-hidden="true"></i></div>
+            <div class="roundButton zoomMinus"><i class="fa fa-search-minus" aria-hidden="true"></i></div>
+          </div>
+          <canvas id="ObliqueOrthoU_canvas" class="brainSlice noselect" scale="1"></canvas>
+        </div>
+
+        <!-- The south east div -->
+        <div id="se" class="gridCell" travel="v">
+          <div class="obliqueControls">
+            <!-- Zoom buttons -->
+            <div class="roundButton zoomPlus"><i class="fa fa-search-plus" aria-hidden="true"></i></div>
+            <div class="roundButton zoomMinus"><i class="fa fa-search-minus" aria-hidden="true"></i></div>
+
+            <div class="roundButton arrowUp"><i class="fa fa-chevron-up" aria-hidden="true"></i></div>
+            <div class="roundButton arrowDown"><i class="fa fa-chevron-down" aria-hidden="true"></i></div>
+            <div class="roundButton"><input type="text" value="1" autocomplete="off"></div>
+            <div id="switchOrthoV" class="roundButton"><i class="fa fa-cube" aria-hidden="true"></i></div>
+
+          </div>
+          <canvas id="ObliqueOrthoV_canvas" class="brainSlice noselect" scale="1"></canvas>
+        </div>
+
+      </div>
+
+    </div>
+
+</body>
+</html>

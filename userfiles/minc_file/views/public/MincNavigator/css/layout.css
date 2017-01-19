@@ -1,0 +1,423 @@
+body{
+  margin: 0px;
+  font-family: 'Lato', sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+}
+
+a{
+  text-decoration: none;
+  color: hsl(196, 100%, 40%);
+  transition: all 0.2s;
+}
+
+a:hover {
+  color: hsl(196, 100%, 30%);
+}
+
+#content{
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-color: #ddd;
+  overflow: hidden;
+}
+
+
+#sideBar{
+  float: left;
+  height: 100%;
+  width: 215px; /* so that the scrollbar is out! */
+  background-color: #666;
+  padding-top: 10px;
+  background: url(../images/backgroundSide6.jpg) no-repeat center center fixed;
+  background-size: cover;
+  overflow-y: scroll;
+}
+
+
+
+#mainView{
+  height: 100%;
+  width: calc(100% - 200px);
+  left:200px;
+  position: relative;
+}
+
+
+.gridCell{
+  background-color: #fff;
+  width: 45%;
+  height: 45%;
+  overflow: hidden;
+}
+
+
+#nw{
+  position:absolute;
+  top:0;
+  left:0;
+  width: calc(50% - 1px);
+  height: calc(50% - 1px);
+  border-right: 1px dashed #7CD8F7;
+  border-bottom: 1px dashed #7CD8F7;
+}
+
+
+#sw{
+  position:absolute;
+  bottom:0;
+  left:0;
+  width: calc(50% - 1px);
+  height: 50%;
+  border-right: 1px dashed #7CD8F7;
+}
+
+
+#ne{
+  position:absolute;
+  top:0;
+  right:0;
+  width: 50%;
+  height: 50%;
+}
+
+
+#se{
+  position:absolute;
+  bottom:0;
+  right:0;
+  width: 50%;
+  height: 50%;
+  border-top: 1px dashed #7CD8F7;
+}
+
+
+
+/* ----------------------------- */
+
+#navigatorDiv{
+    /*background-color: #eee;*/
+    width: 100%;
+    height: 100%;
+}
+
+
+.brainSlice{
+  width: 100%;
+  height: auto;
+  /*transform: scale(1.2);*/
+  z-index: 1;
+}
+
+
+#sideBarLogo{
+  width: 90%;
+  margin-left: 5%;
+  margin-top: 10px;
+  margin-bottom: 20px;
+}
+
+
+.separator{
+  border: none;
+  border-top: 1px dashed hsla(196, 100%, 70%, 1);
+  margin: 10px 0 10px 0;
+}
+
+
+.label{
+  padding: 5px;
+  text-align: center;
+  color: hsl(196, 100%, 40%);
+}
+
+
+.singleTextField{
+  width: calc(100% - 2*10px);
+  margin: 10px;
+}
+
+
+.threeTextFields{
+  margin: 10px;
+  margin-top: 0px;
+}
+
+
+.threeTextFields input
+{
+  width: 32%;
+  margin: 0px;
+}
+
+
+.twoElements{
+  margin: 10px;
+  margin-top: 0px;
+}
+
+.twoElements input,
+.twoElements select,
+.twoElements .buttonBB
+{
+  width: 49%;
+  margin: 0px;
+}
+
+.twoButtons{
+  display: flex;
+  margin:10px;
+}
+
+.twoButtons .buttonBB{
+  margin:0;
+  width: 45%;
+}
+
+.twoButtons :nth-child(1){
+  margin-right: 5px;
+}
+
+.twoButtons :nth-child(2){
+  margin-left: 5px;
+}
+
+.commonTextField{
+  color: hsl(196, 100%, 45%);
+  padding: 5px;
+  margin-top: 0px;
+  box-sizing:border-box;
+  border: 1px solid hsla(196, 100%, 70%, 0.0);
+  text-align: center;
+  background-color: rgba(255, 255, 255, 0.75);
+}
+
+.buttonBB{
+  border: 1px solid hsl(196, 100%, 70%);
+  padding: 5px;
+  text-align: center;
+  color: hsl(196, 100%, 40%);
+  margin: 10px;
+  cursor: pointer;
+
+  transition: all 0.2s;
+}
+
+
+.buttonBB:hover{
+  background-color: hsla(196, 100%, 100%, 0.8);
+}
+
+
+.buttonBB:active{
+  background-color: hsla(196, 100%, 40%, 0.8);
+  color: #FFF;
+  border-color: #FFF;
+}
+
+
+.hidden{
+  display: none;
+}
+
+
+.noselect {
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none;   /* Chrome/Safari/Opera */
+  -khtml-user-select: none;    /* Konqueror */
+  -moz-user-select: none;      /* Firefox */
+  -ms-user-select: none;       /* Internet Explorer/Edge */
+  user-select: none;           /* Non-prefixed version, currently
+                                  not supported by any browser */
+}
+
+
+#nw .obliqueControls{
+  right: 0;
+  bottom: 0;
+}
+
+#sw .obliqueControls{
+  right: 0;
+  top: 0;
+}
+
+
+
+#se .obliqueControls{
+  left: 0;
+  top: 0;
+}
+
+.obliqueControls{
+  z-index: 2;
+  position: absolute;
+  /*
+  width: 250px;
+  height: 60px;
+  */
+  /*background-color: #F00;*/
+  display: flex;
+  margin: 7px;
+}
+
+
+.obliqueControls .roundButton{
+  background-color: hsl(196, 100%, 93%);
+  height: 30px;
+  width: 30px;
+  margin-left: 5px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+
+
+
+
+.obliqueControls .roundButton .fa{
+  width: 100%;
+  height: 100%;
+  color: hsl(196, 100%, 40%);
+  text-align: center;
+  padding-top: 7px;
+  font-size: 16px;
+}
+
+
+.obliqueControls input{
+  border: none;
+  background-color: transparent;
+  height: 100%;
+  width: 100%;
+  text-align: center;
+  font-size: 16px;
+  color: rgb(0, 149, 204);
+}
+
+/* color for SE */
+#se .obliqueControls .roundButton {
+  background-color: hsl(0, 100%, 95%);
+}
+
+#se .obliqueControls .roundButton .fa,
+#se .obliqueControls .roundButton input
+{
+  color: hsl(0, 100%, 65%);
+}
+
+
+/* color for SW */
+#sw .obliqueControls .roundButton {
+  background-color: hsl(120, 100%, 90%);
+}
+
+#sw .obliqueControls .roundButton .fa,
+#sw .obliqueControls .roundButton input
+{
+  color: hsl(120, 100%, 40%);
+}
+
+
+.obliqueControls .roundButton:hover{
+  filter: invert(75%);
+}
+
+
+.splashcreen{
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: url(../images/backgroundSide5bis.jpg) no-repeat center center fixed;
+  background-size: cover;
+  z-index: 100;
+}
+
+
+.splashcreen .splashContent{
+  position: absolute;
+  width: 35%;
+  height: 40%;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: auto;
+  margin-bottom: auto;
+}
+
+
+.splashcreen .splashContent img{
+  width: 100%;
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.splashcreen .splashContent .openfile{
+  position: relative;
+  width: 150px;
+
+  left: 0;
+  right: 0;
+  margin-left: auto;
+  margin-right: auto;
+
+}
+
+.splashcreen .splashContent div{
+  position: relative;
+  color: rgb(0, 149, 204);
+  text-align: center;
+
+  left: 0;
+  right: 0;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+
+.dropdownMenu{
+
+}
+
+
+#saveRotationLabel{
+  margin-bottom: 0;
+}
+
+
+select{
+  margin: 10px;
+  margin-top: 0px;
+  padding: 2px;
+  filter: sepia(100) hue-rotate(166deg);
+}
+
+
+#restoreGimbalMenu{
+  width: calc(100% - 2*10px);
+  box-sizing:border-box;
+}
+
+
+.splashHint{
+  margin-top:20px
+}
+
+.splashHint a{
+  text-decoration: underline;
+  color: rgb(0, 149, 204);
+}
+
+.splashHint a:hover{
+  text-decoration: none;
+}
+
+
+#githubCredit {
+  font-size: large;
+}

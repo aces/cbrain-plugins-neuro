@@ -1,0 +1,61 @@
+
+#about{
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: hsl(196, 100%, 85%);
+  z-index: 100;
+  padding: 25px 25% 20px 25%;
+  /*overflow-y: scroll;*/
+
+  background: url(../images/backgroundSide5bis.jpg) no-repeat center center fixed;
+  background-size: cover;
+}
+
+
+.scrollable{
+  overflow-y: scroll;
+  height: 100%;
+}
+
+
+.scrollable a{
+  color: hsl(16, 100%, 50%);
+  text-decoration: none;
+  animation: all 0.2s;
+}
+
+.scrollable a:hover{
+  text-decoration: underline;
+}
+
+
+#about ul
+{
+list-style-type: none;
+}
+
+#about h2{
+  margin-top: 45px;
+  margin-bottom: 0px;
+}
+
+
+.scrollable img{
+  width: 100%;
+  border-width: 1px;
+  border-style: solid;
+  border-color: hsla(196, 100%, 45%, 0.3);
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+
+.subtitle{
+  font-size: 20px;
+  color: rgb(0, 0, 0);
+  letter-spacing: 5px;
+  font-weight: 300;
+}
