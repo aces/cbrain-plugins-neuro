@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+  <script src="https://code.jquery.com/jquery-3.1.0.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.0/jquery-ui.js" type="text/javascript"></script>
+
+
+  <!-- Because style matters... -->
+  <link rel="stylesheet" href="css/jquery-ui/jquery-ui.css">
+  <link href="https://fonts.googleapis.com/css?family=Lato:300,400,900" rel="stylesheet">
+  <link rel="stylesheet" href="css/font-awesome/css/font-awesome.min.css">
+
+
+
+  <link rel="stylesheet" type="text/css" href="css/jqueryui-overload.css" />
+  <link rel="stylesheet" type="text/css" href="css/layout.css" />
+  <link rel="stylesheet" type="text/css" href="css/help.css" />
+
+</head>
+<body>
+
+  <!-- Halfway between a Credit, a About and a Help panel -->
+  <div id="about">
+
+    <div style="text-align:center">
+      <a href=".">
+      <img src="images/logo.png" style="width: 60%;"/>
+      <br />
+      <span class="subtitle">NAVIGATOR</span>
+      </a>
+    </div>
+
+
+
+    <div id="tabsAbout" style="border:none; background-color:transparent; height: calc(100% - 165px);">
+      <ul>
+        <li><a href="#tabs-1">Help</a></li>
+        <li><a href="#tabs-2">About</a></li>
+      </ul>
+      <div id="tabs-1" class="scrollable" style="padding:10px">
+        <p>
+          <b>Navigator</b> is a pure browser-side javascript app to explore Minc files and perform arbitrary projection (aka. oblique slices).
+        </p>
+
+        <h2>Compatible volume files</h2>
+        <p>
+          For the moment, BrainBrowser Navigator works only with <a href="http://www.bic.mni.mcgill.ca/ServicesSoftware/MINC" target="_blank">Minc 2.0</a> files but <a href="https://nifti.nimh.nih.gov/" target="_blank">NIfTi</a> is on our roadmap.
+        </p>
+
+        <h2>User Interface Components</h2>
+        <p>
+          Here is how Navigor looks like when a volume file is loaded:
+          <img src="help-images/all.jpg" />
+          The windows is split in two parts: the controls on the left and the views on the right, such as:
+          <img src="help-images/view-controls.jpg" />
+        </p>
+
+        <h3>The View Side</h3>
+        <p>
+          The view itself is composed of four parts:
+          <img src="help-images/projections.jpg" />
+          The same color code is used all across Navigator: blue for the reference projection, green for the projection orthogonal in U (arbitrary) and red for the projection orthogonal in V.
+        </p>
+
+        <h3>The Gimbal</h3>
+        <p>
+          The gimbal, from the volume view, is the device used to navigate easily within the data.
+          <img src="help-images/gimbal.jpg" />
+          If we have a look at the color code, we realize the reference projection is always coplanar to the blue circle.
+        </p>
+        <p>
+          Two kinds of controls are available: rotations and translation.
+          <br />
+          To perform a <b>rotation</b>, the user must grab one of the colord circle and drag it around.
+          <br />
+          To perform a <b>translation</b>, you must grab the blue/yellow arrow that lays in the middle of the volume and drag it forward/backward to move along the normal vector of the reference plane. To move the arrow <b>within</b> the reference plane, hold SHIFT + click to drag the arrow.
+          <br />
+          As long as the gimbal is move or rotated, the image projections are updating to the new position.
+        </p>
+
+        <h3>Orthogonal projections</h3>
+        <p>
+          The three projections are displayed in <i>canvas</i>, this allows some controls like <b>panning</b> using a mouse drag, and <b>zooming</b> using the scroll wheel.
+          <br />
+          The top left projection is called <b>reference</b> because it is the one mapped on the volume.
+        </p>
+
+        <h4>View Quick Controls</h4>
+        <p>
+          To each projection is associated a micro toolbox located on its corner:
+          <img src="help-images/controlsCenter.jpg" />
+          The up and down arrow icons can be used to jump forward or backward in the volume. The size of the jump is the number from the text field (editable). Keep in mind the jump is performed along the normal vector of the plane, possibly in an oblique direction.
+        </p>
+        <p>
+          The two lower projections (othogonal U, in green and V, in red) have an option to make them the <b>reference projection</b>. Click on the cube icon and the two concerned projections, as well as the volume, will be swaped and updated accordingly.
+        </p>
+
+
+        <h3>The Control Side</h3>
+        <h4>Undo & Redo</h4>
+        <p>
+          Needless to precise what this feature is about, still, keep in mind only the position and rotation of the gimbal are taken into consideration for building the history.
+        </p>
+
+        <h4>Center & Normal</h4>
+        <p>
+          Both are 3D coordinates (x, y, z).
+          <br />
+          <b>Center</b> is the center of the gimbal, where lays the blue/yellow arrow. The position has to be within the boundaries of the volume.
+          <br />
+          <b>Normal</b> is the normal vector of the reference plane, in other words, the direction of the blue arrow that lays at the center of the blue circle of the gimbal. This vector is supposed to be normalized but if you set a vector with a norm greater than 1, the normalization process will be done internally.
+        </p>
+
+        <h4>Two Points Section</h4>
+        <p>
+          A two points section allows to move along a segment defined by two points. A practical case is an AC-PC section. The reference projection will be orthogonal to this segment and the blue arrow will be along this segment.
+          <br />
+          To place the the first point (P1), move the gimbal (by dragging or using the center from the above section), and click on P1. Repeat the procedure for P2 and click on update to setup the section.
+        </p>
+
+        <h4>Perform Rotation</h4>
+        <p>
+          Write an angle (in degrees), pick an axis and press Update. Note that the rotation is relative to the current state and the center of rotation is alway the center of the gimbal (center of the double blue/yello arrow). The x rotation is around the red circle, y rotation is around the green circle and z rotation is around the blue circle.
+        </p>
+
+        <h4>Bookmark Current Settings</h4>
+        <p>
+          Bookmarking is a way to keep in memory the current position and orientation of the gimbal and thus, the related projections.
+          <br />
+          To add a bookmark, you  just need to give it a name.
+          <br />
+          For the moment, bookmarks are not persistent un the browser, meaning if you refresh the page, bookmarks will be lost. (this feature is on our roadmap)
+        </p>
+
+        <h4>Restore Bookmark</h4>
+        <p>
+          The whole point of bookmarking a gimbal setting is to be able to retrieve it. Select an item from the drop-down menu to update the gimbal and the projections.
+          <br />
+          A bookmark named <b>_original_</b> is always present. It restores the original settings and act like a reset button.
+        </p>
+
+        <h4>Toggle Gimbal</h4>
+        <p>
+          This simple feature makes the gimbal invisible in order to show only the data and let the user interact with volume in a more handy way (no risk to grab a cirle when just trying to rotate the view).
+        </p>
+
+
+      </div>
+      <div id="tabs-2" class="scrollable" style="padding:10px">
+        <p>
+          <b>BrainBrowser Navigator</b> is part of the <a href="http://mcin-cnim.ca/neuroimagingtechnologies/brainbrowser/" target="_blank">BrainBrowser Project</a>, developed by the McGill Center for Integrative Neuroscience (<a href="http://mcin-cnim.ca/" target="_blank">MCIN</a>) under the <a href="https://opensource.org/licenses/MIT" target="_blank">MIT</a> License.
+
+        </p>
+
+        <p>
+          Development team:
+          <ul>
+            <li>
+              <a href="https://github.com/jonathanlurie" target="_blank"><i class="fa fa-github"></i> Jonathan Lurie</a>
+            </li>
+            <li>
+              <a href="https://github.com/natacha-beck" target="_blank"><i class="fa fa-github"></i> Natacha Beck</a>
+            </li>
+          </ul>
+        </p>
+
+        <p>
+          The core of Navigator is mainly composed of two modules: <a href="https://github.com/jonathanlurie/VolumeNavigator">Volume Navigator</a> and <a href="https://github.com/jonathanlurie/MincReaderJS">Minc ReaderJS</a>. Even though those modules where designed with BrainBrowser Navigator in mind, they can be used independently to serve a different purpose.
+        </p>
+
+        <p>
+          <a href="https://github.com/jonathanlurie/MincNavigator" target="_blank"><i class="fa fa-github" aria-hidden="true" style="font-size: xx-large;"></i> Fork Navigator it on Github.</a>
+        </p>
+      </div>
+
+    </div>
+
+
+
+  </div>
+
+
+  <script>
+
+
+    $(function() {
+
+      $( "#tabsAbout" ).tabs();
+
+    });
+
+  </script>
+
+
+</body>
+</html>

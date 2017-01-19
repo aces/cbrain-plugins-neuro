@@ -35,8 +35,15 @@ class MincFile < SingleFile
   has_viewer :name => "Info & Headers", :partial => :info_header,             :if =>
              Proc.new { |u| u.class.has_minctools?([2,0,0],["mincinfo","mincheader","mincdump","mincexpand"]) && u.is_locally_synced? }
 
+  has_viewer :name => "MincNavigator",  :partial => :minc_navigator,          :if =>
+             Proc.new { |u| u.size.present? &&
+                            u.size < 400.megabytes &&
+                            u.is_locally_synced?
+                      }
+
   has_content :method => :get_headers_to_json, :type => :text
   has_content :method => :get_raw_data,        :type => :text
+  has_content :method => :minc_content,        :type => :text
 
   def self.file_name_pattern #:nodoc:
     /\.mi?nc(\.gz|\.Z|\.gz2)?$/i
@@ -141,6 +148,15 @@ class MincFile < SingleFile
     return type
   rescue
     :unknown
+  end
+
+  # Returns the mincfile itself; uncompressed if it is compressed on the DP.
+  def minc_content
+    if self.name =~ /(\.mgz|\.mgh\.gz)$/i
+      IO.popen("gunzip -c #{self.cache_full_path.to_s.bash_escape}") { |fh| fh.read }
+    else
+      File.open(self.cache_full_path, "r").read
+    end
   end
 
 end

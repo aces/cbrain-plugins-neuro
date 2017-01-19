@@ -1,0 +1,208 @@
+<!--
+From the tutorial:
+https://aerotwist.com/tutorials/getting-started-with-three-js/
+-->
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <title>VolumeNavigator</title>
+
+  <script src="js-lib/dat.gui.min.js"></script>
+  <script src="js-lib/three.js"></script>
+  <script src="js-lib/OrbitControls.js"></script>
+  <script src="js/VolumeNavigator.js"></script>
+  <script src="js/VectorTools.js"></script>
+
+  <style>
+  body{
+    margin: none;
+    background-color: #EEE;
+
+    font-family: sans-serif;
+    color: #AAA;
+  }
+
+  #container{
+    background-color: #FFF;
+    /*
+    width: 800px;
+    height: 600px;
+    */
+    width: 100%;
+    height: 100%;
+    margin: auto;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+
+  }
+
+  .dg select{
+    /*
+    border: none;
+    */
+    color: #FFF;
+
+    border: 1px solid #111;
+    outline: 0px;
+    background: transparent;
+    width: 220px;
+    padding: 0px 0px 0px 0px;
+    font-size: 13px;
+    border: 1px solid #333;
+    height: 19px;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background: url(arrow.png) 96% / 10% no-repeat;
+  }
+
+  .dg select:focus {
+    outline: none;
+  }
+
+
+  </style>
+
+</head>
+
+<body>
+
+
+  <p>
+    <span style="color:#F00">X axis in red</span>, <span style="color:#0C0">Y axis in green</span> and <span style="color:#00F">Z axis in blue</span>.
+    <br />
+  </p>
+
+
+
+  <div id="container"></div>
+
+
+  <script type="text/javascript">
+
+  // the outer box size
+  var outerBoxOptions = {
+    xSize: 100,
+    ySize: 100,
+    zSize: 100
+  }
+
+  // Optional, we can use null instead
+  // the inner box size and offset
+  var innerBoxOptions = {
+    xSize: 98,
+    ySize: 98,
+    zSize: 98,
+    xOrigin: 1,
+    yOrigin: 1,
+    zOrigin: 1
+  }
+
+  // creating a VolumeNavigator instance
+  var vn = new VolumeNavigator(outerBoxOptions, innerBoxOptions, "container", true);
+
+  // optional: add a button at the bottom of dat.gui with its associated callback.
+  // originally for caching the current slice.
+  //vn.buildGuiButton("Cache current slice", function(){
+  //  console.log("This is quite a callback.");
+  //});
+
+
+  // optional: add a list of choices with a callback.
+  // originally to display cached sliced
+  /*
+  vn.buildGuiList(
+    "The list",
+    {
+      hello: 10,
+      bonjour: 20,
+      ciao: 30
+    },
+    function(value){
+      console.log("this is the callback, value: " + value);
+    }
+  );
+  */
+
+  // optional: define the plane normal manually (updates the plane equation)
+  //vn.setPlaneNormal([1, 1, 0]);
+
+  // optional: define the plane center point (updates the plane equation)
+  //vn.setPlanePoint([10, 10, 10]);
+
+
+  /**** CALLBACKS WHILE MOVING ****/
+
+  // when spining the x axis
+  vn.setCallback("onOrbitingX", function(){
+    console.log("orbiting on X...");
+  });
+
+  // when spining the y axis
+  vn.setCallback("onOrbitingY", function(){
+    console.log("orbiting on Y...");
+  });
+
+  // when spining the z axis
+  vn.setCallback("onOrbitingZ", function(){
+    console.log("orbiting on Z...");
+  });
+
+  // when moving along normal
+  vn.setCallback("onMovingAlongNormal", function(){
+    console.log("moving along normal...");
+  });
+
+  // when moving along the ortho plane U
+  vn.setCallback("onMovingAlongOrthoU", function(){
+    console.log("moving along the plane ortho U...");
+  });
+
+  // when moving along the ortho plane V
+  vn.setCallback("onMovingAlongOrthoV", function(){
+    console.log("moving along the plane ortho V...");
+  });
+
+
+  /**** CALLBACKS WHEN DONE MOVING ****/
+
+  // when spining the x axis
+  vn.setCallback("onOrbitedX", function(){
+    console.log("done orbiting on X.");
+  });
+
+  // when spining the y axis
+  vn.setCallback("onOrbitedY", function(){
+    console.log("done orbiting on Y.");
+  });
+
+  // when spining the z axis
+  vn.setCallback("onOrbitedZ", function(){
+    console.log("done orbiting on Z.");
+  });
+
+  // when moving along normal
+  vn.setCallback("onMovedAlongNormal", function(){
+    console.log("done moving along normal.");
+  });
+
+  // when moving along the ortho axis U
+  vn.setCallback("onMovedAlongOrthoU", function(){
+    console.log("done moving along ortho U.");
+  });
+
+  // when moving along the ortho axis V
+  vn.setCallback("onMovedAlongOrthoV", function(){
+    console.log("done moving along ortho V.");
+  });
+
+
+  </script>
+
+</body>
+</html>
