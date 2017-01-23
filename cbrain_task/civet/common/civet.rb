@@ -33,7 +33,7 @@ class CbrainTask::Civet
       if mybool(params[:high_res_surfaces])
         params[:template] == "1.00" ? 24.hours : 36.hours
       else
-        params[:template] == "1.00" ? 22.hours : 30.hours
+        params[:template] == "1.00" ? 24.hours : 30.hours
       end
     end
   end

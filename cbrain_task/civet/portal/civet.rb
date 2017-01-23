@@ -137,6 +137,8 @@ class CbrainTask::Civet < PortalTask
     if self.tool_config && self.tool_config.is_at_least_version("2.1.0")
       params[:thickness_method]        = ["tlaplace"]
       params[:thickness_method_for_qc] = "tlaplace"
+      params[:template]                = "0.5"
+      params[:lsq]                     = "12"
     end
 
     file_ids  = params[:interface_userfile_ids]
