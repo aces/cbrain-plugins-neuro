@@ -69,7 +69,7 @@ class CbrainTask::ReconAll < ClusterTask
       if params[:with_3T_data] == "1"
         if self.tool_config.is_version("5.1.0")
           with_3T_data = "-nuintensitycor-3T"
-        elsif self.tool_config.is_version("5.3.0")
+        elsif self.tool_config.is_at_least_version("5.3.0")
           with_3T_data = "-3T"
         end
       end
