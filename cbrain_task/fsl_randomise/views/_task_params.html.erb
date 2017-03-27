@@ -41,6 +41,11 @@
 
   <br>
 
+  <%= form.params_check_box :carry_t2 %>
+  <%= form.params_label     :carry_t2, "Threshold-Free Cluster Enhancement with 2D optimisation(--T2)", :title => "Carry out Threshold-Free Cluster Enhancement with 2D optimisation" %>
+
+  <br>
+
   <%= form.params_check_box :carry_f %>
   <%= form.params_label     :carry_f, "f cluster thresholding (-F)", :title => "Carry out f cluster thresholding" %>
 
@@ -52,7 +57,12 @@
   <br>
 
   <%= form.params_check_box :output_raw %>
-  <%= form.params_label     :output_raw, "output raw (-R)", :title => "Output raw ( unpermuted ) statistic images" %>
+  <%= form.params_label     :output_raw, "Output raw (-R)", :title => "Output raw ( unpermuted ) statistic images" %>
+
+  <br>
+
+  <%= form.params_check_box :demean_data %>
+  <%= form.params_label     :demean_data, "Demean data temporally before model fitting (-D)", :title => "Demean data temporally before model fitting ( demean model as well if required )" %>
 
 </fieldset>
 
@@ -134,8 +144,11 @@
 <fieldset>
 
   <legend>Data and Mask files:</legend>
-    <%= form.params_label  :mask_id, "Mask image (-m):" %>
-    <%= form.params_select :mask_id, nifti_list %>
+    <span>
+      <input class="param_input_toggle" type="checkbox" checked />
+      <%= form.params_label  :mask_id, "Mask image (-m):" %>
+      <%= form.params_select :mask_id, nifti_list %>
+    </span>
 
     <br><br>
 
