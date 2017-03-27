@@ -67,12 +67,12 @@ class CbrainTask::FslRandomise < ClusterTask
     cmds = []
 
     n_option = params[:n_perm].blank? ? 5000 : params[:n_perm].to_i
-    c_option = params[:cluster_based_tresh].blank? ? 0.01 : params[:vertical_gradient].to_f
+    c_option = params[:cluster_based_tresh].to_f unless params[:cluster_based_tresh].blank?
 
     # Create randomise cmd
     # All files options
     inputfile = params[:inputfile_id].present?              ? Userfile.find(params[:inputfile_id]).name : ""
-    mask      = params[:mask_id].present?                   ? Userfile.find(params[:mask_id]).name : ""
+    mask      = params[:mask_id].present?                   ? Userfile.find(params[:mask_id]).name      : ""
 
     if params[:design_collection_id]
       mat      = params[:matrix_name]                 || ""
@@ -110,29 +110,31 @@ class CbrainTask::FslRandomise < ClusterTask
     # FSL randomise_parallel execution commands
 
     # All boolean options
-    with_T    = params[:carry_t]          == "1" ? "-T"  : ""
-    with_F    = params[:carry_f]          == "1" ? "-F"  : ""
-    with_x    = params[:output_voxelwise] == "1" ? "-x"  : ""
-    with_R    = params[:output_raw]       == "1" ? "-R"  : ""
+    with_T    = params[:carry_t]          == "1" ? "-T"    : ""
+    with_T2   = params[:carry_t2]         == "1" ? "--T2"  : ""
+    with_F    = params[:carry_f]          == "1" ? "-F"    : ""
+    with_x    = params[:output_voxelwise] == "1" ? "-x"    : ""
+    with_R    = params[:output_raw]       == "1" ? "-R"    : ""
+    with_D    = params[:demean_data]      == "1" ? "-D"    : ""
 
     cmd   = "randomise_parallel"
     cmd  += " -i #{inputfile}"
     cmd  += " -o #{output_option}"
     cmd  += " -d #{mat}"
     cmd  += " -t #{con}"
-    cmd  += " -f #{fts}" if fts.present?
-    cmd  += " -e #{grp}" if grp.present?
-    cmd  += " -c #{c_option}"
+    cmd  += " -f #{fts}"      if fts.present?
+    cmd  += " -e #{grp}"      if grp.present?
+    cmd  += " -c #{c_option}" if c_option.present?
     cmd  += " -n #{n_option}"
-    cmd  += " -m #{mask}"
-    cmd  += " #{with_T} #{with_F} #{with_x} #{with_R}"
+    cmd  += " -m #{mask}"     if mask.present?
+    cmd  += " #{with_T} #{with_T2} #{with_F} #{with_x} #{with_R} #{with_D}"
 
     # Export of the CBRAIN_WORKDIR variable is used by
     # fsl_sub to determine if task has to be parallelized.
     # In our case, workdir is exported only for group analyses because
     # individual analyses will not be parallelized.
     cmds << "export CBRAIN_WORKDIR=#{self.full_cluster_workdir} # To make fsl_sub submit tasks to CBRAIN"
-    cmds << "export CBRAIN_SHARE_WD_TID=#{self.id}" 
+    cmds << "export CBRAIN_SHARE_WD_TID=#{self.id}"
     cmds << "echo Starting Randomise"
     cmds << "echo running #{cmd}"
     cmds << cmd

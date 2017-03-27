@@ -32,7 +32,7 @@ class CbrainTask::FslRandomise < PortalTask
       :n_perm                      => "5000",
       :carry_t                     => "1",
       :output_voxelwise            => "1",
-      :cluster_based_tresh         => "2.3",
+      :cluster_based_tresh         => "",
       :design_collection_id        => nil, # no form element for this one
       :matrix_name                 => nil, # no form element for this one
       :t_contrasts_name            => nil, # no form element for this one
@@ -48,7 +48,7 @@ class CbrainTask::FslRandomise < PortalTask
     files  = Userfile.find_all_by_id(ids)
 
     # Should have at least 4 entries
-    cb_error "Error: this task should have in input at least one 4D input file, one mask,
+    cb_error "Error: this task should have in input at least one 4D input file,
               one #{FslMatrixFile.pretty_type} and one #{FslTContrastFile.pretty_type} or
               a #{FslDesignCollection.pretty_type}" if files.count < 3
 
@@ -76,8 +76,8 @@ class CbrainTask::FslRandomise < PortalTask
     end
 
     # Should be launch with 2 Nifti file at least
-    cb_error "Error: this task can only run with at least 2 #{NiftiFile.pretty_type}" if
-      files.count { |u| u.is_a?(NiftiFile) } < 2
+    cb_error "Error: this task can only run with a #{NiftiFile.pretty_type}" if
+      files.count { |u| u.is_a?(NiftiFile) } < 1
 
     # Search for a f_contrasts_id
     params[:f_contrasts_id] =
