@@ -188,15 +188,16 @@ var list_of_hidden_fields = [
 <% end %>
 ];
 
-function updateList() {
-  var mask_id = $("#cbrain_task_params_mask_id").val();
-  var my_ul   = $("#mylist_input");
+function updateList(with_mask) {
+  var mask_id   = document.getElementById("<%= :mask_id.to_la_id %>").value;
+  var my_ul     = $("#mylist_input");
   var lielem;
   var id, current_id_value;
   my_ul.empty();
+
   for (idx in list_of_ids) {
     current_id_value = list_of_ids[idx];
-    if (parseInt(current_id_value) === parseInt(mask_id)) { continue; }
+    if (parseInt(current_id_value) === parseInt(mask_id) && with_mask !== true) { continue; }
     lielem = $('<li>').html(list_of_links[idx]);
     my_ul.append(lielem);
     my_ul.append($(list_of_hidden_fields[idx]));
@@ -204,13 +205,21 @@ function updateList() {
 };
 
 updateList();
-$("#cbrain_task_params_mask_id").change(updateList);
+$("#<%= :mask_id.to_la_id %>").change(updateList);
 
 $('input.param_input_toggle').click(function() {
   var checked = $(this).prop('checked'),
       select  = $(this).siblings('select');
 
   select.prop('disabled', !checked);
+
+  // Special case if it is related to :mask_id and it is unchecked
+  // should keep the mask in the list
+  if (select[0].id == document.getElementById("<%= :mask_id.to_la_id %>").id && !checked) {
+    updateList(true);
+  } else {
+    updateList();
+  }
 
   if (checked)
     select[0].selectedIndex = 0;
