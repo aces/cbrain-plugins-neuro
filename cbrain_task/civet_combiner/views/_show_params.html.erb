@@ -18,26 +18,25 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.  
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 -%>
 
-<STRONG>Input:</STRONG>
-<P>
+<strong>Input:</strong>
+<p>
 <%
 # Historically, the IDs were in a single string.
 civet_collection_ids = params[:civet_collection_ids] || [] # used to be string
 civet_ids            = civet_collection_ids.is_a?(Array) ? civet_collection_ids : civet_collection_ids.split(/,/)
 %>
-<UL>
+<ul>
  <% civet_ids.each do |id| %>
-   <LI>CIVET Result: <%= link_to_userfile_if_accessible id %></LI>
+   <li>CIVET Result: <%= link_to_userfile_if_accessible id %></li>
  <% end %>
-</UL>
-<BR>
-Delete original CIVET results: <%= params[:destroy_sources] == 'YeS' ? "YES!" : "No." %>
-<P>
-<STRONG>Output:</STRONG>
-<P>
+</ul>
+
+<p>
+<strong>Output:</strong>
+<p>
 CIVET Study: <%= link_to_userfile_if_accessible params[:output_civetstudy_id] %>
 

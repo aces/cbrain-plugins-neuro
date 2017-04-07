@@ -47,7 +47,7 @@ class CbrainTask::CivetCombiner < ClusterTask
       tparams = task.params
       cid     = tparams[:output_civetcollection_id]  # old a single id
       cids    = tparams[:output_civetcollection_ids] # new, an array
-      cb_error "Could not found any output CIVET collection IDs from task '#{task.bname_tid}'." if cid.blank? && cids.blank?
+      cb_error "Could not find any CIVET output collection IDs from task '#{task.bname_tid}'." if cid.blank? && cids.blank?
       civet_ids << cid  unless cid.blank?
       civet_ids += cids unless cids.blank?
     end
@@ -144,6 +144,52 @@ class CbrainTask::CivetCombiner < ClusterTask
   end
 
   def save_results #:nodoc:
+
+    if params[:copy_files]
+      save_civet_study
+    else
+      save_civet_virtual_study
+    end
+
+  end
+
+  private
+
+  def save_civet_virtual_study #:nodoc:
+    params       = self.params
+    provid       = self.results_data_provider_id
+    newname      = params[:civet_study_name]
+
+    # Create new CivetStudy object to hold them all
+    # and in the darkness bind them
+    newstudy = safe_userfile_find_or_new(CivetVirtualStudy,
+      :name             => newname,
+      :data_provider_id => provid
+    )
+    newstudy.save
+
+    civet_collection_ids = params[:civet_collection_ids] || [] # used to be string
+    civet_ids            = civet_collection_ids.is_a?(Array) ? civet_collection_ids : civet_collection_ids.split(/,/)
+
+    #self.addlog("Finding CivetOutputs to link to this study...")
+    civet_outputs = CivetOutput.find(civet_ids)
+
+    self.addlog("Linking CivetOutputs: #{civet_ids.join(", ")}")
+    newstudy.set_civet_outputs(civet_outputs)
+    newstudy.addlog("Created by task: #{self.id}")
+    newstudy.addlog("Subjects are: #{civet_ids.join(", ")}")
+
+    # Save back full list of all collection IDs into params
+    civet_ids = civet_ids.map(&:to_s).uniq.sort
+    params[:civet_collection_ids] = civet_ids
+    params[:output_civetstudy_id] = newstudy.id
+
+    cols = civet_ids.map { |id| Userfile.find(id) }
+
+    true
+  end
+
+  def save_civet_study #:nodoc:
     params       = self.params
     provid       = self.results_data_provider_id
     newname      = params[:civet_study_name]
@@ -169,67 +215,59 @@ class CbrainTask::CivetCombiner < ClusterTask
     # to destroy the incomplete newstudy object.
 
     self.addlog("Combining collections...")
-    #begin
-      newstudy.save!
-      newstudy.cache_prepare
-      self.addlog_to_userfiles_these_created_these(cols,[newstudy],"with prefix '#{prefix}'")
+    newstudy.save!
+    newstudy.cache_prepare
+    self.addlog_to_userfiles_these_created_these(cols,[newstudy],"with prefix '#{prefix}'")
 
-      coldir = newstudy.cache_full_path
-      Dir.mkdir(coldir) unless File.directory?(coldir)
-      errfile = self.stderr_cluster_filename
+    coldir = newstudy.cache_full_path
+    Dir.mkdir(coldir) unless File.directory?(coldir)
+    errfile = self.stderr_cluster_filename
 
-      # Issue rsync commands to combine the files
-      subjects = []
-      cols.each_with_index do |col,idx|
-        col_id = col.id
-        dsid   = tcol_to_dsid["C#{col_id}"]
-        subjects << dsid
-        if cols.size <= 50
-          self.addlog("Adding #{col.class.to_s} '#{col.name}'")
-          #newstudy.addlog("Adding #{col.class.to_s} '#{col.name}'")
-        end
-        colpath  = col.cache_full_path.to_s
-        dsid_dir = (coldir + dsid).to_s
-        Dir.mkdir(dsid_dir) unless File.directory?(dsid_dir)
-        rsyncout = IO.popen("rsync -a -l #{colpath.bash_escape}/ #{dsid_dir.bash_escape} 2>&1 | tee -a #{errfile.to_s.bash_escape}","r") do |fh|
-          fh.read
-        end
-        unless rsyncout.blank?
-          cb_error "Error running rsync; rsync returned '#{rsyncout}'"
-        end
-        if cols.size > 50 && (idx % 50 == 49 || idx == cols.size - 1)  # group the log entries by batches of 50
-          subjslice_start = 50*(idx/50)
-          subjslice_names = subjects[subjslice_start,50].join(", ")
-          self.addlog("Added #{subjslice_names}")
-          #newstudy.addlog("Adding #{subjslice_names}'")
-        end
+    # Issue rsync commands to combine the files
+    subjects = []
+    cols.each_with_index do |col,idx|
+      col_id = col.id
+      dsid   = tcol_to_dsid["C#{col_id}"]
+      subjects << dsid
+      if cols.size <= 50
+        self.addlog("Adding #{col.class.to_s} '#{col.name}'")
+        #newstudy.addlog("Adding #{col.class.to_s} '#{col.name}'")
       end
-
-      newstudy.save
-      self.addlog("Syncing CivetStudy '#{newstudy.name}' (ID=#{newstudy.id}) to its Data Provider...")
-      newstudy.sync_to_provider
-      newstudy.set_size
-      newstudy.save
-
-      params[:output_civetstudy_id] = newstudy.id
-      newstudy.addlog("Subjects are: #{subjects.join(", ")}")
-
-      # Option: destroy the original sources
-      if params[:destroy_sources] && params[:destroy_sources].to_s == 'YeS'
-        cols.each do |col|
-          self.addlog("Destroying source #{col.class.to_s} '#{col.name}'")
-          col.destroy rescue true
-        end
+      colpath  = col.cache_full_path.to_s
+      dsid_dir = (coldir + dsid).to_s
+      Dir.mkdir(dsid_dir) unless File.directory?(dsid_dir)
+      rsyncout = IO.popen("rsync -a -l #{colpath.bash_escape}/ #{dsid_dir.bash_escape} 2>&1 | tee -a #{errfile.to_s.bash_escape}","r") do |fh|
+        fh.read
       end
+      unless rsyncout.blank?
+        cb_error "Error running rsync; rsync returned '#{rsyncout}'"
+      end
+      if cols.size > 50 && (idx % 50 == 49 || idx == cols.size - 1)  # group the log entries by batches of 50
+        subjslice_start = 50*(idx/50)
+        subjslice_names = subjects[subjslice_start,50].join(", ")
+        self.addlog("Added #{subjslice_names}")
+        #newstudy.addlog("Adding #{subjslice_names}'")
+      end
+    end
 
-    #rescue => itswrong
-    #  newstudy.destroy
-    #  params.delete(:output_civetstudy_id)
-    #  raise itswrong
-    #end
+    newstudy.save
+    self.addlog("Syncing CivetStudy '#{newstudy.name}' (ID=#{newstudy.id}) to its Data Provider...")
+    newstudy.sync_to_provider
+    newstudy.set_size
+    newstudy.save
+
+    params[:output_civetstudy_id] = newstudy.id
+    newstudy.addlog("Subjects are: #{subjects.join(", ")}")
+
+    # Option: destroy the original sources
+    if params[:destroy_sources] && params[:destroy_sources].to_s == 'Yes'
+      cols.each do |col|
+        self.addlog("Destroying source #{col.class.to_s} '#{col.name}'")
+        col.destroy rescue true
+      end
+    end
 
     true
   end
 
 end
-

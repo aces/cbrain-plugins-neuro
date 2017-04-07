@@ -89,5 +89,16 @@ class CivetOutput < FileCollection
     @overlays             = thickness_txts_for_select + surfaces_txts_for_select
   end
 
+  def dsid #:nodoc:
+    return @dsid unless @dsid.nil?
+    self.sync_to_cache
+    ymltext        = File.read(self.cache_full_path + "CBRAIN.params.yml")
+    civet_params   = YAML.load(ymltext).with_indifferent_access
+    file_args      = civet_params[:file_args] || { "0" => {} }
+    file0          = file_args["0"] || {}
+
+    @dsid = file0[:dsid]
+  end
+
 
 end
