@@ -174,12 +174,12 @@
     <% else %>
       <%= form.params_label  "thickness_method[]",  "Thickness methods:", :title => "Thickness methods" %>
       <%= form.params_select "thickness_method[]", tmethods, {}, :multiple => true, :size => 3 %>
-      <p>
-      <%= form.params_label  :thickness_method_for_qc,  "Thickness method for QC:", :title => "Thickness method for QC" %>
+      <%= form.params_label  :thickness_method_for_qc,  "and thickness method for QC:", :title => "and thickness method for QC" %>
       <%= form.params_select :thickness_method_for_qc, tmethods %>
     <% end %>
 
-    <%= form.params_label      :thickness_kernel, "and kernel size:",
+    <p>
+    <%= form.params_label      :thickness_kernel, "Thickness kernel size:",
                                :title => "FWHM for surface blurring,\n default: 20 for version 1.1.11 and lower,\n default: 30 for version 1.1.12 and later\nList of integers separated by a ':' is accepted for version 2.0.0 and later" %>
     <%= form.params_text_field :thickness_kernel, :size => not_at_least_2_0_0 ? 4 : 12 %>
 
