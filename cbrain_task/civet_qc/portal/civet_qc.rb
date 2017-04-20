@@ -17,7 +17,7 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.  
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
 # A subclass of PortalTask to launch civet_qc.
@@ -35,7 +35,7 @@ class CbrainTask::CivetQc < PortalTask
     file_ids.each do |id|
       civetstudy = Userfile.find(id)
       unless civetstudy.is_a?(CivetStudy)
-        cb_error "This program must be launched on one or several CivetStudy only."
+        cb_error "This program must be launched on one or several CivetStudies (or CivetVirtualStudies) only."
       end
     end
 

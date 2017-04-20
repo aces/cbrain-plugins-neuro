@@ -17,7 +17,7 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.  
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
 # A subclass of PortalTask to launch civet_combiner.
@@ -29,7 +29,8 @@ class CbrainTask::CivetCombiner < PortalTask
 
   def self.default_launch_args #:nodoc:
     { :civet_collection_ids => [],
-      :civet_study_name     => "Study-#{Time.now.to_i}"
+      :civet_study_name     => "Study-#{Time.now.to_i}",
+      :copy_files           => 'No',
     }
   end
 
@@ -69,7 +70,7 @@ class CbrainTask::CivetCombiner < PortalTask
     params = self.params
 
     if params[:civet_collection_ids].is_a?(String)
-      params[:civet_collection_ids] = params[:civet_collection_ids].split(/,/) 
+      params[:civet_collection_ids] = params[:civet_collection_ids].split(/,/)
     end
   end
 
