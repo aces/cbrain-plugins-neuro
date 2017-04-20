@@ -29,7 +29,8 @@ class CbrainTask::CivetCombiner < PortalTask
 
   def self.default_launch_args #:nodoc:
     { :civet_collection_ids => [],
-      :civet_study_name     => "Study-#{Time.now.to_i}"
+      :civet_study_name     => "Study-#{Time.now.to_i}",
+      :copy_files           => 'No',
     }
   end
 

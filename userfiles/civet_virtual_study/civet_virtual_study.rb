@@ -27,56 +27,120 @@ class CivetVirtualStudy < CivetStudy
 
   Revision_info=CbrainFileRevision[__FILE__] #:nodoc:
 
-  has_viewer :name => 'CIVET Virtual Study', :partial => :civet_virtual_study
+  CSV_BASENAME = "_civet_outputs.cbcsv"
 
-  # Sync the CivetVirtualStudy, with the CivetOutputs if deep=true
-  def sync_to_cache(deep=true)
+  reset_viewers # we don't need any of the superclass viewers
+  has_viewer :name => 'CIVET Virtual Study', :partial => :civet_virtual_study, :if => Proc.new { |u| u.is_locally_synced? }
+
+  # Sync the CivetVirtualStudy, with the CivetOutputs too if deep=true
+  def sync_to_cache(deep=true) #:nodoc:
+    return true if self.is_locally_synced?
     super()
     if deep
-      civet_outputs = get_civet_outputs
-      make_cache_symlinks(civet_outputs)
+      self.sync_civet_outputs
+      self.update_cache_symlinks
     end
+    @cbfl = @civet_outs = nil # flush internal cache
+    true
   end
 
-  # Load the list of CivetOutputs from the CbrainFileList
-  def get_civet_outputs
-    self.sync_to_cache(false)
-
-    civet_outputs = CivetOutput.find(subject_ids)
-  end
-
-  def subject_ids
-    self.sync_to_cache(false)
-    full_path = self.cache_full_path + "_civet_outputs.cbcsv"
-
-    cbfl = CbrainFileList.new
-    cbfl.load_from_file(full_path)
-
-    cbfl.ordered_raw_ids
-  end
-
-  # Create symbolic links within the study to the CivetOutput Userfile cache
-  def make_cache_symlinks(civet_outputs)
+  # When syncing to the provider, we locally erase
+  # the symlinks, because they make no sense outside
+  # of the local Rails app.
+  # FIXME: this method has a slight race condition,
+  # after syncing to the provider we recreate the
+  # symlinks, but of another program tries to access
+  # them during that time they might not yet be there.
+  def sync_to_provider #:nodoc:
     self.cache_writehandle do
-      civet_outputs.each do |co|
-        co.sync_to_cache
+      self.erase_cache_symlinks
+    end
+    self.make_cache_symlinks
+    true
+  end
 
-        link_path = self.cache_full_path + co.dsid
-        File.symlink(co.cache_full_path, link_path) unless File.exist?(link_path)
+  # Sets the set of CivetOutputs belonging to this study.
+  # The CSV file inside the study will be created/updated,
+  # as well as all the symbolic links. The content of the
+  # study is NOT synced to the provider side.
+  def set_civet_outputs(civetoutputs)
+    cb_error "Not all CivetOutputs." unless civetoutputs.all? { |f| f.is_a?(CivetOutput) }
+
+    # Prepare CSV content
+    content     = CbrainFileList.create_csv_file_from_userfiles(civetoutputs)
+
+    # This optimize so we don't reload the content for making the symlinks
+    @cbfl       = CbrainFileList.new
+    @cbfl.load_from_content(content)
+    @civet_outs = nil
+
+    # Write CSV content to the interal CSV file
+    self.cache_prepare
+    Dir.mkdir(self.cache_full_path) unless Dir.exist?(self.cache_full_path)
+    File.write(csv_cache_full_path.to_s, content)
+    self.update_cache_symlinks
+    self.cache_is_newer
+  end
+
+  # Returns the subject IDs of the CivetOutputs in this study.
+  def subject_ids
+    self.get_civet_outputs.map(&:dsid)
+  end
+
+  # Returns the list of CivetOutputs from the internal CbrainFileList
+  # The list is cached internally and access control is applied
+  # based on the owner of the CivetVirtualStudy.
+  def get_civet_outputs #:nodoc:
+    if @cbfl.blank?
+      @cbfl = CbrainFileList.new
+      file_content = File.read(csv_cache_full_path.to_s)
+      @cbfl.load_from_content(file_content)
+    end
+    @civet_outs ||= @cbfl.userfiles_accessible_by_user!(self.user).compact.select { |f| f.is_a?(CivetOutput) }
+  end
+
+
+
+  #====================================================================
+  # Support methods, not part of this model's API.
+  #====================================================================
+
+  protected
+
+  # Synchronize each of the CivetOutputs in the study
+  def sync_civet_outputs #:nodoc:
+    self.get_civet_outputs.each { |co| co.sync_to_cache }
+  end
+
+  # Clean up ALL symbolic links in the virtual study
+  def erase_cache_symlinks #:nodoc:
+    Dir.chdir(self.cache_full_path) do
+      Dir.glob('*').each do |entry|
+        # FIXME how to only erase symlinks that points to a CBRAIN cache or local DP?
+        # Parsing the value of the symlink is tricky...
+        File.unlink(entry) if File.symlink?(entry)
       end
     end
   end
 
-  # Link a set of CivetOutputs to this study
-  def set_civet_outputs(userfiles)
-    content = CbrainFileList.create_csv_file_from_userfiles(userfiles)
+  # This cleans up any old symbolic links, then recreates them.
+  # Note that this does not sync the CivetOutput themselves.
+  def update_cache_symlinks #:nodoc:
+    self.erase_cache_symlinks
+    self.make_cache_symlinks
+  end
 
-    self.cache_writehandle do
-      Dir.mkdir(self.cache_full_path) unless Dir.exist?(self.cache_full_path)
-      File.write(self.cache_full_path + "_civet_outputs.cbcsv", content)
+  # Create symbolic links within the study to its CivetOutputs.
+  # Note that this does not sync the CivetOutput themselves.
+  def make_cache_symlinks #:nodoc:
+    self.get_civet_outputs.each do |co|
+      link_path = self.cache_full_path + co.dsid
+      File.symlink(co.cache_full_path, link_path) unless File.exist?(link_path)
     end
+  end
 
-    self.make_cache_symlinks(userfiles)
+  def csv_cache_full_path #:nodoc:
+    self.cache_full_path + CSV_BASENAME
   end
 
 end

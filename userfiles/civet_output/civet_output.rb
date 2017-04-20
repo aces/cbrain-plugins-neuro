@@ -89,16 +89,44 @@ class CivetOutput < FileCollection
     @overlays             = thickness_txts_for_select + surfaces_txts_for_select
   end
 
-  def dsid #:nodoc:
-    return @dsid unless @dsid.nil?
-    self.sync_to_cache
-    ymltext        = File.read(self.cache_full_path + "CBRAIN.params.yml")
-    civet_params   = YAML.load(ymltext).with_indifferent_access
+  # Returns the CIVET prefix used for this CivetOutput; the value
+  # is read from the YAML file stored in the output after creation.
+  # Once read in, the value is cached in an object instance variable @prefix
+  # AND ALSO in the meta data store (as :prefix).
+  def prefix
+    @prefix ||= self.meta[:prefix]
+    return @prefix if @prefix.present?
+
+    civet_params   = read_cbrain_yaml
     file_args      = civet_params[:file_args] || { "0" => {} }
     file0          = file_args["0"] || {}
+    myprefix       = file0[:prefix] || civet_params[:prefix] # new convention || old convention
 
-    @dsid = file0[:dsid]
+    @prefix = self.meta[:prefix] = myprefix
   end
 
+  # Returns the CIVET dsid (subject ID) used for this CivetOutput; the value
+  # is read from the YAML file stored in the output after creation.
+  # Once read in, the value is cached in an object instance variable @dsid
+  # AND ALSO in the meta data store (as :dsid).
+  def dsid
+    @dsid ||= self.meta[:dsid]
+    return @dsid if @dsid.present?
+
+    civet_params   = read_cbrain_yaml
+    file_args      = civet_params[:file_args] || { "0" => {} }
+    file0          = file_args["0"] || {}
+    mydsid         = file0[:dsid] || civet_params[:dsid] # new convention || old convention
+
+    @dsid = self.meta[:dsid] = mydsid
+  end
+
+  private
+
+  def read_cbrain_yaml #:nodoc:
+    return @civet_params if @civet_params.present?
+    ymltext        = File.read(self.cache_full_path + "CBRAIN.params.yml")
+    @civet_params  = YAML.load(ymltext).with_indifferent_access
+  end
 
 end

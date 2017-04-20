@@ -22,6 +22,9 @@
 #
 -%>
 
+This is a CivetVirtualStudy, which means the CivetOutputs are not physically present in it.
+<p>
+
 <% if @userfile.is_locally_synced? %>
   <% if @userfile.list_files(".", :directory).any? { |dir| dir.name[-3, 3] == "/QC" } %>
     <%= link_to("Show QC Data",
@@ -34,18 +37,23 @@
                 :target => "_blank") %>
     <br>
     <%= overlay_ajax_link "Civet QC Legend", display_userfile_path(@userfile, :viewer => :civetqc_legend), :class => "action_link" %>
+  <% else %>
+    This Study does not seem to contain any QC data.
   <% end %>
 <% end %>
 
 <p>
+Here are links to the individual CivetOutputs.
+<p>
 
-<strong>CIVET Outputs:</strong>
+<strong>CIVET Outputs By Subject</strong>
 
-<ul>
-<% @userfile.subject_ids.each do |civet_output_id| %>
-  <li>
-    <%= link_to("Subject: #{civet_output_id.to_s}", url_for(:controller => :userfiles, :action => :show, :id => civet_output_id.to_s)) %>
-  </li>
+<% civet_outs    = @userfile.get_civet_outputs %>
+<% by_subject    = civet_outs.index_by { |co| co.dsid } %>
+<% subjects_list = by_subject.keys.compact.sort %>
+
+<%= array_to_table(subjects_list, :cols => 6) do |subject_id,r,c| %>
+  <% civet_out = by_subject[subject_id] %>
+  Subject: <%= subject_id %></br>
+  <%= link_to_userfile_if_accessible(civet_out, nil, :html_options => { :target => "_blank" }) %>
 <% end %>
-</ul>
-
