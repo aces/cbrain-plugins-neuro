@@ -34,6 +34,8 @@
                 :target => "_blank") %>
     <br>
     <%= overlay_ajax_link "Civet QC Legend", display_userfile_path(@userfile, :viewer => :civetqc_legend), :class => "action_link" %>
+  <% else %>
+    This Study does not seem to contain any QC data.
   <% end %>
 <% end %>
 

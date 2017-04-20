@@ -24,18 +24,19 @@
 
 <strong>Name of the combined Study:</strong>
 <br>
-<%= text_field_tag :civet_study_name.to_la, params[:civet_study_name] %>
-<br>
+<%= form.params_text_field :civet_study_name %>
+<p>
 
 <table>
   <tr>
-    <th>CivetOutput Names To Be Merged</th>
+    <th>CivetOutputs To Be Merged</th>
   </tr>
   <% params[:interface_userfile_ids].each do |id| %>
     <tr>
       <% u = Userfile.find_by_id(id) %>
       <% if u.is_a?(CivetOutput) || u.is_a?(CivetStudy) %>
-        <td>OK: <%= h(u.class.to_s) %> <%= link_to_userfile_if_accessible u %> <%= hidden_field_tag 'cbrain_task[params][civet_collection_ids][]', id %></td>
+        <td>OK: <%= u.class.to_s %> <%= link_to_userfile_if_accessible u %>
+        <%= hidden_field_tag 'civet_collection_ids[]'.to_la, id %></td>
       <% else %>
         <td>Error: <%= link_to_userfile_if_accessible u %> is NOT a CivetOutput or CivetStudy.</td>
       <% end %>
@@ -43,8 +44,17 @@
   <% end %>
 </table>
 
-After the Study is successfully created, <strong>destroy permanently</strong>
-the CivetOutputs used? <%= check_box_tag( :destroy_sources.to_la, 'Yes') %>
+<p>
 
-Copy all the files and form a CivetStudy (not recommended)? <%= check_box_tag( :copy_files.to_la, 'Yes') %>
+<% if @task.new_record? %>
+  <fieldset>
+    <legend>Options</legend>
+      Copy all the files and form a CivetStudy (not recommended)?
+      <%= form.params_check_box( :copy_files, {}, 'Yes', 'No' ) %>
+      <p>
+      If copying, after the Study is successfully created,
+      <strong>destroy permanently</strong> the CivetOutputs used?
+      <%= check_box_tag( :destroy_sources.to_la, 'Yes') %>
+   </fieldset>
+<% end %>
 

@@ -34,11 +34,11 @@ class CbrainTask::CivetCombiner < ClusterTask
   def setup #:nodoc:
     params       = self.params
 
-    # List of collection IDs directly supplied
+    # List of CivetOutput IDs directly supplied
     civet_collection_ids = params[:civet_collection_ids] || [] # used to be string
     civet_ids            = civet_collection_ids.is_a?(Array) ? civet_collection_ids : civet_collection_ids.split(/,/)
 
-    # Fetch list of collection IDs indirectly through task list
+    # Fetch list of CivetOutput IDs indirectly through task list
     task_list_ids        = params[:civet_from_task_ids] || ""
     task_ids             = task_list_ids.split(/,/)
     civet_collection_ids = [] if ! task_ids.empty? # with a task ID list, we ignore the original civet_collection_ids
@@ -47,16 +47,16 @@ class CbrainTask::CivetCombiner < ClusterTask
       tparams = task.params
       cid     = tparams[:output_civetcollection_id]  # old a single id
       cids    = tparams[:output_civetcollection_ids] # new, an array
-      cb_error "Could not find any CIVET output collection IDs from task '#{task.bname_tid}'." if cid.blank? && cids.blank?
+      cb_error "Could not find any CIVET output IDs from task '#{task.bname_tid}'." if cid.blank? && cids.blank?
       civet_ids << cid  unless cid.blank?
       civet_ids += cids unless cids.blank?
     end
 
-    # Save back full list of all collection IDs into params
+    # Save back full list of all CivetOutput IDs into params
     civet_ids = civet_ids.map(&:to_s).uniq.sort
     params[:civet_collection_ids] = civet_ids
 
-    # Get each source collection
+    # Get each source CivetOutput
     cols = []
     civet_ids.each do |id|
       col = Userfile.find(id.to_i)
@@ -68,7 +68,7 @@ class CbrainTask::CivetCombiner < ClusterTask
     end
 
     if cols.empty?
-      self.addlog("Error: no valid collections supplied?")
+      self.addlog("Error: no valid CivetOutputs supplied?")
       return false
     end
 
@@ -90,20 +90,9 @@ class CbrainTask::CivetCombiner < ClusterTask
     self.addlog("Checking collections: prefix and dsid...")
     seen_prefix = {}
     seen_dsid   = {}
-    tcol_to_dsid = {}
     cols.each do |col|
-      top = col.cache_full_path
-      params_file  = top + "CBRAIN.params.yml"
-      ymltext      = File.read(params_file) rescue ""
-      if ymltext.blank?
-        self.addlog("Could not find params file '#{params_file}' for CivetOutput '#{col.name}'.")
-        return false
-      end
-      civet_params = YAML.load(ymltext).with_indifferent_access
-      file_args = civet_params[:file_args] || { "0" => {} }
-      file0     = file_args["0"]           || {}
-      prefix = file0[:prefix] || civet_params[:prefix]  # change in struct: NEW || OLD
-      dsid   = file0[:dsid]   || civet_params[:dsid]    # change in struct: NEW || OLD
+      prefix = col.prefix
+      dsid   = col.dsid
       if prefix.blank?
         self.addlog("Could not find PREFIX for CivetOutput '#{col.name}'.")
         return false
@@ -115,7 +104,6 @@ class CbrainTask::CivetCombiner < ClusterTask
       seen_prefix[prefix]   = true
       seen_dsid[dsid]     ||= 0
       seen_dsid[dsid]      += 1
-      tcol_to_dsid["C#{col.id}"] = dsid
     end
 
     if seen_prefix.size != 1
@@ -126,16 +114,15 @@ class CbrainTask::CivetCombiner < ClusterTask
     prefix = seen_prefix.keys[0]
 
     if seen_dsid.values.select { |v| v > 1 }.size > 0
-      reports = seen_dsid.map { |dsid,count| "'#{dsid}' x #{count}" }
+      reports = seen_dsid.map { |dsid,count| count > 1 ? "'#{dsid}' x #{count}" : "" }
       self.addlog("Error, found some DSIDs represented more than once: #{reports.sort.join(', ')}")
       return false
     end
 
-    self.addlog("Combining results; PREFIX=#{prefix}, DSIDs=#{seen_dsid.keys.sort.join(', ')}")
+    self.addlog("Ready to combine outputs; PREFIX=#{prefix}, DSIDs=#{seen_dsid.keys.sort.join(', ')}")
 
-    # Just record the PREFIX and the list of DSIDs in the task's params.
+    # Just record the PREFIX in the task's params.
     params[:prefix] = prefix
-    params[:dsids]  = tcol_to_dsid
 
   end
 
@@ -144,94 +131,95 @@ class CbrainTask::CivetCombiner < ClusterTask
   end
 
   def save_results #:nodoc:
-
-    if params[:copy_files]
-      save_civet_study
-    else
-      save_civet_virtual_study
-    end
-
-  end
-
-  private
-
-  def save_civet_virtual_study #:nodoc:
-    params       = self.params
-    provid       = self.results_data_provider_id
-    newname      = params[:civet_study_name]
-
-    # Create new CivetStudy object to hold them all
-    # and in the darkness bind them
-    newstudy = safe_userfile_find_or_new(CivetVirtualStudy,
-      :name             => newname,
-      :data_provider_id => provid
-    )
-    newstudy.save
-
-    civet_collection_ids = params[:civet_collection_ids] || [] # used to be string
-    civet_ids            = civet_collection_ids.is_a?(Array) ? civet_collection_ids : civet_collection_ids.split(/,/)
-
-    #self.addlog("Finding CivetOutputs to link to this study...")
-    civet_outputs = CivetOutput.find(civet_ids)
-
-    self.addlog("Linking CivetOutputs: #{civet_ids.join(", ")}")
-    newstudy.set_civet_outputs(civet_outputs)
-    newstudy.addlog("Created by task: #{self.id}")
-    newstudy.addlog("Subjects are: #{civet_ids.join(", ")}")
-
-    # Save back full list of all collection IDs into params
-    civet_ids = civet_ids.map(&:to_s).uniq.sort
-    params[:civet_collection_ids] = civet_ids
-    params[:output_civetstudy_id] = newstudy.id
-
-    cols = civet_ids.map { |id| Userfile.find(id) }
-
-    true
-  end
-
-  def save_civet_study #:nodoc:
     params       = self.params
     provid       = self.results_data_provider_id
     newname      = params[:civet_study_name]
     prefix       = params[:prefix] # set in setup() above
-    tcol_to_dsid = params[:dsids]  # set in setup() above
+
+    # Virtual studies are now default, but as an option
+    # we still support full copies.
+    fullcopy    = params[:copy_files].presence == 'Yes'
 
     # Create new CivetStudy object to hold them all
     # and in the darkness bind them
-    newstudy = safe_userfile_find_or_new(CivetStudy,
+    # Two modes: create a CivetVirtualStudy (shallow copies),
+    # or copy files in a CivetStudy (deep copies)
+    klass        = fullcopy ? CivetStudy : CivetVirtualStudy
+
+    # Create new CivetStudy object to hold them all
+    # and in the darkness bind them
+    newstudy = safe_userfile_find_or_new(klass,
       :name             => newname,
       :data_provider_id => provid
     )
 
     civet_collection_ids = params[:civet_collection_ids] || [] # used to be string
     civet_ids            = civet_collection_ids.is_a?(Array) ? civet_collection_ids : civet_collection_ids.split(/,/)
+
     # Save back full list of all collection IDs into params
     civet_ids = civet_ids.map(&:to_s).uniq.sort
     params[:civet_collection_ids] = civet_ids
+
+    # Find the CivetOutputs themselves
     cols = civet_ids.map { |id| Userfile.find(id) }
 
     # Now let's fill the new CivetStudy with everything in
-    # the original collections; if anything fails, we need
-    # to destroy the incomplete newstudy object.
-
-    self.addlog("Combining collections...")
+    # the original outputs.
+    self.addlog("Preparing #{newstudy.class.to_s} ...")
     newstudy.save!
     newstudy.cache_prepare
-    self.addlog_to_userfiles_these_created_these(cols,[newstudy],"with prefix '#{prefix}'")
-
     coldir = newstudy.cache_full_path
     Dir.mkdir(coldir) unless File.directory?(coldir)
-    errfile = self.stderr_cluster_filename
+
+    # Add CivetOutputs depending on mode
+    self.addlog("Adding CivetOutputs ...")
+    if newstudy.is_a?(CivetVirtualStudy)
+      newstudy.set_civet_outputs(cols)
+    else # fullcopy == true
+      copy_civet_outputs(newstudy,cols) # use rsync to make full copies
+    end
+
+    # Save the content and DB model
+    self.addlog("Syncing #{newstudy.class} '#{newstudy.name}' (ID=#{newstudy.id}) to its Data Provider...")
+    newstudy.sync_to_provider
+    newstudy.set_size
+    newstudy.save
+
+    # Some provenance information.
+    params[:output_civetstudy_id] = newstudy.id
+    subjects = cols.map(&:dsid).compact.sort
+    newstudy.addlog("Subjects are: #{subjects.join(", ")}")
+    self.addlog_to_userfiles_these_created_these(cols,[newstudy],"with prefix '#{prefix}'")
+
+    # Option: destroy the original sources; only allowed when doing full copies.
+    if fullcopy && params[:destroy_sources] && params[:destroy_sources].to_s == 'Yes'
+      cols.each do |col|
+        self.addlog("Destroying source #{col.class.to_s} '#{col.name}'")
+        col.destroy rescue true
+      end
+    end
+
+    true
+  end
+
+
+
+  protected
+
+  # Makes a full copy of a bunch of CivetOutputs inside
+  # the content of the study, using rsync; the CivetOutputs
+  # are assumed to be already synchronized.
+  #
+  # This should be implemented in some sort of set_civet_outputs() in the CivetStudy model
+  def copy_civet_outputs(newstudy,civetoutputs) #:nodoc:
+    errfile      = self.stderr_cluster_filename
+    coldir       = newstudy.cache_full_path
 
     # Issue rsync commands to combine the files
-    subjects = []
-    cols.each_with_index do |col,idx|
-      col_id = col.id
-      dsid   = tcol_to_dsid["C#{col_id}"]
-      subjects << dsid
-      if cols.size <= 50
+    civetoutputs.each_with_index do |col,idx|
+      dsid   = col.dsid
+      if civetoutputs.size <= 50
         self.addlog("Adding #{col.class.to_s} '#{col.name}'")
-        #newstudy.addlog("Adding #{col.class.to_s} '#{col.name}'")
       end
       colpath  = col.cache_full_path.to_s
       dsid_dir = (coldir + dsid).to_s
@@ -242,32 +230,13 @@ class CbrainTask::CivetCombiner < ClusterTask
       unless rsyncout.blank?
         cb_error "Error running rsync; rsync returned '#{rsyncout}'"
       end
-      if cols.size > 50 && (idx % 50 == 49 || idx == cols.size - 1)  # group the log entries by batches of 50
+      if civetoutputs.size > 50 && (idx % 50 == 49 || idx == civetoutputs.size - 1)  # group the log entries by batches of 50
         subjslice_start = 50*(idx/50)
         subjslice_names = subjects[subjslice_start,50].join(", ")
         self.addlog("Added #{subjslice_names}")
-        #newstudy.addlog("Adding #{subjslice_names}'")
       end
     end
-
-    newstudy.save
-    self.addlog("Syncing CivetStudy '#{newstudy.name}' (ID=#{newstudy.id}) to its Data Provider...")
-    newstudy.sync_to_provider
-    newstudy.set_size
-    newstudy.save
-
-    params[:output_civetstudy_id] = newstudy.id
-    newstudy.addlog("Subjects are: #{subjects.join(", ")}")
-
-    # Option: destroy the original sources
-    if params[:destroy_sources] && params[:destroy_sources].to_s == 'Yes'
-      cols.each do |col|
-        self.addlog("Destroying source #{col.class.to_s} '#{col.name}'")
-        col.destroy rescue true
-      end
-    end
-
-    true
   end
 
 end
+
