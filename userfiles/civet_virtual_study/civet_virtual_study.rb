@@ -34,7 +34,8 @@ class CivetVirtualStudy < CivetStudy
 
   # Sync the CivetVirtualStudy, with the CivetOutputs too if deep=true
   def sync_to_cache(deep=true) #:nodoc:
-    return true if self.is_locally_synced?
+    syncstat = self.local_sync_status(:refresh)
+    return true if syncstat && syncstat.status == 'InSync'
     super()
     if deep
       self.sync_civet_outputs
