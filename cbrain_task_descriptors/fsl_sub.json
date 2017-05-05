@@ -13,7 +13,6 @@
       "value-key": "[SUBTASK_ID]",
       "list": false,
       "optional": false,
-      "command-line-flag": "",
       "default-value": null
     }
   ],
