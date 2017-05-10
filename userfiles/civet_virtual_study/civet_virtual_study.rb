@@ -137,7 +137,7 @@ class CivetVirtualStudy < CivetStudy
     self.get_civet_outputs.each do |co|
       link_path  = self.cache_full_path + co.dsid
       link_value = co.cache_full_path.to_s
-      File.unlink(link_path) if File.symlink?(entry) && File.readlink(entry) != link_value
+      File.unlink(link_path) if File.symlink?(link_path) && File.readlink(link_path) != link_value
       File.symlink(link_value, link_path) unless File.exist?(link_path)
     end
   end
