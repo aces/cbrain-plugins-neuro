@@ -133,7 +133,7 @@ class CbrainTask::FslRandomise < ClusterTask
     # fsl_sub to determine if task has to be parallelized.
     # In our case, workdir is exported only for group analyses because
     # individual analyses will not be parallelized.
-    cmds << "export CBRAIN_WORKDIR=#{self.full_cluster_workdir} # To make fsl_sub submit tasks to CBRAIN"
+    # cmds << "export CBRAIN_WORKDIR=#{self.full_cluster_workdir} # To make fsl_sub submit tasks to CBRAIN"
     cmds << "export CBRAIN_SHARE_WD_TID=#{self.id}"
     cmds << "echo Starting Randomise"
     cmds << "echo running #{cmd}"
