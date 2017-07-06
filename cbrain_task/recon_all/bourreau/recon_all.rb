@@ -77,7 +77,7 @@ class CbrainTask::ReconAll < ClusterTask
       if params[:with_hippocampal] == "1"
         if !self.tool_config.is_at_least_version("6.0.0")
           with_hippocampal = "-hippo-subfields"
-        elsif
+        else
           with_hippocampal = "-hippocampal-subfields-T1"
         end
       end
