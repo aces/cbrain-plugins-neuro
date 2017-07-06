@@ -94,38 +94,38 @@ class CbrainTask::ReconAll < ClusterTask
       if with_i_option
         # Potential pb see with Pierre
         FileUtils.rm_rf(subjectid)
-        files.map { |f| subjid_info += " -i #{f.name}" }
+        files.map { |f| subjid_info += " -i #{f.name.bash_escape}" }
       else
         remove_is_running_file()
       end
       # For SingleFile or FileCollection
-      subjid_info       += " -subjid #{subjectid}"
+      subjid_info       += " -subjid #{subjectid.bash_escape}"
 
-      step               = params[:workflow_directives].bash_escape
+      step               = params[:workflow_directives]
       message            = "Starting Recon-all cross-sectional"
     else # RECOVER FROM FAILURE MODE
-      subjectid          = params[:subjectid].bash_escape
+      subjectid          = params[:subjectid]
       with_qcache        = ""
       with_mprage        = ""
-      subjid_info        = "-s #{subjectid}"
+      subjid_info        = "-s #{subjectid.bash_escape}"
       step               = "-make all"
       message            = "Recovering Recon-all cross-sectional"
     end
 
     # Special options for recon-all-LBL
     #     -nuintensitycor-3T -N3-3T [number] -nuiterations-3T [number]
+    lbl_ext     = ""
+    lbl_options = ""
     if self.tool_config.version_name =~ /LBL/
-      lbl_ext     = ""
-      lbl_options = ""
-      n3_3t  = (params[:n3_3t].bash_escape  || "").strip
-      nui_3t = (params[:nui_3t].bash_escape || "").strip
+      n3_3t  = (params[:n3_3t].presence  || "").strip
+      nui_3t = (params[:nui_3t].presence || "").strip
       if n3_3t.present? && nui_3t.present? && n3_3t =~ /^\d+$/ && nui_3t =~ /^\d+$/
          lbl_ext     = "-LBL"
-         lbl_options = "-nuintensitycor-3T -N3-3T #{n3_3t} -nuiterations-3T #{nui_3t}"
+         lbl_options = "-nuintensitycor-3T -N3-3T #{n3_3t.bash_escape} -nuiterations-3T #{nui_3t.bash_escape}"
       end
     end
 
-    recon_all_command = "recon-all#{lbl_ext} #{with_qcache} #{with_mprage} #{with_3T_data} #{with_cw256} #{with_notal_check} #{with_hippocampal} -sd . #{subjid_info} #{step} #{lbl_options}"
+    recon_all_command = "recon-all#{lbl_ext} #{with_qcache} #{with_mprage} #{with_3T_data} #{with_cw256} #{with_notal_check} #{with_hippocampal} -sd . #{subjid_info} #{step.bash_escape} #{lbl_options}"
 
     [
       "echo #{message}",

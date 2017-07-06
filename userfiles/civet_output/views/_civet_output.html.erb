@@ -44,10 +44,10 @@
       <a id="top"></a>
       <b>Go to:</b>
       <% order = [ 'Verify', 'Clasp', 'Atlas', 'Surfsurf', 'Laplace' ] %>
+      <% order = (order + png_files.keys.map {|f| f.capitalize}).uniq %>
       <% order.each do |short_name| %>
         <% file = png_files[short_name] %>
         <% next unless file %>
-        <% file = png_files[short_name] %>
         <a href="#<%= short_name %>"><%= short_name %></a>
       <% end %>
       <!-- Render png -->
