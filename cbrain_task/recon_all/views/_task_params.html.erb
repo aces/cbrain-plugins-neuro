@@ -88,10 +88,12 @@ Workflow directives:<br/>
   <p>
 <% end %>
 
-<%= form.params_check_box :with_qcache  %><%= form.params_label :with_qcache , "Run with qcache (-qcache)."  %><br/>
-<%= form.params_check_box :with_mprage  %><%= form.params_label :with_mprage , "Run with mprage (-mprage)."  %><br/>
-<%= form.params_check_box :with_3T_data %><%= form.params_label :with_3T_data, "Run with 3T data (-nuintensitycor-3T (v == 5.1.0) || -3T (v >= 5.3.0))." %><br/>
-<%= form.params_check_box :with_cw256   %><%= form.params_label :with_cw256,   "Run with -cw256 flag, for image with FOV > 256 (-cw256)." %><br/
+<%= form.params_check_box :with_qcache      %><%= form.params_label :with_qcache , "Run with qcache (-qcache)."  %><br/>
+<%= form.params_check_box :with_mprage      %><%= form.params_label :with_mprage , "Run with mprage (-mprage)."  %><br/>
+<%= form.params_check_box :with_3T_data     %><%= form.params_label :with_3T_data, "Run with 3T data (-nuintensitycor-3T (v == 5.1.0) || -3T (v >= 5.3.0))." %><br/>
+<%= form.params_check_box :with_cw256       %><%= form.params_label :with_cw256,   "Run with -cw256 flag, for image with FOV > 256 (-cw256)." %><br/>
+<%= form.params_check_box :with_notal_check %><%= form.params_label :with_notal_check,   "Use this flag when running a subject after receiving an error about Tailarach Failure Detection and the tailarach transform looks fine after checking it (-notal-check)." %><br/
+<%= form.params_check_box :with_hippocampal %><%= form.params_label :with_hippocampal,   "Run with segmentation of hippocampal subfields using input T1 scan (-hippo-subfields (v5.1.0 and v5.3.0) or -hippocampal-subfields-T1 (v6.0.0))." %><br/>
 
 
 <% if @tool_config.present? && @tool_config.version_name =~ /LBL/%>

@@ -47,3 +47,9 @@
 <% if params[:with_cw256].to_i == 1 %>
   Run with cw256 flag.<br/>
 <% end %>
+<% if params[:with_notal_check].to_i == 1 %>
+  Run with -notal-check flag.<br/>
+<% end %>
+<% if params[:with_hippocampal].to_i == 1 %>
+  Run with segmentation of hippocampal subfields using input T1 scan (-hippo-subfields (v5.1.0 and v5.3.0) or -hippocampal-subfields-T1 (v6.0.0)).<br/>
+<% end %>
