@@ -62,15 +62,23 @@ class CbrainTask::ReconAll < ClusterTask
     if !to_recover  # NORMAL EXECUTION MODE
 
       # Simple option
-      with_qcache        = params[:with_qcache] == "1" ? "-qcache"  : ""
-      with_mprage        = params[:with_mprage] == "1" ? "-mprage"  : ""
-      with_cw256         = params[:with_cw256]  == "1" ? "-cw256"   : ""
+      with_qcache        = params[:with_qcache]      == "1" ? "-qcache"      : ""
+      with_mprage        = params[:with_mprage]      == "1" ? "-mprage"      : ""
+      with_cw256         = params[:with_cw256]       == "1" ? "-cw256"       : ""
+      with_notal_check   = params[:with_notal_check] == "1" ? "-notal-check" : ""
       with_3T_data       = ""
       if params[:with_3T_data] == "1"
         if self.tool_config.is_version("5.1.0")
           with_3T_data = "-nuintensitycor-3T"
         elsif self.tool_config.is_at_least_version("5.3.0")
           with_3T_data = "-3T"
+        end
+      end
+      if params[:with_hippocampal] == "1"
+        if !self.tool_config.is_at_least_version("6.0.0")
+          with_hippocampal = "-hippo-subfields"
+        elsif
+          with_hippocampal = "-hippocampal-subfields-T1"
         end
       end
 
@@ -117,7 +125,7 @@ class CbrainTask::ReconAll < ClusterTask
       end
     end
 
-    recon_all_command = "recon-all#{lbl_ext} #{with_qcache} #{with_mprage} #{with_3T_data} #{with_cw256} -sd . #{subjid_info} #{step} #{lbl_options}"
+    recon_all_command = "recon-all#{lbl_ext} #{with_qcache} #{with_mprage} #{with_3T_data} #{with_cw256} #{with_notal_check} #{with_hippocampal} -sd . #{subjid_info} #{step} #{lbl_options}"
 
     [
       "echo #{message}",
