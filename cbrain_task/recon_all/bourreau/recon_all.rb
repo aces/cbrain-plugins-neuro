@@ -27,6 +27,9 @@ class CbrainTask::ReconAll < ClusterTask
 
   Revision_info=CbrainFileRevision[__FILE__] #:nodoc:
 
+  RECON_ALL_STEP=["-autorecon1","-autorecon2","-autorecon2-noaseg","-autorecon2-cp","-autorecon2-wm",
+                  "-autorecon2-pial","-autorecon-pial", "-autorecon3"]
+
   include RestartableTask
   include RecoverableTask
 
@@ -101,8 +104,7 @@ class CbrainTask::ReconAll < ClusterTask
       # For SingleFile or FileCollection
       subjid_info       += " -subjid #{subjectid.bash_escape}"
 
-      step = params[:workflow_directives].bash_escape
-      step = (step =~ /autorecon\d?-?[noaseg|cp|wm|pial]?/ || step == "-all") ? step : ""
+      step = "-all"      unless RECON_ALL_STEP.include?(step)
       message            = "Starting Recon-all cross-sectional"
     else # RECOVER FROM FAILURE MODE
       subjectid          = params[:subjectid]
