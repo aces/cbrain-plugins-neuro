@@ -30,6 +30,17 @@ class CbrainTask::ReconAll < ClusterTask
   include RestartableTask
   include RecoverableTask
 
+  RECON_ALL_STEPS=%w(
+    -all
+      -autorecon1
+      -autorecon2
+        -autorecon2-noaseg
+        -autorecon2-cp
+        -autorecon2-wm
+        -autorecon2-pial -autorecon-pial
+      -autorecon3
+  )
+
   def setup #:nodoc:
     file_ids  = params[:interface_userfile_ids] || []
 
@@ -101,7 +112,8 @@ class CbrainTask::ReconAll < ClusterTask
       # For SingleFile or FileCollection
       subjid_info       += " -subjid #{subjectid.bash_escape}"
 
-      step               = params[:workflow_directives]
+      step = params[:workflow_directives]
+      cb_error "Invalid 'workflow_directives' params" unless RECON_ALL_STEPS.include?(step)
       message            = "Starting Recon-all cross-sectional"
     else # RECOVER FROM FAILURE MODE
       subjectid          = params[:subjectid]
@@ -125,7 +137,7 @@ class CbrainTask::ReconAll < ClusterTask
       end
     end
 
-    recon_all_command = "recon-all#{lbl_ext} #{with_qcache} #{with_mprage} #{with_3T_data} #{with_cw256} #{with_notal_check} #{with_hippocampal} -sd . #{subjid_info} #{step.bash_escape} #{lbl_options}"
+    recon_all_command = "recon-all#{lbl_ext} #{with_qcache} #{with_mprage} #{with_3T_data} #{with_cw256} #{with_hippocampal} -sd . #{subjid_info} #{step} #{with_notal_check} #{lbl_options}"
 
     [
       "echo #{message}",
