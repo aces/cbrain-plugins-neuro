@@ -61,6 +61,10 @@ class CbrainTask::FslRandomise < ClusterTask
     return true
   end
 
+  def job_walltime_estimate #:nodoc:
+    return 48.hours
+  end
+
   def cluster_commands #:nodoc:
     params       = self.params
 
