@@ -62,7 +62,7 @@ class CbrainTask::FslRandomise < ClusterTask
   end
 
   def job_walltime_estimate #:nodoc:
-    return 48.hours
+    return 60.hours
   end
 
   def cluster_commands #:nodoc:
