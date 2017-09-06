@@ -72,7 +72,7 @@ class CbrainTask::ReconAllLongi < ClusterTask
 
     tpn_files = collections.map(&:name)
     tp_list   = ""
-    tpn_files.each { |name| tp_list += " -tp \'#{name}\'" }
+    tpn_files.each { |name| tp_list += " -tp #{name.bash_escape}" }
 
 
     # Check base_output_name
@@ -89,14 +89,14 @@ class CbrainTask::ReconAllLongi < ClusterTask
       echo ""
       echo Starting Recon-all -long.
 
-      if test -f #{recon_all_base_log} && grep -q -i "recon-all .* finished without error at" #{recon_all_base_log} ; then
+      if test -f #{recon_all_base_log.bash_escape} && grep -q -i "recon-all .* finished without error at" #{recon_all_base_log.bash_escape} ; then
         echo Base file construction already performed.
       else
         echo Starting base file construction.
-        recon-all -sd . -base '#{base_output_name}' #{tp_list} -all
+        recon-all -sd . -base #{base_output_name.bash_escape} #{tp_list} -all
       fi
 
-      if ! test -f #{recon_all_base_log} || ! grep -q -i "recon-all .* finished without error at" #{recon_all_base_log} ; then
+      if ! test -f #{recon_all_base_log.bash_escape} || ! grep -q -i "recon-all .* finished without error at" #{recon_all_base_log.bash_escape} ; then
         echo "Error: Recon-all base file construction FAILED"
         exit 20
       fi
@@ -115,7 +115,7 @@ class CbrainTask::ReconAllLongi < ClusterTask
       recon_all_long_log  = "#{output_path}/scripts/recon-all.log"
       params[:long_outputs_names] << output_path
 
-      cmd_string = "recon-all -sd . -long '#{collection.name}' '#{base_output_name}' -all"
+      cmd_string = "recon-all -sd . -long #{collection.name.bash_escape} #{base_output_name.bash_escape} -all"
       out_file   = "out#{idx}"
       err_file   = "err#{idx}"
       cmd_out_err_list   << [ cmd_string , out_file, err_file ]
@@ -125,10 +125,10 @@ class CbrainTask::ReconAllLongi < ClusterTask
       #
 
       echo ""
-      if test -f #{recon_all_long_log} && grep -q -i "recon-all .* finished without error at" #{recon_all_long_log} ; then
-        echo Longitudinal studies for #{collection.name} construction already performed.
+      if test -f #{recon_all_long_log.bash_escape} && grep -q -i "recon-all .* finished without error at" #{recon_all_long_log.bash_escape} ; then
+        echo Longitudinal studies for #{collection.name.bash_escape} construction already performed.
       else
-        echo Starting longitudinal studies for #{collection.name} in background.
+        echo Starting longitudinal studies for #{collection.name.bash_escape} in background.
         #{cmd_string} > #{out_file} 2> #{err_file}  &
       fi
 
