@@ -1,20 +1,20 @@
 {
-  "name": "fsl_sub",
-  "tool-version": "2.0",
-  "description": "A wrapper for FSL sub. Assumes that task will run on a file system shared with the submission process, that input files are already in place, and that output files will be handled by another process.",
-  "command-line": "fsl_sub /bin/bash .new-task-[SUBTASK_ID].sh",
-  "schema-version": "0.4",
-  "inputs": [
-    {
-      "id": "subtask_id",
-      "name": "Subtask ID",
-      "type": "String",
-      "description": "The ID of a subtask descriptor created by fsl_sub",
-      "value-key": "[SUBTASK_ID]",
-      "list": false,
-      "optional": false,
-      "default-value": null
-    }
-  ],
-  "output-files": []
+    "tool-version": "2.0", 
+    "name": "fsl_sub", 
+    "command-line": "fsl_sub /bin/bash .new-task-[SUBTASK_ID].sh", 
+    "inputs": [
+        {
+            "description": "The ID of a subtask descriptor created by fsl_sub", 
+            "default-value": null, 
+            "value-key": "[SUBTASK_ID]", 
+            "optional": false, 
+            "list": false, 
+            "type": "String", 
+            "id": "subtask_id", 
+            "name": "Subtask ID"
+        }
+    ], 
+    "schema-version": "0.5", 
+    "output-files": [], 
+    "description": "A wrapper for FSL sub. Assumes that task will run on a file system shared with the submission process, that input files are already in place, and that output files will be handled by another process."
 }
