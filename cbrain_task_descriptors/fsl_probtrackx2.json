@@ -48,6 +48,7 @@
             "description": "Use the actual directory name given - i.e. don't add + to make a new directory", 
             "default-value": true, 
             "value-key": "[FORCEDIR]", 
+            "optional": true, 
             "type": "Flag", 
             "id": "forcedir", 
             "name": "Use the actual directory name given"
@@ -57,6 +58,7 @@
             "description": "Output path distribution", 
             "default-value": true, 
             "value-key": "[OPD]", 
+            "optional": true, 
             "type": "Flag", 
             "id": "outputpath", 
             "name": "Output path"
@@ -66,6 +68,7 @@
             "description": "Correct path distribution for the length of the pathways", 
             "default-value": true, 
             "value-key": "[PD]", 
+            "optional": true, 
             "type": "Flag", 
             "id": "pathdistribution", 
             "name": "Correct path distribution"
@@ -75,6 +78,7 @@
             "description": "Output seeds to targets", 
             "default-value": true, 
             "value-key": "[OS2T]", 
+            "optional": true, 
             "type": "Flag", 
             "id": "outseeds", 
             "name": "Output seeds"
