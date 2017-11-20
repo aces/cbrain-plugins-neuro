@@ -40,7 +40,7 @@ class CbrainTask::ReconAll
     params    = self.params
 
     file_ids  = params[:interface_userfile_ids] || []
-    files     = Userfile.where(id: file_ids)
+    files     = Userfile.where(id: file_ids).all.to_a
     
     files.count { |f| f.is_a?(SingleFile) }
   end
