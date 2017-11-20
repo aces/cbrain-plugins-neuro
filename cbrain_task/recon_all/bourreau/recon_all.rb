@@ -44,7 +44,7 @@ class CbrainTask::ReconAll < ClusterTask
   def setup #:nodoc:
     file_ids  = params[:interface_userfile_ids] || []
 
-    files = Userfile.find_all_by_id(file_ids)
+    files = Userfile.where(id: file_ids).all.to_a
     files.each do |file|
       self.addlog("Preparing input file '#{file.name}'")
       file.sync_to_cache
@@ -96,7 +96,7 @@ class CbrainTask::ReconAll < ClusterTask
 
       # Creation of command line
       file_ids           = params[:interface_userfile_ids] || []
-      files              = Userfile.find_all_by_id(file_ids)
+      files              = Userfile.where(id: file_ids).all.to_a
       with_i_option      = true if params[:multiple_subjects] == "Single" || files[0].is_a?(SingleFile)
       subjectid          = with_i_option ? "subjectid-#{self.run_id}" : files[0].name
       params[:subjectid] = subjectid
@@ -155,7 +155,7 @@ class CbrainTask::ReconAll < ClusterTask
 
     # Define dp
     file_ids = params[:interface_userfile_ids] || []
-    files = Userfile.find_all_by_id(file_ids)
+    files = Userfile.where(id: file_ids).all.to_a
     self.results_data_provider_id ||= files[0].data_provider_id
 
     # Check for error

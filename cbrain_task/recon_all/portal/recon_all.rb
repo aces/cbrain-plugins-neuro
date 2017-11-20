@@ -38,7 +38,7 @@ class CbrainTask::ReconAll < PortalTask
     params    = self.params
 
     file_ids  = params[:interface_userfile_ids] || []
-    files     = Userfile.find_all_by_id(file_ids)
+    files     = Userfile.where(id: file_ids).all.to_a
     files.each do |file|
       cb_error "Error: this task can only run on MGZ, MINC1, NifTi files
       or on a Recon-all Cross-Sectional Output (FreeSurfer subject directory)." unless

@@ -45,7 +45,7 @@ class CbrainTask::FslRandomise < PortalTask
     params = self.params
 
     ids    = params[:interface_userfile_ids]
-    files  = Userfile.find_all_by_id(ids)
+    files  = Userfile.where(id: ids).all.to_a
 
     # Should have at least 4 entries
     cb_error "Error: this task should have in input at least one 4D input file,

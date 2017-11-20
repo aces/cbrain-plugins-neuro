@@ -34,7 +34,7 @@ class CbrainTask::ReconAllLongi < ClusterTask
     params = self.params
 
     collection_ids  = params[:interface_userfile_ids] || []
-    collections     = Userfile.find_all_by_id(collection_ids)
+    collections     = Userfile.where(id: collection_ids).all.to_a
     collections.each do |collection|
       self.addlog("Preparing input file '#{collection.name}'")
       collection.sync_to_cache
@@ -64,7 +64,7 @@ class CbrainTask::ReconAllLongi < ClusterTask
 
     # Check if each input directories is an ReconAllCrossSectionalOutput and create tpn_list
     collection_ids  = params[:interface_userfile_ids] || []
-    collections     = Userfile.find_all_by_id(collection_ids)
+    collections     = Userfile.where(id: collection_ids).all.to_a
 
     collections.each do |collection|
       cb_error("Sorry, but #{collection.name} is not of type #{ReconAllCrossSectionalOutput.pretty_type}.") unless collection.is_a?(ReconAllCrossSectionalOutput)
@@ -189,8 +189,7 @@ class CbrainTask::ReconAllLongi < ClusterTask
     params             = self.params
 
     collection_ids     = params[:interface_userfile_ids] || []
-    collections        = Userfile.find_all_by_id(collection_ids)
-    first_coll         = collections[0]
+    first_coll         = Userfile.where(id: collection_ids).first
 
     self.results_data_provider_id ||= first_coll.data_provider_id
 

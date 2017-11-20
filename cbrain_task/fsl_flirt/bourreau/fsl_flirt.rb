@@ -35,7 +35,7 @@ class CbrainTask::FslFlirt < ClusterTask
 
     file_ids  =  params[:interface_userfile_ids] || []
 
-    files = Userfile.find_all_by_id(file_ids)
+    files = Userfile.where(id: file_ids).all.to_a
     files.each do |file|
       self.addlog("Preparing input file '#{file.name}'")
       file.sync_to_cache

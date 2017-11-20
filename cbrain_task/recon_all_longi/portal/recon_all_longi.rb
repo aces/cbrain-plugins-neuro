@@ -36,7 +36,7 @@ class CbrainTask::ReconAllLongi < PortalTask
     params = self.params
    
     collection_ids  = params[:interface_userfile_ids] || []
-    collections     = Userfile.find_all_by_id(collection_ids)
+    collections     = Userfile.where(id: collection_ids).all.to_a
     if collections.size < 2
       cb_error "Error: this task requires at least two input collections of type #{ReconAllCrossSectionalOutput.pretty_type}."
     end
