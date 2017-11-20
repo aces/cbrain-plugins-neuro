@@ -189,7 +189,8 @@ class CbrainTask::ReconAllLongi < ClusterTask
     params             = self.params
 
     collection_ids     = params[:interface_userfile_ids] || []
-    first_coll         = Userfile.where(id: collection_ids).first
+    collections        = Userfile.where(id: collection_ids).all.to_a
+    first_coll         = collections[0]
 
     self.results_data_provider_id ||= first_coll.data_provider_id
 
