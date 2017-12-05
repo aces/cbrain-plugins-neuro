@@ -461,7 +461,11 @@ job's output doesn't crush another job's output!</strong>.
                               .where( :bourreau_id => bourreau_ids, :tool_id => CbrainTask::CivetCombiner.tool.id )
                               .all.to_a
     combiner_tool_configs.reject! { |tc| ! tc.can_be_accessed_by?(@task.user) }
-    params[:combiner_tool_config_id] ||= (@tool_config && combiner_tool_configs.where(:bourreau_id => @tool_config.bourreau_id).first.try(:id))
+    if @tool_config && params[:combiner_tool_config_id].blank?
+      params[:combiner_tool_config_id] = combiner_tool_configs.select { |tc|
+        tc.bourreau_id == @tool_config.bourreau_id
+      }.first.try(:id)
+    end
   %>
 
   <% if combiner_tool_configs.size > 0 %>
@@ -471,7 +475,12 @@ job's output doesn't crush another job's output!</strong>.
                                 .where( :bourreau_id => bourreau_ids, :tool_id => CbrainTask::CivetQc.tool.id )
                                 .all.to_a
       qc_tool_configs.reject! { |tc| ! tc.can_be_accessed_by?(@task.user) }
-      params[:qc_tool_config_id]       ||= (@tool_config && qc_tool_configs.where(:version_name => @tool_config.version_name, :bourreau_id => @tool_config.bourreau_id).first.try(:id))
+      if @tool_config && params[:qc_tool_config_id].blank?
+        params[:qc_tool_config_id] = qc_tool_configs.select { |tc|
+          tc.bourreau_id  == @tool_config.bourreau_id  &&
+          tc.version_name == @tool_config.version_name
+        }.first.try(:id)
+      end
     %>
 
     <P>
