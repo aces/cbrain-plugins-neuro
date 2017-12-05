@@ -138,9 +138,9 @@ class CbrainTask::FslMelodic < PortalTask
         file_name.strip!
         # Checks files in line
         cb_error "Error: file #{file_name} (present in #{csv_file.name}) doesn't look like a Nifti or MINC file (must have a .mnc, .nii or .nii.gz extension)" unless ( file_name.end_with?(".nii") || file_name.end_with?(".nii.gz") || file_name.end_with?(".mnc") )
-        file_array = Userfile.where(:name => file_name)
+        file_array   = Userfile.where(:name => file_name)
         current_user = User.find(self.user_id)
-        file_array = Userfile.find_accessible_by_user(file_array.map { |x| x.id }, current_user) rescue [] # makes sure that files accessible by the user are selected
+        file_array   = Userfile.find_accessible_by_user(file_array.map { |x| x.id }, current_user) rescue [] # makes sure that files accessible by the user are selected
         cb_error "Error: file #{file_name} (present in #{csv_file.name}) not found!" unless file_array.size > 0
         cb_error "Error: multiple files found for #{file_name} (present in #{csv_file.name})" if file_array.size > 1 # this shouldn't happen.
         # Assigns files
