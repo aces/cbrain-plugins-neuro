@@ -45,6 +45,13 @@ class CivetVirtualStudy < CivetStudy
     true
   end
 
+  # Invokes the local sync_to_cache with deep=false; this means the
+  # CivetOutputs are not synchronized and symlinks not created.
+  # This method is used by FileCollection when archiving or unarchiving.
+  def sync_to_cache_for_archiving
+    sync_to_cache(false)
+  end
+
   # When syncing to the provider, we locally erase
   # the symlinks, because they make no sense outside
   # of the local Rails app.
@@ -53,10 +60,10 @@ class CivetVirtualStudy < CivetStudy
   # symlinks, but of another program tries to access
   # them during that time they might not yet be there.
   def sync_to_provider #:nodoc:
-    self.cache_writehandle do
-      self.erase_cache_symlinks
+    self.cache_writehandle do # when the block ends, it will trigger the provider upload
+      self.erase_cache_symlinks unless self.archived?
     end
-    self.make_cache_symlinks
+    self.make_cache_symlinks unless self.archived?
     true
   end
 
