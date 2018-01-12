@@ -37,7 +37,7 @@ class CivetVirtualStudy < CivetStudy
     syncstat = self.local_sync_status(:refresh)
     return true if syncstat && syncstat.status == 'InSync'
     super()
-    if deep
+    if deep && ! self.archived?
       self.sync_civet_outputs
       self.update_cache_symlinks
     end
@@ -49,7 +49,9 @@ class CivetVirtualStudy < CivetStudy
   # CivetOutputs are not synchronized and symlinks not created.
   # This method is used by FileCollection when archiving or unarchiving.
   def sync_to_cache_for_archiving
-    sync_to_cache(false)
+    result = sync_to_cache(false)
+    self.erase_cache_symlinks rescue nil
+    result
   end
 
   # When syncing to the provider, we locally erase
