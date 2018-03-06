@@ -65,9 +65,9 @@ class CbrainTask::FslFlirt < ClusterTask
     output_name       = output_name.bash_escape
     bins              = params[:bins].bash_escape
     cost              = params[:cost].bash_escape
-    searchx           = "#{params[:searchx_min].bash_escape} #{params[:searchx_max].bash_escape}"
-    searchy           = "#{params[:searchy_min].bash_escape} #{params[:searchy_max].bash_escape}"
-    searchz           = "#{params[:searchz_min].bash_escape} #{params[:searchz_max].bash_escape}"
+    searchx           = "#{params[:searchrx_min].bash_escape} #{params[:searchrx_max].bash_escape}"
+    searchy           = "#{params[:searchry_min].bash_escape} #{params[:searchry_max].bash_escape}"
+    searchz           = "#{params[:searchrz_min].bash_escape} #{params[:searchrz_max].bash_escape}"
     two_d             = params[:model].to_i == 2 ? "-2D" : ""
     dof               = params[:dof].bash_escape
     interp            = params[:interp].bash_escape
