@@ -620,7 +620,7 @@ class CbrainTask::Civet < ClusterTask
     if params[:fake_run_civetcollection_id].present?
       return true # no validation necessary in test 'fake' mode.
     end
-    return true if no_mincinfo_on_system # will warn but keep going; happens when CIVET is in a container
+    return true if ! mincinfo_on_system? # will warn but keep going; happens when CIVET is in a container
     outerr = self.tool_config_system("mincinfo #{path.to_s.bash_escape} 2>&1")
     out    = outerr[0] + outerr[1]
     base = File.basename(path)
@@ -637,20 +637,20 @@ class CbrainTask::Civet < ClusterTask
 
   # This command checks (once) for the mincinfo command to
   # be available on the system, as configured through the toolconfigs.
-  # It caches the results and returns +true+ if there is no mincinfo,
+  # It caches the results and returns +true+ if there is a mincinfo,
   # and +false+ otherwise. If no mincinfo is found, a message is added
   # to the task's log.
-  def no_mincinfo_on_system #:nodoc:
-    return true  if @_no_mincinfo_on_system # cached the fact that no mincinfo was found
-    return false if @_no_mincinfo_on_system == false # exact compare to false, not nil
+  def mincinfo_on_system? #:nodoc:
+    return true  if @_mincinfo_on_system # cached the fact that mincinfo was found
+    return false if @_mincinfo_on_system == false # exact compare to false, not nil
     # Let's make an active check
     out_err = self.tool_config_system("which mincinfo")
     if out_err[0] =~ /^\/.*mincinfo\s*$/ # multiline match for a line such as "/path/to/mincinfo\n"
-      @_no_mincinfo_on_system = false # there IS a mincinfo available
-      return false
+      @_mincinfo_on_system = true # there IS a mincinfo available
+      return true
     end
     self.addlog("Warning: no 'mincinfo' command found on system. Not checking inputs.")
-    @_no_mincinfo_on_system = true # there IS NOT a mincinfo available
+    @_mincinfo_on_system = false # there IS NOT a mincinfo available
   end
 
   # Creates the output filename based on the pattern
