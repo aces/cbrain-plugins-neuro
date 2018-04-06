@@ -216,8 +216,10 @@ class CbrainTask::CivetCombiner < ClusterTask
     coldir       = newstudy.cache_full_path
 
     # Issue rsync commands to combine the files
+    subjects = []
     civetoutputs.each_with_index do |col,idx|
       dsid   = col.dsid
+      subjects << dsid # just needed for pretty grouped addlog() below
       if civetoutputs.size <= 50
         self.addlog("Adding #{col.class.to_s} '#{col.name}'")
       end
