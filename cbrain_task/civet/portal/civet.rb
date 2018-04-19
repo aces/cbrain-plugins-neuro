@@ -208,7 +208,7 @@ class CbrainTask::Civet < PortalTask
 
     # Verify thickness value
     if params[:thickness_kernel].blank?
-      params[:thickness_kernel] = self.tool_config.is_at_least_version("1.1.12") ? "30" : "20"
+      params[:thickness_kernel] = (self.tool_config && self.tool_config.is_at_least_version("1.1.12")) ? "30" : "20"
     end
 
     # Verify thickness kernel
@@ -231,20 +231,20 @@ class CbrainTask::Civet < PortalTask
     # Verify uniqueness of subject IDs
     dsid_counts = {}
     file_args_hash.each do |idx,fa|
-      dsid = fa[:dsid]
+      dsid = (fa[:dsid] || "").strip
+      fa[:dsid] = dsid # write back cleaned up value
       dsid_counts[dsid] ||= 0
       dsid_counts[dsid]  += 1
     end
+
+    is_at_least_version_2_1_0 = self.tool_config && self.tool_config.is_at_least_version("2.1.0")
 
     # Verify validity of subject IDs and prefix
     file_args_hash.each do |idx,fa|
       next unless fa[:launch] == '1'
 
       # Preprocess the subject ID
-      dsid = (fa[:dsid] || "").strip
-      fa[:dsid] = dsid
-
-      is_at_least_version_2_1_0 = self.tool_config && self.tool_config.is_at_least_version("2.1.0")
+      dsid = fa[:dsid]
 
       # Verify the subject ID
       message = nil
