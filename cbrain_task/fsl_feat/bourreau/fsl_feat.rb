@@ -68,19 +68,19 @@ class CbrainTask::FslFeat < ClusterTask
     inputfile    = Userfile.find(inputfile_id)
     cache_path   = inputfile.cache_full_path
 
-    # Extract nb volumes if is 0
-    if params[:data][:npts] == "0"
-      fslhd = "fslhd #{cache_path.to_s.bash_escape} | grep -w 'dim4'"
-      npts = tool_config_system(fslhd).first
+    # # Extract nb volumes if is 0
+    # if params[:data][:npts] == "0"
+    #   fslhd = "fslhd #{cache_path.to_s.bash_escape} | grep -w 'dim4'"
+    #   npts = tool_config_system(fslhd).first
 
-      npts.gsub!(/dim4/, "")
-      npts.strip!
-      if npts.blank?
-        self.addlog("Could not find number of volumes.")
-        return false
-      end
-      params[:data][:npts] = npts
-    end
+    #   npts.gsub!(/dim4/, "")
+    #   npts.strip!
+    #   if npts.blank?
+    #     self.addlog("Could not find number of volumes.")
+    #     return false
+    #   end
+    #   params[:data][:npts] = npts
+    # end
 
     # Define output path and output name
     task_work    = self.full_cluster_workdir
@@ -93,7 +93,7 @@ class CbrainTask::FslFeat < ClusterTask
 
     fsf_template   = ""
     plain_name     = self.name.underscore
-    full_path      = "#{Rails.root.to_s}/cbrain_plugins/cbrain_task/#{plain_name}/bourreau/design.fsf.erb"
+    full_path      = (Pathname.new(__FILE__).parent + "design.fsf.erb").to_s
     if File.exists?(full_path)
       fsf_template = File.read(full_path)
     else

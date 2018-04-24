@@ -42,7 +42,7 @@ class CbrainTask::FslFeat < PortalTask
       },
 
       :data => {
-        :npts                          => "0",
+        :npts                          => "",
         :ndelete                       => "0",
         :tr                            => "3.0",
         :paradigm_hp                   => "100"
@@ -151,6 +151,10 @@ class CbrainTask::FslFeat < PortalTask
     self.params_errors.add('registration[regstandard_dof]', "has invalid value.") unless
     regstandard_dof.present? && ["3","6","7","9","12"].include?(regstandard_dof)
 
+    # Check npts data[npts]
+    self.params_errors.add('data[npts]', "should be set.") if
+      !params[:data][:npts].present?
+
 
     # Check all 'float' and 'integer' params
     float_regex = '\d*\.?\d+([eE][-+]?\d+)?'
@@ -158,7 +162,9 @@ class CbrainTask::FslFeat < PortalTask
     params_errors.add("misc[noise]",            "is not a float.")    unless  params[:misc][:noise]       =~ /^#{float_regex}$/io
     params_errors.add("misc[noisear]",          "is not a float.")    unless  params[:misc][:noisear]     =~ /^#{float_regex}$/io
     params_errors.add("misc[critical_z]",       "is not a float.")    unless  params[:misc][:critical_z]  =~ /^#{float_regex}$/io
-    params_errors.add("data[npts]",             "is not an integer.") unless  params[:data][:npts]        =~ /^\d+$/
+    if params[:data][:npts].present?
+      params_errors.add("data[npts]",           "is not an integer.") unless  params[:data][:npts]        =~ /^[1-9]\d*$/
+    end
     params_errors.add("data[ndelete]",          "is not an integer.") unless  params[:data][:ndelete]     =~ /^\d+$/
     params_errors.add("data[ndelete]",          "can't be greater than total volumes.") if params[:data][:ndelete].to_i > params[:data][:npts].to_i
     params_errors.add("data[tr]",               "is not a float.")    unless  params[:data][:tr]          =~ /^#{float_regex}$/io
