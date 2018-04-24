@@ -18,7 +18,7 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.  
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 -%>
 
@@ -26,7 +26,7 @@
 
 This a preliminary version of FEAT in CBRAIN. </br>
 It only supports First-level analysis pre-stats. </br>
-Each input file will be an input of one FEAT, so CBRAIN will </br> 
+Each input file will be an input of one FEAT, so CBRAIN will </br>
 create one task for each input file.
 </medium>
 </p>
@@ -39,14 +39,14 @@ Input files selected:</br>
 </UL>
 <P>
 
-<%= form.params_select :level, 
+<%= form.params_select :level,
                   options_for_select([["First-level analysis","1"]], :selected => params[:level]),
                  {},
                  :class => "submit_onchange",
                  "data-commit" => "refresh" %>
 
-                          
-<%= form.params_select :analysis, 
+
+<%= form.params_select :analysis,
       options_for_select([["Pre-stats","1"]],
                           :selected => params[:analysis]),
                           {},
@@ -55,7 +55,7 @@ Input files selected:</br>
 </p>
 
 <%= build_tabs do |tb| %>
-  
+
   <%= tb.tab("Misc") do %>
     Brain/background threshold, % <%= form.params_text_field 'misc[brain_thresh]', :size => 4 %>
     </p>
@@ -66,27 +66,26 @@ Input files selected:</br>
       Z threshold <%= form.params_text_field 'misc[critical_z]', :size => 4 %></br>
     </fieldset>
   <% end %>
-  
+
   <%= tb.tab("Data") do %>
     Total volumes <%= form.params_text_field 'data[npts]', :size => 4 %></br>
     <small class="medium_paragraph">
-      If you don't know the number of volume left is 0,</br>
-      this way the total number of volumes will be calculated before starting feat.
+      Should be the same for all inputs.
     </small>
     </p>
     Delete volumes <%= form.params_text_field 'data[ndelete]', :size => 4 %></br>
     TR(s) <%= form.params_text_field 'data[tr]', :size => 4 %></br>
     High pass filter cutoff(s) <%= form.params_text_field 'data[paradigm_hp]', :size => 4 %></br>
   <% end %>
-  
+
   <%= tb.tab("Pre-stats") do %>
     Motion correction
-    <%= form.params_select 'pre_stats[mc]', 
+    <%= form.params_select 'pre_stats[mc]',
       [ ["None","0"] , ["MCFLIRT","1"] ]  %></br>
     <%
     #form.params_check_box 'pre_stats[regunwarp_yn]', {}, "1", "0" BO unwarping
     %>
-    Slice timing correction <%= form.params_select 'pre_stats[st]', 
+    Slice timing correction <%= form.params_select 'pre_stats[st]',
         [ ["None","0"],
           ["Regular up (0, 1, 2 ... n-1)","1"],
           ["Regular down (n-1, n-2, ... 0)","2"],
@@ -100,35 +99,35 @@ Input files selected:</br>
     <fieldset>
       <legend>Temporal filtering</legend>
       <%= form.params_check_box 'pre_stats[perfsub_yn]', {}, "1", "0" %> Perfusion substraction
-      <%= form.params_select 'pre_stats[tagfirst]', 
+      <%= form.params_select 'pre_stats[tagfirst]',
       [["First timepoint is tag", "1"] , ["First timepoint is control","0"]] %>
       </br>
       <%= form.params_check_box 'pre_stats[temphp_yn]', {}, "1", "0" %> Highpass
     </fieldset>
     </p>
     <%= form.params_check_box 'pre_stats[melodic_yn]', {}, "1", "0" %> MELODIC ICA data exploartion
-    
+
   <% end %>
-  
+
   <% if params[:analysis] != "1" %>
     <%= tb.tab("Stats") do %>
       "stats"
     <% end %>
-  
+
     <%= tb.tab("Post-stats") do %>
       "post-stats"
     <% end %>
   <% end %>
-  
+
   <%= tb.tab("Registration") do %>
     <fieldset>
       <legend>Standard space</legend>
       <small>For the moment use Feat default : MNI152_T1_2mm_brain</small></p>
-      Linear  
-      <%= form.params_select 'registration[regstandard_search]', 
+      Linear
+      <%= form.params_select 'registration[regstandard_search]',
         [ ["No search","0"] , ["Normal search","90"], ["Full search","180"] ]  %>
-      <%= form.params_select 'registration[regstandard_dof]', 
-        [ ["3 DOF (translation only)","3"] , ["6 DOF","6"], 
+      <%= form.params_select 'registration[regstandard_dof]',
+        [ ["3 DOF (translation only)","3"] , ["6 DOF","6"],
           ["7 DOF","7"], ["9 DOF","9"], ["12 DOF","12"] ]  %></br>
       <%#form.params_check_box  'registration[regstandard_nonlinear_yn]', {}, "1", "0" %>
       <%# form.params_text_field 'registration[regstandard_nonlinear_warpres]', :size => 4 %>
