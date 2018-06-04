@@ -1,7 +1,7 @@
 {
     "tool-version": "5.0.0",
     "name": "fsl_first",
-    "command-line": "output=$(echo X [INPUT_FILE] | perl -pe 's/X -i //;s/\.nii(\.gz)?$/_output/i' ); run_first_all [METHOD] [BRAIN_EXTRACTED] [SPECIFIED_STRUCTURE] [AFFINE] [THREE_STAGE] [VERBOSE] [INPUT_FILE] -o $output",
+    "command-line": "mkdir -p [OUTPUT_DIR]; run_first_all [METHOD] [BRAIN_EXTRACTED] [SPECIFIED_STRUCTURE] [AFFINE] [THREE_STAGE] [VERBOSE] [INPUT_FILE] -o [OUTPUT_DIR]/",
     "inputs": [
         {
             "command-line-flag": "-m",
@@ -76,13 +76,22 @@
     ],
     "schema-version": "0.5",
     "output-files": [
+	{
+	"id": "outputs",
+	"name": "First Outputs",
+	"description": "Output directory of First",
+	"value-key": "[OUTPUT_DIR]",
+	"path-template": "[INPUT_FILE]",
+	"list": false,
+	"path-template-stripped-extensions": [".nii",".nii.gz"]
+	},
         {
-            "id": "outputs",
-            "name": "First Outputs",
-            "description": "Collection of files from First",
-            "path-template": "[INPUT_FILE]_output*",
-            "list": true,
-            "path-template-stripped-extensions": [".nii",".nii.gz"]
+        "id": "std_sub_outputs",
+        "name": "Registered outputs",
+        "description": "Std sub output",
+        "path-template": "[INPUT_FILE]_to_std_sub*",
+        "list": true,
+        "path-template-stripped-extensions": [".nii",".nii.gz"]
         }
     ],
     "description": "FIRST is a model-based segmentation and registration tool, based on a Bayesian model of shape and appearance for subcortical structures."
