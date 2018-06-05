@@ -1,7 +1,7 @@
 {
     "tool-version": "5.0.0",
     "name": "fsl_first",
-    "command-line": "mkdir -p [OUTPUT_DIR]; run_first_all [METHOD] [BRAIN_EXTRACTED] [SPECIFIED_STRUCTURE] [AFFINE] [THREE_STAGE] [VERBOSE] [INPUT_FILE] -o [OUTPUT_DIR]/",
+    "command-line": "mkdir -p [OUTPUT_DIR]; run_first_all [METHOD] [BRAIN_EXTRACTED] [SPECIFIED_STRUCTURE] [AFFINE] [THREE_STAGE] [VERBOSE] [INPUT_FILE] -o [OUTPUT_DIR]/[PREFIX]",
     "inputs": [
         {
             "command-line-flag": "-m",
@@ -72,6 +72,16 @@
             "optional": true,
             "id": "verbose",
             "name": "Verbose"
+        },
+        {
+            "description": "Prefix for each files in the directory output.",
+            "value-key": "[PREFIX]",
+            "type": "String",
+            "optional": false,
+            "list": false,
+            "default-value": "output",
+            "id": "prefix",
+            "name": "Prefix"
         }
     ],
     "schema-version": "0.5",
