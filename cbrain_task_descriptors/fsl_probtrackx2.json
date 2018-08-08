@@ -1,141 +1,141 @@
 {
-    "tool-version": "1.0.0", 
-    "name": "fsl_probtrackx2", 
     "command-line": "cp -rL [INPUT_DIR] [OUTPUT_DIR]; probtrackx2 -s [OUTPUT_DIR]/[BASENAME] -m [OUTPUT_DIR]/[MASKNAME] -x [SEEDFILE] --dir=[OUTPUT_DIR]/[FINALDIR] [FORCEDIR] [OPD] [PD] [OS2T] --targetmasks=[TARGETMASKS] --xfm=[OUTPUT_DIR]/[XFM] --invxfm=[OUTPUT_DIR]/[INVXFM]", 
+    "container-image": {
+        "image": "mcin/docker-fsl:latest", 
+        "index": "index.docker.io", 
+        "type": "docker"
+    }, 
+    "description": "probabilistic tracking with crossing fibres", 
     "inputs": [
         {
             "description": "A bedpostX directory", 
-            "value-key": "[INPUT_DIR]", 
-            "type": "File", 
-            "optional": false, 
             "id": "inputdir", 
-            "name": "Input Directory"
+            "name": "Input Directory", 
+            "optional": false, 
+            "type": "File", 
+            "value-key": "[INPUT_DIR]"
         }, 
         {
             "description": "Basename for samples files - e.g. 'merged'", 
-            "value-key": "[BASENAME]", 
-            "type": "String", 
-            "optional": false, 
             "id": "basename", 
-            "name": "Base name"
+            "name": "Base name", 
+            "optional": false, 
+            "type": "String", 
+            "value-key": "[BASENAME]"
         }, 
         {
             "description": "Bet binary mask file in diffusion space", 
-            "value-key": "[MASKNAME]", 
-            "type": "String", 
-            "optional": false, 
             "id": "maskname", 
-            "name": "Mask name"
+            "name": "Mask name", 
+            "optional": false, 
+            "type": "String", 
+            "value-key": "[MASKNAME]"
         }, 
         {
             "description": "Seed volume or list (ascii text file) of volumes and/or surfaces", 
-            "value-key": "[SEEDFILE]", 
-            "type": "File", 
-            "optional": false, 
             "id": "seedfile", 
-            "name": "Seed file"
+            "name": "Seed file", 
+            "optional": false, 
+            "type": "File", 
+            "value-key": "[SEEDFILE]"
         }, 
         {
             "description": "Directory to put the final volumes in - code makes this directory - default='logdir'", 
-            "value-key": "[FINALDIR]", 
-            "type": "String", 
-            "optional": false, 
             "id": "finaldir", 
-            "name": "Directory to put the final volumes in"
+            "name": "Directory to put the final volumes in", 
+            "optional": false, 
+            "type": "String", 
+            "value-key": "[FINALDIR]"
         }, 
         {
             "command-line-flag": "--forcedir", 
-            "description": "Use the actual directory name given - i.e. don't add + to make a new directory", 
             "default-value": true, 
-            "value-key": "[FORCEDIR]", 
+            "description": "Use the actual directory name given - i.e. don't add + to make a new directory", 
+            "id": "forcedir", 
+            "name": "Use the actual directory name given", 
             "optional": true, 
             "type": "Flag", 
-            "id": "forcedir", 
-            "name": "Use the actual directory name given"
+            "value-key": "[FORCEDIR]"
         }, 
         {
             "command-line-flag": "--opd", 
-            "description": "Output path distribution", 
             "default-value": true, 
-            "value-key": "[OPD]", 
+            "description": "Output path distribution", 
+            "id": "outputpath", 
+            "name": "Output path", 
             "optional": true, 
             "type": "Flag", 
-            "id": "outputpath", 
-            "name": "Output path"
+            "value-key": "[OPD]"
         }, 
         {
             "command-line-flag": "--pd", 
-            "description": "Correct path distribution for the length of the pathways", 
             "default-value": true, 
-            "value-key": "[PD]", 
+            "description": "Correct path distribution for the length of the pathways", 
+            "id": "pathdistribution", 
+            "name": "Correct path distribution", 
             "optional": true, 
             "type": "Flag", 
-            "id": "pathdistribution", 
-            "name": "Correct path distribution"
+            "value-key": "[PD]"
         }, 
         {
             "command-line-flag": "--os2t", 
-            "description": "Output seeds to targets", 
             "default-value": true, 
-            "value-key": "[OS2T]", 
+            "description": "Output seeds to targets", 
+            "id": "outseeds", 
+            "name": "Output seeds", 
             "optional": true, 
             "type": "Flag", 
-            "id": "outseeds", 
-            "name": "Output seeds"
+            "value-key": "[OS2T]"
         }, 
         {
             "description": "File containing a list of target masks - for seeds_to_targets classification", 
-            "value-key": "[TARGETMASKS]", 
-            "type": "File", 
-            "optional": false, 
             "id": "targetmasks", 
-            "name": "File containing a list of target masks"
+            "name": "File containing a list of target masks", 
+            "optional": false, 
+            "type": "File", 
+            "value-key": "[TARGETMASKS]"
         }, 
         {
             "description": "Transform taking seed space to DTI space (either FLIRT matrix or FNIRT warpfield) - default is identity", 
-            "value-key": "[XFM]", 
-            "type": "String", 
-            "optional": false, 
             "id": "xfm", 
-            "name": "Transform taking seed space to DTI space"
+            "name": "Transform taking seed space to DTI space", 
+            "optional": false, 
+            "type": "String", 
+            "value-key": "[XFM]"
         }, 
         {
             "description": "Transform taking DTI space to seed space (compulsory when using a warpfield for seeds_to_dti)", 
-            "value-key": "[INVXFM]", 
-            "type": "String", 
-            "optional": false, 
             "id": "infxfm", 
-            "name": "Transform taking DTI space to seed space"
+            "name": "Transform taking DTI space to seed space", 
+            "optional": false, 
+            "type": "String", 
+            "value-key": "[INVXFM]"
         }, 
         {
-            "description": "Output directory name.", 
             "default-value": "probtrackx2_output", 
-            "value-key": "[OUTPUT_DIR]", 
-            "type": "String", 
-            "list": false, 
-            "optional": false, 
+            "description": "Output directory name.", 
             "id": "outdir", 
-            "name": "Output directory"
+            "list": false, 
+            "name": "Output directory", 
+            "optional": false, 
+            "type": "String", 
+            "value-key": "[OUTPUT_DIR]"
         }
     ], 
-    "container-image": {
-        "index": "index.docker.io", 
-        "image": "mcin/docker-fsl:latest", 
-        "type": "docker"
-    }, 
-    "schema-version": "0.5", 
+    "name": "fsl_probtrackx2", 
     "output-files": [
         {
             "description": "A folder containing the output result.", 
-            "list": false, 
             "id": "folder_out", 
+            "list": false, 
+            "name": "Output folder", 
             "optional": false, 
-            "path-template": "[OUTPUT_DIR]", 
-            "name": "Output folder"
+            "path-template": "[OUTPUT_DIR]"
         }
     ], 
+    "schema-version": "0.5", 
     "suggested-resources": {
         "walltime-estimate": 331200
     }, 
-    "description": "probabilistic tracking with crossing fibres"
+    "tool-version": "1.0.0"
 }
