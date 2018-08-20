@@ -15,6 +15,13 @@
         }
     ], 
     "schema-version": "0.5", 
-    "output-files": [], 
+    "output-files": [
+       {
+          "id": "output_log",
+          "name": "Output log",
+          "path-template": "output.log",
+          "optional": true
+       }
+    ],
     "description": "A wrapper for FSL sub. Assumes that task will run on a file system shared with the submission process, that input files are already in place, and that output files will be handled by another process."
 }
