@@ -160,7 +160,7 @@ if [ ! -f "$FREESURFER_HOME/license.txt" ] && [ ! -f "$FREESURFER_HOME/.license"
   fi
 fi
 
-    CP_LICENSE
+CP_LICENSE
 
     [
       cp_license,
