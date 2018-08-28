@@ -42,7 +42,7 @@
   params[:model]  = nil if adninl_disabled.present? && params[:model] == 'ADNInl'
   default_models << [ "ADNInl", "ADNInl", adninl_disabled ]
   # Add icbm152nl_09sfor version >= 2.0.0
-  adni152nl_09s_disabled = not_at_least_2_0_0 ? { :disabled => '1' } : {}
+  adni152nl_09s_disabled = not_at_least_1_1_12 ? { :disabled => '1' } : {}
   params[:model]  = nil if adni152nl_09s_disabled.present? && params[:model] == 'icbm152nl_09s'
   default_models << [ "icbm152nl_09s", "icbm152nl_09s", adni152nl_09s_disabled ]
   # Add ADNIhires for version >= 2.0.0
@@ -51,8 +51,8 @@
   default_models << [ "ADNIhires", "ADNIhires", adnihires_disabled ]
 
 
-  default_template = not_at_least_2_0_0 ? ["1.00"] : ["0.50","0.75","1.00"]
-  default_lsq      = not_at_least_2_1_0 ? [ "6", "9", "12" ] : [ "0", "6", "9", "12" ]
+  default_template = not_at_least_1_1_12 ? ["1.00"] : ["0.50","0.75","1.00"]
+  default_lsq      = not_at_least_2_1_0  ? [ "6", "9", "12" ] : [ "0", "6", "9", "12" ]
 %>
 
 
@@ -110,6 +110,12 @@
 
   <%= form.params_label      :N3_distance, "N3 distance:", :title => "N3 spline distance in mm (suggested values: 200 for 1.5T scan; 125 or 100 for 3T scan; 0 for MP2RAGE scan in later version than 1.1.12)" %>
   <%= form.params_text_field :N3_distance, :size => 4 %>
+
+  <% if @tool_config.is_version("1.1.12")  %>
+    <br>
+    <%= form.params_label     :correct_pve, "Correct PVE:", :title => "Correct PVE" %>   
+    <%= form.params_check_box :correct_pve %>
+  <% end %> 
 
   <% if !not_at_least_2_1_0 %>
     <br>
@@ -252,8 +258,8 @@
 
     <br>
 
-    <%= form.params_label :VBM_cerebellum, "Keep cerebellum in VBM maps:", :title => "Keep cerebellum in VBM maps" %>
-    <%= form.params_check_box :VBM_cerebellum %>
+    <%= form.params_label :mask_VBM_cerebellum, "Mask cerebellum in VBM maps:", :title => "Mask cerebellum in VBM maps" %>
+    <%= form.params_check_box :mask_VBM_cerebellum %>
   </div>
 
 </fieldset>

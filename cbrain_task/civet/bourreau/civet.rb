@@ -210,9 +210,10 @@ class CbrainTask::Civet < ClusterTask
     prefix = file0[:prefix] || "unkpref"
     dsid   = file0[:dsid]   || "unkdsid"
 
-    is_version_1_1_12         = self.tool_config.is_version("1.1.12")
-    is_at_least_version_2_0_0 = self.tool_config.is_at_least_version("2.0.0")
-    is_at_least_version_2_1_0 = self.tool_config.is_at_least_version("2.1.0")
+    is_version_1_1_12          = self.tool_config.is_version("1.1.12")
+    is_at_least_version_1_1_12 = self.tool_config.is_at_least_version("1.1.12")
+    is_at_least_version_2_0_0  = self.tool_config.is_at_least_version("2.0.0")
+    is_at_least_version_2_1_0  = self.tool_config.is_at_least_version("2.1.0")
 
     # -----------------------------------------------------------
     # More validations of params that are substituted in commands
@@ -228,7 +229,7 @@ class CbrainTask::Civet < ClusterTask
       cb_error "Bad model name."         unless params[:model]        =~ /^\s*[\w\.]+\s*$/
       cb_error "Model is not valid for this CIVET version" if params[:model] == "ADNInl"        && !is_version_1_1_12
       cb_error "Model is not valid for this CIVET version" if params[:model] == "icbm152nl_09a" && !is_at_least_version_2_0_0
-      cb_error "Model is not valid for this CIVET version" if params[:model] == "icbm152nl_09s" && !is_at_least_version_2_0_0
+      cb_error "Model is not valid for this CIVET version" if params[:model] == "icbm152nl_09s" && !is_at_least_version_1_1_12
       cb_error "Model is not valid for this CIVET version" if params[:model] == "ADNIhires"     && !is_at_least_version_2_0_0
     end
 
@@ -345,7 +346,7 @@ class CbrainTask::Civet < ClusterTask
     if mybool(params[:VBM])
         args += "-VBM "
         args += "-VBM-symmetry "                                if mybool(params[:VBM_symmetry])
-        args += "-VBM-cerebellum "                              if mybool(params[:VBM_cerebellum])
+        args += "-no-VBM-cerebellum "                           if mybool(params[:mask_VBM_cerebellum])
         args += "-VBM-fwhm #{params[:VBM_fwhm].bash_escape} "   if params[:VBM_fwhm].present?
     end
 

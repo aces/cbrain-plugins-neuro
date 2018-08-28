@@ -119,7 +119,7 @@ class CbrainTask::Civet < PortalTask
       :VBM                 => "0",         # -[no-]VBM
       :VBM_fwhm            => "8",         # -VBM-fwhm
       :VBM_symmetry        => "0",         # -[no-]VBM-symmetry
-      :VBM_cerebellum      => "1",         # -[no-]VBM-cerebellum
+      :mask_VBM_cerebellum => "0",         # -[no-]VBM-cerebellum
 
       # ANIMAL options
       :animal              => "0",         # -[no-]ANIMAL
