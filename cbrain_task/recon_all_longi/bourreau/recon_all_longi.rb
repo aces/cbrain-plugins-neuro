@@ -52,9 +52,9 @@ class CbrainTask::ReconAllLongi < ClusterTask
     # Calculate time
     # First 1 is for base creation
     if nb_input % nb_cpu == 0
-      ((1 + ( nb_input / nb_cpu )) * 24).hours
+      ((1 + ( nb_input / nb_cpu )) * 22).hours
     else
-      ((1 + ( (nb_input / nb_cpu) + 1 )) * 24).hours
+      ((1 + ( (nb_input / nb_cpu) + 1 )) * 22).hours
     end
   end
 
