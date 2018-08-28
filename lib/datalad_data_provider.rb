@@ -42,8 +42,7 @@ class DataladDataProvider < SshDataProvider
     true
   end
 
-  # Returns true: local data providers are considered fast syncing.
-  def is_fast_syncing?
+  def is_fast_syncing? #:nodoc:
     false
   end
 
@@ -58,14 +57,23 @@ class DataladDataProvider < SshDataProvider
   def impl_sync_to_cache(userfile) #:nodoc:
     src         = provider_full_path(userfile)
     dest        = cache_full_path(userfile)
-    cache       = dest.parent
     url_src     = Pathname.new(DATALAD_PREFIX) + src
 
-    datalad_command = "datalad install -g -s #{url_src.to_s.bash_escape}  #{dest.to_s.bash_escape}"
-    system(datalad_command)
-    Dir.chdir(dest.to_s) do
-      system("git-annex uninit")
-    end
+    datalad_command = "datalad install -r -g -s #{url_src.to_s.bash_escape} #{dest.to_s.bash_escape}"
+    system(datalad_command)  # the stupid command produces tons of output on stdout
+
+    # We may have to run 'git-annex uninit' many levels deep;
+    # hopefully our applications are OK with accessing files through
+    # symbolic links?
+    #if userfile.is_a?(FileCollection)
+    #  Dir.chdir(dest.to_s) do
+    #    system("git-annex uninit")
+    #  end
+    #end
+
+    cb_error "Cannot fetch content of '#{userfile.name}' on Datalad site from '#{url_src}'." unless File.exists?(dest.to_s)
+
+    true
   end
 
   def impl_provider_erase(userfile)  #:nodoc:
@@ -78,27 +86,40 @@ class DataladDataProvider < SshDataProvider
 
   private
 
-  def datalad_relative_path(userfile)
+  # NOTE: The metadata :datalad_path_prefix is
+  # for a future feature where userfile's DP location
+  # can be prefixed with a subpath; not currently implemented
+  # in browsing or registration.
+  def datalad_relative_path(userfile) #:nodoc:
     base   = self.remote_dir.presence
     prefix = (userfile.meta[:datalad_path_prefix] || {})[self.id]
     path   = base ? Pathname.new(base) : Pathname.new("")
     path  += prefix if prefix
+    path
   end
-
-  DATALAD_CACHE_DIR="/tmp/datalog_org"
-  Dir.mkdir(DATALAD_CACHE_DIR) rescue nil
 
   def impl_provider_list_all(user = nil) # user ignored
 
-    dirname = self.remote_dir
+    dirname = self.remote_dir || ""
 
-    system("datalad install -r --recursion-limit 1 -s #{DATALAD_PREFIX}/#{dirname} #{DATALAD_CACHE_DIR}/#{dirname}")
+    # Datalad Caching
+    # We use the SystemScratchSpace data provider for storing the datalad dataset root.
+    # The name of the file might end with an "=" sign if the remote_dir is empty.
+    datalad_cache_userfile_name =
+      "DataLad.rr=#{RemoteResource.current_resource.id}.dp=#{self.id}.dir=#{dirname.gsub("/","_")}"
 
-    json_text = IO.popen("cd #{DATALAD_CACHE_DIR}/#{dirname};datalad ls --json display","r") { |fh| fh.read }
+    # Fetch the datalad dataset info
+    datalad_cache_userfile = DataladSystemSubset.find_or_create_as_scratch(:name => datalad_cache_userfile_name) do |datalad_cache_dir|
+       system("datalad install -r --recursion-limit 1 -s #{DATALAD_PREFIX}/#{dirname} #{datalad_cache_dir}/#{dirname}")
+    end
+    datalad_cache_dir = datalad_cache_userfile.cache_full_path
+
+    # Parse the information
+    json_text = IO.popen("cd #{datalad_cache_dir}/#{dirname};datalad ls --json display","r") { |fh| fh.read }
     entries = JSON.parse(json_text)
+    nodes   = entries["nodes"] || []
 
-    nodes = entries["nodes"] || []
-
+    # Build and return a list of FileInfo objects to represents the available entries.
     list = nodes.map do |node|
       name = node['name']
       type = node['type']
