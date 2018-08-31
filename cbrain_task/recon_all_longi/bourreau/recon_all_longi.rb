@@ -43,11 +43,11 @@ class CbrainTask::ReconAllLongi < ClusterTask
     end
 
     # Copy personal license for FreeSurfer
-    license = FreesurferLicense.find_all_accessible_by_user(User.find(self.user_id)).first
+    license = FreesurferLicense.find_all_accessible_by_user(self.user)
     if license
       self.addlog("Copying FreeSurfer license file '#{license.name}'")
       license.sync_to_cache
-      make_available(license.id, "license.txt")
+      make_available(license, "license.txt")
     end
 
     true
@@ -90,17 +90,17 @@ class CbrainTask::ReconAllLongi < ClusterTask
     # Copy license
     cp_license = <<-CP_LICENSE
 
-# Handle FreeSurfer license
+      # Handle FreeSurfer license
 
-if [ ! -f "$FREESURFER_HOME/license.txt" ] && [ ! -f "$FREESURFER_HOME/.license" ] ; then
-  echo Could not find a license installed.
-  if test -f license.txt ; then
-  echo Attempting to install the license
-  cp license.txt "$FREESURFER_HOME"
-  fi
-fi
+      if [ ! -f "$FREESURFER_HOME/license.txt" ] && [ ! -f "$FREESURFER_HOME/.license" ] ; then
+        echo Could not find a license installed.
+        if test -f license.txt ; then
+        echo Attempting to install the license
+        cp license.txt "$FREESURFER_HOME" || exit 20
+        fi
+      fi
 
-CP_LICENSE
+    CP_LICENSE
 
 
     # Create within subject
