@@ -59,7 +59,7 @@ class CbrainTask::ReconAll < ClusterTask
     end
 
     # Copy personal license for FreeSurfer
-    license = FreesurferLicense.find_all_accessible_by_user(self.user)
+    license = FreesurferLicense.find_all_accessible_by_user(self.user).first
     if license
       self.addlog("Copying FreeSurfer license file '#{license.name}'")
       license.sync_to_cache
