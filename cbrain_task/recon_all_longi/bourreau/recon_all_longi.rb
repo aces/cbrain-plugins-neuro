@@ -95,8 +95,8 @@ class CbrainTask::ReconAllLongi < ClusterTask
       if [ ! -f "$FREESURFER_HOME/license.txt" ] && [ ! -f "$FREESURFER_HOME/.license" ] ; then
         echo Could not find a license installed.
         if test -f license.txt ; then
-        echo Attempting to install the license
-        cp license.txt "$FREESURFER_HOME" || exit 20
+          echo Attempting to install the license
+          cp license.txt "$FREESURFER_HOME" || exit 20
         fi
       fi
 
