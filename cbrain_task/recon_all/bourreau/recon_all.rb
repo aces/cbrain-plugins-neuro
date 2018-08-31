@@ -160,7 +160,7 @@ class CbrainTask::ReconAll < ClusterTask
         fi
       fi
 
-    CP_LICENSE
+CP_LICENSE
 
     [
       cp_license,
