@@ -47,7 +47,7 @@ class CbrainTask::ReconAllLongi < ClusterTask
     if license
       self.addlog("Copying FreeSurfer license file '#{license.name}'")
       license.sync_to_cache
-      make_available(license, "license.txt")
+      make_available(license, "license.txt").first
     end
 
     true
