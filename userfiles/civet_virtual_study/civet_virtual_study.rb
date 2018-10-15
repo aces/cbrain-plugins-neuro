@@ -59,7 +59,7 @@ class CivetVirtualStudy < CivetStudy
   # of the local Rails app.
   # FIXME: this method has a slight race condition,
   # after syncing to the provider we recreate the
-  # symlinks, but of another program tries to access
+  # symlinks, but if another program tries to access
   # them during that time they might not yet be there.
   def sync_to_provider #:nodoc:
     self.cache_writehandle do # when the block ends, it will trigger the provider upload

@@ -92,6 +92,13 @@ class CbrainTask::ReconAll < ClusterTask
           with_hippocampal = "-hippocampal-subfields-T1"
         end
       end
+      if params[:with_stem_struct] == "1"
+        if !self.tool_config.is_at_least_version("6.0.0")
+          with_stem_struct = "-brainstem-structures"
+        else
+          self.addlog('Warning: brainstem_structures option ignored for this version of ReconAll.')
+        end
+      end
 
 
       # Creation of command line
@@ -137,7 +144,7 @@ class CbrainTask::ReconAll < ClusterTask
       end
     end
 
-    recon_all_command = "recon-all#{lbl_ext} #{with_qcache} #{with_mprage} #{with_3T_data} #{with_cw256} #{with_hippocampal} -sd . #{subjid_info} #{step} #{with_notal_check} #{lbl_options}"
+    recon_all_command = "recon-all#{lbl_ext} #{with_qcache} #{with_mprage} #{with_3T_data} #{with_cw256} #{with_hippocampal} #{with_stem_struct} -sd . #{subjid_info} #{step} #{with_notal_check} #{lbl_options}"
 
     [
       "echo #{message}",

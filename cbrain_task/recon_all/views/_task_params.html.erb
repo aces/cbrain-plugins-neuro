@@ -98,6 +98,7 @@ Workflow directives:<br/>
 <%= form.params_check_box :with_cw256       %><%= form.params_label :with_cw256,   "Run with -cw256 flag, for image with FOV > 256 (-cw256)." %><br/>
 <%= form.params_check_box :with_notal_check %><%= form.params_label :with_notal_check,   "Use this flag when running a subject after receiving an error about Tailarach Failure Detection and the tailarach transform looks fine after checking it (-notal-check)." %><br/
 <%= form.params_check_box :with_hippocampal %><%= form.params_label :with_hippocampal,   "Run with segmentation of hippocampal subfields using input T1 scan (-hippo-subfields (v5.1.0 and v5.3.0) or -hippocampal-subfields-T1 (v6.0.0))." %><br/>
+<%= form.params_check_box :with_stem_struct %><%= form.params_label :with_stem_struct,   "Run with segmentation of brainstem structures using input T1 scan (-brainstem-structures (v6.0.0))." %><br/>
 
 
 <% if @tool_config.present? && @tool_config.version_name =~ /LBL/%>
