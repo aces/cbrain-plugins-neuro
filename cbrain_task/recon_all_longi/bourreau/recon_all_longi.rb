@@ -42,6 +42,14 @@ class CbrainTask::ReconAllLongi < ClusterTask
       self.safe_symlink(cache_path, collection.name)
     end
 
+    # Copy personal license for FreeSurfer
+    license = FreesurferLicense.find_all_accessible_by_user(self.user).first
+    if license
+      self.addlog("Copying FreeSurfer license file '#{license.name}'")
+      license.sync_to_cache
+      make_available(license, "license.txt")
+    end
+
     true
   end
 
@@ -78,6 +86,22 @@ class CbrainTask::ReconAllLongi < ClusterTask
     # Check base_output_name
     base_output_name = params[:base_output_name].presence || "Base"
     cb_error("Sorry, but the base output name provided contains some unacceptable characters.") unless is_legal_base_name?(base_output_name)
+
+    # Copy license
+    cp_license = <<-CP_LICENSE
+
+      # Handle FreeSurfer license
+
+      if [ ! -f "$FREESURFER_HOME/license.txt" ] && [ ! -f "$FREESURFER_HOME/.license" ] ; then
+        echo Could not find a license installed.
+        if test -f license.txt ; then
+          echo Attempting to install the license
+          cp license.txt "$FREESURFER_HOME" || exit 20
+        fi
+      fi
+
+    CP_LICENSE
+
 
     # Create within subject
     recon_all_base_log = "#{base_output_name}/scripts/recon-all.log"
@@ -182,7 +206,7 @@ class CbrainTask::ReconAllLongi < ClusterTask
       CAT_SCRIPT
     end
 
-    [ recon_all_base_cmd ] + recon_all_long_cmds + cat_cmds
+    [ cp_license ] + [ recon_all_base_cmd ] + recon_all_long_cmds + cat_cmds
   end
 
   def save_results #:nodoc:

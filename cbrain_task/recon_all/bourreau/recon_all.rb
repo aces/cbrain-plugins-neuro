@@ -58,6 +58,14 @@ class CbrainTask::ReconAll < ClusterTask
       self.safe_symlink(cache_path, file.name)
     end
 
+    # Copy personal license for FreeSurfer
+    license = FreesurferLicense.find_all_accessible_by_user(self.user).first
+    if license
+      self.addlog("Copying FreeSurfer license file '#{license.name}'")
+      license.sync_to_cache
+      make_available(license, "license.txt")
+    end
+
     true
   end
 
@@ -146,7 +154,23 @@ class CbrainTask::ReconAll < ClusterTask
 
     recon_all_command = "recon-all#{lbl_ext} #{with_qcache} #{with_mprage} #{with_3T_data} #{with_cw256} #{with_hippocampal} #{with_stem_struct} -sd . #{subjid_info} #{step} #{with_notal_check} #{lbl_options}"
 
+    # Copy license
+    cp_license = <<-CP_LICENSE
+
+      # Handle FreeSurfer license
+
+      if [ ! -f "$FREESURFER_HOME/license.txt" ] && [ ! -f "$FREESURFER_HOME/.license" ] ; then
+        echo Could not find a license installed.
+        if test -f license.txt ; then
+          echo Attempting to install the license
+          cp license.txt "$FREESURFER_HOME" || exit 20
+        fi
+      fi
+
+    CP_LICENSE
+
     [
+      cp_license,
       "echo #{message}",
       "echo Command: #{recon_all_command}",
       recon_all_command
