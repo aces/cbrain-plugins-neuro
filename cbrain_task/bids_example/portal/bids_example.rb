@@ -8,17 +8,23 @@ class CbrainTask::BidsExample < PortalTask
     {}
   end
 
-  def before_form #:nodoc:
-    params = self.params
+  # Used by form, mostly
+  def bids_dataset #:nodoc:
+    return @bids_dataset if @bids_dataset
     ids    = params[:interface_userfile_ids] || []
     bid    = ids[0] || -1
     @bids_dataset = BidsDataset.where(:id => bid).first
     cb_error "This task requries a single BidDataset as input" unless @bids_dataset.present?
-    if @bids_dataset.list_subjects.empty?
+    @bids_dataset
+  end
+
+  def before_form #:nodoc:
+    params = self.params
+    if self.bids_dataset.list_subjects.empty?
       cb_error "This BidDataset doesn't seem to contain any subjects?"
     end
     params[:proc] ||= {}
-    @bids_dataset.list_subjects.each do |sub|
+    self.bids_dataset.list_subjects.each do |sub|
       params[:proc][sub] = '1'
     end
     ""
@@ -26,10 +32,7 @@ class CbrainTask::BidsExample < PortalTask
 
   def after_form #:nodoc:
     params = self.params
-    ids    = params[:interface_userfile_ids] || []
-    bid    = ids[0] || -1
-    @bids_dataset = BidsDataset.where(:id => bid).first
-    cb_error "This task requries a single BidDataset as input" unless @bids_dataset.present?
+    # Nothing for the moment
     ""
   end
 

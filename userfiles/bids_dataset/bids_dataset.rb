@@ -38,7 +38,7 @@ class BidsDataset < FileCollection
   # This method is meant to be as compatible as possible
   # to the FmriStudy API; NYI: any options!
   def list_subjects(options = {})
-    allsubjects
+    all_subjects
   end
 
   private

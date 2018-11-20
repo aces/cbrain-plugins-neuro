@@ -1,9 +1,11 @@
 
-<h3>BidsExample<h3>
+<strong>BidsDataset:</strong> <%= link_to_userfile_if_accessible @task.bids_dataset %>
 
-BidsDataset: <%= link_to_userfile_if_accessible @bids_dataset %>
+<p>
 
-<h3>Subjects to process</h3>
+<strong>Subjects to process:</strong>
+
+<p>
 
 <table>
   <tr>
@@ -11,7 +13,7 @@ BidsDataset: <%= link_to_userfile_if_accessible @bids_dataset %>
     <th>Process?</th>
   </tr>
 
-  <% @bids_dataset.list_subjects.each do |sub| %>
+  <% @task.bids_dataset.list_subjects.each do |sub| %>
     <tr>
       <td>
         <%= form.params_label "proc[#{sub}]" do %>

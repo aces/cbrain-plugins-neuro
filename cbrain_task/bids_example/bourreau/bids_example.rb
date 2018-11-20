@@ -14,9 +14,28 @@ class CbrainTask::BidsExample < ClusterTask
 
     addlog("Synchronizing #{@bids_dataset.name}")
     @bids_dataset.sync_to_cache
-    make_available(@bids_dataset)
 
-    true
+    # It's really stupid but we must make a full copy of the dataset locally
+    # since symlinks don't work within the singularity container created
+    # by bosh (it *would* work with the container created by CBRAIN, nyah nyah)
+    cache_source = @bids_dataset.cache_full_path
+    captout = "/tmp/capt.#{Process.pid}.#{rand(9999)}"
+    capterr = "#{captout}.err"
+    system "rsync -a --no-p --no-g --chmod=ugo=rwX #{cache_source.to_s.bash_escape}/ #{@bids_dataset.name.bash_escape} > #{captout} 2> #{capterr}"
+    out = File.read(captout) #rescue "Cannot read captured output of rsync"
+    err = File.read(capterr) #rescue "Cannot read captured stderr of rsync"
+    if out.present?
+      # ignore for the moment
+    end
+    if err.present?
+      addlog "Rsync failed to copy dataset: #{err}"
+      return false
+    end
+
+    return true
+  ensure
+    File.unlink captout if captout && File.exists?(captout)
+    File.unlink capterr if capterr && File.exists?(capterr)
   end
 
   # See the CbrainTask Programmer Guide
@@ -47,16 +66,15 @@ class CbrainTask::BidsExample < ClusterTask
     # Run command
 
     [
-      "# This is a bash script for my scientific job",
-      "echo Run the bids_example command here",
-      "bosh exec launch #{boutiques_json_path.to_s.bash_escape} -i #{invoke_json_basename.bash_escape}"
+      "bosh exec launch #{boutiques_json_path.to_s.bash_escape} #{invoke_json_basename.bash_escape}"
     ]
   end
 
   # See the CbrainTask Programmer Guide
   def save_results #:nodoc:
     params       = self.params
-    # todo
+ 
+    # Test that output files are there
     true
   end
 
