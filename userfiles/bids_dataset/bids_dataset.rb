@@ -35,4 +35,20 @@ class BidsDataset < FileCollection
     /\.bids$/i
   end
 
+  # This method is meant to be as compatible as possible
+  # to the FmriStudy API; NYI: any options!
+  def list_subjects(options = {})
+    allsubjects
+  end
+
+  private
+
+  def all_subjects #:nodoc:
+    @_subjects ||= list_files(:top, :directory)
+                   .map    { |e| Pathname.new(e.name).basename.to_s }
+                   .select { |n| n =~ /^sub-/ }
+                   .map    { |n| n[4,999] } # I hope no subject is longer than that!
+  end
+
+
 end

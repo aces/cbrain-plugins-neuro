@@ -1,0 +1,25 @@
+
+<h3>BidsExample<h3>
+
+BidsDataset: <%= link_to_userfile_if_accessible @bids_dataset %>
+
+<h3>Subjects to process</h3>
+
+<table>
+  <tr>
+    <th>Subject</th>
+    <th>Process?</th>
+  </tr>
+
+  <% @bids_dataset.list_subjects.each do |sub| %>
+    <tr>
+      <td>
+        <%= form.params_label "proc[#{sub}]" do %>
+          <%= sub %>
+        <% end %>
+      </td>
+      <td><%= form.params_check_box "proc[#{sub}]" %></td>
+    </tr>
+  <% end %>
+
+</table>
