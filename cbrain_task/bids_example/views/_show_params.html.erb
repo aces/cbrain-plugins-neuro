@@ -1,2 +1,21 @@
 
-Nothing here yet
+Original BidsDataset: <%= link_to_userfile_if_accessible @task.bids_dataset %>
+<p>
+
+<% if @task.params[:mode].to_s =~ /participant|group/ %>
+
+This is a <strong><%= @task.params[:mode] %></strong>-stage BidsApp running on the following subjects:
+
+<ul>
+<% @task.selected_participants.each do |sub| %>
+  <li><%= sub %></li>
+<% end %>
+</ul>
+
+<% elsif @task.params[:mode] == 'save' %>
+
+This is a final BidsApp task whose job is simply to save the results of the other
+<strong>participant</strong> or <strong>group</strong> tasks.
+
+<% end %>
+

@@ -16,12 +16,19 @@
   <% @task.bids_dataset.list_subjects.each do |sub| %>
     <tr>
       <td>
-        <%= form.params_label "proc[#{sub}]" do %>
+        <%= form.params_label "participants[#{sub}]" do %>
           <%= sub %>
         <% end %>
       </td>
-      <td><%= form.params_check_box "proc[#{sub}]" %></td>
+      <td><%= form.params_check_box "participants[#{sub}]" %></td>
     </tr>
   <% end %>
 
 </table>
+
+<p>
+<%= form.params_label :launch_group do %>
+Launch group analysis at the end?
+<% end %>
+<%= form.params_check_box :launch_group %>
+

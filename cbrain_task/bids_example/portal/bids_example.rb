@@ -5,17 +5,7 @@ class CbrainTask::BidsExample < PortalTask
   Revision_info=CbrainFileRevision[__FILE__] #:nodoc:
 
   def self.default_launch_args #:nodoc:
-    {}
-  end
-
-  # Used by form, mostly
-  def bids_dataset #:nodoc:
-    return @bids_dataset if @bids_dataset
-    ids    = params[:interface_userfile_ids] || []
-    bid    = ids[0] || -1
-    @bids_dataset = BidsDataset.where(:id => bid).first
-    cb_error "This task requries a single BidDataset as input" unless @bids_dataset.present?
-    @bids_dataset
+    { :launch_group => '1' }
   end
 
   def before_form #:nodoc:
@@ -23,10 +13,13 @@ class CbrainTask::BidsExample < PortalTask
     if self.bids_dataset.list_subjects.empty?
       cb_error "This BidDataset doesn't seem to contain any subjects?"
     end
-    params[:proc] ||= {}
+
+    # Initialize the form's list of participants
+    params[:participants] ||= {}
     self.bids_dataset.list_subjects.each do |sub|
-      params[:proc][sub] = '1'
+      params[:participants][sub] = '1'
     end
+
     ""
   end
 
@@ -41,29 +34,52 @@ class CbrainTask::BidsExample < PortalTask
        :no_submit_button                   => false, # view will not automatically have a submit button
        :i_save_my_task_in_after_form       => false, # used by validation code for detecting coding errors
        :i_save_my_tasks_in_final_task_list => false, # used by validation code for detecting coding errors
-       :no_presets                         => false, # view will not contain the preset load/save panel
-       :use_parallelizer                   => false  # true or fixnum: turns on parallelization
+       :no_presets                         => true,  # view will not contain the preset load/save panel
+       :use_parallelizer                   => true,  # true or fixnum: turns on parallelization
     }
   end
 
   def final_task_list #:nodoc:
-    return [ self ] # default behavior
-    # An example: launch ten tasks that differs in params[:count]
     mytasklist = []
-    10.times do |count|
-      task=self.dup # not .clone, as of Rails 3.1.10
-      task.params[:count] = count
+
+    selected_participants.each do |sub|
+      task=self.dup # not .clone!
+      task.params[:participants] = { sub => '1' } # replace
+      task.params[:mode]          = 'participant'
+      task.params.delete             :launch_group # just to be clean
+      task.description            = "Part: #{sub}\n#{task.description}"
       mytasklist << task
     end
-    mytasklist
+
+    mytasklist.each { |t| t.share_wd_tid = -1 } # this tells the framework to share all workdirs
+
+    return mytasklist
   end
 
   def after_final_task_list_saved(tasklist) #:nodoc:
+
+    one_part_task = tasklist.detect { |t| t.class == self.class } # the tasklist might contain Parallelizers too
+
+    final_task = self.dup
+    final_task.share_wd_tid = one_part_task.id
+    tasklist.each { |t| final_task.add_prerequisites_for_setup(t) } # other tasks must be completed before final task runs
+    final_task.params.delete :launch_group # just to be clean
+
+    if params[:launch_group] == '1'
+      final_task.params[:mode]  = 'group'
+      final_task.description    = "Group stage and save\n#{self.description}"
+    else
+      final_task.params[:mode]  = 'save'
+      final_task.description    = "Final save task\n#{self.description}"
+    end
+
+    final_task.save!
+
     ""
   end
 
   def untouchable_params_attributes #:nodoc:
-    { :interface_userfile_ids => true }
+    { :interface_userfile_ids => true, :mode => true }
   end
 
 end
