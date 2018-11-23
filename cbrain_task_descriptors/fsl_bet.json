@@ -1,7 +1,14 @@
 {
     "tool-version": "1.0.0", 
     "name": "fsl_bet", 
+    "author": "Oxford Centre for Functional MRI of the Brain (FMRIB)",
+    "descriptor-url": "https://github.com/aces/cbrain-plugins-neuro/blob/master/cbrain_task_descriptors/fsl_bet.json",
     "command-line": "bet [INPUT_FILE] [MASK] [FRACTIONAL_INTENSITY] [VERTICAL_GRADIENT] [CENTER_OF_GRAVITY] [OVERLAY_FLAG] [BINARY_MASK_FLAG] [APPROX_SKULL_FLAG] [NO_SEG_OUTPUT_FLAG] [VTK_VIEW_FLAG] [HEAD_RADIUS] [THRESHOLDING_FLAG] [ROBUST_ITERS_FLAG] [RES_OPTIC_CLEANUP_FLAG] [REDUCE_BIAS_FLAG] [SLICE_PADDING_FLAG] [MASK_WHOLE_SET_FLAG] [ADD_SURFACES_FLAG] [ADD_SURFACES_T2] [VERBOSE_FLAG] [DEBUG_FLAG]", 
+    "container-image": {
+        "image": "mcin/docker-fsl:latest", 
+        "index": "index.docker.io", 
+        "type": "docker"
+    }, 
     "inputs": [
         {
             "description": "Input image (e.g. img.nii.gz)", 
@@ -351,5 +358,29 @@
             "name": "Output out-skull mesh off file"
         }
     ], 
+     "tags": {
+        "domain": [
+            "neuroinformatics", 
+            "mri"
+        ]
+    },
+    "tests": [
+            {
+             "name": "fsl_bet_test",
+             "invocation": {
+                    "infile": "sub-01_T1w.nii.gz",
+                    "maskfile": "img_bet"
+                },
+                "assertions": {
+                    "exit-code": 0,
+                    "output-files": [
+                        {
+                            "id": "outfile",
+                            "md5-reference": "053507dd8605d62f5ba71dbecece17f8"
+                        }
+                    ]
+                }
+        }
+    ],
     "description": "Automated brain extraction tool for FSL"
 }

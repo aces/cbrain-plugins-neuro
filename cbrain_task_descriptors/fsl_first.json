@@ -1,7 +1,14 @@
 {
     "tool-version": "5.0.0",
     "name": "fsl_first",
+    "author": "Oxford Centre for Functional MRI of the Brain (FMRIB)",
+    "descriptor-url": "https://github.com/aces/cbrain-plugins-neuro/blob/master/cbrain_task_descriptors/fsl_first.json",
     "command-line": "mkdir -p [OUTPUT_DIR]; run_first_all [METHOD] [BRAIN_EXTRACTED] [SPECIFIED_STRUCTURE] [AFFINE] [THREE_STAGE] [VERBOSE] [INPUT_FILE] -o [OUTPUT_DIR]/[PREFIX]",
+    "container-image": {
+        "image": "mcin/docker-fsl:latest", 
+        "index": "index.docker.io", 
+        "type": "docker"
+    },
     "inputs": [
         {
             "command-line-flag": "-m",
@@ -93,7 +100,7 @@
 	"value-key": "[OUTPUT_DIR]",
 	"path-template": "[INPUT_FILE]",
 	"list": false,
-	"path-template-stripped-extensions": [".nii",".nii.gz"]
+	"path-template-stripped-extensions": [".nii.gz", ".nii"]
 	},
         {
         "id": "std_sub_outputs",
@@ -101,8 +108,31 @@
         "description": "Std sub output",
         "path-template": "[INPUT_FILE]_to_std_sub*",
         "list": true,
-        "path-template-stripped-extensions": [".nii",".nii.gz"]
+        "path-template-stripped-extensions": [".nii.gz", ".nii"]
         }
     ],
+    "tests": [
+            {
+             "name": "fsl_first_test",
+             "invocation": {
+                    "input_file": "sub-01_T1w.nii.gz",
+                    "prefix": "img_first"
+                },
+                "assertions": {
+                    "exit-code": 0,
+                    "output-files": [
+                        {
+                            "id": "outputs"
+                        }
+                    ]
+                }
+        }
+    ],
+    "tags": {
+        "domain": [
+            "neuroinformatics", 
+            "mri"
+        ]
+    }, 
     "description": "FIRST is a model-based segmentation and registration tool, based on a Bayesian model of shape and appearance for subcortical structures."
 }
