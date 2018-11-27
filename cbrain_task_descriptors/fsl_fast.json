@@ -1,7 +1,14 @@
 {
     "tool-version": "5.0.0", 
     "name": "fsl_fast", 
+    "author": "Oxford Centre for Functional MRI of the Brain (FMRIB)",
+    "descriptor-url": "https://github.com/aces/cbrain-plugins-neuro/blob/master/cbrain_task_descriptors/fsl_fast.json",
     "command-line": "fast [NUM_CLASSES] [LOOP_ITERS] [BF_SMOOTHING] [IMG_TYPE] [INIT_SEG_SMOOTHNESS] [BINARY_SEGMENTS] [PRIOR_INIT] [NO_PVE] [BIAS_FIELD] [BIAS_CORR_IMG] [NO_BIAS_RM] [OUTPUT_BASENAME] [PRIORS_THROUGHOUT] [SEG_INIT_ITERS] [MIXEL_SMOOTHNESS] [NUM_MAIN_LOOP_ITERS] [HYPER_SEG_SMOOTHNESS] [VERBOSE] [MANUAL_INTENSITIES_FILE] [OUTPUT_PROB_MAPS] [IN_FILES]; mkdir [OUTPUT_DIRECTORY]; mv [OUTPUT_DIRECTORY]_* [OUTPUT_DIRECTORY]", 
+    "container-image": {
+        "image": "mcin/docker-fsl:latest", 
+        "index": "index.docker.io", 
+        "type": "docker"
+    }, 
     "inputs": [
         {
             "command-line-flag": "-n", 
@@ -242,5 +249,28 @@
             "name": "Output Directory"
         }
     ], 
+    "tests": [
+            {
+             "name": "fsl_fast_test",
+             "invocation": {
+                    "in_files": "sub-01_T1w.nii.gz",
+                    "output_basename": "img_fast"
+                },
+                "assertions": {
+                    "exit-code": 0,
+                    "output-files": [
+                        {
+                            "id": "output_dir"
+                        }
+                    ]
+                }
+        }
+    ],
+    "tags": {
+        "domain": [
+            "neuroinformatics",
+            "mri"
+        ]
+    },
     "description": "FAST (FMRIB's Automated Segmentation Tool) segments a 3D image of the brain into different tissue types (Grey Matter, White Matter, CSF, etc.), whilst also correcting for spatial intensity variations (also known as bias field or RF inhomogeneities), via a hidden Markov random field model and an associated EM algorithm. Note that the alternative priors option is not supported at this time."
 }

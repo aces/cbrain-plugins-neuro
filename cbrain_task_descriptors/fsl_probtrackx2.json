@@ -1,6 +1,8 @@
 {
     "tool-version": "1.0.0", 
-    "name": "fsl_probtrackx2", 
+    "name": "fsl_probtrackx2",
+    "author": "Oxford Centre for Functional MRI of the Brain (FMRIB)",
+    "descriptor-url": "https://github.com/aces/cbrain-plugins-neuro/blob/master/cbrain_task_descriptors/fsl_probtrackx2.json", 
     "command-line": "cp -rL [INPUT_DIR] [OUTPUT_DIR]; probtrackx2 -s [OUTPUT_DIR]/[BASENAME] -m [OUTPUT_DIR]/[MASKNAME] -x [SEEDFILE] --dir=[OUTPUT_DIR]/[FINALDIR] [FORCEDIR] [OPD] [PD] [OS2T] --targetmasks=[TARGETMASKS] --xfm=[OUTPUT_DIR]/[XFM] --invxfm=[OUTPUT_DIR]/[INVXFM]", 
     "inputs": [
         {
@@ -137,5 +139,11 @@
     "suggested-resources": {
         "walltime-estimate": 331200
     }, 
-    "description": "probabilistic tracking with crossing fibres"
+    "description": "probabilistic tracking with crossing fibres",
+    "tags": {
+        "domain": [
+            "neuroinformatics", 
+            "dmri"
+        ]
+    }
 }
