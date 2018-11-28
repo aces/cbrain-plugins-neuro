@@ -95,22 +95,6 @@
                 ]
             }
         ],
-        "dependencies": {
-            "output_dir_name": {
-                "properties": {
-                    "participant_level_analysis_dir": {
-                        "not": {}
-                    }
-                }
-            },
-            "participant_level_analysis_dir": {
-                "properties": {
-                    "output_dir_name": {
-                        "not": {}
-                    }
-                }
-            }
-        },
         "description": "Invocation schema for example.",
         "properties": {
             "analysis_level": {
