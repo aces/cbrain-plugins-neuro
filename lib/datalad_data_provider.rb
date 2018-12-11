@@ -59,8 +59,15 @@ class DataladDataProvider < SshDataProvider
     dest        = cache_full_path(userfile)
     url_src     = Pathname.new(DATALAD_PREFIX) + src
 
+    # Prepare receiving area
+    mkdir_cache_subdirs(userfile) # DataProvider method core caching subsystem
+
+    # Download
     datalad_command = "datalad install -r -g -s #{url_src.to_s.bash_escape} #{dest.to_s.bash_escape}"
-    system(datalad_command)  # the stupid command produces tons of output on stdout
+    retcode = system(datalad_command)  # the stupid command produces tons of output on stdout
+
+    # Fix for too restrictive permissions deep in the .git repo
+    system("chmod", "-R", "u+rwX", "#{dest.to_s.bash_escape}/.git")
 
     # We may have to run 'git-annex uninit' many levels deep;
     # hopefully our applications are OK with accessing files through
@@ -71,6 +78,7 @@ class DataladDataProvider < SshDataProvider
     #  end
     #end
 
+    cb_error "Datalad command failed with return code #{retcode}" if retcode > 1
     cb_error "Cannot fetch content of '#{userfile.name}' on Datalad site from '#{url_src}'." unless File.exists?(dest.to_s)
 
     true
