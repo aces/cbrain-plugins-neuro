@@ -57,17 +57,22 @@ class DataladDataProvider < SshDataProvider
   def impl_sync_to_cache(userfile) #:nodoc:
     src         = provider_full_path(userfile)
     dest        = cache_full_path(userfile)
+    parent      = dest.parent
     url_src     = Pathname.new(DATALAD_PREFIX) + src
 
     # Prepare receiving area
     mkdir_cache_subdirs(userfile) # DataProvider method core caching subsystem
 
-    # Download
-    datalad_command = "datalad install -r -g -s #{url_src.to_s.bash_escape} #{dest.to_s.bash_escape}"
+    # Download.
+    # Because 'datalad' can be invoked from within a singularity container,
+    # we have to make sure that:
+    # 1) the pwd is set to the parent location
+    # 2) we provide a full path for the destination too.
+    datalad_command = "cd #{parent.to_s.bash_escape} ; datalad install -r -g -s #{url_src.to_s.bash_escape} #{dest.to_s.bash_escape}"
     system(datalad_command)  # the stupid command produces tons of output on stdout
 
     # Fix for too restrictive permissions deep in the .git repo
-    system("chmod", "-R", "u+rwX", "#{dest.to_s.bash_escape}/.git")
+    system("chmod", "-R", "u+rwx", "#{dest.to_s.bash_escape}/.git")
 
     # We may have to run 'git-annex uninit' many levels deep;
     # hopefully our applications are OK with accessing files through
