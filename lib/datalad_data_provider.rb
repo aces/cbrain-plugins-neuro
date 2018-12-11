@@ -64,7 +64,7 @@ class DataladDataProvider < SshDataProvider
 
     # Download
     datalad_command = "datalad install -r -g -s #{url_src.to_s.bash_escape} #{dest.to_s.bash_escape}"
-    retcode = system(datalad_command)  # the stupid command produces tons of output on stdout
+    system(datalad_command)  # the stupid command produces tons of output on stdout
 
     # Fix for too restrictive permissions deep in the .git repo
     system("chmod", "-R", "u+rwX", "#{dest.to_s.bash_escape}/.git")
@@ -78,7 +78,6 @@ class DataladDataProvider < SshDataProvider
     #  end
     #end
 
-    cb_error "Datalad command failed with return code #{retcode}" if retcode > 1
     cb_error "Cannot fetch content of '#{userfile.name}' on Datalad site from '#{url_src}'." unless File.exists?(dest.to_s)
 
     true
