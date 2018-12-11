@@ -64,12 +64,19 @@ class DataladDataProvider < SshDataProvider
     mkdir_cache_subdirs(userfile) # DataProvider method core caching subsystem
 
     # Download.
+    #
     # Because 'datalad' can be invoked from within a singularity container,
     # we have to make sure that:
-    # 1) the pwd is set to the parent location
-    # 2) we provide a full path for the destination too.
-    datalad_command = "cd #{parent.to_s.bash_escape} ; datalad install -r -g -s #{url_src.to_s.bash_escape} #{dest.to_s.bash_escape}"
-    system(datalad_command)  # the stupid command produces tons of output on stdout
+    # 1) the pwd is set to the userfile cache's parent location;
+    # 2) we provide a full path for the destination too;
+    # 3) we HOPE the singularity setup has 'overlay' support to mount the
+    #    pwd too using the SINGULARITY_BINDPATH environment variable.
+    #
+    # This may seem excessive but datalad in singularity is very brittle.
+    with_modified_env('SINGULARITY_BINDPATH' => cache_rootdir().to_s) do # from BrainPortal/config/initializers/added_core_extensions/kernel.rb
+      datalad_command = "cd #{parent.to_s.bash_escape} ; datalad install -r -g -s #{url_src.to_s.bash_escape} #{dest.to_s.bash_escape}"
+      system(datalad_command)  # the stupid command produces tons of output on stdout
+    end
 
     # Fix for too restrictive permissions deep in the .git repo
     system("chmod", "-R", "u+rwx", "#{dest.to_s.bash_escape}/.git")
