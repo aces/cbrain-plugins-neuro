@@ -101,7 +101,7 @@ class CbrainTask::ReconAll < ClusterTask
         end
       end
       if params[:with_stem_struct] == "1"
-        if !self.tool_config.is_at_least_version("6.0.0")
+        if self.tool_config.is_at_least_version("6.0.0")
           with_stem_struct = "-brainstem-structures"
         else
           self.addlog('Warning: brainstem_structures option ignored for this version of ReconAll.')
