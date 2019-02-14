@@ -41,6 +41,8 @@ Launch group analysis at the end?
 
 <% end %>
 
+<%= form.params_hidden_field :_cb_bids_id %>
+
 <hr>
 
 <% boutiques_inputs = @task.class.raw_partial(:orig_task_params) %>

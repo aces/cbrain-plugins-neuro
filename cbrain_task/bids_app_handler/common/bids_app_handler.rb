@@ -29,17 +29,31 @@ class CbrainTask::BidsAppHandler
   # Raise an exception if it's not right.
   def bids_dataset #:nodoc:
     return @bids_dataset if @bids_dataset
+    if params[:_cb_bids_id].present?
+      @bids_dataset = BidsDataset.find(params[:_cb_bids_id])
+      return @bids_dataset
+    end
     ids    = params[:interface_userfile_ids] || []
-    bid    = ids[0] || -1
-    @bids_dataset = BidsDataset.where(:id => bid).first
-    cb_error "This task requires a single BidDataset as input" unless @bids_dataset.present?
-    @bids_dataset
+    bids_datasets = BidsDataset.where(:id => ids)
+    cb_error "This task requires a single BidDataset as input" unless bids_datasets.count == 1
+    @bids_dataset = bids_datasets.first
+    params[:_cb_bids_id] = @bids_dataset.id
+    params[:interface_userfile_ids] = params[:interface_userfile_ids].reject { |x| x.to_s == @bids_dataset.id.to_s }
+    return @bids_dataset
   end
 
   # Returns the participants that were selected by their checkboxes in the launch form
   def selected_participants #:nodoc:
     select_hash  = params[:_cb_participants] || {}
     select_hash.keys.select { |sub| select_hash[sub] == '1' }
+  end
+
+  def untouchable_params_attributes #:nodoc:
+    { :_cb_bids_id => true }
+  end
+
+  def unpresetable_params_attributes #:nodoc:
+    { :_cb_bids_id => true }
   end
 
   ###########################################################################
