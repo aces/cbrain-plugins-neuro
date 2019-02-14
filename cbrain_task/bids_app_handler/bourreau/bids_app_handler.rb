@@ -197,25 +197,25 @@ class CbrainTask::BidsAppHandler < ClusterTask
     out, err = self.tool_config_system("bosh version")
 
     if err.present?
-      self.addlog("No proper 'bosh' program detected on system. Got stderr:")
+      self.addlog("No proper 'bosh' program (from Boutiques) detected on system. Got STDERR:")
       self.addlog(err)
       return false
     end
 
     if out.blank?
-      self.addlog("No proper 'bosh' program detected on system. Got no outputs")
+      self.addlog("No proper 'bosh' program (from Boutiques) detected on system. Got no outputs.")
       return false
     end
 
     if out !~ /(\d+\.\d+\.\d+)$/ # not \z here
-      self.addlog("Program 'bosh' did not return a version number a.b.c. Got:")
+      self.addlog("Program 'bosh' (from Boutiques) did not return a version number a.b.c. Got:")
       self.addlog(out)
       return false
     end
 
     bosh_version = Regexp.last_match[1]
     if ToolConfig.compare_versions(bosh_version, Bosh_Required_Version) < 0
-      self.addlog("Program 'bosh' is too old. Got version #{bosh_version}, expected at least #{Bosh_Required_Version}")
+      self.addlog("Program 'bosh' (from Boutiques) is too old. Got version #{bosh_version}, expected at least #{Bosh_Required_Version}")
       return false
     end
 
