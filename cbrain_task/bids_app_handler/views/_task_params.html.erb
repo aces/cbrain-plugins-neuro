@@ -1,0 +1,49 @@
+
+<strong>BidsDataset:</strong> <%= link_to_userfile_if_accessible @task.bids_dataset %>
+
+<p>
+
+<strong>Participants to process:
+   <label for="_cb_all_part_">(Select all with:
+     <%= select_all_checkbox('_cb_part_', :id => '_cb_all_part_', :checked => true) %>
+   )</label>
+</strong>
+
+<p>
+
+<%= array_to_table(@task.bids_dataset.list_subjects, :cols => 5, :fill_by_columns => true) do |sub| %>
+  <%= form.params_check_box "_cb_participants[#{sub}]", :class => '_cb_part_' %>
+  <%= form.params_label     "_cb_participants[#{sub}]" do %>
+    <%= sub %>
+  <% end %>
+<% end %>
+
+<p>
+
+<%
+# We only show the checkbox if we're launching a new batch
+# or editing the final task. It makes no sense when editing a
+# participant-level task (and in that case the entry is no longer
+# in the params).
+if @task.new_record? || params[:_cb_mode] =~ /save|group/
+%>
+
+<strong>Final Handling:</strong>
+
+<p>
+
+<%= form.params_label :_cb_launch_group do %>
+Launch group analysis at the end?
+<% end %>
+<%= form.params_check_box :_cb_launch_group %>
+
+<p>
+
+<% end %>
+
+<hr>
+
+<% boutiques_inputs = @task.class.raw_partial(:orig_task_params) %>
+<% locals           = { :params  => @task.params, :form => form } %>
+<%= render :inline => boutiques_inputs, :locals => locals %>
+
