@@ -1,0 +1,34 @@
+
+<strong>BidsDataset:</strong> <%= link_to_userfile_if_accessible @task.bids_dataset %>
+
+<p>
+
+<strong>Subjects to process:</strong>
+
+<p>
+
+<table>
+  <tr>
+    <th>Subject</th>
+    <th>Process?</th>
+  </tr>
+
+  <% @task.bids_dataset.list_subjects.each do |sub| %>
+    <tr>
+      <td>
+        <%= form.params_label "participants[#{sub}]" do %>
+          <%= sub %>
+        <% end %>
+      </td>
+      <td><%= form.params_check_box "participants[#{sub}]" %></td>
+    </tr>
+  <% end %>
+
+</table>
+
+<p>
+<%= form.params_label :launch_group do %>
+Launch group analysis at the end?
+<% end %>
+<%= form.params_check_box :launch_group %>
+

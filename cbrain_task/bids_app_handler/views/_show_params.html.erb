@@ -1,0 +1,28 @@
+
+Input BidsDataset: <%= link_to_userfile_if_accessible @task.bids_dataset %>
+<p>
+
+<% if @task.params[:_cb_mode].to_s =~ /participant|group/ %>
+
+This is a <strong><%= @task.params[:_cb_mode] %></strong>-stage BidsApp running on the following subjects:
+
+<ul>
+<% @task.selected_participants[0,8].each do |sub| %>
+  <li><%= sub %></li>
+<% end %>
+<% if @task.selected_participants.size > 8 %>
+  <li>... and <%= @task.selected_participants.size - 8 %> more.</li>
+<% end %>
+</ul>
+
+<% elsif @task.params[:_cb_mode] == 'save' %>
+
+This is a final BidsApp task whose job is simply to save the results of the other
+<strong>participant</strong> tasks.
+
+<% end %>
+
+<% boutiques_show = @task.class.raw_partial(:orig_show_params) %>
+<% locals         = { :params  => @task.params } %>
+<%= render :inline => boutiques_show, :locals => locals %>
+
