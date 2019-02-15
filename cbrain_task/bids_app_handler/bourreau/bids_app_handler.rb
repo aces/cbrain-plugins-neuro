@@ -219,6 +219,8 @@ class CbrainTask::BidsAppHandler < ClusterTask
       return false
     end
 
+    self.addlog("Program 'bosh' (from Boutiques) is version #{bosh_version}")
+
     true
   end
 
