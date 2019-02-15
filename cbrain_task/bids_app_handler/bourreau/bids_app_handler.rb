@@ -82,7 +82,7 @@ class CbrainTask::BidsAppHandler < ClusterTask
       parent  = Pathname.new(cache_path).parent
       out,err = self.tool_config_system(
         "cd #{parent.to_s.bash_escape} && " + # bosh 0.5.18 is dumb
-        "bosh exec prepare #{self.full_cluster_workdir.to_s.bash_escape}/#{boutiques_json_basename} && " + # very dumb
+        "bosh exec prepare --imagepath #{parent.to_s.bash_escape} #{self.full_cluster_workdir.to_s.bash_escape}/#{boutiques_json_basename} && " + # very dumb
         "mv *.simg #{cache_path.to_s.bash_escape}" # uselessly dumb
         # REAL command once bosh is fixed:
         # "bosh exec prepare --imagepath #{cache_path.bash_escape} #{boutiques_json_basename}"
