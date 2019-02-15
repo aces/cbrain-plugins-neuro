@@ -207,7 +207,7 @@ class CbrainTask::BidsAppHandler < ClusterTask
       return false
     end
 
-    if out !~ /(\d+\.\d+\.\d+)$/ # not \z here
+    if out !~ /(\d+\.\d+\.\d+)/
       self.addlog("Program 'bosh' (from Boutiques) did not return a version number a.b.c. Got:")
       self.addlog(out)
       return false
