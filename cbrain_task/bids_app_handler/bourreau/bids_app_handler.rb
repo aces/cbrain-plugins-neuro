@@ -44,6 +44,21 @@ class CbrainTask::BidsAppHandler < ClusterTask
       ([ 'interface_userfile_ids', ].include?(property.to_s))
     end
 
+    # Substitute IDs of input files for their names (probably
+    # installed locally by make_available() during setup(), in
+    # the subclass). We go back to our descriptor to identify which
+    # keys of our invoke_json is a file input.
+    identifiers_for_files = self.class.generated_from.descriptor['inputs']
+                            .select { |x| x['type'] == 'File' }
+                            .map    { |x| x['id']             }
+    identifiers_for_files.each do |fid|
+      userfile_id = invoke_json[fid].presence
+      next unless userfile_id
+      userfile_name = Userfile.where(:id => userfile_id).first.name
+      self.addlog("Inputfile '#{fid}' is '#{userfile_name}'")
+      invoke_json[fid] = userfile_name
+    end
+
     invoke_json.merge!({
       :bids_dir          => bids_dataset.name,
       :participant_label => selected_participants,
@@ -60,7 +75,7 @@ class CbrainTask::BidsAppHandler < ClusterTask
     # Write it as a file
     invoke_json_basename = "invoke.#{self.run_id()}.json"
     File.open(invoke_json_basename,"w") do |fh|
-      fh.write invoke_json.to_json
+      fh.write JSON.pretty_generate(invoke_json)
     end
 
     # Boutique task descriptor.
@@ -70,7 +85,7 @@ class CbrainTask::BidsAppHandler < ClusterTask
     unless File.exists? boutiques_json_basename
       descriptor = self.class.full_descriptor
       File.open("#{boutiques_json_basename}.#{Process.pid}.tmp","w") do |fh|
-        fh.write descriptor.to_json
+        fh.write JSON.pretty_generate(descriptor)
       end
       File.rename "#{boutiques_json_basename}.#{Process.pid}.tmp", boutiques_json_basename
     end
@@ -79,13 +94,8 @@ class CbrainTask::BidsAppHandler < ClusterTask
     image_basename = "#{self.class}.simg"
     cached_image = SingularityImage.find_or_create_as_scratch(:name => image_basename) do |cache_path|
       self.addlog('Preparing container image')
-      parent  = Pathname.new(cache_path).parent
       out,err = self.tool_config_system(
-        "cd #{parent.to_s.bash_escape} && " + # bosh 0.5.18 is dumb
-        "bosh exec prepare --imagepath #{parent.to_s.bash_escape} #{self.full_cluster_workdir.to_s.bash_escape}/#{boutiques_json_basename} && " + # very dumb
-        "mv *.simg #{cache_path.to_s.bash_escape}" # uselessly dumb
-        # REAL command once bosh is fixed:
-        # "bosh exec prepare --imagepath #{cache_path.bash_escape} #{boutiques_json_basename}"
+        "bosh exec prepare --imagepath #{cache_path.to_s.bash_escape} #{boutiques_json_basename}"
       )
       cb_error("Cannot prepare singularity image? Bosh output=\n#{out}#{err}") unless File.exists?(cache_path.to_s)
     end
@@ -101,16 +111,30 @@ class CbrainTask::BidsAppHandler < ClusterTask
 
     # The bosh launch command. This is all a single line, but broken up
     # for readability.
+    #
+    # Note that as of late as bosh 0.5.18, the -v option for mountpoints
+    # had a bug and caused a command line parsing failure unless at least
+    # one other option is inserted before the boutiques JSON file, thus
+    # the "-u -s" inserted below (which are also useful anyway)
     commands = <<-COMMANDS
+
+      # Status preparation
       mkdir -p status.all
       rm -f status.all/#{run_id}
-      bosh exec launch                                                \
-        --imagepath #{cached_image.cache_full_path.to_s.bash_escape}  \
-        #{esc_local_dp_mountpoints}                                   \
-        #{boutiques_json_basename.bash_escape}                        \
+
+      # Main science command
+      bosh exec launch                                                \\
+        --imagepath #{cached_image.cache_full_path.to_s.bash_escape}  \\
+        #{esc_local_dp_mountpoints}                                   \\
+        -u -s                                                         \\
+        #{boutiques_json_basename.bash_escape}                        \\
         #{invoke_json_basename.bash_escape}
+
+      # Record exit status
       echo $? > status.all/#{run_id}
+
     COMMANDS
+    commands.gsub!(/(\S)  +(\S)/,'\1 \2') # make pretty
 
     [ commands ]
   end
@@ -120,6 +144,10 @@ class CbrainTask::BidsAppHandler < ClusterTask
     params       = self.params
     bids_dataset = self.bids_dataset
     mode         = params[:_cb_mode]
+
+    # DP for destination files
+    dest_dp_id = self.results_data_provider_id.presence ||
+                 bids_dataset.data_provider_id
 
     # Check that we have a zero status code from bosh
     if mode != 'save' # a 'save' task doesn't produce a status file
@@ -162,7 +190,9 @@ class CbrainTask::BidsAppHandler < ClusterTask
         sublist.each do |one_output| # "outdir/something"
           out_type = File.file?(one_output) ? SingleFile : FileCollection
           basename = Pathname.new(one_output).basename.to_s #hopefully respects CBRAIN legal characters
-          cb_out = safe_userfile_find_or_new(out_type, { :name => basename + "_" + run_id() })
+          cb_out = safe_userfile_find_or_new(out_type,
+            { :name => basename + "_" + run_id(), :data_provider_id => dest_dp_id }
+          )
           cb_out.cache_copy_from_local_file(one_output)
           cb_out.move_to_child_of( bids_dataset )
           created_outputs << cb_out
@@ -174,7 +204,9 @@ class CbrainTask::BidsAppHandler < ClusterTask
     if mode == 'group'
       group_output_name = 'group_output' + "_" + run_id()
       self.addlog("Attempting to save group results '#{group_output_name}'")
-      cb_out = safe_userfile_find_or_new(FileCollection, { :name => group_output_name })
+      cb_out = safe_userfile_find_or_new(FileCollection,
+        { :name => group_output_name, :data_provider_id => dest_dp_id }
+      )
       cb_out.cache_copy_from_local_file(outputdir)
       cb_out.move_to_child_of(bids_dataset)
       created_outputs << cb_out

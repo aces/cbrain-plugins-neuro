@@ -9,8 +9,8 @@ class CbrainTask::BidsAppHandler
 
   # Two variants of the descriptor are stored in the built subclasses:
 
-  # 1) The method 'generated_from' (provided by the Boutiques integrator) returns the
-  # descriptor without BIDs inputs and without container info.
+  # 1) The method chain 'generated_from.descriptor' (provided by the Boutiques integrator)
+  # returns the descriptor without BIDs inputs and without container info.
 
   # 2) This method returns the full descriptor
   class_attribute :full_descriptor
