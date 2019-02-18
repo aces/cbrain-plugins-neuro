@@ -101,6 +101,10 @@ class CbrainTask::BidsAppHandler < ClusterTask
     end
     self.addlog("Container image prepared: \"#{cached_image.name}\" (ID=#{cached_image.id})")
 
+    #------------------------
+    # Mountpoints
+    #------------------------
+
     # Prepare mount paths for local data providers.
     # This will be a string "-v path1:path1 -v path2:path2 -v path3:path3"
     # just like bosh expects.
@@ -108,6 +112,16 @@ class CbrainTask::BidsAppHandler < ClusterTask
     esc_local_dp_mountpoints = local_dp_storage_paths.inject("") do |sing_opts,path|
       "#{sing_opts} -v #{path.bash_escape}:#{path.bash_escape}"
     end
+
+    # The root of the DataProvider cache
+    cache_dir     = self.bourreau.dp_cache_dir
+
+    # The root of the shared area for all CBRAIN tasks
+    gridshare_dir = self.bourreau.cms_shared_dir
+
+    #------------------------
+    # Main command
+    #------------------------
 
     # The bosh launch command. This is all a single line, but broken up
     # for readability.
@@ -125,6 +139,8 @@ class CbrainTask::BidsAppHandler < ClusterTask
       # Main science command
       bosh exec launch                                                \\
         --imagepath #{cached_image.cache_full_path.to_s.bash_escape}  \\
+        -v #{cache_dir.to_s.bash_escape}                              \\
+        -v #{gridshare_dir.to_s.bash_escape}                          \\
         #{esc_local_dp_mountpoints}                                   \\
         -u -s                                                         \\
         #{boutiques_json_basename.bash_escape}                        \\
