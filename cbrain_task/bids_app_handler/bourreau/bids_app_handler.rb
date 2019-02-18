@@ -137,13 +137,13 @@ class CbrainTask::BidsAppHandler < ClusterTask
       rm -f status.all/#{run_id}
 
       # Main science command
-      bosh exec launch                                                \\
-        --imagepath #{cached_image.cache_full_path.to_s.bash_escape}  \\
-        -v #{cache_dir.to_s.bash_escape}                              \\
-        -v #{gridshare_dir.to_s.bash_escape}                          \\
-        #{esc_local_dp_mountpoints}                                   \\
-        -u -s                                                         \\
-        #{boutiques_json_basename.bash_escape}                        \\
+      bosh exec launch                                                          \\
+        --imagepath #{cached_image.cache_full_path.to_s.bash_escape}            \\
+        -v #{cache_dir.to_s.bash_escape}:#{cache_dir.to_s.bash_escape}          \\
+        -v #{gridshare_dir.to_s.bash_escape}:#{gridshare_dir.to_s.bash_escape}  \\
+        #{esc_local_dp_mountpoints}                                             \\
+        -u -s                                                                   \\
+        #{boutiques_json_basename.bash_escape}                                  \\
         #{invoke_json_basename.bash_escape}
 
       # Record exit status
