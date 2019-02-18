@@ -120,6 +120,35 @@ class CbrainTask::BidsAppHandler < ClusterTask
     gridshare_dir = self.bourreau.cms_shared_dir
 
     #------------------------
+    # Simulation checks
+    #------------------------
+
+    # Verify the execution command with 'simulate' !
+    self.addlog("Running bosh simulation invocation")
+    out, err = self.tool_config_system <<-SIMULATE
+      bosh exec simulate                       \\
+      -i #{invoke_json_basename.bash_escape}   \\
+      #{boutiques_json_basename.bash_escape} ; \\
+      echo Status=$? 1>&2
+    SIMULATE
+
+    # Parse simulation outputs
+    first_three_out = out.split(/\n/)[0..2]
+    first_three_err = err.split(/\n/)[0..2]
+    if ! err.match(/Status=(\d+)\s*$/)
+      self.addlog("Simulation command failed: got STDERR:")
+      self.addlog(first_three_err)
+      cb_error "Simulate command failed" # cannot return true or false here
+    end
+    retcode = Regexp.last_match[1] # from Status= above
+    if retcode != "0"
+      self.addlog("Simulation command failed: got status #{retcode} and STDERR:")
+      self.addlog(first_three_out)
+      cb_error "Simulate command failed" # cannot return true or false here
+    end
+    self.addlog(first_three_out) # Should be "Generated command:\n[command here]\n"
+
+    #------------------------
     # Main command
     #------------------------
 
