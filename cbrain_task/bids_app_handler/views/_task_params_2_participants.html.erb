@@ -1,0 +1,24 @@
+
+<%
+#
+# This partial renders the sessions selection table.
+#
+# Required locals: :form and :params
+#
+%>
+
+<strong>Participants to process:
+   <label for="_cb_all_part_">(Select all with:
+     <%= select_all_checkbox('_cb_part_', :id => '_cb_all_part_', :checked => true) %>
+   )</label>
+</strong>
+
+<p>
+
+<%= array_to_table(@task.bids_dataset.list_subjects, :cols => 5, :fill_by_columns => true) do |sub| %>
+  <%= form.params_check_box "_cb_participants[#{sub}]", :class => '_cb_part_' %>
+  <%= form.params_label     "_cb_participants[#{sub}]" do %>
+    <%= sub %>
+  <% end %>
+<% end %>
+

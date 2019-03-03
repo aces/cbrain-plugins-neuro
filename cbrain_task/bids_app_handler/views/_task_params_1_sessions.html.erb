@@ -1,0 +1,28 @@
+
+<%
+#
+# This partial renders the sessions selection table.
+#
+# Required locals: :form and :params
+#
+%>
+
+<% if @task.has_session_label_input? && @task.bids_dataset.list_sessions.present? %>
+
+  <strong>Sessions to process:
+     <label for="_cb_all_ses_">(Select all with:
+       <%= select_all_checkbox('_cb_ses_', :id => '_cb_all_ses_', :checked => true) %>
+     )</label>
+  </strong>
+
+  <p>
+
+  <%= array_to_table(@task.bids_dataset.list_sessions, :cols => 5) do |ses| %>
+    <%= form.params_check_box "_cb_sessions[#{ses}]", :class => '_cb_ses_' %>
+    <%= form.params_label     "_cb_sessions[#{ses}]" do %>
+      <%= ses %>
+    <% end %>
+  <% end %>
+
+<% end %>
+

@@ -1,0 +1,62 @@
+
+<%
+#
+# This partial renders the pipeline builder box for a BidsApp.
+#
+# Required locals: :form and :params
+#
+%>
+
+<fieldset><legend>Pipeline Steps</legend>
+
+  <% current_pipeline = params[:_cb_pipeline] || [] %>
+
+  <% if current_pipeline.present? %>
+    These are your currently selected analysis steps in your pipeline:<p>
+  <% else %>
+    <span class="warning">(Your pipeline list is currently empty. Add analyis levels from the list below)</span>
+  <% end %>
+
+  <%
+  # Note: in the array_to_table() helper below, we cheat and generate
+  # several TD elements within each block iteration.
+  %>
+  <% num_participants = @task.selected_participants.size %>
+  <% num_sessions     = @task.selected_sessions.size %>
+  <%= array_to_table(current_pipeline, :cols => 1, :table_class => 'simple') do |al,r,_| %>
+      <%= form.params_hidden_field "_cb_pipeline[]", :value => al %>
+      Step #<%= r+1 %> :
+    </td><td>
+      <strong>&quot;<%= al %>&quot;</strong>
+    </td><td>
+      (Remove: <%= form.params_check_box "_cb_pipeaction_remove_#{sprintf('%3.3d',r)}" %>)
+    </td><td>
+      <% if al =~ /participant/i %>
+        (Will launch: <%= num_participants %> participant-level subtasks)
+      <% elsif al =~ /session/i %>
+        (Will launch: <%= num_sessions == 0 ? 1 : num_sessions %> session-level subtasks)
+      <% elsif al =~ /group/i %>
+        (Will launch: 1 group-level subtask)
+      <% else %>
+        (Will launch: 1 special subtask)
+      <% end %>
+  <% end %>
+
+  <p>
+
+  Available analysis levels:<br>
+  <small>(When selected, these will be appended to list above)</small>
+
+  <ul>
+    <% @task.analysis_levels.each_with_index do |al,idx| %>
+      <li><strong><%= al %></strong> : (Add: <%= form.params_check_box "_cb_pipeaction_add_#{idx}" %>)</li>
+    <% end %>
+  </ul>
+
+  <%= submit_tag 'Adjusting Pipeline', :value => "Add/Remove Analysis Levels" %>
+
+  <% al_description = @task.analysis_levels_input_descriptor['description'].presence %>
+  <%= overlay_description("Descriptions:\n" + al_description) if al_description %>
+
+</fieldset>
+

@@ -41,6 +41,12 @@ class BidsDataset < FileCollection
     all_subjects
   end
 
+  # This method is meant to be as compatible as possible
+  # to the FmriStudy API; NYI: any options!
+  def list_sessions(options = {})
+    all_sessions
+  end
+
   private
 
   def all_subjects #:nodoc:
@@ -50,5 +56,19 @@ class BidsDataset < FileCollection
                    .map    { |n| n[4,999] } # I hope no subject is longer than that!
   end
 
+  def all_sessions #:nodoc:
+    @_sessions ||= all_subjects.inject([]) do |final,sub|
+      final |= sessions_for_subject(sub)
+    end
+  end
+
+  def sessions_for_subject(sub) #:nodoc:
+    @_sessions_for_subject      ||= {}
+    @_sessions_for_subject[sub] ||=
+      list_files("sub-#{sub}", :directory)
+      .map    { |e| Pathname.new(e.name).basename.to_s }
+      .select { |n| n =~ /^ses-/ }
+      .map    { |n| n[4,999] } # Also I hope no session is longer than that.
+  end
 
 end

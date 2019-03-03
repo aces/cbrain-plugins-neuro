@@ -7,7 +7,7 @@ class CbrainTask::BidsAppHandler < ClusterTask
   include RestartableTask
   include RecoverableTask
 
-  Bosh_Required_Version = "0.5.18" # 0.5.18 fails too; waiting for patches, 2019-02-13
+  Bosh_Required_Version = "0.5.19"
 
   # See the CbrainTask Programmer Guide
   def setup #:nodoc:
@@ -59,17 +59,35 @@ class CbrainTask::BidsAppHandler < ClusterTask
       invoke_json[fid] = userfile_name
     end
 
+    # Analysis level for this task
+    analysis_level = params[:_cb_pipeline].first.presence ||
+      cb_error("Can't find analysis level name?!?") # internal error
+
+    # Add the inputs we control as a BidsAppHandler
     invoke_json.merge!({
       :bids_dir          => bids_dataset.name,
       :participant_label => selected_participants,
-      :analysis_level    => mode,
+      :analysis_level    => analysis_level,
     })
+
+    # Session labels are optional, and can occur no matter what
+    # type of task.
+    if self.has_session_label_input? && self.bids_dataset.list_sessions.present?
+      invoke_json.merge!({
+        :session_label   => selected_sessions,
+      })
+    end
+
+    # These code blocks are there in case differences ever
+    # emerges when invoking the bidsapp in different modes.
     if mode == 'participant'
       invoke_json.merge!( { :output_dir_name => outputdir, } )
     end
     if mode == 'group'
       invoke_json.merge!( { :output_dir_name => outputdir, } )
-      #invoke_json.merge!( { :participant_level_analysis_dir => outputdir, } )
+    end
+    if mode == 'session'
+      invoke_json.merge!( { :output_dir_name => outputdir, } )
     end
 
     # Write it as a file
@@ -190,6 +208,10 @@ class CbrainTask::BidsAppHandler < ClusterTask
     bids_dataset = self.bids_dataset
     mode         = params[:_cb_mode]
 
+    # Analysis level for this task
+    analysis_level = params[:_cb_pipeline].first.presence ||
+      cb_error("Can't find analysis level name?!?") # internal error
+
     # DP for destination files
     dest_dp_id = self.results_data_provider_id.presence ||
                  bids_dataset.data_provider_id
@@ -220,45 +242,24 @@ class CbrainTask::BidsAppHandler < ClusterTask
     end
 
     # We don't do any saving for participants tasks
-    if mode == 'participant'
+    if mode == 'participant' || mode == 'session'
       self.addlog("No output files need saving here, a separate task handles that.")
       return all_ok
     end
 
-    # For provevance logs at the end
-    created_outputs = []
-
-    # For mode 'save', we just save each participant's result
-    if mode == 'save'
-      selected_participants.each do |sub|
-        sublist = participants_outputs[sub]
-        sublist.each do |one_output| # "outdir/something"
-          out_type = File.file?(one_output) ? SingleFile : FileCollection
-          basename = Pathname.new(one_output).basename.to_s #hopefully respects CBRAIN legal characters
-          cb_out = safe_userfile_find_or_new(out_type,
-            { :name => basename + "_" + run_id(), :data_provider_id => dest_dp_id }
-          )
-          cb_out.cache_copy_from_local_file(one_output)
-          cb_out.move_to_child_of( bids_dataset )
-          created_outputs << cb_out
-        end
-      end
-    end
-
-    # For mode 'group', we just save the output dir containing all participants outputs
-    if mode == 'group'
-      group_output_name = 'group_output' + "_" + run_id()
-      self.addlog("Attempting to save group results '#{group_output_name}'")
-      cb_out = safe_userfile_find_or_new(FileCollection,
-        { :name => group_output_name, :data_provider_id => dest_dp_id }
-      )
-      cb_out.cache_copy_from_local_file(outputdir)
-      cb_out.move_to_child_of(bids_dataset)
-      created_outputs << cb_out
-    end
+    # For mode 'save', or 'group', we just save the output dir containing all participants outputs
+    # We use the task's LEVEL to identify and distinguish the analysis step number. TODO add as _cb_step ?
+    step_number = (self.level || 0) + 1
+    output_name = "Step_#{step_number}_#{analysis_level}" + "_" + run_id()
+    self.addlog("Attempting to save results '#{output_name}'")
+    cb_out = safe_userfile_find_or_new(BidsAppOutput,
+      { :name => output_name, :data_provider_id => dest_dp_id }
+    )
+    cb_out.cache_copy_from_local_file(outputdir)
+    cb_out.move_to_child_of(bids_dataset)
 
     # Add provenance logs
-    self.addlog_to_userfiles_these_created_these( bids_dataset, created_outputs )
+    self.addlog_to_userfiles_these_created_these( bids_dataset, cb_out )
 
     return true
   end

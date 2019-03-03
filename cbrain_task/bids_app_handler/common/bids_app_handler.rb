@@ -4,8 +4,14 @@ class CbrainTask::BidsAppHandler
 
   Common_Revision_info=CbrainFileRevision[__FILE__] #:nodoc:
 
-  HandledBoutiquesInputs  = %w( bids_dir analysis_level participant_label output_dir_name )
-  HandledBoutiquesOutputs = %w( output_dir )
+  # For a descriptor to be a proper BidsApp, we MUST have these inputs:
+  RequiredBoutiquesInputs = %w( bids_dir analysis_level participant_label output_dir_name )
+
+  # For a descriptor to be a proper BidsApp, we MUST have these outputs:
+  RequiredBoutiquesOutputs = %w( output_dir )
+
+  # We bypass the code and handle ourselves these inputs:
+  HandledBoutiquesInputs  = RequiredBoutiquesInputs + %w( session_label )
 
   # Two variants of the descriptor are stored in the built subclasses:
 
@@ -18,9 +24,9 @@ class CbrainTask::BidsAppHandler
   # Automatically register the task's version when new() is invoked.
   def initialize(arguments = {}) #:nodoc:
     super(arguments)
-    baserev = Revision_info # will come from Portal or Bourreau side
-    self.addlog("Base #{baserev.basename} rev. #{baserev.short_commit}", :caller_level => 2)
+    baserev   = Revision_info        # will come from Portal or Bourreau side
     commonrev = Common_Revision_info
+    self.addlog(  "Base #{baserev.basename  } rev. #{baserev.short_commit  }", :caller_level => 2)
     self.addlog("Common #{commonrev.basename} rev. #{commonrev.short_commit}", :caller_level => 2)
   end
 
@@ -45,15 +51,38 @@ class CbrainTask::BidsAppHandler
   # Returns the participants that were selected by their checkboxes in the launch form
   def selected_participants #:nodoc:
     select_hash  = params[:_cb_participants] || {}
-    select_hash.keys.select { |sub| select_hash[sub] == '1' }
+    select_hash.keys.select { |sub| select_hash[sub] == '1' }.sort
   end
 
-  def untouchable_params_attributes #:nodoc:
-    { :_cb_bids_id => true }
+  # Returns the sessions that were selected by their checkboxes in the launch form
+  def selected_sessions #:nodoc:
+    select_hash  = params[:_cb_sessions] || {}
+    select_hash.keys.select { |sub| select_hash[sub] == '1' }.sort
   end
 
-  def unpresetable_params_attributes #:nodoc:
-    { :_cb_bids_id => true }
+  # Returns true if the BidsApp has a --session_label option
+  def has_session_label_input?(descriptor = self.class.full_descriptor)
+    input_session_label = descriptor['inputs'].detect { |struct| struct['id'] == 'session_label' }
+  end
+
+  # Returns the array of possible analysis levels for this task.
+  # Typically something like [ "participant", "group" ] .
+  def analysis_levels(descriptor = self.class.full_descriptor)
+    # We can't cache here, cause we can provide the info
+    # from any arbitrary descriptor
+    input_analysis_level = analysis_levels_input_descriptor(descriptor)
+    input_analysis_level["value-choices"].dup
+  end
+
+  def analysis_levels_input_descriptor(descriptor = self.class.full_descriptor) #:nodoc:
+    descriptor['inputs'].detect { |struct| struct['id'] == 'analysis_level' }
+  end
+
+  # A kludge that that invoked the instance method
+  # task_partial on a BidsAppHandler object, to get
+  # our form partials.
+  def self.bids_app_handler_partial(name) #:nodoc:
+    self.new.task_partial(name)
   end
 
   ###########################################################################
@@ -93,12 +122,12 @@ class CbrainTask::BidsAppHandler
 
   def self.validate_bids_app_json(descriptor) #:nodoc:
     inputs = descriptor['inputs'] || []
-    HandledBoutiquesInputs.each do |id|
+    RequiredBoutiquesInputs.each do |id|
       raise "Descriptor missing '#{id}' in inputs." unless
         inputs.any? { |struct| struct['id'] == id }
     end
     outputs = descriptor['output-files'] || []
-    HandledBoutiquesOutputs.each do |id|
+    RequiredBoutiquesOutputs.each do |id|
       raise "Descriptor missing '#{id}' in outputs." unless
         outputs.any? { |struct| struct['id'] == id }
     end
@@ -117,7 +146,7 @@ class CbrainTask::BidsAppHandler
     end
 
     #cleaned['output-files'] = cleaned['output-files'].reject do |struct|
-    #  HandledBoutiquesOutputs.include? struct['id']
+    #  RequiredBoutiquesOutputs.include? struct['id']
     #end
     #cleaned.delete('output-files') if cleaned['output-files'].empty?
 

@@ -31,7 +31,8 @@
   <tr>
     <th>CivetOutputs To Be Merged</th>
   </tr>
-  <% params[:interface_userfile_ids].each do |id| %>
+
+  <% (params[:interface_userfile_ids] || []).each do |id| %>
     <tr>
       <% u = Userfile.find_by_id(id) %>
       <% if u.is_a?(CivetOutput) || u.is_a?(CivetStudy) %>
@@ -42,6 +43,14 @@
       <% end %>
     </tr>
   <% end %>
+
+  <% ((params[:civet_from_task_ids].presence.try(:split,',')) || []).each do |tid| %>
+    <tr>
+      <td>CivetOutput from task: <%= link_to_task_if_accessible tid %></td>
+    </tr>
+    <%= params[:civet_from_task_ids].present? ? params_hidden_field(:civet_from_task_ids) : "" %>
+  <% end %>
+
 </table>
 
 <p>

@@ -1,45 +1,41 @@
 
-<strong>BidsDataset:</strong> <%= link_to_userfile_if_accessible @task.bids_dataset %>
+<strong>Input BidsDataset:</strong> <%= link_to_userfile_if_accessible @task.bids_dataset %>
 
 <p>
 
-<strong>Participants to process:
-   <label for="_cb_all_part_">(Select all with:
-     <%= select_all_checkbox('_cb_part_', :id => '_cb_all_part_', :checked => true) %>
-   )</label>
-</strong>
+<% if @task.new_record? %>
 
-<p>
+  <%=
+    #############################################################
+    # Pipeline Builder
+    #############################################################
+    render :partial => task_partial('task_params_0_pipeline', 'CbrainTask::BidsAppHandler'),
+           :locals  => { :form => form, :params => params }
+  %>
 
-<%= array_to_table(@task.bids_dataset.list_subjects, :cols => 5, :fill_by_columns => true) do |sub| %>
-  <%= form.params_check_box "_cb_participants[#{sub}]", :class => '_cb_part_' %>
-  <%= form.params_label     "_cb_participants[#{sub}]" do %>
-    <%= sub %>
-  <% end %>
+  <p>
+
+  <%=
+    #############################################################
+    # Sessions List
+    #############################################################
+    render :partial => task_partial('task_params_1_sessions', 'CbrainTask::BidsAppHandler'),
+           :locals  => { :form => form, :params => params }
+  %>
+
+  <p>
+
 <% end %>
 
-<p>
-
-<%
-# We only show the checkbox if we're launching a new batch
-# or editing the final task. It makes no sense when editing a
-# participant-level task (and in that case the entry is no longer
-# in the params).
-if @task.new_record? || params[:_cb_mode] =~ /save|group/
+<%=
+#############################################################
+# Participants List
+#############################################################
+render :partial => task_partial('task_params_2_participants', 'CbrainTask::BidsAppHandler'),
+       :locals  => { :form => form, :params => params }
 %>
 
-<strong>Final Handling:</strong>
-
 <p>
-
-<%= form.params_label :_cb_launch_group do %>
-Launch group analysis at the end?
-<% end %>
-<%= form.params_check_box :_cb_launch_group %>
-
-<p>
-
-<% end %>
 
 <%= form.params_hidden_field :_cb_bids_id %>
 
