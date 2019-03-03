@@ -1,5 +1,10 @@
 
 <strong>Input BidsDataset:</strong> <%= link_to_userfile_if_accessible @task.bids_dataset %>
+<% if @task.bids_app_prepared_output %>
+<br>
+<strong>Prepared BidsAppOutput:</strong> <%= link_to_userfile_if_accessible @task.bids_app_prepared_output %>
+<% end %>
+
 
 <p>
 
@@ -37,7 +42,14 @@ render :partial => task_partial('task_params_2_participants', 'CbrainTask::BidsA
 
 <p>
 
+<%
+# Mandatory BidsDataset input
+%>
 <%= form.params_hidden_field :_cb_bids_id %>
+<%
+# Optional BidsAppOutput input
+%>
+<%= form.params_hidden_field :_cb_prep_output %>
 
 <hr>
 

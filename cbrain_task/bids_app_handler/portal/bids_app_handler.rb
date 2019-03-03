@@ -229,6 +229,7 @@ class CbrainTask::BidsAppHandler < PortalTask
     { :interface_userfile_ids => true,
       :_cb_mode               => true,
       :_cb_bids_id            => true,
+      :_cb_prep_output        => true,
       :_cb_pipeline           => true,
     }
   end
@@ -237,6 +238,7 @@ class CbrainTask::BidsAppHandler < PortalTask
     { :interface_userfile_ids => true,
       :_cb_mode               => true,
       :_cb_bids_id            => true,
+      :_cb_prep_output        => true,
       :_cb_pipeline           => true,
     }
   end

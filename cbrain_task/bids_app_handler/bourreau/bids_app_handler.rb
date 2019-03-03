@@ -14,13 +14,20 @@ class CbrainTask::BidsAppHandler < ClusterTask
     bids_dataset = self.bids_dataset
 
     mode = params[:_cb_mode]
-    return true if mode =~ /save|group/ # a 'save' or 'group' task doesn't need any setup
+    return true if mode =~ /save/ # a 'save' task doesn't need any setup
 
     # Make sure 'bosh' is recent enough
     return false unless self.bosh_is_supported?
 
     addlog("Synchronizing #{bids_dataset.name}")
     make_available(bids_dataset, bids_dataset.name)
+
+    prep_output = self.bids_app_prepared_output
+    if prep_output
+      addlog("Synchronizing #{prep_output.name}")
+      prep_output.sync_to_cache
+      install_bids_output_once(prep_output, output_dir_basename_for_batch())
+    end
 
     return true
   end
@@ -268,7 +275,7 @@ class CbrainTask::BidsAppHandler < ClusterTask
 
   def output_dir_basename_for_batch #:nodoc:
     batch_id = self.batch_id || self.id
-    "outdir-#{batch_id}-#{run_number}"
+    "outdir-#{batch_id}"
   end
 
   def bosh_is_supported? #:nodoc:
@@ -300,6 +307,53 @@ class CbrainTask::BidsAppHandler < ClusterTask
     self.addlog("Program 'bosh' (from Boutiques) is version #{bosh_version}")
 
     true
+  end
+
+  # Given a synchronized file collection prep_output, installs
+  # a full copy of its cache under basename . This method can
+  # safeyl be called in parallel by multiple processes and only
+  # one copy will be made, the others will block and return
+  # once this is done.
+  def install_bids_output_once(prep_output, basename) #:nodoc:
+    max_time_to_install = 1.hour
+    lockdir             = "#{basename}-lock"
+    outerrfile          = "/tmp/capt.rsync.#{Process.pid}-#{rand(100000)}"
+    tempdest            = "install-#{Process.pid}-#{rand(100000)}"
+    return true if Dir.exists?(basename) # ok, someone did it quickly
+
+    # Copy the content of the userfile to a local temp directory
+    begin
+      Dir.mkdir lockdir # A failure sends us to the rescue block: it means another process is doing it
+      self.addlog("Attempting to install prepared BidsAppOuput #{prep_output.name}")
+      src = prep_output.cache_full_path
+      # The trailing slash is important in the src argument for rsync below
+      ret = system("rsync -a -l --no-p --no-g --chmod=u=rwX,g=rX,o=r --delete #{src.to_s.bash_escape}/ #{tempdest.bash_escape} 1>#{outerrfile} 2>&1")
+      outerr = File.read(outerrfile) rescue "(No rsync output)"
+      cb_error "Can't seem to rsync prepared BidsAppOutput: message: #{outerr}" unless ret
+
+      # Atomically install the directory and remove the lock
+      File.rename tempdest, basename
+      Dir.rmdir lockdir
+      return true
+
+    # OK, someone else is preparing it? Let's wait
+    rescue Errno::EEXIST # normally, from the mkdir above
+      self.addlog("Waiting for some other process to install prepared BidsAppOuput #{prep_output.name}")
+      start = Time.now
+      while Time.now - start < max_time_to_install
+        sleep 5
+        next if Dir.exists?(lockdir)
+        sleep 1
+        cb_error "We can't find the prepared output for '#{basename}'..." unless Dir.exists?(basename)
+        return true # all is good
+      end
+      cb_error "Time out waiting for other process to install BidsAppOutput."
+    end
+
+  ensure
+    # Clean up on aisle #2
+    File.unlink(outerrfile)   rescue true # will happen if this process did the rsync
+    #FileUtils.rm_rf(tempdest) rescue true # should never happen; comment out to inspect
   end
 
 end

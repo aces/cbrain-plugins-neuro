@@ -1,6 +1,11 @@
 
-Input BidsDataset: <%= link_to_userfile_if_accessible @task.bids_dataset %>
+<strong>Input BidsDataset:</strong> <%= link_to_userfile_if_accessible @task.bids_dataset %>
+<% if @task.bids_app_prepared_output %>
+<br>
+<strong>Prepared BidsAppOutput:</strong> <%= link_to_userfile_if_accessible @task.bids_app_prepared_output %>
+<% end %>
 <p>
+
 
 <% # We use the task's LEVEL to identify and distinguish the analysis step number. TODO add as _cb_step ?
    step_number    = (task.level || 0) + 1 # also adjust in bourreau code, save_result()
@@ -12,7 +17,7 @@ Pipeline step: <%= step_number %>
 
 <% if @task.params[:_cb_mode] =~ /participant|group|session/ %>
 
-  This is a <strong><%= analysis_level %></strong>-stage BidsApp running on the following subjects:
+  This is a <strong><%= analysis_level %></strong>-stage BidsApp running on the following subject(s):
   <ul>
     <% @task.selected_participants[0,8].each do |sub| %>
       <li><%= sub %></li>

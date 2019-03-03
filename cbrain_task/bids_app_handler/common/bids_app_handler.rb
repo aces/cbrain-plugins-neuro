@@ -39,13 +39,35 @@ class CbrainTask::BidsAppHandler
       @bids_dataset = BidsDataset.find(params[:_cb_bids_id])
       return @bids_dataset
     end
-    ids    = params[:interface_userfile_ids] || []
+    ids = params[:interface_userfile_ids] || []
     bids_datasets = BidsDataset.where(:id => ids)
     cb_error "This task requires a single BidDataset as input" unless bids_datasets.count == 1
     @bids_dataset = bids_datasets.first
     params[:_cb_bids_id] = @bids_dataset.id
-    params[:interface_userfile_ids] = params[:interface_userfile_ids].reject { |x| x.to_s == @bids_dataset.id.to_s }
+    params[:interface_userfile_ids]
+      .reject! { |x| x.to_s == @bids_dataset.id.to_s }
     return @bids_dataset
+  end
+
+  # Returns the optional BidsAppOutput object that we can use as a baseline
+  # for processing some steps. It's assumed the BidsAppOutput of course contains
+  # all the necessary files that are required, but that's left to the user to
+  # make sure of that.
+  def bids_app_prepared_output #:nodoc:
+    return @bids_app_prepared_output if @bids_app_prepared_output
+    if params[:_cb_prep_output].present?
+      @bids_app_prepared_output = BidsAppOutput.find(params[:_cb_prep_output])
+      return @bids_app_prepared_output
+    end
+    ids = params[:interface_userfile_ids] || []
+    bids_outputs = BidsAppOutput.where(:id => ids)
+    return nil if bids_outputs.empty? # it's optional after all
+    cb_error "This task requires at most ONE pre-existing BidsAppOutput as an input" unless bids_outputs.count == 1
+    @bids_app_prepared_output = bids_outputs.first
+    params[:_cb_prep_output] = @bids_app_prepared_output.id
+    params[:interface_userfile_ids]
+      .reject! { |x| x.to_s == @bids_app_prepared_output.id.to_s }
+    return @bids_app_prepared_output
   end
 
   # Returns the participants that were selected by their checkboxes in the launch form
@@ -62,7 +84,7 @@ class CbrainTask::BidsAppHandler
 
   # Returns true if the BidsApp has a --session_label option
   def has_session_label_input?(descriptor = self.class.full_descriptor)
-    input_session_label = descriptor['inputs'].detect { |struct| struct['id'] == 'session_label' }
+    descriptor['inputs'].detect { |struct| struct['id'] == 'session_label' }
   end
 
   # Returns the array of possible analysis levels for this task.
