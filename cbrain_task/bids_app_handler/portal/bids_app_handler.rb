@@ -51,7 +51,7 @@ class CbrainTask::BidsAppHandler < PortalTask
   def after_form #:nodoc:
     params = self.params
 
-    if self.params[:_cb_pipeline].empty?
+    if self.params[:_cb_pipeline].blank?
       self.params_errors[:_cb_pipeline] = 'needs at least one processing step'
     end
 
@@ -172,7 +172,6 @@ class CbrainTask::BidsAppHandler < PortalTask
   end
 
   def generate_task_list_for_participants(step_number, analysis_level) #:nodoc:
-    cleaned_up_sessions = self.params[:_cb_sessions].select { |_,zero1| zero1 == '1' }
     tasklist = self.selected_participants.map do |part|
       task = self.dup
       task.params[:_cb_participants] = { part => '1' }
@@ -186,7 +185,6 @@ class CbrainTask::BidsAppHandler < PortalTask
   end
 
   def generate_task_list_for_sessions(step_number, analysis_level) #:nodoc:
-    cleaned_up_participants = self.params[:_cb_participants].select { |_,zero1| zero1 == '1' }
     tasklist = self.selected_sessions.map do |sess|
       task = self.dup
       task.params[:_cb_participants] = cleaned_up_participants.dup
@@ -201,8 +199,8 @@ class CbrainTask::BidsAppHandler < PortalTask
 
   def generate_save_task(step_number, analysis_level) #:nodoc:
     task = self.dup
-    task.params[:_cb_participants] = self.params[:_cb_participants].select { |_,zero1| zero1 == '1' }
-    task.params[:_cb_sessions]     = self.params[:_cb_sessions].select     { |_,zero1| zero1 == '1' }
+    task.params[:_cb_participants] = cleaned_up_participants.dup
+    task.params[:_cb_sessions]     = cleaned_up_sessions.dup
     task.params[:_cb_mode]         = 'save'
     task.params[:_cb_pipeline]     = [ analysis_level ]
     task.description = "Step #{step_number}, Save: #{analysis_level}\n#{self.description}".strip
@@ -211,8 +209,8 @@ class CbrainTask::BidsAppHandler < PortalTask
 
   def generate_task_for_group(step_number, analysis_level) #:nodoc:
     task = self.dup
-    task.params[:_cb_participants] = self.params[:_cb_participants].select { |_,zero1| zero1 == '1' }
-    task.params[:_cb_sessions]     = self.params[:_cb_sessions].select     { |_,zero1| zero1 == '1' }
+    task.params[:_cb_participants] = cleaned_up_participants.dup
+    task.params[:_cb_sessions]     = cleaned_up_sessions.dup
     task.params[:_cb_mode]         = 'group'
     task.params[:_cb_pipeline]     = [ analysis_level ]
     task.description = "Step #{step_number}, #{analysis_level}\n#{self.description}".strip
@@ -243,6 +241,13 @@ class CbrainTask::BidsAppHandler < PortalTask
     }
   end
 
+  def cleaned_up_participants #:nodoc:
+    self.params[:_cb_participants].select              { |_,zero1| zero1 == '1' }
+  end
+
+  def cleaned_up_sessions #:nodoc:
+    (self.params[:_cb_sessions].presence || {}).select { |_,zero1| zero1 == '1' }
+  end
 
 end
 
