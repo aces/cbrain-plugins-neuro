@@ -17,7 +17,7 @@
 
   <p>
 
-  <%= array_to_table(@task.bids_dataset.list_sessions, :cols => 5) do |ses| %>
+  <%= array_to_table(@task.bids_dataset.list_sessions, :cols => 5, :fill_by_columns => true) do |ses| %>
     <%= form.params_check_box "_cb_sessions[#{ses}]", :class => '_cb_ses_' %>
     <%= form.params_label     "_cb_sessions[#{ses}]" do %>
       <%= ses %>

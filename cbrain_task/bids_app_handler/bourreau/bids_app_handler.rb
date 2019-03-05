@@ -67,7 +67,7 @@ class CbrainTask::BidsAppHandler < ClusterTask
     end
 
     # Analysis level for this task
-    analysis_level = params[:_cb_pipeline].first.presence ||
+    analysis_level = analysis_info["name"].presence ||
       cb_error("Can't find analysis level name?!?") # internal error
 
     # Add the inputs we control as a BidsAppHandler
@@ -90,10 +90,13 @@ class CbrainTask::BidsAppHandler < ClusterTask
     if mode == 'participant'
       invoke_json.merge!( { :output_dir_name => outputdir, } )
     end
+    if mode == 'session'
+      invoke_json.merge!( { :output_dir_name => outputdir, } )
+    end
     if mode == 'group'
       invoke_json.merge!( { :output_dir_name => outputdir, } )
     end
-    if mode == 'session'
+    if mode == 'direct'
       invoke_json.merge!( { :output_dir_name => outputdir, } )
     end
 
@@ -216,7 +219,7 @@ class CbrainTask::BidsAppHandler < ClusterTask
     mode         = params[:_cb_mode]
 
     # Analysis level for this task
-    analysis_level = params[:_cb_pipeline].first.presence ||
+    analysis_level = analysis_info[:name].presence ||
       cb_error("Can't find analysis level name?!?") # internal error
 
     # DP for destination files
@@ -249,15 +252,17 @@ class CbrainTask::BidsAppHandler < ClusterTask
     end
 
     # We don't do any saving for participants tasks
-    if mode == 'participant' || mode == 'session'
+    force_save = analysis_info[:save] == '1'
+    if (!force_save && (mode == 'participant' || mode == 'session'))
       self.addlog("No output files need saving here, a separate task handles that.")
       return all_ok
     end
 
-    # For mode 'save', or 'group', we just save the output dir containing all participants outputs
+    # We just save the output dir containing all files outputs.
     # We use the task's LEVEL to identify and distinguish the analysis step number. TODO add as _cb_step ?
     step_number = (self.level || 0) + 1
-    output_name = "Step_#{step_number}_#{analysis_level}" + "_" + run_id()
+    output_name = analysis_info[:savename].presence ||
+                  "Step_#{step_number}_#{analysis_level}" + "_" + run_id()
     self.addlog("Attempting to save results '#{output_name}'")
     cb_out = safe_userfile_find_or_new(BidsAppOutput,
       { :name => output_name, :data_provider_id => dest_dp_id }
@@ -354,6 +359,13 @@ class CbrainTask::BidsAppHandler < ClusterTask
     # Clean up on aisle #2
     File.unlink(outerrfile)   rescue true # will happen if this process did the rsync
     #FileUtils.rm_rf(tempdest) rescue true # should never happen; comment out to inspect
+  end
+
+  # Returns the single tiny structure that describes this analysis level information. E.g.
+  #
+  #  { :name => 'group1', :save => '1', :savename => 'myname' }
+  def analysis_info #:nodoc:
+    self.params[:_cb_pipeline]["0"]
   end
 
 end

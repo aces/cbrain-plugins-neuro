@@ -9,13 +9,18 @@
 
 <% # We use the task's LEVEL to identify and distinguish the analysis step number. TODO add as _cb_step ?
    step_number    = (task.level || 0) + 1 # also adjust in bourreau code, save_result()
-   analysis_level = params[:_cb_pipeline].first
+   analysis_level = params[:_cb_pipeline]["0"][:name]
 %>
 
 Pipeline step: <%= step_number %>
 <p>
 
-<% if @task.params[:_cb_mode] =~ /participant|group|session/ %>
+<% if @task.params[:_cb_mode] == 'save' %>
+
+  This is a task whose job is simply to save the results of the other
+  previous <strong><%= analysis_level %></strong> tasks in the pipeline.
+
+<% else %>
 
   This is a <strong><%= analysis_level %></strong>-stage BidsApp running on the following subject(s):
   <ul>
@@ -27,10 +32,17 @@ Pipeline step: <%= step_number %>
     <% end %>
   </ul>
 
-<% elsif @task.params[:_cb_mode] == 'save' %>
-
-  This is a task whose job is simply to save the results of the other
-  previous <strong><%= analysis_level %></strong> tasks in the pipeline.
+  <% if @task.has_session_label_input? && @task.bids_dataset.list_sessions.present? %>
+    and the following sessions:
+    <ul>
+      <% @task.selected_sessions[0,8].each do |ses| %>
+        <li><%= ses %></li>
+      <% end %>
+      <% if @task.selected_sessions.size > 8 %>
+        <li>... and <%= @task.selected_sessions.size - 8 %> more.</li>
+      <% end %>
+    </ul>
+  <% end %>
 
 <% end %>
 

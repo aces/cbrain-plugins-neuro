@@ -55,8 +55,8 @@ class CbrainTask::BidsAppHandler
   # make sure of that.
   def bids_app_prepared_output #:nodoc:
     return @bids_app_prepared_output if @bids_app_prepared_output
-    if params[:_cb_prep_output].present?
-      @bids_app_prepared_output = BidsAppOutput.find(params[:_cb_prep_output])
+    if params[:_cb_prep_output_id].present?
+      @bids_app_prepared_output = BidsAppOutput.find(params[:_cb_prep_output_id])
       return @bids_app_prepared_output
     end
     ids = params[:interface_userfile_ids] || []
@@ -64,7 +64,7 @@ class CbrainTask::BidsAppHandler
     return nil if bids_outputs.empty? # it's optional after all
     cb_error "This task requires at most ONE pre-existing BidsAppOutput as an input" unless bids_outputs.count == 1
     @bids_app_prepared_output = bids_outputs.first
-    params[:_cb_prep_output] = @bids_app_prepared_output.id
+    params[:_cb_prep_output_id] = @bids_app_prepared_output.id
     params[:interface_userfile_ids]
       .reject! { |x| x.to_s == @bids_app_prepared_output.id.to_s }
     return @bids_app_prepared_output
