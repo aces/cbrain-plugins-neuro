@@ -62,7 +62,7 @@ class CbrainTask::BidsAppHandler < PortalTask
       self.params_errors[:_cb_participants] = 'needs at least one of them selected'
     end
 
-    if self.has_session_label_input? && selected_sessions.empty?
+    if self.has_session_label_input? && self.bids_dataset.list_sessions.present? && selected_sessions.empty?
       self.params_errors[:_cb_sessions] = 'needs at least one of them selected'
     end
 
@@ -272,6 +272,7 @@ class CbrainTask::BidsAppHandler < PortalTask
 
   def self.pretty_params_names #:nodoc:
     { :_cb_participants               => 'List of participants',
+      :_cb_sessions                   => 'List of sessions',
       :_cb_pipeline                   => 'Processing Pipeline',
       # This is ugly but our params framework has this as a class
       # configuration instead of an object configuration.
