@@ -152,7 +152,7 @@ class DataladDataProvider < DataProvider
        system("
                mkdir -p #{datalad_cache_dir.to_s.bash_escape}
                cd #{datalad_cache_dir.to_s.bash_escape}
-               datalad install -r --recursion-limit 1 -s #{DATALAD_PREFIX}/#{dirname.bash_escape} #{datalad_cache_dir.to_s.bash_escape}/#{dirname.to_s_bash_escape}
+               datalad install -r --recursion-limit 1 -s #{DATALAD_PREFIX}/#{dirname.bash_escape} #{datalad_cache_dir.to_s.bash_escape}/#{dirname.to_s.bash_escape}
               "
              )
     end
