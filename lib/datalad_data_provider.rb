@@ -110,10 +110,10 @@ class DataladDataProvider < DataProvider
   def impl_provider_collection_index(userfile, directory = :all, allowed_types = :regular) #:nodoc:
     cb_error "A DataLad DP does not implement a recursive listing of the remote file tree." if directory == :all
     directory = "." if directory == :top
-    path    = datalad_relative_path(userfile)
+    path    = provider_full_path(userfile)
     path   += Pathname.new(directory) unless directory == '.' || directory.blank?
     prefix  = Pathname.new(userfile.name)
-    prefix += directory unless directory == '.' || directory.blank?
+    prefix += Pathname.new(directory) unless directory == '.' || directory.blank?
     provider_readdir(path, allowed_types, prefix)
   end
 
@@ -128,7 +128,6 @@ class DataladDataProvider < DataProvider
     prefix = (userfile.meta[:datalad_path_prefix] || {})[self.id]
     path   = base ? Pathname.new(base) : Pathname.new("")
     path  += prefix if prefix
-    path  += userfile.name
     path
   end
 
