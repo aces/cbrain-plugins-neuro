@@ -104,6 +104,7 @@ class CbrainTask::BidsAppHandler < ClusterTask
     invoke_json_basename = "invoke.#{self.run_id()}.json"
     File.open(invoke_json_basename,"w") do |fh|
       fh.write JSON.pretty_generate(invoke_json)
+      fh.write "\n" # make prettier
     end
 
     # Boutique task descriptor.
@@ -114,6 +115,7 @@ class CbrainTask::BidsAppHandler < ClusterTask
       descriptor = self.class.full_descriptor
       File.open("#{boutiques_json_basename}.#{Process.pid}.tmp","w") do |fh|
         fh.write JSON.pretty_generate(descriptor)
+        fh.write "\n" # make prettier
       end
       File.rename "#{boutiques_json_basename}.#{Process.pid}.tmp", boutiques_json_basename
     end
@@ -285,21 +287,14 @@ class CbrainTask::BidsAppHandler < ClusterTask
 
   def bosh_is_supported? #:nodoc:
     out, err = self.tool_config_system("bosh version")
+    out = out.try(:strip)
+    err = err.try(:strip)
 
-    if err.present?
-      self.addlog("No proper 'bosh' program (from Boutiques) detected on system. Got STDERR:")
-      self.addlog(err)
-      return false
-    end
-
-    if out.blank?
-      self.addlog("No proper 'bosh' program (from Boutiques) detected on system. Got no outputs.")
-      return false
-    end
-
-    if out !~ /(\d+\.\d+\.\d+)/
+    if out !~ /\A(\d+\.\d+\.\d+)/
       self.addlog("Program 'bosh' (from Boutiques) did not return a version number a.b.c. Got:")
       self.addlog(out)
+      self.addlog("Also got STDERR:") if err.present?
+      self.addlog(err)                if err.present?
       return false
     end
 

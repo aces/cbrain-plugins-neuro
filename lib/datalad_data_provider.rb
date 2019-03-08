@@ -20,7 +20,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-class DataladDataProvider < SshDataProvider
+class DataladDataProvider < DataProvider
 
   Revision_info=CbrainFileRevision[__FILE__] #:nodoc:
 
@@ -103,6 +103,20 @@ class DataladDataProvider < SshDataProvider
     cb_error 'Rename not allowed'
   end
 
+  def impl_provider_list_all(user = nil) #:nodoc: # user ignored
+    provider_readdir(self.remote_dir.presence || "")
+  end
+
+  def impl_provider_collection_index(userfile, directory = :all, allowed_types = :regular) #:nodoc:
+    cb_error "A DataLad DP does not implement a recursive listing of the remote file tree." if directory == :all
+    directory = "." if directory == :top
+    path    = datalad_relative_path(userfile)
+    path   += Pathname.new(directory) unless directory == '.' || directory.blank?
+    prefix  = Pathname.new(userfile.name)
+    prefix += directory unless directory == '.' || directory.blank?
+    provider_readdir(path, allowed_types, prefix)
+  end
+
   private
 
   # NOTE: The metadata :datalad_path_prefix is
@@ -114,12 +128,18 @@ class DataladDataProvider < SshDataProvider
     prefix = (userfile.meta[:datalad_path_prefix] || {})[self.id]
     path   = base ? Pathname.new(base) : Pathname.new("")
     path  += prefix if prefix
+    path  += userfile.name
     path
   end
 
-  def impl_provider_list_all(user = nil) # user ignored
+  private
 
-    dirname = self.remote_dir || ""
+  # Low level read of a single directory level. Caches in the Scratch DP.
+  # Very inefficient, but the datalad API is dumb.
+  def provider_readdir(dirname, allowed_types = [ :regular, :directory ], add_prefix = nil) #:nodoc:
+
+    allowed_types = Array(allowed_types)
+    dirname       = dirname.to_s
 
     # Datalad Caching
     # We use the SystemScratchSpace data provider for storing the datalad dataset root.
@@ -129,19 +149,31 @@ class DataladDataProvider < SshDataProvider
 
     # Fetch the datalad dataset info
     datalad_cache_userfile = DataladSystemSubset.find_or_create_as_scratch(:name => datalad_cache_userfile_name) do |datalad_cache_dir|
-       system("datalad install -r --recursion-limit 1 -s #{DATALAD_PREFIX}/#{dirname} #{datalad_cache_dir}/#{dirname}")
+       system("
+               mkdir -p #{datalad_cache_dir.to_s.bash_escape}
+               cd #{datalad_cache_dir.to_s.bash_escape}
+               datalad install -r --recursion-limit 1 -s #{DATALAD_PREFIX}/#{dirname.bash_escape} #{datalad_cache_dir.to_s.bash_escape}/#{dirname.to_s_bash_escape}
+              "
+             )
     end
     datalad_cache_dir = datalad_cache_userfile.cache_full_path
 
     # Parse the information
-    json_text = IO.popen("cd #{datalad_cache_dir}/#{dirname};datalad ls --json display","r") { |fh| fh.read }
+    json_text = IO.popen("cd #{datalad_cache_dir.to_s.bash_escape}/#{dirname.to_s.bash_escape};datalad ls --json display","r") { |fh| fh.read }
     entries = JSON.parse(json_text)
     nodes   = entries["nodes"] || []
 
     # Build and return a list of FileInfo objects to represents the available entries.
     list = nodes.map do |node|
       name = node['name']
+      next nil if name == "." || name == ".." # robust
+
       type = node['type']
+      symbolic_type = ( type == 'file' ? :regular :
+                        type =~ /^(uninitialized|dataset|directory|folder|dir)$/i ? :directory :
+                        :unknown )
+      next nil unless allowed_types.include? symbolic_type
+
       size = node['size']['total'] || "0"
       size.sub!(/\s*kb/,"000")
       size.sub!(/\s*mb/,"000000")
@@ -150,16 +182,14 @@ class DataladDataProvider < SshDataProvider
       size = size.to_i
       datetime = DateTime.parse(node['date'])
 
-      next if name == "." || name == ".." # robust
       fileinfo = FileInfo.new
 
-      fileinfo.name          = name
-      fileinfo.symbolic_type = ( type == 'file' ? :regular :
-                                 type =~ /uninitialized|dataset|directory|folder/i ? :directory :
-                                 :unknown
-                               )
+      fileinfo.name          = add_prefix.to_s.blank? ? name : (Pathname.new(add_prefix) + name).to_s
+      fileinfo.symbolic_type = symbolic_type
       fileinfo.size          = size
-      fileinfo.atime = fileinfo.ctime = fileinfo.mtime = datetime
+      fileinfo.atime         =
+        fileinfo.ctime       =
+        fileinfo.mtime       = datetime
 
       fileinfo
     end.compact
