@@ -41,7 +41,7 @@ class CbrainTask::BidsAppHandler
     end
     ids = params[:interface_userfile_ids] || []
     bids_datasets = BidsDataset.where(:id => ids)
-    cb_error "This task requires a single BidDataset as input" unless bids_datasets.count == 1
+    cb_error "This task requires a single BidsDataset as input" unless bids_datasets.count == 1
     @bids_dataset = bids_datasets.first
     params[:_cb_bids_id] = @bids_dataset.id
     params[:interface_userfile_ids]

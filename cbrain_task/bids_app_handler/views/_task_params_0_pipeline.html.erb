@@ -71,7 +71,8 @@
   <% if current_pipeline.present? %>
     <p class="wide_field_explanation">
     This third column shows that you can save intermediate outputs; if no name is provided,
-    the system will create a unique name for you (this is recommended).
+    the system will create a unique name for you using the pattern system described in the box below (this is recommended).
+    You can also use the pattern <i>keywords</i> here too.
   <% end %>
 
   <p>
@@ -96,5 +97,12 @@
   <% al_description = @task.analysis_levels_input_descriptor['description'].presence %>
   <%= overlay_description("(Descriptions):\n" + al_description) if al_description %>
 
-</fieldset>
+  <%=
+    #############################################################
+    # Global Output Renaming Panel
+    #############################################################
+    render :partial => task_partial('task_params_output_renaming', 'CbrainTask::BidsAppHandler'),
+           :locals  => { :form => form, :params => params }
+  %>
 
+</fieldset>

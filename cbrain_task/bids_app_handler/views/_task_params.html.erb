@@ -1,9 +1,15 @@
 
-<strong>Input BidsDataset:</strong> <%= link_to_userfile_if_accessible @task.bids_dataset %>
+<ul>
+<li><strong>Input BidsDataset:</strong> <%= link_to_userfile_if_accessible @task.bids_dataset %></li>
 <% if @task.bids_app_prepared_output %>
-<br>
-<strong>Prepared BidsAppOutput:</strong> <%= link_to_userfile_if_accessible @task.bids_app_prepared_output %>
+<li><strong>Prepared BidsAppOutput:</strong> <%= link_to_userfile_if_accessible @task.bids_app_prepared_output %></li>
+<% else %>
+<li><strong>Prepared BidsAppOutput:</strong> These pipelines do not use any, they will create their own new outputs.<br>
+If you would like your pipelines to start working on already prepared outputs (from other BidsApp tasks, for instance),<br>
+then go back to the file manager and <em>select both a <strong>BidsDataset</strong> and a <strong>BidsAppOutput</strong> file</em> before launching the tasks.
+</li>
 <% end %>
+</ul>
 
 
 <p>
@@ -31,6 +37,22 @@
   <p>
 
 <% end %>
+
+<% if ! @task.new_record? %>
+  <% step_0_save = params[:_cb_pipeline].try(:[],"0").try(:[], :save) %>
+  <% if step_0_save == '1' %>
+
+  <%=
+    #############################################################
+    # Global Output Renaming Panel
+    #############################################################
+    render :partial => task_partial('task_params_output_renaming', 'CbrainTask::BidsAppHandler'),
+           :locals  => { :form => form, :params => params }
+  %>
+
+  <% end %>
+<% end %>
+
 
 <%=
 #############################################################

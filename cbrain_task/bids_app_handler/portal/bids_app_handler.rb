@@ -8,6 +8,7 @@ class CbrainTask::BidsAppHandler < PortalTask
     { #:_cb_pipeline     => [],
       #:_cb_sessions     => {},
       #:_cb_participants => {},
+      :_cb_output_renaming_pattern => '{bids_name}-Step{step}-{analysis_level}-{task_id}-{run_number}',
     }
   end
 
@@ -48,6 +49,10 @@ class CbrainTask::BidsAppHandler < PortalTask
     # Keys are string numbers "0", "1", "2" etc
     params[:_cb_pipeline]                  ||= {}
 
+    # The desription shown to user initially; when task
+    # arrays are created, more info will be added to it.
+    self.description = self.bids_dataset.name if self.description.blank?
+
     ""
   end
 
@@ -57,6 +62,7 @@ class CbrainTask::BidsAppHandler < PortalTask
     if self.params[:_cb_pipeline].blank?
       self.params_errors[:_cb_pipeline] = 'needs at least one processing step'
     end
+    self.params[:_cb_pipeline] ||= {}
 
     if selected_participants.empty?
       self.params_errors[:_cb_participants] = 'needs at least one of them selected'
@@ -66,27 +72,43 @@ class CbrainTask::BidsAppHandler < PortalTask
       self.params_errors[:_cb_sessions] = 'needs at least one of them selected'
     end
 
+    # When editing a task that can save, we copy the global output_renaming_pattern
+    # to the local save name.
+    if (! self.new_record?) && (params[:_cb_pipeline]["0"][:save] == '1')
+      params[:_cb_pipeline]["0"][:savename] = params[:_cb_output_renaming_pattern]
+    end
+
     # Verify valid names
-    (self.params[:_cb_pipeline] || {}).each do |idx,struct|
+    self.params[:_cb_pipeline].each do |idx,struct|
       savename = struct[:savename]
       next if savename.blank?
       # This is cumbersome, but it's the only way to test the
       # validity of the file name, because the code is in a stupid model validator
-      fake_userfile = FileCollection.new(:name => savename)
+      # Note: we replace a leading curly bracket '{' for a 'X' because the curly bracket
+      # is legal in a filename pattern even though it's not in a filename (they're ok
+      # later in the string though).
+      fake_userfile = FileCollection.new(:name => savename.sub(/\A\{/,"X"))
       fake_userfile.validate
       if fake_userfile.errors[:name].present?
         self.params_errors["_cb_pipeline[#{idx}][savename]"] = 'contains invalid characters in file name'
       end
     end
 
+    # If editing a 'save' task for participants or sessions, then adjust prerequisites
+    if (! self.new_record?) && (params[:_cb_mode] == 'save')
+      adjust_prerequisites()
+    end
+
     # Remove keys only needed during pipeline building UI
     self.params.reject! { |k,v| k =~ /^_cb_pipeaction_/ }
 
     # Make sure last stage has "save" option set!
-    lastkey = self.params[:_cb_pipeline].keys.sort { |a,b| a.to_i <=> b.to_i }.last
-    if self.params[:_cb_pipeline][lastkey]['save'] != '1'
-      self.params[:_cb_pipeline][lastkey]['save'] = '1'
-      messages += "Information: forced 'save' option for last step '#{self.params[:_cb_pipeline][lastkey]['name']}'."
+    if self.errors.empty?
+      lastkey = self.params[:_cb_pipeline].keys.sort { |a,b| a.to_i <=> b.to_i }.last
+      if self.params[:_cb_pipeline][lastkey]['save'] != '1'
+        self.params[:_cb_pipeline][lastkey]['save'] = '1'
+        messages += "Information: forced 'save' option for last step '#{self.params[:_cb_pipeline][lastkey]['name']}'."
+      end
     end
 
     messages # api requires empty string, or a message
@@ -126,7 +148,7 @@ class CbrainTask::BidsAppHandler < PortalTask
       next unless to_append.present?
       params[:_cb_pipeline][(1000+idx).to_s] =  { # we temporarily give it a large key such as "1001"
         :name     => to_append,
-        :save     => '1',
+        :save     => '0',
         :savename => '',
       }
       messages += "Added stage '#{to_append}'\n"
@@ -149,6 +171,13 @@ class CbrainTask::BidsAppHandler < PortalTask
 
     previous_save_task = nil
     batch_id           = nil
+
+    # Remove the BidsDataset name from the description if it's still there.
+    # It will be reinserted later in each tasks of the arrays.
+    bids_name = self.bids_dataset.name
+    desc = self.description.presence || ""
+    desc[bids_name] = '' if desc.index(bids_name) # zap substring
+    self.description = desc.strip
 
     # Each pipeline step can create:
     #   1- (Optionally) a list of subtasks
@@ -221,6 +250,7 @@ class CbrainTask::BidsAppHandler < PortalTask
   end
 
   def generate_task_list_for_participants(step_number, analysis_struct) #:nodoc:
+    bids_name      = self.bids_dataset.name
     no_save_struct = analysis_struct.dup
     no_save_struct[:save] = '0'
     tasklist = self.selected_participants.map do |part|
@@ -229,13 +259,15 @@ class CbrainTask::BidsAppHandler < PortalTask
       task.params[:_cb_sessions]     = cleaned_up_sessions
       task.params[:_cb_mode]         = 'participant'
       task.params[:_cb_pipeline]     = { "0" => no_save_struct }
-      task.description = "Step #{step_number}, #{analysis_struct[:name]}: #{part}\n#{self.description}".strip
+      task.description = "#{bids_name} step #{step_number}, #{analysis_struct[:name]}: #{part}\n#{self.description}".strip
+      adjust_task_output_names_patterns(task)
       task
     end
     tasklist
   end
 
   def generate_task_list_for_sessions(step_number, analysis_struct) #:nodoc:
+    bids_name      = self.bids_dataset.name
     no_save_struct = analysis_struct.dup
     no_save_struct[:save] = '0'
     tasklist = self.selected_sessions.map do |sess|
@@ -244,37 +276,86 @@ class CbrainTask::BidsAppHandler < PortalTask
       task.params[:_cb_sessions]     = { sess => '1' }
       task.params[:_cb_mode]         = 'session'
       task.params[:_cb_pipeline]     = { "0" => no_save_struct }
-      task.description = "Step #{step_number}, #{analysis_struct[:name]}: #{sess}\n#{self.description}".strip
+      task.description = "#{bids_name} step #{step_number}, #{analysis_struct[:name]}: #{sess}\n#{self.description}".strip
+      adjust_task_output_names_patterns(task)
       task
     end
     tasklist
   end
 
   def generate_save_task(step_number, analysis_struct) #:nodoc:
-    task = self.dup
+    bids_name = self.bids_dataset.name
+    task      = self.dup
     task.params[:_cb_participants] = cleaned_up_participants
     task.params[:_cb_sessions]     = cleaned_up_sessions
     task.params[:_cb_mode]         = 'save' # no setup, no cluster commands, just save
     task.params[:_cb_pipeline]     = { "0" => analysis_struct.dup }
-    task.description = "Step #{step_number}, Save: #{analysis_struct[:name]}\n#{self.description}".strip
+    task.description = "#{bids_name} step #{step_number}, Save: #{analysis_struct[:name]}\n#{self.description}".strip
+    adjust_task_output_names_patterns(task)
     task
   end
 
   def generate_task_for_analysis(step_number, analysis_struct, mode = 'direct') #:nodoc:
-    task = self.dup
+    bids_name = self.bids_dataset.name
+    task      = self.dup
     task.params[:_cb_participants] = cleaned_up_participants
     task.params[:_cb_sessions]     = cleaned_up_sessions
     task.params[:_cb_mode]         = mode # 'direct' means just invoke this as-is
     task.params[:_cb_pipeline]     = { "0" => analysis_struct.dup }
-    task.description = "Step #{step_number}, #{analysis_struct[:name]}\n#{self.description}".strip
+    task.description = "#{bids_name} step #{step_number}, #{analysis_struct[:name]}\n#{self.description}".strip
+    adjust_task_output_names_patterns(task)
     task
+  end
+
+  # Ugly helper to make sure we get the same value in the
+  # local vs global name pattern entries. Necessary for editing tasks.
+  def adjust_task_output_names_patterns(task) #:nodoc:
+    local_name  = task.params[:_cb_pipeline]["0"][:savename].presence
+    global_name = task.params[:_cb_output_renaming_pattern].presence
+    if local_name
+      task.params[:_cb_output_renaming_pattern]  = (local_name  || "") # crush global name
+    else
+      task.params[:_cb_pipeline]["0"][:savename] = (global_name || "")
+    end
+  end
+
+  # When editing a save task, if the user checked or unchecked
+  # a participant or session label, we need to adjust the corresponding
+  # subtask prerequisites. A special 'AnyGo' prereq allow is to make
+  # this task no longer care about a previous task, yet we maintain
+  # the relationship in the prerequisites table, so that if the user
+  # turns it back on, we can care again.
+  def adjust_prerequisites #:nodoc:
+    prerequs = (self.prerequisites.presence || {})[:for_setup]
+    return unless prerequs.present?
+    my_participants = cleaned_up_participants.keys
+    my_sessions     = cleaned_up_sessions.keys
+    tids = prerequs.keys.map { |tid| tid.sub(/^T/,"") } # [ '123', '124' etc ]
+    tids.each do |tid|
+      subtask = CbrainTask.find_by_id(tid)
+      if subtask.nil?
+        self.addlog("Warning: one prerequisite subtask has disappeared: task ##{tid}")
+        self.remove_prerequisites_for_setup(tid)
+        next
+      end
+      subtask_mode = subtask.params[:_cb_mode]
+      next unless subtask_mode == 'participant' ||  subtask_mode == 'session'
+      if ( # yikes
+           ((subtask_mode == 'participant') && (subtask.cleaned_up_participants.keys & my_participants).empty?) ||
+           ((subtask_mode == 'session')     && (subtask.cleaned_up_sessions.keys     & my_sessions    ).empty?)
+         )
+        self.add_prerequisites_for_setup(tid, 'AnyGo') # this can either change it or leave it the same
+      else
+        self.add_prerequisites_for_setup(tid, 'Completed') # this can either change it or leave it the same
+      end
+    end
   end
 
   def self.pretty_params_names #:nodoc:
     { :_cb_participants               => 'List of participants',
       :_cb_sessions                   => 'List of sessions',
       :_cb_pipeline                   => 'Processing Pipeline',
-      # This is ugly but our params framework has this as a class
+      # This is ugly but in our params framework this method is class method
       # configuration instead of an object configuration.
       '_cb_pipeline[0][savename]'  => 'Output name of step 1',
       '_cb_pipeline[1][savename]'  => 'Output name of step 2',

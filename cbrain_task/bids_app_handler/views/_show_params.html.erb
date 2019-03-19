@@ -1,8 +1,10 @@
 
 <strong>Input BidsDataset:</strong> <%= link_to_userfile_if_accessible @task.bids_dataset %>
-<% if @task.bids_app_prepared_output %>
 <br>
+<% if @task.bids_app_prepared_output %>
 <strong>Prepared BidsAppOutput:</strong> <%= link_to_userfile_if_accessible @task.bids_app_prepared_output %>
+<% else %>
+<strong>Prepared BidsAppOutput:</strong> This task does not use any, it will create its own new outputs.
 <% end %>
 <p>
 

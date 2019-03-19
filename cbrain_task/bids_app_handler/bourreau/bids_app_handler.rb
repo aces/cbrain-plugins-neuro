@@ -263,8 +263,18 @@ class CbrainTask::BidsAppHandler < ClusterTask
     # We just save the output dir containing all files outputs.
     # We use the task's LEVEL to identify and distinguish the analysis step number. TODO add as _cb_step ?
     step_number = (self.level || 0) + 1
-    output_name = analysis_info[:savename].presence ||
-                  "Step_#{step_number}_#{analysis_level}" + "_" + run_id()
+
+    # Create the output name out of the pattern(s) provided by the user
+    output_pattern = analysis_info[:savename].presence             || # local pattern
+                     params[:_cb_output_renaming_pattern].presence || # global pattern
+                     '{bids_name}-Step{step}-{analysis_level}-{task_id}'
+    keywords = output_renaming_standard_keywords()
+    keywords.merge!({ 'bids_name'      => self.bids_dataset.name,
+                      'analysis_level' => analysis_level,
+                      'step'           => step_number.to_s,
+                    })
+    output_name = output_pattern.pattern_substitute(keywords)
+
     self.addlog("Attempting to save results '#{output_name}'")
     cb_out = safe_userfile_find_or_new(BidsAppOutput,
       { :name => output_name, :data_provider_id => dest_dp_id }
@@ -276,6 +286,14 @@ class CbrainTask::BidsAppHandler < ClusterTask
     self.addlog_to_userfiles_these_created_these( bids_dataset, cb_out )
 
     return true
+  end
+
+  # Lifecycle Hooks
+
+  def restart_at_post_processing
+    mode = params[:_cb_mode]
+    return true if mode == 'save' # a 'save' task doesn't produce a status file
+    system("cp status.all/#{run_id} status.all/#{run_id(self.run_number+1)}") # returns true/false
   end
 
   protected
