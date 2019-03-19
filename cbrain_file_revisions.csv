@@ -1,11 +1,27 @@
-v5.0.2 -#- 2018-03-09 11:11:06 -0500 -#- CBRAIN Team -#- __cbrain-plugins-neuro_TAG__
-41463d7cb38a71c458d20bb58d616b9ee223cc54 -#- 2018-03-06 16:57:06 -0500 -#- Pierre Rioux -#- __cbrain-plugins-neuro_HEAD__
+v5.1.1 -#- 2019-03-19 16:26:34 -0400 -#- CBRAIN Team -#- __cbrain-plugins-neuro_TAG__
+43b3ee79779f54cb2d3d23daccbfffd8a13091cf -#- 2019-03-19 16:24:39 -0400 -#- Pierre Rioux -#- __cbrain-plugins-neuro_HEAD__
 f3d83a34bfdc5b5ce84870de7fe331765a1d012e -#- 2016-07-13 09:49:19 -0400 -#- natacha-beck -#- README.md
 d50c15211d849d8ae45601c02bb20880df1364e9 -#- 2017-05-16 15:12:19 -0400 -#- Natacha Beck -#- bin/fsl_sub
-b009a4b5766c3716e6f49f5174ee4e2725ebc4e1 -#- 2018-01-11 12:19:49 -0500 -#- Pierre Rioux -#- cbrain_file_revisions.csv
+c7e9671803aaf8003cc0994d5bc53be3b3bafb71 -#- 2018-03-09 11:40:58 -0500 -#- Pierre Rioux -#- cbrain_file_revisions.csv
+e3c31f9d63bde5b8239550878e972659a48b0207 -#- 2019-02-13 19:06:46 -0500 -#- Pierre Rioux -#- cbrain_task/bids_app_handler/bids_app_descriptors/README.txt
+43b3ee79779f54cb2d3d23daccbfffd8a13091cf -#- 2019-03-19 16:24:39 -0400 -#- Pierre Rioux -#- cbrain_task/bids_app_handler/bourreau/bids_app_handler.rb
+43b3ee79779f54cb2d3d23daccbfffd8a13091cf -#- 2019-03-19 16:24:39 -0400 -#- Pierre Rioux -#- cbrain_task/bids_app_handler/common/bids_app_handler.rb
+43b3ee79779f54cb2d3d23daccbfffd8a13091cf -#- 2019-03-19 16:24:39 -0400 -#- Pierre Rioux -#- cbrain_task/bids_app_handler/portal/bids_app_handler.rb
+43b3ee79779f54cb2d3d23daccbfffd8a13091cf -#- 2019-03-19 16:24:39 -0400 -#- Pierre Rioux -#- cbrain_task/bids_app_handler/views/_show_params.html.erb
+43b3ee79779f54cb2d3d23daccbfffd8a13091cf -#- 2019-03-19 16:24:39 -0400 -#- Pierre Rioux -#- cbrain_task/bids_app_handler/views/_task_params.html.erb
+43b3ee79779f54cb2d3d23daccbfffd8a13091cf -#- 2019-03-19 16:24:39 -0400 -#- Pierre Rioux -#- cbrain_task/bids_app_handler/views/_task_params_0_pipeline.html.erb
+402fd19cd3e7a28a75768e9c3a479edf3034f2dd -#- 2019-03-05 17:39:46 -0500 -#- Pierre Rioux -#- cbrain_task/bids_app_handler/views/_task_params_1_sessions.html.erb
+de08c226ce1a54b4b223a2afb6f2cc69bc6e4c89 -#- 2019-03-03 12:56:30 -0500 -#- Pierre Rioux -#- cbrain_task/bids_app_handler/views/_task_params_2_participants.html.erb
+43b3ee79779f54cb2d3d23daccbfffd8a13091cf -#- 2019-03-19 16:24:39 -0400 -#- Pierre Rioux -#- cbrain_task/bids_app_handler/views/_task_params_output_renaming.html.erb
+76294e6519860e5ad922e7615073a57380d321e6 -#- 2018-11-28 18:22:23 -0500 -#- Pierre Rioux -#- cbrain_task/bids_example/bourreau/bids_example.json
+76294e6519860e5ad922e7615073a57380d321e6 -#- 2018-11-28 18:22:23 -0500 -#- Pierre Rioux -#- cbrain_task/bids_example/bourreau/bids_example.rb
+bfe759a457ec6a4023eccf71a8b24c592f5aa686 -#- 2018-11-21 16:18:59 -0500 -#- Pierre Rioux -#- cbrain_task/bids_example/common/bids_example.rb
+bfe759a457ec6a4023eccf71a8b24c592f5aa686 -#- 2018-11-21 16:18:59 -0500 -#- Pierre Rioux -#- cbrain_task/bids_example/portal/bids_example.rb
+bfe759a457ec6a4023eccf71a8b24c592f5aa686 -#- 2018-11-21 16:18:59 -0500 -#- Pierre Rioux -#- cbrain_task/bids_example/views/_show_params.html.erb
+bfe759a457ec6a4023eccf71a8b24c592f5aa686 -#- 2018-11-21 16:18:59 -0500 -#- Pierre Rioux -#- cbrain_task/bids_example/views/_task_params.html.erb
 41463d7cb38a71c458d20bb58d616b9ee223cc54 -#- 2018-03-06 16:57:06 -0500 -#- Pierre Rioux -#- cbrain_task/civet/bourreau/civet.rb
 63d70600731f3028b3fd930f33ccc9918bda6ee8 -#- 2017-01-23 16:09:36 -0500 -#- Natacha Beck -#- cbrain_task/civet/common/civet.rb
-bf74050c35671cc0a041eb4f3eb58570a67fd381 -#- 2017-12-05 12:55:37 -0500 -#- Natacha Beck -#- cbrain_task/civet/portal/civet.rb
+c1d122128ef4a048312075dca904f2c424c8d159 -#- 2018-10-15 10:37:35 -0400 -#- Pierre Rioux -#- cbrain_task/civet/portal/civet.rb
 001f1ffe42ee469a51930502fb673a346800f052 -#- 2016-10-19 15:17:22 -0400 -#- Natacha Beck -#- cbrain_task/civet/views/_civet_file_from_col.html.erb
 b6809eab52aeeb67e563911bd09a8f31bc402c0b -#- 2015-01-13 14:14:12 -0500 -#- Pierre Rioux -#- cbrain_task/civet/views/_civet_file_from_list.html.erb
 b20da6ac77a5eb4805a80d9e74cb2700acbff75f -#- 2016-06-02 20:25:12 -0400 -#- Pierre Rioux -#- cbrain_task/civet/views/_deprecated_warning.html.erb
@@ -23,10 +39,10 @@ b6809eab52aeeb67e563911bd09a8f31bc402c0b -#- 2015-01-13 14:14:12 -0500 -#- Pierr
 b6809eab52aeeb67e563911bd09a8f31bc402c0b -#- 2015-01-13 14:14:12 -0500 -#- Pierre Rioux -#- cbrain_task/civet/views/public/civet_info/white_matter_extraction.png
 63d70600731f3028b3fd930f33ccc9918bda6ee8 -#- 2017-01-23 16:09:36 -0500 -#- Natacha Beck -#- cbrain_task/civet/views/public/edit_params_help.html
 fa5aad2c6a5074a1e3d27b001312e6ece619289b -#- 2015-01-28 22:30:57 -0500 -#- Pierre Rioux -#- cbrain_task/civet/views/public/tool_info.html
-e01a26b43af30efd5b002902fedd33d8cab72d7b -#- 2017-09-06 12:57:19 -0400 -#- Pierre Rioux -#- cbrain_task/civet_combiner/bourreau/civet_combiner.rb
+6e04ce4978a1160ecfe8001e56c1766f687fe44c -#- 2018-04-06 13:50:41 -0400 -#- Pierre Rioux -#- cbrain_task/civet_combiner/bourreau/civet_combiner.rb
 c395894cb61173cfcfe7fd36c33a29b7495fc8cf -#- 2017-04-19 22:12:49 -0400 -#- Pierre Rioux -#- cbrain_task/civet_combiner/portal/civet_combiner.rb
 1dafc55e4f658d6a146d30d2abd77f90e12e7779 -#- 2017-04-07 12:30:03 -0400 -#- Andrew Doyle -#- cbrain_task/civet_combiner/views/_show_params.html.erb
-c395894cb61173cfcfe7fd36c33a29b7495fc8cf -#- 2017-04-19 22:12:49 -0400 -#- Pierre Rioux -#- cbrain_task/civet_combiner/views/_task_params.html.erb
+de08c226ce1a54b4b223a2afb6f2cc69bc6e4c89 -#- 2019-03-03 12:56:30 -0500 -#- Pierre Rioux -#- cbrain_task/civet_combiner/views/_task_params.html.erb
 b6809eab52aeeb67e563911bd09a8f31bc402c0b -#- 2015-01-13 14:14:12 -0500 -#- Pierre Rioux -#- cbrain_task/civet_combiner/views/public/edit_params_help.html
 b6809eab52aeeb67e563911bd09a8f31bc402c0b -#- 2015-01-13 14:14:12 -0500 -#- Pierre Rioux -#- cbrain_task/civet_qc/bourreau/civet_qc.rb
 1dafc55e4f658d6a146d30d2abd77f90e12e7779 -#- 2017-04-07 12:30:03 -0400 -#- Andrew Doyle -#- cbrain_task/civet_qc/portal/civet_qc.rb
@@ -49,12 +65,12 @@ b6809eab52aeeb67e563911bd09a8f31bc402c0b -#- 2015-01-13 14:14:12 -0500 -#- Pierr
 4d4c4d9394f7418b1af86fc3762090ce4daab9d4 -#- 2016-12-22 13:15:22 -0500 -#- Natacha Beck -#- cbrain_task/fsl_bedpostx/views/_task_params.html.erb
 e29a7b58a517181a35cd56d2f4670d25bdebd015 -#- 2015-01-13 14:30:01 -0500 -#- Pierre Rioux -#- cbrain_task/fsl_bedpostx/views/public/edit_params_help.html
 e29a7b58a517181a35cd56d2f4670d25bdebd015 -#- 2015-01-13 14:30:01 -0500 -#- Pierre Rioux -#- cbrain_task/fsl_feat/bourreau/design.fsf.erb
-4fa2e848e99e8fb3084c4ac2071ebad65570b129 -#- 2015-04-20 16:44:35 -0400 -#- Natacha Beck -#- cbrain_task/fsl_feat/bourreau/fsl_feat.rb
-ec1bbb8a1cba3f3a656b1ec04bded0371aa307ec -#- 2016-01-29 17:00:55 -0500 -#- Remi Bernard -#- cbrain_task/fsl_feat/portal/fsl_feat.rb
+e564702d4047fff0bfc7d47d2cd2566b3de0185c -#- 2018-04-24 12:49:35 -0400 -#- Natacha Beck -#- cbrain_task/fsl_feat/bourreau/fsl_feat.rb
+e564702d4047fff0bfc7d47d2cd2566b3de0185c -#- 2018-04-24 12:49:35 -0400 -#- Natacha Beck -#- cbrain_task/fsl_feat/portal/fsl_feat.rb
 e29a7b58a517181a35cd56d2f4670d25bdebd015 -#- 2015-01-13 14:30:01 -0500 -#- Pierre Rioux -#- cbrain_task/fsl_feat/views/_show_params.html.erb
-e29a7b58a517181a35cd56d2f4670d25bdebd015 -#- 2015-01-13 14:30:01 -0500 -#- Pierre Rioux -#- cbrain_task/fsl_feat/views/_task_params.html.erb
+e564702d4047fff0bfc7d47d2cd2566b3de0185c -#- 2018-04-24 12:49:35 -0400 -#- Natacha Beck -#- cbrain_task/fsl_feat/views/_task_params.html.erb
 e29a7b58a517181a35cd56d2f4670d25bdebd015 -#- 2015-01-13 14:30:01 -0500 -#- Pierre Rioux -#- cbrain_task/fsl_feat/views/public/edit_params_help.html
-14f52fed9f66529775f41f163ac865034267c643 -#- 2017-11-20 13:38:13 -0500 -#- Natacha Beck -#- cbrain_task/fsl_flirt/bourreau/fsl_flirt.rb
+6e517ed2762ebf7eb2a1deeee59abe5bb54f6bd2 -#- 2018-03-06 10:34:44 -0500 -#- natacha-beck -#- cbrain_task/fsl_flirt/bourreau/fsl_flirt.rb
 e29a7b58a517181a35cd56d2f4670d25bdebd015 -#- 2015-01-13 14:30:01 -0500 -#- Pierre Rioux -#- cbrain_task/fsl_flirt/common/fsl_flirt.rb
 ec1bbb8a1cba3f3a656b1ec04bded0371aa307ec -#- 2016-01-29 17:00:55 -0500 -#- Remi Bernard -#- cbrain_task/fsl_flirt/portal/fsl_flirt.rb
 e29a7b58a517181a35cd56d2f4670d25bdebd015 -#- 2015-01-13 14:30:01 -0500 -#- Pierre Rioux -#- cbrain_task/fsl_flirt/views/_show_params.html.erb
@@ -98,27 +114,29 @@ ec1bbb8a1cba3f3a656b1ec04bded0371aa307ec -#- 2016-01-29 17:00:55 -0500 -#- Remi 
 b6809eab52aeeb67e563911bd09a8f31bc402c0b -#- 2015-01-13 14:14:12 -0500 -#- Pierre Rioux -#- cbrain_task/nu_correct/views/_show_params.html.erb
 b6809eab52aeeb67e563911bd09a8f31bc402c0b -#- 2015-01-13 14:14:12 -0500 -#- Pierre Rioux -#- cbrain_task/nu_correct/views/_task_params.html.erb
 b6809eab52aeeb67e563911bd09a8f31bc402c0b -#- 2015-01-13 14:14:12 -0500 -#- Pierre Rioux -#- cbrain_task/nu_correct/views/public/edit_params_help.html
-14f52fed9f66529775f41f163ac865034267c643 -#- 2017-11-20 13:38:13 -0500 -#- Natacha Beck -#- cbrain_task/recon_all/bourreau/recon_all.rb
+c01ce582643eee98dc4ecc821b23f2320d3552e5 -#- 2019-01-16 15:48:54 -0500 -#- Pierre Rioux -#- cbrain_task/recon_all/bourreau/recon_all.rb
 d265fcbcd67c3a09c19878f7f39a62a1034208b1 -#- 2017-11-20 13:44:23 -0500 -#- Natacha Beck -#- cbrain_task/recon_all/common/recon_all.rb
 14f52fed9f66529775f41f163ac865034267c643 -#- 2017-11-20 13:38:13 -0500 -#- Natacha Beck -#- cbrain_task/recon_all/portal/recon_all.rb
-d594189518b8679a5a018df592fa339d76699526 -#- 2017-07-06 13:56:49 -0400 -#- Pierre Rioux -#- cbrain_task/recon_all/views/_show_params.html.erb
-f4dc345bd51ede3f2d20e75e247d830e50461ebc -#- 2017-07-15 21:50:36 -0400 -#- natacha-beck -#- cbrain_task/recon_all/views/_task_params.html.erb
+c1d122128ef4a048312075dca904f2c424c8d159 -#- 2018-10-15 10:37:35 -0400 -#- Pierre Rioux -#- cbrain_task/recon_all/views/_show_params.html.erb
+c1d122128ef4a048312075dca904f2c424c8d159 -#- 2018-10-15 10:37:35 -0400 -#- Pierre Rioux -#- cbrain_task/recon_all/views/_task_params.html.erb
 42f3d9f916fde6c88653093fcfc3b6da93cbf8c1 -#- 2017-07-14 23:32:13 -0400 -#- Natacha Beck -#- cbrain_task/recon_all/views/public/edit_params_help.html
-c2e6aca044e9797ee6603f90a61bb70dc1a6510b -#- 2017-11-20 13:49:16 -0500 -#- Natacha Beck -#- cbrain_task/recon_all_longi/bourreau/recon_all_longi.rb
+483a6cb8651300d5bb14074e5e1a18eb524570df -#- 2018-08-31 14:28:18 -0400 -#- Natacha Beck -#- cbrain_task/recon_all_longi/bourreau/recon_all_longi.rb
 f5f7e4191438cfe71891734e4e56b10e91fe8e23 -#- 2015-01-13 14:18:10 -0500 -#- Pierre Rioux -#- cbrain_task/recon_all_longi/common/recon_all_longi.rb
 14f52fed9f66529775f41f163ac865034267c643 -#- 2017-11-20 13:38:13 -0500 -#- Natacha Beck -#- cbrain_task/recon_all_longi/portal/recon_all_longi.rb
 f5f7e4191438cfe71891734e4e56b10e91fe8e23 -#- 2015-01-13 14:18:10 -0500 -#- Pierre Rioux -#- cbrain_task/recon_all_longi/views/_show_params.html.erb
 f5f7e4191438cfe71891734e4e56b10e91fe8e23 -#- 2015-01-13 14:18:10 -0500 -#- Pierre Rioux -#- cbrain_task/recon_all_longi/views/_task_params.html.erb
 f5f7e4191438cfe71891734e4e56b10e91fe8e23 -#- 2015-01-13 14:18:10 -0500 -#- Pierre Rioux -#- cbrain_task/recon_all_longi/views/public/edit_params_help.html
-e572b62dce793de7a6aff09e8610ccbff020d8a5 -#- 2017-09-15 16:35:57 -0400 -#- Natacha Beck -#- cbrain_task_descriptors/ICA-AROMA.json
+8bee0880e5a97a5155a3b5c95d597632038d8279 -#- 2018-11-23 15:24:11 -0500 -#- Erin -#- cbrain_task_descriptors/ICA-AROMA.json
 e572b62dce793de7a6aff09e8610ccbff020d8a5 -#- 2017-09-15 16:35:57 -0400 -#- Natacha Beck -#- cbrain_task_descriptors/fsl_anat.json
-e572b62dce793de7a6aff09e8610ccbff020d8a5 -#- 2017-09-15 16:35:57 -0400 -#- Natacha Beck -#- cbrain_task_descriptors/fsl_bet.json
-e572b62dce793de7a6aff09e8610ccbff020d8a5 -#- 2017-09-15 16:35:57 -0400 -#- Natacha Beck -#- cbrain_task_descriptors/fsl_fast.json
-e572b62dce793de7a6aff09e8610ccbff020d8a5 -#- 2017-09-15 16:35:57 -0400 -#- Natacha Beck -#- cbrain_task_descriptors/fsl_first.json
-a08c5dd6fcd2cd2894188791ef1f6e174ca74a4a -#- 2017-09-18 22:52:12 -0400 -#- Natacha Beck -#- cbrain_task_descriptors/fsl_probtrackx2.json
-e572b62dce793de7a6aff09e8610ccbff020d8a5 -#- 2017-09-15 16:35:57 -0400 -#- Natacha Beck -#- cbrain_task_descriptors/fsl_sub.json
+8bee0880e5a97a5155a3b5c95d597632038d8279 -#- 2018-11-23 15:24:11 -0500 -#- Erin -#- cbrain_task_descriptors/fsl_bet.json
+8bee0880e5a97a5155a3b5c95d597632038d8279 -#- 2018-11-23 15:24:11 -0500 -#- Erin -#- cbrain_task_descriptors/fsl_fast.json
+8bee0880e5a97a5155a3b5c95d597632038d8279 -#- 2018-11-23 15:24:11 -0500 -#- Erin -#- cbrain_task_descriptors/fsl_first.json
+8bee0880e5a97a5155a3b5c95d597632038d8279 -#- 2018-11-23 15:24:11 -0500 -#- Erin -#- cbrain_task_descriptors/fsl_probtrackx2.json
+982d035a8acee39ac672c3b11bab54a8fe2cd8fc -#- 2018-08-19 23:09:18 -0400 -#- Natacha Beck -#- cbrain_task_descriptors/fsl_sub.json
 e572b62dce793de7a6aff09e8610ccbff020d8a5 -#- 2017-09-15 16:35:57 -0400 -#- Natacha Beck -#- cbrain_task_descriptors/mincbet.json
-0760881d25acf319727061e95246ce6dfdfdfd91 -#- 2016-05-25 15:51:26 -0400 -#- Tristan Glatard -#- userfiles/bids_dataset/bids_dataset.rb
+09e4c7b6dac906951759d036a5903ee519afa337 -#- 2019-03-08 18:07:04 -0500 -#- Pierre Rioux -#- lib/datalad_data_provider.rb
+de08c226ce1a54b4b223a2afb6f2cc69bc6e4c89 -#- 2019-03-03 12:56:30 -0500 -#- Pierre Rioux -#- userfiles/bids_app_output/bids_app_output.rb
+de08c226ce1a54b4b223a2afb6f2cc69bc6e4c89 -#- 2019-03-03 12:56:30 -0500 -#- Pierre Rioux -#- userfiles/bids_dataset/bids_dataset.rb
 8d0d1afacd64a38e032c382d8fa159eb4c2aff45 -#- 2016-05-26 09:33:09 -0400 -#- Tristan Glatard -#- userfiles/bids_dataset/views/_bids_validator.html.erb
 8d0d1afacd64a38e032c382d8fa159eb4c2aff45 -#- 2016-05-26 09:33:09 -0400 -#- Tristan Glatard -#- userfiles/bids_dataset/views/_qc_panel.html.erb
 c395894cb61173cfcfe7fd36c33a29b7495fc8cf -#- 2017-04-19 22:12:49 -0400 -#- Pierre Rioux -#- userfiles/civet_output/civet_output.rb
@@ -132,12 +150,14 @@ c395894cb61173cfcfe7fd36c33a29b7495fc8cf -#- 2017-04-19 22:12:49 -0400 -#- Pierr
 b6809eab52aeeb67e563911bd09a8f31bc402c0b -#- 2015-01-13 14:14:12 -0500 -#- Pierre Rioux -#- userfiles/civet_study/views/_civetqc_legend.html.erb
 023db693c55581750f72ffb028d0b782910b91f5 -#- 2017-05-09 19:49:20 -0400 -#- Pierre Rioux -#- userfiles/civet_study/views/_qc_file.html.erb
 b6809eab52aeeb67e563911bd09a8f31bc402c0b -#- 2015-01-13 14:14:12 -0500 -#- Pierre Rioux -#- userfiles/civet_study/views/_study_subject.html.erb
-3b7669f2a2d28060d21128fa6b387e1211582f38 -#- 2018-01-12 15:17:06 -0500 -#- Pierre Rioux -#- userfiles/civet_virtual_study/civet_virtual_study.rb
+c1d122128ef4a048312075dca904f2c424c8d159 -#- 2018-10-15 10:37:35 -0400 -#- Pierre Rioux -#- userfiles/civet_virtual_study/civet_virtual_study.rb
 c395894cb61173cfcfe7fd36c33a29b7495fc8cf -#- 2017-04-19 22:12:49 -0400 -#- Pierre Rioux -#- userfiles/civet_virtual_study/views/_civet_virtual_study.html.erb
 c395894cb61173cfcfe7fd36c33a29b7495fc8cf -#- 2017-04-19 22:12:49 -0400 -#- Pierre Rioux -#- userfiles/civet_virtual_study/views/_civetqc_legend.html.erb
 c395894cb61173cfcfe7fd36c33a29b7495fc8cf -#- 2017-04-19 22:12:49 -0400 -#- Pierre Rioux -#- userfiles/civet_virtual_study/views/_qc_file.html.erb
+2f44b4220338676f6096c519c968a27aa412c515 -#- 2018-08-28 17:51:14 -0400 -#- Pierre Rioux -#- userfiles/datalad_system_subset/datalad_system_subset.rb
 b6809eab52aeeb67e563911bd09a8f31bc402c0b -#- 2015-01-13 14:14:12 -0500 -#- Pierre Rioux -#- userfiles/dicom_collection/dicom_collection.rb
 b6809eab52aeeb67e563911bd09a8f31bc402c0b -#- 2015-01-13 14:14:12 -0500 -#- Pierre Rioux -#- userfiles/dicom_file/dicom_file.rb
+483a6cb8651300d5bb14074e5e1a18eb524570df -#- 2018-08-31 14:28:18 -0400 -#- Natacha Beck -#- userfiles/freesurfer_license/freesurfer_license.rb
 38ed322ededdb2b28d2abd6e87c21e8dfc3bdbf5 -#- 2015-06-04 16:41:29 -0400 -#- Natacha Beck -#- userfiles/fsl_design_collection/fsl_design_collection.rb
 e29a7b58a517181a35cd56d2f4670d25bdebd015 -#- 2015-01-13 14:30:01 -0500 -#- Pierre Rioux -#- userfiles/fsl_design_file/fsl_design_file.rb
 874bec2cf705dcd30da8454742ffcd3862f59b5a -#- 2015-05-29 16:19:04 -0400 -#- Natacha Beck -#- userfiles/fsl_exchangeability_file/fsl_exchangeability_file.rb
