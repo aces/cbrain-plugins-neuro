@@ -48,7 +48,7 @@
     <tr>
       <td>CivetOutput from task: <%= link_to_task_if_accessible tid %></td>
     </tr>
-    <%= params[:civet_from_task_ids].present? ? params_hidden_field(:civet_from_task_ids) : "" %>
+    <%= params[:civet_from_task_ids].present? ? form.params_hidden_field(:civet_from_task_ids) : "" %>
   <% end %>
 
 </table>
