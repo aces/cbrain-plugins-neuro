@@ -56,6 +56,7 @@
 %>
 
 
+
 <!-- #################################################################### -->
 
 <% if ! @task.new_record? %>
@@ -67,6 +68,18 @@
   <P>
 <% end %>
 
+
+
+<!-- #################################################################### -->
+
+  <fieldset>
+  <legend>Input Options</legend>
+      <%= form.params_label     :input_is_stx, "Input MincFiles are known to be already in stereotaxic space:",
+                                :title => "Check this if you are sure the input files are already registered. This will skip the linear registration steps." %>
+      <%= form.params_check_box :input_is_stx, :disabled => (@tool_config && ! @tool_config.is_at_least_version("2.1.0")) %>
+      <span class="field_explanation">(CIVET 2.1.0 or later only)</span>
+  </fieldset>
+  <P>
 
 
 

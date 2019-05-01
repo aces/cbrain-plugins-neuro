@@ -276,6 +276,7 @@ class CbrainTask::Civet < ClusterTask
     args += "-make-graph "                                          if mybool(params[:make_graph])
     args += "-make-filename-graph "                                 if mybool(params[:make_filename_graph])
     args += "-print-status-report "                                 if mybool(params[:print_status_report])
+    args += "-input_is_stx "                                        if mybool(params[:input_is_stx])
     args += "-template #{params[:template].bash_escape} "           if params[:template].present?
     args += "-model #{params[:model].bash_escape} "                 if params[:model].present?
     args += "-surfreg-model #{params[:surfreg_model].bash_escape} " if params[:surfreg_model].present?     && !options_to_ignore[:surfreg_model]
@@ -456,6 +457,11 @@ class CbrainTask::Civet < ClusterTask
     unless File.directory?(out_dsid)
       self.addlog("Error: this CIVET run did not complete successfully.")
       self.addlog("We couldn't find the result subdirectory '#{out_dsid}' !")
+      return false # Failed On Cluster
+    end
+    unless File.directory?("#{out_dsid}/logs")
+      self.addlog("Error: this CIVET run did not complete successfully.")
+      self.addlog("We couldn't find the log subdirectory '#{out_dsid}/logs' !")
       return false # Failed On Cluster
     end
 

@@ -93,6 +93,10 @@ class CbrainTask::Civet < PortalTask
     {
       :file_args           => {},
 
+      # Input options
+      :input_is_stx        => "0",         # -input_is_stx
+
+      # Pipeline options
       :reset_from          => "",          # -reset-from
 
       # Volume option
