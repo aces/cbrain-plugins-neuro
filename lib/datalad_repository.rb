@@ -44,9 +44,7 @@ class DataladRepository
     cr_id_here = cr_id.blank? ? "bbb" : cr_id
     prefix_clean = @prefix.dup.tr(":/.","_")
     @cache_dir_name = "Datalad.rr=#{cr_id_here}.dp=#{dp_id_here}.pre=#{prefix_clean}"
-
-    @cache_userfile = DataladSystemSubset.find_or_create_as_scratch(:name => @cache_dir_name) do |cache_dir| end
-    @cache_path = @cache_userfile.cache_full_path
+    @cache_path = ""
     self
   end
 
@@ -87,25 +85,22 @@ class DataladRepository
                         : File.join(@cache_path,File.basename(@path_prefix),relative_path)
   end
 
-  def get_full_cache_path_for_userfile(userfile="")
-    if userfile == @cache_userfile
-      return @cache_userfile.cache_full_path
-    else
-      return userfile.cache_full_path
-    end
-  end
   ####################################################################
   # datalad installation methods
   ####################################################################
 
   def install_repository
-   raise "Datalad Repository at #{@prefix} cache_directory not set prior to install" if @cache_path.nil?
-    system("
-           mkdir -p #{get_full_cache_path}
-           cd #{get_full_cache_path}
-           datalad install -r -s #{get_url.bash_escape}
-           "
-      )
+   #raise "Datalad Repository at #{@prefix} cache_directory not set prior to install" if @cache_path.nil?
+    @cache_userfile = DataladSystemSubset.find_or_create_as_scratch(:name => @cache_dir_name) do |cache_dir|
+      @cache_path = cache_dir
+      system("
+             mkdir -p #{get_full_cache_path}
+             cd #{get_full_cache_path}
+             datalad install -r -s #{get_url.bash_escape}
+             "
+        )
+    end
+    @cache_path = @cache_userfile.cache_full_path
   end
 
   ####################################################################
@@ -148,7 +143,7 @@ class DataladRepository
   ####################################################################
 
   def get_files_into_directory(src_path,dest_path,cache_rootdir_string="")
-    #install_repository
+    install_repository
 
     dl_command_string =  "cd #{dest_path.parent.to_s.bash_escape} ; "
     dl_command_string += "datalad install -r -g -s #{get_url(src_path)} #{dest_path.to_s.bash_escape}; "

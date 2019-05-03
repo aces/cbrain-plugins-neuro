@@ -33,11 +33,10 @@ class DataladDataProvider < DataProvider
   # This returns the datalad repository
   # and if not inititalized, created the datalad_repository class from the variables
   def datalad_repo
-    return @datalad_repo if @datalad_repo
-    @datalad_repo = DataladRepository.new(self.datalad_repository_url,
-                                          self.datalad_relative_path,
-                                          self.id,
-                                          RemoteResource.current_resource.id)
+    @datalad_repo ||= DataladRepository.new(self.datalad_repository_url,
+                                            self.datalad_relative_path,
+                                            self.id,
+                                            RemoteResource.current_resource.id)
   end
 
   def is_browsable?(by_user = nil) #:nodoc:
