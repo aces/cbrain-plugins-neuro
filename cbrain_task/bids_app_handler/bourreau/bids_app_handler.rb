@@ -66,6 +66,20 @@ class CbrainTask::BidsAppHandler < ClusterTask
       invoke_json[fid] = userfile_name
     end
 
+    # Transform "0" and "1" to true and false for Flag values
+    # CBRAIN forms usually have "0" and "1" for checkboxes.
+    identifiers_for_flags = self.class.generated_from.descriptor['inputs']
+                            .select { |x| x['type'] == 'Flag' }
+                            .map    { |x| x['id']             }
+    identifiers_for_flags.each do |fid|
+      next unless invoke_json.has_key?(fid)
+      flag_value = invoke_json[fid]
+      flag_value = true  if flag_value == "true"  || flag_value == "1"
+      flag_value = false if flag_value == "false" || flag_value == "0"
+      flag_value = false if flag_value.blank?
+      invoke_json[fid] = flag_value
+    end
+
     # Analysis level for this task
     analysis_level = analysis_info["name"].presence ||
       cb_error("Can't find analysis level name?!?") # internal error
