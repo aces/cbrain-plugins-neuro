@@ -57,7 +57,6 @@ class CbrainTask::BidsAppHandler < PortalTask
   end
 
   def after_form #:nodoc:
-    messages = ""
 
     if self.params[:_cb_pipeline].blank?
       self.params_errors[:_cb_pipeline] = 'needs at least one processing step'
@@ -107,11 +106,11 @@ class CbrainTask::BidsAppHandler < PortalTask
       lastkey = self.params[:_cb_pipeline].keys.sort { |a,b| a.to_i <=> b.to_i }.last
       if self.params[:_cb_pipeline][lastkey]['save'] != '1'
         self.params[:_cb_pipeline][lastkey]['save'] = '1'
-        messages += "Information: forced 'save' option for last step '#{self.params[:_cb_pipeline][lastkey]['name']}'."
+        self.addlog "Information: forced 'save' option for last step '#{self.params[:_cb_pipeline][lastkey]['name']}'."
       end
     end
 
-    messages # api requires empty string, or a message
+    "" # api requires empty string, or a message when in error
   end
 
   # Adjust the content of the pipeline list
