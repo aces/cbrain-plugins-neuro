@@ -61,7 +61,7 @@ class DataladDataProvider < DataProvider
   end
 
   def impl_is_alive? #:nodoc:
-    true
+    datalad_repo.connected?
   end
 
   def impl_sync_to_cache(userfile) #:nodoc:

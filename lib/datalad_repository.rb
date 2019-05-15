@@ -50,22 +50,10 @@ class DataladRepository
 
   def connected?
     ### need to figure out how to tell if I can get stuff from datalad
-    install_repository rescue false
-    true
-  end
-  ####################################################################
-  # accessor methods
-  ####################################################################
-  def get_prefix
-    @prefix
-  end
-
-  def get_cache_path
-    @cache_path
-  end
-
-  def get_cache_userfile
-    @cache_userfile
+    cmd_string = "curl --head -f #{get_url.bash_escape} > /dev/null 2>>/dev/null"
+    system(cmd_string)
+  rescue
+      false
   end
 
   ####################################################################
@@ -74,10 +62,6 @@ class DataladRepository
 
   def get_url(relative_path="")
     relative_path == "" ? @prefix : File.join(@prefix,relative_path)
-  end
-
-  def get_full_cache_path
-    @cache_path
   end
 
   def get_full_cache_with_prefix(relative_path="")
@@ -92,10 +76,9 @@ class DataladRepository
   def install_repository
    #raise "Datalad Repository at #{@prefix} cache_directory not set prior to install" if @cache_path.nil?
     @cache_userfile = DataladSystemSubset.find_or_create_as_scratch(:name => @cache_dir_name) do |cache_dir|
-      @cache_path = cache_dir
       system("
-             mkdir -p #{get_full_cache_path}
-             cd #{get_full_cache_path}
+             mkdir -p #{cache_dir.to_s.bash_escape}
+             cd #{cache_dir.to_s.bash_escape}
              datalad install -r -s #{get_url.bash_escape}
              "
         )
@@ -116,7 +99,7 @@ class DataladRepository
     Dir.glob(glob_string) do |fname|
       bname = File.basename(fname)
       dname = File.dirname(fname)
-      name = fname.gsub("#{get_full_cache_with_prefix}/","")
+      name = fname.sub("#{get_full_cache_with_prefix}/","")
 
       next if name == "." || name == ".." || name == ".git" || name == ".datalad"
       # get metadata that you can only get from git-annex
@@ -146,8 +129,8 @@ class DataladRepository
     install_repository
 
     dl_command_string =  "cd #{dest_path.parent.to_s.bash_escape} ; "
-    dl_command_string += "datalad install -r -g -s #{get_url(src_path)} #{dest_path.to_s.bash_escape}; "
-    dl_command_string += "cd #{dest_path}; git annex uninit; chmod -R u+rwx .git"
+    dl_command_string += "datalad install -r -g -s #{get_url(src_path.to_s.bash_escape)} #{dest_path.to_s.bash_escape}; "
+    dl_command_string += "cd #{dest_path.to_s.bash_escape}; git annex uninit; chmod -R u+rwx .git"
     if cache_rootdir_string.blank?
       system(dl_command_string)
     else
