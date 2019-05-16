@@ -50,7 +50,7 @@ class DataladRepository
 
   def connected?
     ### need to figure out how to tell if I can get stuff from datalad
-    cmd_string = "curl --head -f --connect-timeout 20 #{get_url.bash_escape} > /dev/null 2>>/dev/null"
+    cmd_string = "curl --head -f --connect-timeout 20 #{get_url.bash_escape} > /dev/null 2>/dev/null"
     system(cmd_string)
   rescue
       false
