@@ -134,7 +134,7 @@ class DataladRepository
     if cache_rootdir_string.blank?
       system(dl_command_string)
     else
-      with_modified_env('SINGULARITY BINDPATH' => cache_rootdir_string) do
+      with_modified_env('SINGULARITY_BINDPATH' => cache_rootdir_string) do
         system(dl_command_string)
       end
     end
