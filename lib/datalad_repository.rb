@@ -33,8 +33,8 @@ class DataladRepository
                  dp_id="", cr_id="")
                  #local_repository_directory, local_cache_file_name)
 
-    @prefix = File.join(datalad_repository_url,datalad_relative_path)
-    @path_prefix = datalad_relative_path
+    @prefix = File.join(datalad_repository_url.strip(),datalad_relative_path.strip())
+    @path_prefix = datalad_relative_path.strip()
 
     # Here we will give a unique name to this repository's cache directory
     # and assign it a Userfile to be able to maintain it, as this is related
