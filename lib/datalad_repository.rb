@@ -28,7 +28,6 @@ class DataladRepository
 
   # Establish a connection and install the initial image of the datalad repo in a
   # Temporary cache directory
-
   def initialize(datalad_repository_url, datalad_relative_path,
                  dp_id="", cr_id="")
                  #local_repository_directory, local_cache_file_name)
