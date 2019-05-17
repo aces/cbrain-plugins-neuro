@@ -98,7 +98,7 @@ class DataladDataProvider < DataProvider
     path_name = Pathname.new(userfile.name)
     path_name = directory != "" ? path_name.join(directory) : path_name
 
-    provider_readdir(path_name,recursive)
+    provider_readdir(path_name,recursive,allowed_types)
 
   end
 
@@ -106,7 +106,7 @@ class DataladDataProvider < DataProvider
   # Low level read of a single directory level. Caches in the Scratch DP.
   # Very inefficient, but the datalad API is slow.
   # Caching information in a json could improve performance, but at the cost of updating dynamically
-  def provider_readdir(dirname, recursive=true, allowed_types = [ :regular, :directory]) #:nodoc:
+  def provider_readdir(dirname, recursive=true, allowed_types = [:regular, :directory]) #:nodoc:
 
     allowed_types = Array(allowed_types)
     dirname       = dirname.to_s
