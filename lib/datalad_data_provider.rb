@@ -125,7 +125,7 @@ class DataladDataProvider < DataProvider
       dl_full_path = datalad_repo.get_full_cache_with_prefix(name)
 
       # fix type
-      type == :file || type == :gitannexlink ? type = :regular : type
+      type = :regular if type == :file || type == :gitannexlink
 
       next unless allowed_types.include? type
       next if is_excluded?(name)
