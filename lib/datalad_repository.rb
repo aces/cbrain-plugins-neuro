@@ -129,9 +129,12 @@ class DataladRepository
   def get_files_into_directory(src_path,dest_path,cache_rootdir_string="")
     install_repository
 
-    dl_command_string =  "cd #{dest_path.parent.to_s.bash_escape} ; "
-    dl_command_string += "datalad install -r -g -s #{get_url(src_path.to_s.bash_escape)} #{dest_path.to_s.bash_escape}; "
-    dl_command_string += "cd #{dest_path.to_s.bash_escape}; git annex uninit; chmod -R u+rwx .git"
+    dl_command_string =  "
+                          cd #{dest_path.parent.to_s.bash_escape};
+                          datalad install -r -g -s #{get_url(src_path.to_s.bash_escape)} #{dest_path.to_s.bash_escape};
+                          cd #{dest_path.to_s.bash_escape}; git annex uninit; chmod -R u+rwx .git
+                         "
+
     if cache_rootdir_string.blank?
       system(dl_command_string)
     else
