@@ -104,17 +104,18 @@ class DataladRepository
       next if name == "." || name == ".." || name == ".git" || name == ".datalad"
       # get metadata that you can only get from git-annex
       type = File.symlink?(fname) ? :symlink : File.stat(fname).ftype.to_sym rescue nil
-      size = type.to_sym == :file ? File.stat(fname).size.to_i : 0
+      size = 0
+      size = File.stat(fname).size.to_i if type.to_sym == :file
 
       if type.to_sym == :symlink
         ## This seems the most stable wy to get this stuff, go to the directory and git annex info it there
         git_annex_json_text = IO.popen("cd #{dname}; git annex info #{bname} --fast --json --bytes") { |fh| fh.read }
         git_annex_json = JSON.parse(git_annex_json_text)
 
-        type = git_annex_json.key?("key") ? :gitannexlink : type
+        type = :gitannexlink if git_annex_json.key?("key")
 
         ### now we parse
-        size = git_annex_json.key?("size") ? git_annex_json['size'].to_i : 0
+        size = git_annex_json['size'].to_i if git_annex_json.key?("size")
       end
       dllist << {:name => name, :size_in_bytes => size,:type => type}
     end
