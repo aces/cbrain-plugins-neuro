@@ -28,120 +28,185 @@ class DataladRepository
 
   # Establish a connection and install the initial image of the datalad repo in a
   # Temporary cache directory
-  def initialize(datalad_repository_url, datalad_relative_path,
-                 dp_id="", cr_id="")
-                 #local_repository_directory, local_cache_file_name)
-
-    @prefix = File.join(datalad_repository_url.strip(),datalad_relative_path.strip())
-    @path_prefix = datalad_relative_path.strip()
-
-    # Here we will give a unique name to this repository's cache directory
-    # and assign it a Userfile to be able to maintain it, as this is related
-    # to a dataprovider, the dataprovider information can be used to build the
-    # directory name.
-    dp_id_here = dp_id.blank? ? "aaa" : dp_id
-    cr_id_here = cr_id.blank? ? "bbb" : cr_id
-    prefix_clean = @prefix.dup.tr(":/.","_")
-    @cache_dir_name = "Datalad.rr=#{cr_id_here}.dp=#{dp_id_here}.pre=#{prefix_clean}"
-    @cache_path = ""
+  def initialize(datalad_repository_url, datalad_relative_path, dp_id, cr_id)
+    @base_url     = datalad_repository_url
+    @url_rel_path = datalad_relative_path
+    @dp_id        = dp_id
+    @cr_id        = cr_id
     self
   end
 
   def connected?
-    ### need to figure out how to tell if I can get stuff from datalad
-    cmd_string = "curl --head -f --connect-timeout 20 #{get_url.bash_escape} > /dev/null 2>/dev/null"
+    cmd_string = "curl --head -f --connect-timeout 20 #{@base_url.bash_escape} > /dev/null 2> /dev/null"
     system(cmd_string)
   rescue
-      false
+    false
   end
 
+
+
   ####################################################################
-  # path manipulation methods
+  # Browsing Support
   ####################################################################
 
-  def get_url(relative_path="")
-    relative_path == "" ? @prefix : File.join(@prefix,relative_path)
+  def url_for_browsing
+    File.join(@base_url, @url_rel_path)
   end
 
-  def get_full_cache_with_prefix(relative_path="")
-    relative_path == "" ? File.join(@cache_path,File.basename(@path_prefix))
-                        : File.join(@cache_path,File.basename(@path_prefix),relative_path)
+  def name_of_cache_for_browsing
+    "Datalad.rr=#{@cr_id}.dp=#{@dp_id}"
   end
 
-  ####################################################################
-  # datalad installation methods
-  ####################################################################
-
-  def install_repository
-   #raise "Datalad Repository at #{@prefix} cache_directory not set prior to install" if @cache_path.nil?
-    @cache_userfile = DataladSystemSubset.find_or_create_as_scratch(:name => @cache_dir_name) do |cache_dir|
-      system("
-             mkdir -p #{cache_dir.to_s.bash_escape}
-             cd #{cache_dir.to_s.bash_escape}
-             datalad install -r -s #{get_url.bash_escape}
-             "
-        )
+  def install_subset_for_browsing
+    cache_browsing = DataladSystemSubset.find_or_create_as_scratch(
+      :name => name_of_cache_for_browsing()
+    ) do |cache_dir|
+      retcode = run_datalad_commands(cache_dir,
+        "datalad install -s #{url_for_browsing} BrowseTop || exit 41"
+      )
+      cb_error "Could not run datalad install for browsing."                    if retcode == 41
+      cb_error "Error occured when running datalad script: retcode=#{retcode}"  if retcode > 0
     end
-    @cache_path = @cache_userfile.cache_full_path
+    # We need to return on more level of directory after install.
+    cache_browsing.cache_full_path.join('BrowseTop')
   end
+
+
+
+  ####################################################################
+  # Provider-side support for examining remote userfile
+  ####################################################################
+
+  def url_for_userfile(userfile)
+    File.join(url_for_browsing,userfile.name)
+  end
+
+  def name_of_cache_for_userfile(userfile)
+    name_of_cache_for_browsing() + ".f=#{userfile.id}"
+  end
+
+  def install_subset_for_userfile(userfile)
+    url = url_for_userfile(userfile)
+    cache_userfile = DataladSystemSubset.find_or_create_as_scratch(
+      :name => name_of_cache_for_userfile(userfile)
+    ) do |cache_dir|
+      retcode = run_datalad_commands(cache_dir,
+        "datalad install -r -s #{url.bash_escape} #{userfile.name.bash_escape} || exit 41"
+      )
+      cb_error "Could not run datalad install for subset userfile ##{userfile.id}." if retcode == 41
+      cb_error "Error occured when running datalad script: retcode=#{retcode}"      if retcode > 0
+    end
+    # We need to return on more level of directory after install.
+    File.join(cache_userfile.cache_full_path,userfile.name)
+  end
+
+
+
+  ####################################################################
+  # Provider-side support for fully downloading a userfile
+  ####################################################################
+
+  def download_userfile_to_cache(userfile)
+    cache_loc = userfile.cache_full_path
+    parent    = cache_loc.parent.to_s
+    url       = url_for_userfile(userfile)
+    retcode = run_datalad_commands(parent, "
+      datalad install -r -g -s #{url.bash_escape} #{userfile.name.bash_escape} || exit 41
+      cd #{userfile.name.bash_escape}                                          || exit 42
+      git annex uninit                                                         || exit 51
+      rm -rf .git .datalad
+      true
+      "
+    )
+    cb_error "Could not run datalad install for caching userfile ##{userfile.id}." if retcode == 41
+    cb_error "Could not chdir to #{cache_loc}"                                     if retcode == 42
+    cb_error "git annex uninit failed in #{cache_loc}"                             if retcode == 51
+    cb_error "Error occured when running datalad script: retcode=#{retcode}"       if retcode > 0
+    cb_error "Could not download data for userfile" unless Dir.exist?(cache_loc.to_s)
+    true
+  end
+
+
 
   ####################################################################
   # Listing files
   ####################################################################
 
-  def list_contents(recursive=true, path="")
-    #This is slow, I can potentially make faster by bulk operations
-    install_repository
+  # This method scans a local dirctory containing a datalad subset
+  # and returns small objects for each entries in it, with
+  # three components: :name, :size_in_bytes, and :type .
+  # Since a datalad subset is a git annex structure it will
+  # query information using git-annex when a symlink is found
+  # and then pretend that it is a normal file.
+  def self.list_contents_from_dataset(path,recursive=false)
     dllist = []
 
-    glob_string = recursive ? "#{get_full_cache_with_prefix(path)}/**/*": "#{get_full_cache_with_prefix(path)}/*"
+    glob_string = recursive ? "#{path}/**/*": "#{path}/*"
+
     Dir.glob(glob_string) do |fname|
       bname = File.basename(fname)
       dname = File.dirname(fname)
-      name = fname.sub("#{get_full_cache_with_prefix}/","")
+      name  = fname.sub("#{path}/","")
 
-      next if name == "." || name == ".." || name == ".git" || name == ".datalad"
+      next if name == "." || name == ".." || name == ".datalad" || name =~ /^\.git/
+
       # get metadata that you can only get from git-annex
-      type = File.symlink?(fname) ? :symlink : File.stat(fname).ftype.to_sym rescue nil
+      stat = File.lstat(fname)
+      type = stat.symlink? ? :symlink : stat.ftype.to_sym rescue nil
       size = 0
-      size = File.stat(fname).size.to_i if type.to_sym == :file
+      size = stat.size.to_i if type.to_sym == :file
 
-      if type.to_sym == :symlink
+      if type == :symlink
         ## This seems the most stable wy to get this stuff, go to the directory and git annex info it there
-        git_annex_json_text = IO.popen("cd #{dname}; git annex info #{bname} --fast --json --bytes") { |fh| fh.read }
-        git_annex_json = JSON.parse(git_annex_json_text)
-
-        type = :gitannexlink if git_annex_json.key?("key")
-
-        ### now we parse
-        size = git_annex_json['size'].to_i if git_annex_json.key?("size")
+        git_annex_json_text = IO.popen("cd #{dname.bash_escape}; git annex info #{bname.bash_escape} --fast --json --bytes") { |fh| fh.read }
+        git_annex_json = JSON.parse(git_annex_json_text) rescue {}
+        type = :gitannexlink               if git_annex_json.has_key?("key")
+        size = git_annex_json['size'].to_i if git_annex_json.has_key?("size")
       end
+
       dllist << {:name => name, :size_in_bytes => size,:type => type}
     end
+
     dllist
   end
 
+
+
   ####################################################################
-  # Getting the files
+  # Internal methods
   ####################################################################
 
-  def get_files_into_directory(src_path,dest_path,cache_rootdir_string="")
-    install_repository
+  private
 
-    dl_command_string =  "
-                          cd #{dest_path.parent.to_s.bash_escape};
-                          datalad install -r -g -s #{get_url(src_path.to_s.bash_escape)} #{dest_path.to_s.bash_escape};
-                          cd #{dest_path.to_s.bash_escape}; git annex uninit; chmod -R u+rwx .git
-                         "
-
-    if cache_rootdir_string.blank?
-      system(dl_command_string)
-    else
-      with_modified_env('SINGULARITY_BINDPATH' => cache_rootdir_string) do
-        system(dl_command_string)
-      end
+  # Runs one or more bash +commands+ from within the directory +indir+.
+  # The directory will be created as needed. The commands are
+  # likely going to invoke the "datalad" command, which can sometimes
+  # be implemented as a singularity container, so we make sure to
+  # set up the proper environment to maximize the chances of this working.
+  #
+  # We have to make sure that:
+  # 1) the pwd is set to the parent of where the datalad command will create files
+  # 2) we provide a FULL path for the destination too (this must be true in +commands+ too)
+  # 3) we HOPE the singularity setup has 'overlay' support to mount the
+  #    pwd too using the SINGULARITY_BINDPATH environment variable.
+  #
+  # This may seem excessive but datalad in singularity is very brittle.
+  def run_datalad_commands(indir, commands)
+    indir = Pathname.new(indir).realdirpath.to_s # make full; last component may not exist
+    retcode = with_modified_env('SINGULARITY_BINDPATH' => indir) do
+      system("
+              mkdir -p #{indir.bash_escape} || exit 31
+              cd       #{indir.bash_escape} || exit 32
+              #{commands}
+             ")
+      $?.exitstatus
     end
+    cb_error "Could not mkdir '#{indir}'" if retcode == 31
+    cb_error "Could not chdir '#{indir}'" if retcode == 32
+    retcode
   end
+
+
 end
 
 

@@ -25,13 +25,19 @@ class DataladDataProvider < DataProvider
   Revision_info=CbrainFileRevision[__FILE__] #:nodoc:
 
   validates_presence_of :datalad_repository_url, :datalad_relative_path
+  before_validation     :strip_datalad_info
 
   def self.pretty_category_name #:nodoc:
     "DataladProvider"
   end
 
-  # This returns the datalad repository
-  # and if not inititalized, created the datalad_repository class from the variables
+  # Callback before_validation
+  def strip_datalad_info #:nodoc:
+    self.datalad_repository_url  = (self.datalad_repository_url.presence || "").strip
+    self.datalad_relative_path   = (self.datalad_relative_path.presence  || "").strip
+    true
+  end
+
   def datalad_repo
     @datalad_repo ||= DataladRepository.new(self.datalad_repository_url,
                                             self.datalad_relative_path,
@@ -56,8 +62,7 @@ class DataladDataProvider < DataProvider
   end
 
   def provider_full_path(userfile) #:nodoc: # not sure is needed anymore
-    # because this is on the datalad_repository, only the userfile name is needed
-    userfile.name
+    datalad_repo.url_for_userfile(userfile)
   end
 
   def impl_is_alive? #:nodoc:
@@ -65,16 +70,7 @@ class DataladDataProvider < DataProvider
   end
 
   def impl_sync_to_cache(userfile) #:nodoc:
-    src = userfile.name
-    dest = cache_full_path(userfile)
-
-    # Prepare receiving area
-    mkdir_cache_subdirs(userfile) # DataProvider method core caching subsystem
-
-    datalad_repo.get_files_into_directory(src,dest,cache_rootdir().to_s)
-
-    cb_error "Cannot fetch content of '#{userfile.name}' on Datalad site from '#{datalad_repo.get_url}'." unless File.exists?(dest.to_s)
-
+    datalad_repo.download_userfile_to_cache(userfile)
     true
   end
 
@@ -87,42 +83,58 @@ class DataladDataProvider < DataProvider
   end
 
   def impl_provider_list_all(user = nil) #:nodoc: # user ignored
-    provider_readdir("",false)
+    subset_cache = datalad_repo.install_subset_for_browsing
+    provider_readdir(subset_cache,false)
   end
 
   def impl_provider_collection_index(userfile, directory = :all, allowed_types = :regular) #:nodoc:
+    subset_cache = datalad_repo.install_subset_for_userfile(userfile)
+
     ### Should this be recursive?
     recursive = directory == :all ? true : false
+
     ### fix the right path name
-    directory = directory == :top || directory == :all ? "" : directory
-    path_name = Pathname.new(userfile.name)
-    path_name = directory != "" ? path_name.join(directory) : path_name
+    directory = "" if directory == :top || directory == :all || directory == '.'
+    path_name = File.join(subset_cache, directory).sub(/\/$/,"")
 
-    provider_readdir(path_name,recursive,allowed_types)
+    # Scan tree on filesystem
+    subtree = provider_readdir(path_name,recursive,allowed_types)
 
+    # Re-insert prefix path for all entries
+    prefix_path = File.join(userfile.name,directory)
+    subtree.each { |fi| fi.name = File.join(prefix_path,fi.name) }
+    subtree
   end
 
   private
-  # Low level read of a single directory level. Caches in the Scratch DP.
-  # Very inefficient, but the datalad API is slow.
-  # Caching information in a json could improve performance, but at the cost of updating dynamically
+
+  # This method invokes the method
+  #
+  #   DataladRepository.list_contents_from_dataset
+  #
+  # and build a list of FileInfo objects out of the
+  # returned array.
   def provider_readdir(dirname, recursive=true, allowed_types = [:regular, :directory]) #:nodoc:
 
+    dirname       = Pathname.new(dirname)
     allowed_types = Array(allowed_types)
-    dirname       = dirname.to_s
 
-    # call the datalad repository list_contents to get everything
     list = []
 
+    # Syscall caches
     uid_to_owner = {}
     gid_to_group = {}
 
-    datalad_repo.list_contents(recursive,dirname).each do |fname|
-      name = fname[:name]
+    # Call the datalad repository method to get the short
+    # reports about each entry
+    DataladRepository.list_contents_from_dataset(dirname,recursive).each do |fname|
+
+      # There are only three attributes in the reports
+      name = fname[:name]          # relative path, e.g. "a/b/c.txt"
       size = fname[:size_in_bytes]
       type = fname[:type]
 
-      dl_full_path = datalad_repo.get_full_cache_with_prefix(name)
+      dl_full_path = dirname.join(name)
 
       # fix type
       type = :regular if type == :file || type == :gitannexlink
@@ -143,9 +155,13 @@ class DataladDataProvider < DataProvider
 
       # Create a FileInfo
       fileinfo               = FileInfo.new
+
+      # From Datalad
       fileinfo.name          = name
       fileinfo.symbolic_type = type
       fileinfo.size          = size
+
+      # From lstat():
       fileinfo.permissions   = stat.mode
       fileinfo.atime         = stat.atime
       fileinfo.ctime         = stat.ctime
