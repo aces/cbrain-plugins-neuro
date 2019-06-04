@@ -24,10 +24,25 @@ class DataladDataProvider < DataProvider
 
   Revision_info=CbrainFileRevision[__FILE__] #:nodoc:
 
-  DATALAD_PREFIX = "http://datasets.datalad.org"
+  validates_presence_of :datalad_repository_url, :datalad_relative_path
+  before_validation     :strip_datalad_info
 
   def self.pretty_category_name #:nodoc:
-    "Datalad.ORG"
+    "DataladProvider"
+  end
+
+  # Callback before_validation
+  def strip_datalad_info #:nodoc:
+    self.datalad_repository_url  = (self.datalad_repository_url.presence || "").strip
+    self.datalad_relative_path   = (self.datalad_relative_path.presence  || "").strip
+    true
+  end
+
+  def datalad_repo
+    @datalad_repo ||= DataladRepository.new(self.datalad_repository_url,
+                                            self.datalad_relative_path,
+                                            self.id,
+                                            RemoteResource.current_resource.id)
   end
 
   def is_browsable?(by_user = nil) #:nodoc:
@@ -46,52 +61,16 @@ class DataladDataProvider < DataProvider
     false
   end
 
-  def provider_full_path(userfile) #:nodoc:
-    datalad_relative_path(userfile) + userfile.name
+  def provider_full_path(userfile) #:nodoc: # not sure is needed anymore
+    datalad_repo.url_for_userfile(userfile)
   end
 
   def impl_is_alive? #:nodoc:
-    true
+    datalad_repo.connected?
   end
 
   def impl_sync_to_cache(userfile) #:nodoc:
-    src         = provider_full_path(userfile)
-    dest        = cache_full_path(userfile)
-    parent      = dest.parent
-    url_src     = Pathname.new(DATALAD_PREFIX) + src
-
-    # Prepare receiving area
-    mkdir_cache_subdirs(userfile) # DataProvider method core caching subsystem
-
-    # Download.
-    #
-    # Because 'datalad' can be invoked from within a singularity container,
-    # we have to make sure that:
-    # 1) the pwd is set to the userfile cache's parent location;
-    # 2) we provide a full path for the destination too;
-    # 3) we HOPE the singularity setup has 'overlay' support to mount the
-    #    pwd too using the SINGULARITY_BINDPATH environment variable.
-    #
-    # This may seem excessive but datalad in singularity is very brittle.
-    with_modified_env('SINGULARITY_BINDPATH' => cache_rootdir().to_s) do # from BrainPortal/config/initializers/added_core_extensions/kernel.rb
-      datalad_command = "cd #{parent.to_s.bash_escape} ; datalad install -r -g -s #{url_src.to_s.bash_escape} #{dest.to_s.bash_escape}"
-      system(datalad_command)  # the stupid command produces tons of output on stdout
-    end
-
-    # Fix for too restrictive permissions deep in the .git repo
-    system("chmod", "-R", "u+rwx", "#{dest.to_s.bash_escape}/.git")
-
-    # We may have to run 'git-annex uninit' many levels deep;
-    # hopefully our applications are OK with accessing files through
-    # symbolic links?
-    #if userfile.is_a?(FileCollection)
-    #  Dir.chdir(dest.to_s) do
-    #    system("git-annex uninit")
-    #  end
-    #end
-
-    cb_error "Cannot fetch content of '#{userfile.name}' on Datalad site from '#{url_src}'." unless File.exists?(dest.to_s)
-
+    datalad_repo.download_userfile_to_cache(userfile)
     true
   end
 
@@ -104,98 +83,99 @@ class DataladDataProvider < DataProvider
   end
 
   def impl_provider_list_all(user = nil) #:nodoc: # user ignored
-    provider_readdir(self.remote_dir.presence || "")
+    subset_cache = datalad_repo.install_subset_for_browsing
+    provider_readdir(subset_cache,false)
   end
 
   def impl_provider_collection_index(userfile, directory = :all, allowed_types = :regular) #:nodoc:
-    cb_error "A DataLad DP does not implement a recursive listing of the remote file tree." if directory == :all
-    directory = "." if directory == :top
-    path    = provider_full_path(userfile)
-    path   += Pathname.new(directory) unless directory == '.' || directory.blank?
-    prefix  = Pathname.new(userfile.name)
-    prefix += Pathname.new(directory) unless directory == '.' || directory.blank?
-    provider_readdir(path, allowed_types, prefix)
+    subset_cache = datalad_repo.install_subset_for_userfile(userfile)
+
+    ### Should this be recursive?
+    recursive = directory == :all ? true : false
+
+    ### fix the right path name
+    directory = "" if directory == :top || directory == :all || directory == '.'
+    path_name = File.join(subset_cache, directory).sub(/\/$/,"")
+
+    # Scan tree on filesystem
+    subtree = provider_readdir(path_name,recursive,allowed_types)
+
+    # Re-insert prefix path for all entries
+    prefix_path = File.join(userfile.name,directory)
+    subtree.each { |fi| fi.name = File.join(prefix_path,fi.name) }
+    subtree
   end
 
   private
 
-  # NOTE: The metadata :datalad_path_prefix is
-  # for a future feature where userfile's DP location
-  # can be prefixed with a subpath; not currently implemented
-  # in browsing or registration.
-  def datalad_relative_path(userfile) #:nodoc:
-    base   = self.remote_dir.presence
-    prefix = (userfile.meta[:datalad_path_prefix] || {})[self.id]
-    path   = base ? Pathname.new(base) : Pathname.new("")
-    path  += prefix if prefix
-    path
-  end
+  # This method invokes the method
+  #
+  #   DataladRepository.list_contents_from_dataset
+  #
+  # and build a list of FileInfo objects out of the
+  # returned array.
+  def provider_readdir(dirname, recursive=true, allowed_types = [:regular, :directory]) #:nodoc:
 
-  private
-
-  # Low level read of a single directory level. Caches in the Scratch DP.
-  # Very inefficient, but the datalad API is dumb.
-  def provider_readdir(dirname, allowed_types = [ :regular, :directory ], add_prefix = nil) #:nodoc:
-
+    dirname       = Pathname.new(dirname)
     allowed_types = Array(allowed_types)
-    dirname       = dirname.to_s
 
-    # Datalad Caching
-    # We use the SystemScratchSpace data provider for storing the datalad dataset root.
-    # The name of the file might end with an "=" sign if the remote_dir is empty.
-    datalad_cache_userfile_name =
-      "DataLad.rr=#{RemoteResource.current_resource.id}.dp=#{self.id}.dir=#{dirname.gsub("/","_")}"
+    list = []
 
-    # Fetch the datalad dataset info
-    datalad_cache_userfile = DataladSystemSubset.find_or_create_as_scratch(:name => datalad_cache_userfile_name) do |datalad_cache_dir|
-       system("
-               mkdir -p #{datalad_cache_dir.to_s.bash_escape}
-               cd #{datalad_cache_dir.to_s.bash_escape}
-               datalad install -r --recursion-limit 1 -s #{DATALAD_PREFIX}/#{dirname.bash_escape} #{datalad_cache_dir.to_s.bash_escape}/#{dirname.to_s.bash_escape}
-              "
-             )
-    end
-    datalad_cache_dir = datalad_cache_userfile.cache_full_path
+    # Syscall caches
+    uid_to_owner = {}
+    gid_to_group = {}
 
-    # Parse the information
-    json_text = IO.popen("cd #{datalad_cache_dir.to_s.bash_escape}/#{dirname.to_s.bash_escape};datalad ls --json display","r") { |fh| fh.read }
-    entries = JSON.parse(json_text)
-    nodes   = entries["nodes"] || []
+    # Call the datalad repository method to get the short
+    # reports about each entry
+    DataladRepository.list_contents_from_dataset(dirname,recursive).each do |fname|
 
-    # Build and return a list of FileInfo objects to represents the available entries.
-    list = nodes.map do |node|
-      name = node['name']
-      next nil if name == "." || name == ".." # robust
+      # There are only three attributes in the reports
+      name = fname[:name]          # relative path, e.g. "a/b/c.txt"
+      size = fname[:size_in_bytes]
+      type = fname[:type]
 
-      type = node['type']
-      symbolic_type = ( type == 'file' ? :regular :
-                        type =~ /^(uninitialized|dataset|directory|folder|dir)$/i ? :directory :
-                        :unknown )
-      next nil unless allowed_types.include? symbolic_type
+      dl_full_path = dirname.join(name)
 
-      size = node['size']['total'] || "0"
-      size.sub!(/\s*kb/,"000")
-      size.sub!(/\s*mb/,"000000")
-      size.sub!(/\s*gb/,"000000000")
-      size.sub!(/\s*tb/,"000000000000")
-      size = size.to_i
-      datetime = DateTime.parse(node['date'])
+      # fix type
+      type = :regular if type == :file || type == :gitannexlink
 
-      fileinfo = FileInfo.new
+      next unless allowed_types.include? type
+      next if is_excluded?(name)
 
-      fileinfo.name          = add_prefix.to_s.blank? ? name : (Pathname.new(add_prefix) + name).to_s
-      fileinfo.symbolic_type = symbolic_type
+      # get stat with lstat
+      stat = File.lstat(dl_full_path)
+
+      # Look up user name from uid
+      uid        = stat.uid
+      owner_name = (uid_to_owner[uid] ||= (Etc.getpwuid(uid).name rescue uid.to_s))
+
+      # Lookup group name from gid
+      gid        = stat.gid
+      group_name = (gid_to_group[gid] ||= (Etc.getgrgid(gid).name rescue gid.to_s))
+
+      # Create a FileInfo
+      fileinfo               = FileInfo.new
+
+      # From Datalad
+      fileinfo.name          = name
+      fileinfo.symbolic_type = type
       fileinfo.size          = size
-      fileinfo.atime         =
-        fileinfo.ctime       =
-        fileinfo.mtime       = datetime
 
-      fileinfo
-    end.compact
+      # From lstat():
+      fileinfo.permissions   = stat.mode
+      fileinfo.atime         = stat.atime
+      fileinfo.ctime         = stat.ctime
+      fileinfo.mtime         = stat.mtime
+      fileinfo.uid           = uid
+      fileinfo.owner         = owner_name
+      fileinfo.gid           = gid
+      fileinfo.group         = group_name
+
+      list << fileinfo
+    end
 
     list.sort! { |a,b| a.name <=> b.name }
     list
   end
-
 end
 
