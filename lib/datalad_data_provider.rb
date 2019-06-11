@@ -70,6 +70,7 @@ class DataladDataProvider < DataProvider
   end
 
   def impl_sync_to_cache(userfile) #:nodoc:
+    mkdir_cache_subdirs(userfile)
     datalad_repo.download_userfile_to_cache(userfile)
     true
   end

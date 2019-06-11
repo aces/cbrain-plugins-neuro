@@ -107,7 +107,6 @@ class DataladRepository
   ####################################################################
 
   def download_userfile_to_cache(userfile)
-    userfile.cache_prepare
     cache_loc = userfile.cache_full_path
     parent    = cache_loc.parent.to_s
     url       = url_for_userfile(userfile)
