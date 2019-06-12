@@ -32,6 +32,10 @@ class CbrainTask::BidsAppHandler < ClusterTask
     return true
   end
 
+  def self.override_cluster_commands #:nodoc:
+    true
+  end
+
   # See the CbrainTask Programmer Guide
   def cluster_commands #:nodoc:
     params       = self.params
@@ -226,6 +230,10 @@ class CbrainTask::BidsAppHandler < ClusterTask
     commands.gsub!(/(\S)  +(\S)/,'\1 \2') # make pretty
 
     [ commands ]
+  end
+
+  def self.override_save_results #:nodoc:
+    true
   end
 
   # See the CbrainTask Programmer Guide

@@ -165,6 +165,10 @@ class CbrainTask::BidsAppHandler < PortalTask
     return messages
   end
 
+  def self.override_final_task_list #:nodoc:
+    true
+  end
+
   def final_task_list #:nodoc:
     mytasklist = []
 
