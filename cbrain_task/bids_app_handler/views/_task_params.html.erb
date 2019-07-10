@@ -72,6 +72,10 @@ render :partial => task_partial('task_params_2_participants', 'CbrainTask::BidsA
 # Optional BidsAppOutput input
 %>
 <%= form.params_hidden_field :_cb_prep_output_id %>
+<%
+# Special flag that indicates ALL participants are always selected
+%>
+<%= form.params_hidden_field :_cb_implicit_all_participants %>
 
 <hr>
 

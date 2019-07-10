@@ -72,6 +72,7 @@ class CbrainTask::BidsAppHandler
 
   # Returns the participants that were selected by their checkboxes in the launch form
   def selected_participants #:nodoc:
+    return self.bids_dataset.list_subjects if self.implicit_all_participants?
     select_hash  = params[:_cb_participants] || {}
     select_hash.keys.select { |sub| select_hash[sub] == '1' }.sort
   end
@@ -105,6 +106,14 @@ class CbrainTask::BidsAppHandler
   # our form partials.
   def self.bids_app_handler_partial(name) #:nodoc:
     self.new.task_partial(name)
+  end
+
+  def implicit_all_participants? #:nodoc:
+    self.params[:_cb_implicit_all_participants] == '1'
+  end
+
+  def implicit_all_participants=(truefalse) #:nodoc:
+    self.params[:_cb_implicit_all_participants] = (truefalse.present? && truefalse != '0') ? '1' : '0'
   end
 
   ###########################################################################

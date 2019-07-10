@@ -26,11 +26,15 @@ Pipeline step: <%= step_number %>
 
   This is a <strong><%= analysis_level %></strong>-stage BidsApp running on the following subject(s):
   <ul>
-    <% @task.selected_participants[0,8].each do |sub| %>
-      <li><%= sub %></li>
-    <% end %>
-    <% if @task.selected_participants.size > 8 %>
-      <li>... and <%= @task.selected_participants.size - 8 %> more.</li>
+    <% if @task.implicit_all_participants? %>
+      <li><em>ALL</em> of them.</li>
+    <% else %>
+      <% @task.selected_participants[0,5].each do |sub| %>
+        <li><%= sub %></li>
+      <% end %>
+      <% if @task.selected_participants.size > 8 %>
+        <li>... and <%= @task.selected_participants.size - 5 %> more.</li>
+      <% end %>
     <% end %>
   </ul>
 
