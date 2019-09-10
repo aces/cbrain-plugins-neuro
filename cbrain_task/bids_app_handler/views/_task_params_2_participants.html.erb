@@ -17,7 +17,7 @@
 
 <p>
 
-<%= array_to_table(@task.bids_dataset.list_subjects, :cols => 5, :fill_by_columns => true) do |sub| %>
+<%= array_to_table(@task.bids_dataset.list_subjects, :cols => 10, :fill_by_columns => true) do |sub| %>
   <%= form.params_check_box "_cb_participants[#{sub}]", :class => '_cb_part_' %>
   <%= form.params_label     "_cb_participants[#{sub}]" do %>
     <%= sub %>

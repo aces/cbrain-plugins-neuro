@@ -4,8 +4,8 @@ class CbrainTask::BidsAppHandler < PortalTask
 
   Revision_info=CbrainFileRevision[__FILE__] #:nodoc:
 
-  MAX_PARTICIPANTS_FOR_FORM = 100
-  MAX_SUBTASKLIST_SIZE      = 2000
+  MAX_PARTICIPANTS_FOR_FORM = 100  # form with checkboxes shown num participants is less than that
+  MAX_SUBTASKLIST_SIZE      = 2000 # when grouping participant tasks into monitors, how many for each
 
   def self.default_launch_args #:nodoc:
     { #:_cb_pipeline     => [],
@@ -369,7 +369,7 @@ class CbrainTask::BidsAppHandler < PortalTask
 
   # When editing a save task, if the user checked or unchecked
   # a participant or session label, we need to adjust the corresponding
-  # subtask prerequisites. A special 'AnyGo' prereq allow is to make
+  # subtask prerequisites. A special 'AnyGo' prereq allows us to make
   # this task no longer care about a previous task, yet we maintain
   # the relationship in the prerequisites table, so that if the user
   # turns it back on, we can care again.
