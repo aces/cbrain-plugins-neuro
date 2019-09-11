@@ -91,9 +91,13 @@ class CbrainTask::BidsAppHandler < ClusterTask
     # Add the inputs we control as a BidsAppHandler
     invoke_json.merge!({
       :bids_dir          => bids_dataset.name,
-      :participant_label => selected_participants,
       :analysis_level    => analysis_level,
     })
+    if ! self.implicit_all_participants?
+      invoke_json.merge!({
+        :participant_label => selected_participants,
+      })
+    end
 
     # Session labels are optional, and can occur no matter what
     # type of task.

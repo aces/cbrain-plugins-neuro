@@ -4,11 +4,15 @@ class CbrainTask::BidsAppHandler < PortalTask
 
   Revision_info=CbrainFileRevision[__FILE__] #:nodoc:
 
+  MAX_PARTICIPANTS_FOR_FORM = 100  # form with checkboxes shown num participants is less than that
+  MAX_SUBTASKLIST_SIZE      = 2000 # when grouping participant tasks into monitors, how many for each
+
   def self.default_launch_args #:nodoc:
     { #:_cb_pipeline     => [],
       #:_cb_sessions     => {},
       #:_cb_participants => {},
-      :_cb_output_renaming_pattern => '{bids_name}-Step{step}-{analysis_level}-{task_id}-{run_number}',
+      :_cb_implicit_all_participants => '0', # although not a checkbox, I'll use checkbox conventions
+      :_cb_output_renaming_pattern   => '{bids_name}-Step{step}-{analysis_level}-{task_id}-{run_number}',
     }
   end
 
@@ -32,10 +36,16 @@ class CbrainTask::BidsAppHandler < PortalTask
       cb_error "This BidDataset doesn't seem to contain any subjects?"
     end
 
+    if self.bids_dataset.list_subjects.size > MAX_PARTICIPANTS_FOR_FORM
+      self.implicit_all_participants = true
+    end
+
     # Initialize the form's list of participants
     params[:_cb_participants] ||= {}
-    self.bids_dataset.list_subjects.each do |sub|
-      params[:_cb_participants][sub] = '1'
+    if ! self.implicit_all_participants?
+      self.bids_dataset.list_subjects.each do |sub|
+        params[:_cb_participants][sub] = '1'
+      end
     end
 
     # Initialize the form's list of sessions
@@ -230,6 +240,15 @@ class CbrainTask::BidsAppHandler < PortalTask
         batch_id ||= task.id
       end
 
+      # Because we have a limit on the size of the prerequisites data structure,
+      # we create intermediate SimpleMonitor tasks to become the new dependencies
+      # in slices of MAX_SUBTASKLIST_SIZE tasks at a time.
+      if subtasklist.size > MAX_SUBTASKLIST_SIZE
+        monitor_tasks  = create_monitor_tasks(subtasklist)
+        mytasklist    += monitor_tasks # just for info in caller
+        subtasklist    = monitor_tasks # replace list; these will become our new dependencies
+      end
+
       # Create save task ; other tasks must be completed before save task runs
       subtasklist.each { |t| save_task.add_prerequisites_for_setup(t) }
       save_task.add_prerequisites_for_setup(previous_save_task) if subtasklist.empty? && previous_save_task
@@ -263,6 +282,7 @@ class CbrainTask::BidsAppHandler < PortalTask
       task.params[:_cb_mode]         = 'participant'
       task.params[:_cb_pipeline]     = { "0" => no_save_struct }
       task.description = "#{bids_name} step #{step_number}, #{analysis_struct[:name]}: #{part}\n#{self.description}".strip
+      task.implicit_all_participants = false # important to reset it
       adjust_task_output_names_patterns(task)
       task
     end
@@ -310,6 +330,31 @@ class CbrainTask::BidsAppHandler < PortalTask
     task
   end
 
+  def create_monitor_tasks(tasklist) #:nodoc:
+    monitor_tasks = []
+    tasklist.each_slice(MAX_SUBTASKLIST_SIZE) do |sublist|
+      first               = sublist.first
+      monitor             = CbrainTask::SimpleMonitor.new(
+        :status         => 'New',
+        :user_id        => first.user_id,
+        :group_id       => first.group_id,
+        :bourreau_id    => first.bourreau_id,
+        :batch_id       => first.batch_id,
+        :tool_config_id => first.tool_config_id, # not exactly right but ok
+        :params         => {},
+        :share_wd_tid   => first.batch_id,
+        :level          => first.level,
+        :rank           => sublist[-1].rank,
+        :description    => "This task tracks the completion state of #{sublist.size} other tasks",
+        )
+      sublist.each { |t| monitor.add_prerequisites_for_setup(t) }
+      monitor.save!
+      monitor_tasks << monitor
+    end
+
+    return monitor_tasks
+  end
+
   # Ugly helper to make sure we get the same value in the
   # local vs global name pattern entries. Necessary for editing tasks.
   def adjust_task_output_names_patterns(task) #:nodoc:
@@ -324,15 +369,15 @@ class CbrainTask::BidsAppHandler < PortalTask
 
   # When editing a save task, if the user checked or unchecked
   # a participant or session label, we need to adjust the corresponding
-  # subtask prerequisites. A special 'AnyGo' prereq allow is to make
+  # subtask prerequisites. A special 'AnyGo' prereq allows us to make
   # this task no longer care about a previous task, yet we maintain
   # the relationship in the prerequisites table, so that if the user
   # turns it back on, we can care again.
   def adjust_prerequisites #:nodoc:
     prerequs = (self.prerequisites.presence || {})[:for_setup]
     return unless prerequs.present?
-    my_participants = cleaned_up_participants.keys
-    my_sessions     = cleaned_up_sessions.keys
+    my_participants = selected_participants
+    my_sessions     = selected_sessions
     tids = prerequs.keys.map { |tid| tid.sub(/^T/,"") } # [ '123', '124' etc ]
     tids.each do |tid|
       subtask = CbrainTask.find_by_id(tid)
@@ -344,8 +389,8 @@ class CbrainTask::BidsAppHandler < PortalTask
       subtask_mode = subtask.params[:_cb_mode]
       next unless subtask_mode == 'participant' ||  subtask_mode == 'session'
       if ( # yikes
-           ((subtask_mode == 'participant') && (subtask.cleaned_up_participants.keys & my_participants).empty?) ||
-           ((subtask_mode == 'session')     && (subtask.cleaned_up_sessions.keys     & my_sessions    ).empty?)
+           ((subtask_mode == 'participant') && (subtask.selected_participants & my_participants).empty?) ||
+           ((subtask_mode == 'session')     && (subtask.selected_sessions     & my_sessions    ).empty?)
          )
         self.add_prerequisites_for_setup(tid, 'AnyGo') # this can either change it or leave it the same
       else
@@ -376,6 +421,7 @@ class CbrainTask::BidsAppHandler < PortalTask
       :_cb_bids_id                   => true,
       :_cb_prep_output_id            => true,
       :_cb_pipeline                  => true,
+      :_cb_implicit_all_participants => true,
     }
   end
 
@@ -389,7 +435,11 @@ class CbrainTask::BidsAppHandler < PortalTask
   end
 
   def cleaned_up_participants #:nodoc:
-    self.params[:_cb_participants].select              { |_,zero1| zero1 == '1' }
+    if ! self.implicit_all_participants?
+      self.params[:_cb_participants].select { |_,zero1| zero1 == '1' }
+    else
+      {} # we implicitely process them all
+    end
   end
 
   def cleaned_up_sessions #:nodoc:

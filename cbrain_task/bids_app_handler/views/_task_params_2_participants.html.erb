@@ -1,11 +1,13 @@
 
 <%
 #
-# This partial renders the sessions selection table.
+# This partial renders the participants selection table.
 #
 # Required locals: :form and :params
 #
 %>
+
+<% if ! @task.implicit_all_participants? %>
 
 <strong>Participants to process:
    <label for="_cb_all_part_">(Select all with:
@@ -15,10 +17,23 @@
 
 <p>
 
-<%= array_to_table(@task.bids_dataset.list_subjects, :cols => 5, :fill_by_columns => true) do |sub| %>
+<%= array_to_table(@task.bids_dataset.list_subjects, :cols => 10, :fill_by_columns => true) do |sub| %>
   <%= form.params_check_box "_cb_participants[#{sub}]", :class => '_cb_part_' %>
   <%= form.params_label     "_cb_participants[#{sub}]" do %>
     <%= sub %>
   <% end %>
 <% end %>
 
+<% else %>
+
+<strong>Participants to process: <em>ALL</em></strong>
+<p>
+<% sublist = @task.bids_dataset.list_subjects.sort %>
+There are <%= sublist.size %> participants in this BIDS dataset.
+<br>
+This is too many to allow individual selection.
+<p>
+The first five are named: <%= sublist[0,5].join(", ") %><br>
+The last five are named: <%= sublist[-5..-1].join(", ") %><br>
+
+<% end %>
