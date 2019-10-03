@@ -287,7 +287,8 @@ class CbrainTask::BidsAppHandler < ClusterTask
     if (!force_save && (mode == 'participant' || mode == 'session'))
       self.addlog("No output files need saving here, a separate task handles that.")
       return true
-      return all_ok # See comment about BIDS output
+      # See comment about BIDS output
+      # return all_ok
     end
 
     # We just save the output dir containing all files outputs.
