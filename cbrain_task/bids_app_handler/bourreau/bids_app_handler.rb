@@ -263,27 +263,32 @@ class CbrainTask::BidsAppHandler < ClusterTask
       end
     end
 
+    # Removed check for output file, since BIDS app does not
+    # enforce output structure.
+
     # Check that we have at least one output file per participant
     outputdir            = output_dir_basename_for_batch()
-    glob                 = Dir.glob "#{outputdir}/*"
-    all_ok               = true
-    participants_outputs = {}
-    selected_participants.each do |sub|
-      sublist = glob.select { |p| Pathname.new(p).basename.to_s =~ /^sub-#{Regexp.quote(sub)}(\b|_)/ }
-      participants_outputs[sub] = sublist
-      if sublist.present?
-        self.addlog "Found #{sublist.size} output files for participant '#{sub}'"
-      else
-        self.addlog "Error: can't find outputs for participant '#{sub}'"
-        all_ok = false
-      end
-    end
+    # glob                 = Dir.glob "#{outputdir}/*"
+    # all_ok               = true
+    # participants_outputs = {}
+    # selected_participants.each do |sub|
+    #   sublist = glob.select { |p| Pathname.new(p).basename.to_s =~ /^sub-#{Regexp.quote(sub)}(\b|_)/ }
+    #   participants_outputs[sub] = sublist
+    #   if sublist.present?
+    #     self.addlog "Found #{sublist.size} output files for participant '#{sub}'"
+    #   else
+    #     self.addlog "Error: can't find outputs for participant '#{sub}'"
+    #     all_ok = false
+    #   end
+    # end
 
     # We don't do any saving for participants tasks
     force_save = analysis_info[:save] == '1'
     if (!force_save && (mode == 'participant' || mode == 'session'))
       self.addlog("No output files need saving here, a separate task handles that.")
-      return all_ok
+      return true
+      # See comment about BIDS output
+      # return all_ok
     end
 
     # We just save the output dir containing all files outputs.
