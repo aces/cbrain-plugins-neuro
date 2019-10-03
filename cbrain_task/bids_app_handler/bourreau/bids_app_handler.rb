@@ -263,7 +263,7 @@ class CbrainTask::BidsAppHandler < ClusterTask
       end
     end
 
-    # Comment check for output file, since BIDS app does not
+    # Removed check for output file, since BIDS app does not
     # enforce output structure.
 
     # Check that we have at least one output file per participant
