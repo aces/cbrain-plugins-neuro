@@ -62,6 +62,10 @@ class CbrainTask::CivetCombiner < PortalTask
     { :civet_collection_ids => true, :prefix => true, :dsids => true, :output_civetstudy_id => true } # Some are set on bourreau side
   end
 
+  def zenodo_outputfile_ids #:nodoc:
+    [ params[:output_civetstudy_id] ]
+  end
+
   private
 
   # Compatibility transformation; the old param used

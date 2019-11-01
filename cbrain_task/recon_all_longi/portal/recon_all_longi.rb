@@ -17,7 +17,7 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.  
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
 # A subclass of CbrainTask to launch ReconAllLongi.
@@ -34,14 +34,14 @@ class CbrainTask::ReconAllLongi < PortalTask
 
   def before_form #:nodoc:
     params = self.params
-   
+
     collection_ids  = params[:interface_userfile_ids] || []
     collections     = Userfile.where(id: collection_ids).all.to_a
     if collections.size < 2
       cb_error "Error: this task requires at least two input collections of type #{ReconAllCrossSectionalOutput.pretty_type}."
     end
     collections.each do |collection|
-      cb_error "Error: this task can only run on collections of type #{ReconAllCrossSectionalOutput.pretty_type}." unless 
+      cb_error "Error: this task can only run on collections of type #{ReconAllCrossSectionalOutput.pretty_type}." unless
         collection.is_a?(ReconAllCrossSectionalOutput)
     end
 
@@ -53,13 +53,17 @@ class CbrainTask::ReconAllLongi < PortalTask
 
     self.params_errors.add(:base_output_name, "provided contains some unacceptable characters.") unless params[:base_output_name].blank? || is_legal_base_name?(params[:base_output_name])
     params[:base_output_name] = "Base" if !params[:base_output_name].presence
-    
+
     return ""
   end
-  
+
+  def zenodo_outputfile_ids #:nodoc:
+    [ params[:base_output_id] ] + Array(params[:long_outputs_ids])
+  end
+
   def untouchable_params_attributes #:nodoc:
     { :long_outputs_names => true, :base_output_id => true , :long_outputs_ids => true}
   end
-  
+
 end
 
