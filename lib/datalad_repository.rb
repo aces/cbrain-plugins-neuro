@@ -62,9 +62,14 @@ class DataladRepository
       :name => name_of_cache_for_browsing()
     ) do |cache_dir|
       retcode = run_datalad_commands(cache_dir,
-        "datalad install -s #{url_for_browsing} BrowseTop || exit 41"
+        "
+          datalad install -s #{url_for_browsing} BrowseTop || exit 41
+          cd BrowseTop                                     || exit 42
+          git pull                                         || exit 42
+        "
       )
       cb_error "Could not run datalad install for browsing."                    if retcode == 41
+      cb_error "Could not run update dataset for browsing."                     if retcode == 42
       cb_error "Error occured when running datalad script: retcode=#{retcode}"  if retcode > 0
     end
     # We need to return on more level of directory after install.
@@ -91,9 +96,14 @@ class DataladRepository
       :name => name_of_cache_for_userfile(userfile)
     ) do |cache_dir|
       retcode = run_datalad_commands(cache_dir,
-        "datalad install -r -s #{url.bash_escape} #{userfile.name.bash_escape} || exit 41"
+        "
+          datalad install -r -s #{url.bash_escape} #{userfile.name.bash_escape} || exit 41
+          cd #{userfile.name.bash_escape}                                       || exit 42
+          git pull                                                              || exit 42
+        "
       )
       cb_error "Could not run datalad install for subset userfile ##{userfile.id}." if retcode == 41
+      cb_error "Could not run update dataset after install."                        if retcode == 42
       cb_error "Error occured when running datalad script: retcode=#{retcode}"      if retcode > 0
     end
     # We need to return on more level of directory after install.
@@ -110,12 +120,19 @@ class DataladRepository
     cache_loc = userfile.cache_full_path
     parent    = cache_loc.parent.to_s
     url       = url_for_userfile(userfile)
-    retcode = run_datalad_commands(parent, "
-      datalad install -r -g -s #{url.bash_escape} #{userfile.name.bash_escape} || exit 41
-      cd #{userfile.name.bash_escape}                                          || exit 42
-      git annex uninit                                                         || exit 51
-      rm -rf .git .datalad
-      true
+    myrand      = rand(1000000) # used in background delete
+    retcode = run_datalad_commands(parent,
+      "
+        if test -e #{userfile.name.bash_escape} ; then
+          mv #{userfile.name.bash_escape} #{userfile.name.bash_escape}.#{myrand}
+          rm -rf #{userfile.name.bash_escape}.#{myrand} &
+        fi
+        datalad install -r -g -s #{url.bash_escape} #{userfile.name.bash_escape} || exit 41
+        cd #{userfile.name.bash_escape}                                          || exit 42
+        git annex uninit                                                         || exit 51
+        chmod u+rwX .git .datalad
+        rm -rf .git .datalad
+        true
       "
     )
     cb_error "Could not run datalad install for caching userfile ##{userfile.id}." if retcode == 41
