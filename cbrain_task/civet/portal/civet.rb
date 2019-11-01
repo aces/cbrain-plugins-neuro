@@ -641,6 +641,10 @@ class CbrainTask::Civet < PortalTask
     @_ppn ||= {}
   end
 
+  def zenodo_outputfile_ids #:nodoc:
+    params[:output_civetcollection_ids] || []
+  end
+
   private
 
   # A destructive method; tries to find some

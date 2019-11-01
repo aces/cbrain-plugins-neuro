@@ -123,6 +123,10 @@ class CbrainTask::ReconAll < PortalTask
     task_list
   end
 
+  def zenodo_outputfile_ids #:nodoc:
+    [ params[:outfile_id] ]
+  end
+
   def self.pretty_params_names #:nodoc:
     { :output_name => 'Output name', :multiple_subjects => "Multiple subjects",
       :n3_3t  => "N3-3T",

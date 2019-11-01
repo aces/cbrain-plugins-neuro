@@ -316,6 +316,12 @@ class CbrainTask::BidsAppHandler < ClusterTask
     # Add provenance logs
     self.addlog_to_userfiles_these_created_these( bids_dataset, cb_out )
 
+    # Record output file using the Boutiques integrator convention:
+    # any params that starts with '_cbrain_output_'.
+    self.params['_cbrain_output_save'] ||= []
+    self.params['_cbrain_output_save']  << cb_out.id unless self.params['_cbrain_output_save'].include?(cb_out.id)
+    self.save
+
     return true
   end
 
@@ -360,7 +366,7 @@ class CbrainTask::BidsAppHandler < ClusterTask
 
   # Given a synchronized file collection prep_output, installs
   # a full copy of its cache under basename . This method can
-  # safeyl be called in parallel by multiple processes and only
+  # safely be called in parallel by multiple processes and only
   # one copy will be made, the others will block and return
   # once this is done.
   def install_bids_output_once(prep_output, basename) #:nodoc:

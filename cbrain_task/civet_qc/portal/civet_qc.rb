@@ -60,6 +60,10 @@ class CbrainTask::CivetQc < PortalTask
     task_list
   end
 
+  def zenodo_outputfile_ids #:nodoc:
+    [ params[:study_id] ]
+  end
+
   def untouchable_params_attributes #:nodoc:
     { :study_id => true, :dsid_names => true, :prefix => true }
   end
