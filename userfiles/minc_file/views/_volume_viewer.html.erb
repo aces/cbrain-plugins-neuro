@@ -25,77 +25,78 @@
 <%= stylesheet_link_tag    MincFile.public_path("stylesheets/volume_viewer.css").to_s, :media => "all" %>
 <%= javascript_include_tag MincFile.public_path("javascripts/brainbrowser.volume-viewer.min.js").to_s %>
 
-<% userfile_id = @userfile.id %>
+<% bb_identifier = @userfile.id %>
+<% bb_identifier = bb_identifier.to_s + @target if @target.present? %>
 
-<div id="brainbrowser-wrapper-<%= userfile_id %>">
-  <div id="volume-viewer-<%= userfile_id %>">
-    <div id="global-controls-<%= userfile_id %>" class="volume-viewer-controls">
-      <span id="brainbrowser_volume_screenshot-<%= userfile_id %>" class="button">Screenshot</span>
+<div id="brainbrowser-wrapper-<%= bb_identifier %>">
+  <div id="volume-viewer-<%= bb_identifier %>">
+    <div id="global-controls-<%= bb_identifier %>" class="volume-viewer-controls">
+      <span id="brainbrowser_volume_screenshot-<%= bb_identifier %>" class="button">Screenshot</span>
     </div>
 
-    <div id="brainbrowser-volume-<%= userfile_id %>"></div>
-    <div id="display-<%= userfile_id %>">
-      <div id="loading-<%= userfile_id %>" style="display: none"><img src="/images/brainbrowser-loader.gif" /></div>
+    <div id="brainbrowser-volume-<%= bb_identifier %>"></div>
+    <div id="display-<%= bb_identifier %>">
+      <div id="loading-<%= bb_identifier %>" style="display: none"><img src="/images/brainbrowser-loader.gif" /></div>
     </div>
 
     <div class="volume-viewer-controls volume-controls">
 
       <div class="coords">
-        <div class="control-heading" id="voxel-coordinates-heading-<%= userfile_id %>">
+        <div class="control-heading" id="voxel-coordinates-heading-<%= bb_identifier %>">
           Voxel Coordinates:
         </div>
-        <div id="voxel-coords-<%= userfile_id %>" class="voxel-coords" data-volume-id="<%= userfile_id %>">
-          I:<input id="voxel-i-<%= userfile_id %>" class="control-inputs">
-          J:<input id="voxel-j-<%= userfile_id %>" class="control-inputs">
-          K:<input id="voxel-k-<%= userfile_id %>" class="control-inputs">
+        <div id="voxel-coords-<%= bb_identifier %>" class="voxel-coords" data-volume-id="<%= bb_identifier %>">
+          I:<input id="voxel-i-<%= bb_identifier %>" class="control-inputs">
+          J:<input id="voxel-j-<%= bb_identifier %>" class="control-inputs">
+          K:<input id="voxel-k-<%= bb_identifier %>" class="control-inputs">
         </div>
-        <div class="control-heading" id="world-coordinates-heading-<%= userfile_id %>">
+        <div class="control-heading" id="world-coordinates-heading-<%= bb_identifier %>">
           World Coordinates:
         </div>
-        <div id="world-coords-<%= userfile_id %>" class="world-coords" data-volume-id="<%= userfile_id %>">
-          X:<input id="world-x-<%= userfile_id %>" class="control-inputs">
-          Y:<input id="world-y-<%= userfile_id %>" class="control-inputs">
-          Z:<input id="world-z-<%= userfile_id %>" class="control-inputs">
+        <div id="world-coords-<%= bb_identifier %>" class="world-coords" data-volume-id="<%= bb_identifier %>">
+          X:<input id="world-x-<%= bb_identifier %>" class="control-inputs">
+          Y:<input id="world-y-<%= bb_identifier %>" class="control-inputs">
+          Z:<input id="world-z-<%= bb_identifier %>" class="control-inputs">
         </div>
       </div>
 
-      <div id="intensity-value-div-<%= userfile_id %>">
-        <span class="control-heading" data-volume-id="<%= userfile_id %>">
+      <div id="intensity-value-div-<%= bb_identifier %>">
+        <span class="control-heading" data-volume-id="<%= bb_identifier %>">
           Value:
         </span>
-        <span id="intensity-value-<%= userfile_id %>" class="intensity-value"></span>
+        <span id="intensity-value-<%= bb_identifier %>" class="intensity-value"></span>
       </div>
 
 
-      <div id="color-map-<%= userfile_id %>">
-        <span class="control-heading" id="color-map-heading-<%= userfile_id %>">
+      <div id="color-map-<%= bb_identifier %>">
+        <span class="control-heading" id="color-map-heading-<%= bb_identifier %>">
           Color Map:
         </span>
       </div>
 
 
-      <div id="threshold-div-<%= userfile_id %>" class="threshold-div" data-volume-id="<%= userfile_id %>">
+      <div id="threshold-div-<%= bb_identifier %>" class="threshold-div" data-volume-id="<%= bb_identifier %>">
         <div class="control-heading">
           Threshold:
         </div>
         <br>
         <div class="thresh-inputs">
-          <input id="min-threshold-<%= userfile_id %>" class="control-inputs thresh-input-left"  value="0"/>
-          <input id="max-threshold-<%= userfile_id %>" class="control-inputs thresh-input-right" value="255"/>
+          <input id="min-threshold-<%= bb_identifier %>" class="control-inputs thresh-input-left"  value="0"/>
+          <input id="max-threshold-<%= bb_identifier %>" class="control-inputs thresh-input-right" value="255"/>
         </div>
-        <div class="slider volume-viewer-threshold" id="threshold-slider-<%= userfile_id %>"></div>
+        <div class="slider volume-viewer-threshold" id="threshold-slider-<%= bb_identifier %>"></div>
       </div>
 
-      <div id="time-<%= userfile_id %>" class="time-div" data-volume-id="<%= userfile_id %>" style="display:none">
+      <div id="time-<%= bb_identifier %>" class="time-div" data-volume-id="<%= bb_identifier %>" style="display:none">
         <span class="control-heading">Time:</span>
-        <input class="control-inputs" value="0" id="time-val-<%= userfile_id %>"/>
-        <div class="slider volume-viewer-threshold" id="threshold-time-slider-<%= userfile_id %>"></div>
+        <input class="control-inputs" value="0" id="time-val-<%= bb_identifier %>"/>
+        <div class="slider volume-viewer-threshold" id="threshold-time-slider-<%= bb_identifier %>"></div>
         <br>
-        <input type="checkbox" class="button" id="play-<%= userfile_id %>"><label for="play-<%= userfile_id %>">Play</label>
+        <input type="checkbox" class="button" id="play-<%= bb_identifier %>"><label for="play-<%= bb_identifier %>">Play</label>
       </div>
 
-      <div id="slice-series-<%= userfile_id %>" class="slice-series-div" data-volume-id="0">
-        <div class="control-heading" id="slice-series-heading-<%= userfile_id %>">All slices: </div>
+      <div id="slice-series-<%= bb_identifier %>" class="slice-series-div" data-volume-id="0">
+        <div class="control-heading" id="slice-series-heading-<%= bb_identifier %>">All slices: </div>
         <span class="slice-series-button button" data-axis="xspace">Sagittal</span>
         <span class="slice-series-button button" data-axis="yspace">Coronal</span>
         <span class="slice-series-button button" data-axis="zspace">Transverse</span>
@@ -106,8 +107,8 @@
 </div>
 
 <script type="text/javascript">
-  BrainBrowser.VolumeViewer.start("brainbrowser-volume-<%= userfile_id %>", function(viewer) {
-    var loading_div = $("#loading-<%= userfile_id %>");
+  BrainBrowser.VolumeViewer.start("brainbrowser-volume-<%= bb_identifier %>", function(viewer) {
+    var loading_div = $("#loading-<%= bb_identifier %>");
 
     BrainBrowser.config.set("color_maps", [
       {
@@ -122,7 +123,7 @@
       },
     ]);
 
-    $("#brainbrowser_volume_screenshot-<%= userfile_id %>").click(function() {
+    $("#brainbrowser_volume_screenshot-<%= bb_identifier %>").click(function() {
       var width        = 0;
       var height       = 0;
       var active_panel = viewer.active_panel;
@@ -185,12 +186,12 @@
       $(".button").button();
 
      // The world coordinate input fields.
-      $("#world-coords-<%= userfile_id %>").change(function() {
+      $("#world-coords-<%= bb_identifier %>").change(function() {
         var div = $(this);
 
-        var x = parseFloat(div.find("#world-x-<%= userfile_id %>").val());
-        var y = parseFloat(div.find("#world-y-<%= userfile_id %>").val());
-        var z = parseFloat(div.find("#world-z-<%= userfile_id %>").val());
+        var x = parseFloat(div.find("#world-x-<%= bb_identifier %>").val());
+        var y = parseFloat(div.find("#world-y-<%= bb_identifier %>").val());
+        var z = parseFloat(div.find("#world-z-<%= bb_identifier %>").val());
 
         // Make sure the values are numeric.
         if (!BrainBrowser.utils.isNumeric(x)) {
@@ -210,12 +211,12 @@
       });
 
       // The voxel coordinate input fields.
-      $("#voxel-coords-<%= userfile_id %>").change(function() {
+      $("#voxel-coords-<%= bb_identifier %>").change(function() {
         var div = $(this);
 
-        var i = parseInt(div.find("#voxel-i-<%= userfile_id %>").val(), 10);
-        var j = parseInt(div.find("#voxel-j-<%= userfile_id %>").val(), 10);
-        var k = parseInt(div.find("#voxel-k-<%= userfile_id %>").val(), 10);
+        var i = parseInt(div.find("#voxel-i-<%= bb_identifier %>").val(), 10);
+        var j = parseInt(div.find("#voxel-j-<%= bb_identifier %>").val(), 10);
+        var k = parseInt(div.find("#voxel-k-<%= bb_identifier %>").val(), 10);
 
         // Make sure the values are numeric.
         if (!BrainBrowser.utils.isNumeric(i)) {
@@ -250,18 +251,18 @@
         );
       });
 
-      $("#color-map-<%= userfile_id %>").append(color_map_select);
+      $("#color-map-<%= bb_identifier %>").append(color_map_select);
 
       // Change the range of intensities that will be displayed.
-      $("#threshold-div-<%= userfile_id %>").each(function() {
+      $("#threshold-div-<%= bb_identifier %>").each(function() {
         var div = $(this);
 
         // Input fields to input min and max thresholds directly.
-        var min_input = div.find("#min-threshold-<%= userfile_id %>");
-        var max_input = div.find("#max-threshold-<%= userfile_id %>");
+        var min_input = div.find("#min-threshold-<%= bb_identifier %>");
+        var max_input = div.find("#max-threshold-<%= bb_identifier %>");
 
         // Slider to modify min and max thresholds.
-        var slider = div.find("#threshold-slider-<%= userfile_id %>");
+        var slider = div.find("#threshold-slider-<%= bb_identifier %>");
 
         var volume = viewer.volumes[vol_id];
 
@@ -335,7 +336,7 @@
 
 
       if (volume.header.time) {
-        $("#time-<%= userfile_id %>").each(function() {
+        $("#time-<%= bb_identifier %>").each(function() {
           var div = $(this);
 
           if (volume.header.time) {
@@ -344,9 +345,9 @@
             return;
           }
 
-          var slider      = div.find("#threshold-time-slider-<%= userfile_id %>");
-          var time_input  = div.find("#time-val-<%= userfile_id %>");
-          var play_button = div.find("#play-<%= userfile_id %>");
+          var slider      = div.find("#threshold-time-slider-<%= bb_identifier %>");
+          var time_input  = div.find("#time-val-<%= bb_identifier %>");
+          var play_button = div.find("#play-<%= bb_identifier %>");
 
           var min = 0;
           var max = volume.header.time.space_length - 1;
@@ -405,7 +406,7 @@
 
       // Create an image of all slices in a certain
       // orientation.
-      $("#slice-series-<%= userfile_id %>").each(function() {
+      $("#slice-series-<%= bb_identifier %>").each(function() {
         var div = $(this);
 
         var space_names = {
@@ -472,20 +473,20 @@
 
       if (BrainBrowser.utils.isFunction(volume.getWorldCoords)) {
         world_coords = volume.getWorldCoords();
-        $("#world-x-<%= userfile_id %>").val(world_coords.x.toPrecision(6));
-        $("#world-y-<%= userfile_id %>").val(world_coords.y.toPrecision(6));
-        $("#world-z-<%= userfile_id %>").val(world_coords.z.toPrecision(6));
+        $("#world-x-<%= bb_identifier %>").val(world_coords.x.toPrecision(6));
+        $("#world-y-<%= bb_identifier %>").val(world_coords.y.toPrecision(6));
+        $("#world-z-<%= bb_identifier %>").val(world_coords.z.toPrecision(6));
       }
 
       if (BrainBrowser.utils.isFunction(volume.getVoxelCoords)) {
         voxel_coords = volume.getVoxelCoords();
-        $("#voxel-i-<%= userfile_id %>").val(parseInt(voxel_coords.i, 10));
-        $("#voxel-j-<%= userfile_id %>").val(parseInt(voxel_coords.j, 10));
-        $("#voxel-k-<%= userfile_id %>").val(parseInt(voxel_coords.k, 10));
+        $("#voxel-i-<%= bb_identifier %>").val(parseInt(voxel_coords.i, 10));
+        $("#voxel-j-<%= bb_identifier %>").val(parseInt(voxel_coords.j, 10));
+        $("#voxel-k-<%= bb_identifier %>").val(parseInt(voxel_coords.k, 10));
       }
 
       value = volume.getIntensityValue();
-      $("#intensity-value-<%= userfile_id %>")
+      $("#intensity-value-<%= bb_identifier %>")
       .css("background-color", "#" + volume.color_map.colorFromValue(value, {
         hex: true,
         min: volume.min,
@@ -496,8 +497,8 @@
       .html(Math.floor(value));
 
       if (volume.data && volume.header.time) {
-        $("#time-slider-<%= userfile_id %>").slider("option", "value", volume.current_time);
-        $("#time-val-<%= userfile_id %>").val(volume.current_time);
+        $("#time-slider-<%= bb_identifier %>").slider("option", "value", volume.current_time);
+        $("#time-val-<%= bb_identifier %>").val(volume.current_time);
       }
     });
 
