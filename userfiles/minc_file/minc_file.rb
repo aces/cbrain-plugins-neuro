@@ -61,6 +61,8 @@ class MincFile < SingleFile
           return false
         end
       end
+    else
+      false
     end
   end
 
