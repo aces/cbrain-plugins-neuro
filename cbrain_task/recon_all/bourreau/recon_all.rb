@@ -85,8 +85,11 @@ class CbrainTask::ReconAll < ClusterTask
       with_mprage        = params[:with_mprage]      == "1" ? "-mprage"      : ""
       with_cw256         = params[:with_cw256]       == "1" ? "-cw256"       : ""
       with_notal_check   = params[:with_notal_check] == "1" ? "-notal-check" : ""
+
+      # Special skull options
       no_wsgcaatlas      = params[:no_wsgcaatlas]    == "1" ? "-no-wsgcaatlas" : ""
-      noskullstrip       = params[:noskullstrip]     == "1" ? "-noskulstrip" : ""
+      noskullstrip       = params[:noskullstrip]     == "1" ? "-noskullstrip"  : ""
+
       with_3T_data       = ""
       if params[:with_3T_data] == "1"
         if self.tool_config.is_version("5.1.0")
