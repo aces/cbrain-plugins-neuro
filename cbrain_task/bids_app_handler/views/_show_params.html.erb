@@ -10,7 +10,7 @@
 
 
 <% # We use the task's LEVEL to identify and distinguish the analysis step number. TODO add as _cb_step ?
-   step_number    = (task.level || 0) + 1 # also adjust in bourreau code, save_result()
+   step_number    = (@task.level || 0) + 1 # also adjust in bourreau code, save_result()
    analysis_level = params[:_cb_pipeline]["0"][:name]
 %>
 

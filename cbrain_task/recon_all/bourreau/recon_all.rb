@@ -80,11 +80,13 @@ class CbrainTask::ReconAll < ClusterTask
     # Command creation
     if !to_recover  # NORMAL EXECUTION MODE
 
-      # Simple option
+      # Simple options
       with_qcache        = params[:with_qcache]      == "1" ? "-qcache"      : ""
       with_mprage        = params[:with_mprage]      == "1" ? "-mprage"      : ""
       with_cw256         = params[:with_cw256]       == "1" ? "-cw256"       : ""
       with_notal_check   = params[:with_notal_check] == "1" ? "-notal-check" : ""
+      no_wsgcaatlas      = params[:no_wsgcaatlas]    == "1" ? "-no-wsgcaatlas" : ""
+      noskullstrip       = params[:noskullstrip]     == "1" ? "-noskulstrip" : ""
       with_3T_data       = ""
       if params[:with_3T_data] == "1"
         if self.tool_config.is_version("5.1.0")
@@ -152,7 +154,7 @@ class CbrainTask::ReconAll < ClusterTask
       end
     end
 
-    recon_all_command = "recon-all#{lbl_ext} #{with_qcache} #{with_mprage} #{with_3T_data} #{with_cw256} #{with_hippocampal} #{with_stem_struct} -sd . #{subjid_info} #{step} #{with_notal_check} #{lbl_options}"
+    recon_all_command = "recon-all#{lbl_ext} #{with_qcache} #{with_mprage} #{with_3T_data} #{with_cw256} #{with_hippocampal} #{with_stem_struct} #{no_wsgcaatlas} #{noskullstrip} -sd . #{subjid_info} #{step} #{with_notal_check} #{lbl_options}"
 
     # Copy license
     cp_license = <<-CP_LICENSE

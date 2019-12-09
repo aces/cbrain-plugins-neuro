@@ -27,7 +27,6 @@
   nb_singlefile         = @task.count_singlefiles_in_input_list
   only_singlefile       = nb_input == nb_singlefile             ? true : false
   only_collection       = nb_input - nb_singlefile == nb_input  ? true : false
-  with_multi_singlefile = nb_input > 1 && only_singlefile       ? true : false
 %>
 
 Input volumes selected:<br/>
@@ -108,3 +107,13 @@ Workflow directives:<br/>
   <%= form.params_label :nui_3t, "Value for \"-nuiterations-3T\" : " %>
   <%= form.params_text_field :nui_3t, :size => 4 %><br>
 <% end %>
+
+<fieldset>
+  <legend>Special skull options</legend>
+  Do not turn on these options unless your input data already
+  has the skull stripped! See the freesurfer documentation.<br>
+
+  <%= form.params_check_box :no_wsgcaatlas    %><%= form.params_label :no_wsgcaatlas , "Run with -no-wsgcaatlas."  %><br>
+  <%= form.params_check_box :noskullstrip     %><%= form.params_label :noskullstrip  , "Run with -noskullstrip."  %><br>
+</fieldset>
+
