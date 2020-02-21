@@ -284,6 +284,5 @@
     "tags": {
         "domain": ["neuroinformatics", "mri"],
         "toolbox": "FSL"
-    },
-    "tool-version": "mcin/docker-fsl:latest"
+    }
 }
