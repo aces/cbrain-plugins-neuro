@@ -2,7 +2,7 @@
     "name": "APPIANPET",
     "tool-version" : "1",
     "description" : "APPIAN-PET",
-    "command-line" : "mkdir [OUTPUT_DIR];python3 /opt/APPIAN/Launcher.py [BIDS_DIR] [OUTPUT_DIR]",
+    "command-line" : "mkdir [OUTPUT_DIR];python3 /opt/APPIAN/Launcher.py [BIDS_DIR] -t [OUTPUT_DIR]",
     "container-image": {
         "image": "APPIAN-PET/APPIAN",
         "type": "singularity"
@@ -23,7 +23,6 @@
         "type" : "String",
         "description": "The directory where the output files should be stored.",
         "value-key" : "[OUTPUT_DIR]",
-        "command-line-flag" : "-t",
         "optional" : false
     }
     ],
