@@ -31,11 +31,28 @@ class CbrainTask::Nii2mnc < ClusterTask
   def setup #:nodoc:
     params       = self.params
     file_ids     = params[:interface_userfile_ids] || []
-    cb_error "Expected a single NIfTY file id." unless file_ids.size == 1
+    cb_error "Expected a single NIfTII file id." unless file_ids.size == 1
     id           = file_ids[0]
-    u            = Userfile.find(id)
+    u            = SingleFile.find(id)
+    basename     = u.name # can be .nii or .nii.gz
+
+    # Bring the file into the local cache
     u.sync_to_cache
-    safe_symlink(u.cache_full_path,u.cache_full_path.basename)
+    safe_symlink(u.cache_full_path,basename)
+
+    # If the file is compressed already, we make a local uncompressed
+    # copy because the nii2mnc command does not work with compressed niftii files.
+    if basename =~ /\.gz$/i
+      niibasename = basename.sub(/.gz/i,"")
+      self.addlog("Attempting to uncompress .gz file")
+      ret=system("gunzip -c <#{basename.bash_escape} >#{niibasename.bash_escape}")
+      if ! ret
+        self.addlog("Error: cannot uncompress .nii.gz file.")
+        return false
+      end
+    end
+
+    # Default DP for result, if not selected.
     self.results_data_provider_id ||= u.data_provider_id
     true
   end
@@ -49,8 +66,8 @@ class CbrainTask::Nii2mnc < ClusterTask
     file_ids     = params[:interface_userfile_ids] || []
     id           = file_ids[0]
     u            = Userfile.find(id)
-    basename     = u.cache_full_path.basename.to_s
-    mincbase     = basename.sub(/\.nii$/i,"")
+    niibasename  = u.name.sub(/\.gz$/i,"") # we always have the uncompressed version prepared in setup()
+    mincbase     = niibasename.sub(/\.nii$/i,"")
     mincbase    += ".mnc"
     params[:mincbase] = mincbase
 
@@ -94,7 +111,7 @@ class CbrainTask::Nii2mnc < ClusterTask
       command += " -flipz" if c == 'z'
     end
 
-    command += " #{basename} #{mincbase}"
+    command += " #{niibasename} #{mincbase}"
 
     File.unlink(mincbase) rescue true
 
