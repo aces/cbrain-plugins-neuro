@@ -20,16 +20,15 @@
         },
         {
             "command-line-flag": "-subjid",
-            "description": "The subject data upon which to operate.",
             "id": "subjid",
-            "name": "Subjid (output)",
+            "name": "Output name (-subjid)",
             "optional": false,
             "type": "String",
             "value-key": "[SUBJID]"
         },
         {
             "id": "input",
-            "name": "NIFTI file",
+            "name": "NIFTI file (-i)",
             "command-line-flag": "-i",
             "optional": false,
             "type": "File",
@@ -57,7 +56,7 @@
         {
             "command-line-flag": "-qcache",
             "id": "qcache_flag",
-            "name": "qcache",
+            "name": "qcache (-qcache)",
             "optional": true,
             "type": "Flag",
             "description": "Produce the pre-cached files required by the Qdec utility, allowing rapid analysis of group data.",
@@ -66,7 +65,7 @@
         {
             "command-line-flag": "-mprage",
             "id": "mprage_flag",
-            "name": "mprage",
+            "name": "mprage (-mprage)",
             "optional": true,
             "type": "Flag",
             "description": "Assume scan parameters are MGH MP-RAGE protocol.",
@@ -75,7 +74,7 @@
         {
             "command-line-flag": "-3T",
             "id": "3T_flag",
-            "name": "3T",
+            "name": "3T (-3T)",
             "optional": true,
             "type": "Flag",
             "description": "The -3T flag enables two specific options in recon-all for images acquired with a 3T scanner:  3T-specific NU intensity correction parameters are used in the Non-Uniform normalization stage, and the Schwartz 3T atlas is used for Talairach alignment",
@@ -84,7 +83,7 @@
         {
             "command-line-flag": "-cw256",
             "id": "cw256_flag",
-            "name": "cw256",
+            "name": "cw256 (-cw256)",
             "optional": true,
             "type": "Flag",
             "description": "Include this flag after -autorecon1 if images have a FOV > 256.",
@@ -93,16 +92,16 @@
         {
             "command-line-flag": "-notal-check",
             "id": "notal_flag",
-            "name": "Notal check",
+            "name": "Notal check (-notal-check)",
             "optional": true,
             "type": "Flag",
             "description": "Skip the automatic failure detection of Talairach alignment.",
             "value-key": "[NOTAL-CHECK]"
         },
         {
-            "command-line-flag": "hippocampal-subfields-T1",
+            "command-line-flag": "-hippocampal-subfields-T1",
             "id": "hippocampal_subfields_T1_flag",
-            "name": "Hippocampal-subfileds-T1",
+            "name": "Hippocampal-subfileds-T1 (-hippocampal-subfields-T1)",
             "optional": true,
             "type": "Flag",
             "description": "Segmentation of hippocampal subfields using input T1 scan.",
@@ -111,7 +110,7 @@
         {
             "command-line-flag": "-brainstem-structures",
             "id": "brainstem_structures_flag",
-            "name": "Brainstem Structures",
+            "name": "Brainstem Structures (-brainstem-structures)",
             "optional": true,
             "type": "Flag",
             "description": "Segmentation of brainstem structures.",
@@ -120,7 +119,7 @@
         {
             "command-line-flag": "-no-wsgcaatlas",
             "id": "no_wsgcaatlas_flag",
-            "name": "No wsgcaatlas",
+            "name": "No wsgcaatlas (-no-wsgcaatlas)",
             "optional": true,
             "type": "Flag",
             "description": "Do not use GCA atlas when skull stripping.",
@@ -129,7 +128,7 @@
         {
             "command-line-flag": "-noskullstrip",
             "id": "noskullstrip_flag",
-            "name": "No skull strip",
+            "name": "No skull strip (-noskullstrip)",
             "optional": true,
             "type": "Flag",
             "description": "Exclude skull strip step.",
