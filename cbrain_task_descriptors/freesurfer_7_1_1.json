@@ -138,7 +138,7 @@
     "output-files": [
         {
             "description": "The subject data upon which to operate ",
-            "id": "subjid",
+            "id": "subjid_output",
             "name": "Output",
             "optional": false,
             "path-template": "[SUBJID]"
