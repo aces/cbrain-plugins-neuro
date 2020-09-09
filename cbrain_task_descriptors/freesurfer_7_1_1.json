@@ -1,4 +1,5 @@
 {
+    "author": "Natacha Beck",
     "name": "FreeSurfer-Recon-all",
     "description": "Performs all, or any part of, the FreeSurfer cortical reconstruction process.",
     "tool-version": "v7.1.1",
