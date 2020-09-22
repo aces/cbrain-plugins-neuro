@@ -158,6 +158,7 @@
     "tool-version": "v7.1.1",
     "command-line": "export SUBJECTS_DIR=`pwd`; export FS_LICENSE=`pwd`/[LICENSE_FILE]; recon-all [SUBJID] [INPUT] [DIRECTIVES] [QCACHE] [MPRAGE] [3T] [CW256] [NOTAL-CHECK] [HYPPOCAMPAL-SUBFIELDS] [BRAINSTEM-STRUCTURES] [NO-WSGCAATLAS] [NO-SKULLSTRIP]",
     "custom": {
-        "cbrain:author": "Natacha Beck <natacha.beck@mcgill.ca>"
+        "cbrain:author": "Natacha Beck <natacha.beck@mcgill.ca>",
+        "cbrain:readonly-input-files": true
     }
 }
