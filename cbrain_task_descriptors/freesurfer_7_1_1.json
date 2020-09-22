@@ -1,46 +1,36 @@
 {
-    "author": "Natacha Beck",
-    "name": "FreeSurfer-Recon-all",
-    "description": "Performs all, or any part of, the FreeSurfer cortical reconstruction process.",
-    "tool-version": "v7.1.1",
-    "schema-version": "0.5",
-    "command-line": "export SUBJECTS_DIR=`pwd`; export FS_LICENSE=`pwd`/[LICENSE_FILE]; recon-all [SUBJID] [INPUT] [DIRECTIVES] [QCACHE] [MPRAGE] [3T] [CW256] [NOTAL-CHECK] [HYPPOCAMPAL-SUBFIELDS] [BRAINSTEM-STRUCTURES] [NO-WSGCAATLAS] [NO-SKULLSTRIP]",
-    "container-image": {
-        "image": "freesurfer/freesurfer:7.1.1",
-        "index": "docker://",
-        "type": "singularity"
-    },
     "inputs": [
-        {   
-            "id": "license",
-            "name": "License file",
-            "optional": false,
-            "type": "File",
+        {
             "description": "Valid license file needed to run FreeSurfer.",
-            "value-key": "[LICENSE_FILE]"
+            "value-key": "[LICENSE_FILE]",
+            "type": "File",
+            "optional": false,
+            "id": "license",
+            "name": "License file"
         },
         {
+            "optional": false,
+            "value-key": "[SUBJID]",
+            "type": "String",
             "command-line-flag": "-subjid",
             "id": "subjid",
-            "name": "Output name",
-            "optional": false,
-            "type": "String",
-            "value-key": "[SUBJID]"
+            "name": "Output name"
         },
         {
-            "id": "input",
-            "name": "NIFTI file",
-            "command-line-flag": "-i",
             "optional": false,
-            "type": "File",
             "description": "Single NIFTI file from series.",
-            "value-key": "[INPUT]"
+            "value-key": "[INPUT]",
+            "type": "File",
+            "command-line-flag": "-i",
+            "id": "input",
+            "name": "NIFTI file"
         },
         {
-            "id": "directives",
-            "name": "Directive",
-            "optional": false,
+            "value-key": "[DIRECTIVES]",
+            "default-value": "-all",
             "type": "String",
+            "optional": false,
+            "id": "directives",
             "value-choices": [
                 "-all",
                 "-autorecon1",
@@ -51,109 +41,123 @@
                 "-autorecon2-perhemi",
                 "-autorecon3"
             ],
-            "default-value": "-all",
-            "value-key": "[DIRECTIVES]"
+            "name": "Directive"
         },
         {
+            "optional": true,
+            "description": "Produce the pre-cached files required by the Qdec utility, allowing rapid analysis of group data.",
+            "value-key": "[QCACHE]",
+            "type": "Flag",
             "command-line-flag": "-qcache",
             "id": "qcache_flag",
-            "name": "qcache",
-            "optional": true,
-            "type": "Flag",
-            "description": "Produce the pre-cached files required by the Qdec utility, allowing rapid analysis of group data.",
-            "value-key": "[QCACHE]"
+            "name": "qcache"
         },
         {
+            "optional": true,
+            "description": "Assume scan parameters are MGH MP-RAGE protocol.",
+            "value-key": "[MPRAGE]",
+            "type": "Flag",
             "command-line-flag": "-mprage",
             "id": "mprage_flag",
-            "name": "mprage",
-            "optional": true,
-            "type": "Flag",
-            "description": "Assume scan parameters are MGH MP-RAGE protocol.",
-            "value-key": "[MPRAGE]"
+            "name": "mprage"
         },
         {
+            "optional": true,
+            "description": "The -3T flag enables two specific options in recon-all for images acquired with a 3T scanner:  3T-specific NU intensity correction parameters are used in the Non-Uniform normalization stage, and the Schwartz 3T atlas is used for Talairach alignment",
+            "value-key": "[3T]",
+            "type": "Flag",
             "command-line-flag": "-3T",
             "id": "3T_flag",
-            "name": "3T",
-            "optional": true,
-            "type": "Flag",
-            "description": "The -3T flag enables two specific options in recon-all for images acquired with a 3T scanner:  3T-specific NU intensity correction parameters are used in the Non-Uniform normalization stage, and the Schwartz 3T atlas is used for Talairach alignment",
-            "value-key": "[3T]"
+            "name": "3T"
         },
         {
+            "optional": true,
+            "description": "Include this flag after -autorecon1 if images have a FOV > 256.",
+            "value-key": "[CW256]",
+            "type": "Flag",
             "command-line-flag": "-cw256",
             "id": "cw256_flag",
-            "name": "cw256",
-            "optional": true,
-            "type": "Flag",
-            "description": "Include this flag after -autorecon1 if images have a FOV > 256.",
-            "value-key": "[CW256]"
+            "name": "cw256"
         },
         {
+            "optional": true,
+            "description": "Skip the automatic failure detection of Talairach alignment.",
+            "value-key": "[NOTAL-CHECK]",
+            "type": "Flag",
             "command-line-flag": "-notal-check",
             "id": "notal_flag",
-            "name": "Notal check",
-            "optional": true,
-            "type": "Flag",
-            "description": "Skip the automatic failure detection of Talairach alignment.",
-            "value-key": "[NOTAL-CHECK]"
+            "name": "Notal check"
         },
         {
+            "optional": true,
+            "description": "Segmentation of hippocampal subfields using input T1 scan.",
+            "value-key": "[HYPPOCAMPAL-SUBFIELDS]",
+            "type": "Flag",
             "command-line-flag": "-hippocampal-subfields-T1",
             "id": "hippocampal_subfields_T1_flag",
-            "name": "Hippocampal-subfileds-T1",
-            "optional": true,
-            "type": "Flag",
-            "description": "Segmentation of hippocampal subfields using input T1 scan.",
-            "value-key": "[HYPPOCAMPAL-SUBFIELDS]"
+            "name": "Hippocampal-subfileds-T1"
         },
         {
+            "optional": true,
+            "description": "Segmentation of brainstem structures.",
+            "value-key": "[BRAINSTEM-STRUCTURES]",
+            "type": "Flag",
             "command-line-flag": "-brainstem-structures",
             "id": "brainstem_structures_flag",
-            "name": "Brainstem Structures",
-            "optional": true,
-            "type": "Flag",
-            "description": "Segmentation of brainstem structures.",
-            "value-key": "[BRAINSTEM-STRUCTURES]"
+            "name": "Brainstem Structures"
         },
         {
+            "optional": true,
+            "description": "Do not use GCA atlas when skull stripping.",
+            "value-key": "[NO-WSGCAATLAS]",
+            "type": "Flag",
             "command-line-flag": "-no-wsgcaatlas",
             "id": "no_wsgcaatlas_flag",
-            "name": "No wsgcaatlas",
-            "optional": true,
-            "type": "Flag",
-            "description": "Do not use GCA atlas when skull stripping.",
-            "value-key": "[NO-WSGCAATLAS]"
+            "name": "No wsgcaatlas"
         },
         {
+            "optional": true,
+            "description": "Exclude skull strip step.",
+            "value-key": "[NO-SKULLSTRIP]",
+            "type": "Flag",
             "command-line-flag": "-noskullstrip",
             "id": "noskullstrip_flag",
-            "name": "No skull strip",
-            "optional": true,
-            "type": "Flag",
-            "description": "Exclude skull strip step.",
-            "value-key": "[NO-SKULLSTRIP]"
+            "name": "No skull strip"
         }
     ],
+    "schema-version": "0.5",
     "output-files": [
         {
-            "description": "The subject data upon which to operate ",
-            "id": "subjid_output",
-            "name": "Output",
             "optional": false,
+            "id": "subjid_output",
+            "description": "The subject data upon which to operate ",
+            "name": "Output",
             "path-template": "[SUBJID]"
         }
     ],
+    "name": "FreeSurfer-Recon-all",
     "suggested-resources": {
-        "cpu-cores": 1,
         "ram": 10240,
+        "cpu-cores": 1,
         "walltime-estimate": 960
+    },
+    "author": "Laboratory for Computational Neuroimaging ",
+    "doi": "10.5281/zenodo.4042574",
+    "container-image": {
+        "image": "freesurfer/freesurfer:7.1.1",
+        "type": "singularity",
+        "index": "docker://"
     },
     "error-codes": [
         {
-            "code": 1,
-            "description": "Crashed"
+            "description": "Crashed",
+            "code": 1
         }
-    ]
+    ],
+    "description": "Performs all, or any part of, the FreeSurfer cortical reconstruction process (https://surfer.nmr.mgh.harvard.edu/fswiki/recon-all).",
+    "tool-version": "v7.1.1",
+    "command-line": "export SUBJECTS_DIR=`pwd`; export FS_LICENSE=`pwd`/[LICENSE_FILE]; recon-all [SUBJID] [INPUT] [DIRECTIVES] [QCACHE] [MPRAGE] [3T] [CW256] [NOTAL-CHECK] [HYPPOCAMPAL-SUBFIELDS] [BRAINSTEM-STRUCTURES] [NO-WSGCAATLAS] [NO-SKULLSTRIP]",
+    "custom": {
+        "cbrain:author": "Natacha Beck <natacha.beck@mcgill.ca>"
+    }
 }
