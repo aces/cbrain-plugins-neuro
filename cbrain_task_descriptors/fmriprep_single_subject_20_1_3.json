@@ -1,5 +1,5 @@
 {
-    "command-line": "if [[ [SUBJECT_DIR] != sub-* ]] ; then  echo 'Subject folder is not in BIDS format (sub-XXXXX)'; exit 2; fi; BIDS_DIR='fake_bids_dir'; mkdir $BIDS_DIR; cp -rL [SUBJECT_DIR] $BIDS_DIR/[SUBJECT_DIR]; mkdir [OUTPUT_DIR]; fmriprep $BIDS_DIR [OUTPUT_DIR] participant [SKIP_BIDS_VALIDATION] --participant_label [SUBJECT_DIR] [TASK_ID] --nthreads 1 --omp-nthreads 1 --mem_mb 8192 [LOW_MEM] [USE_PLUGIN] [ANAT_ONLY] [BOILERPLATE] [VERBOSE_COUNT] [IGNORE] [LONGITUDINAL] [BOLD2T1W_DOF] [USE_BBR] [MEDIAL_SURFACE_NAN] [USE_AROMA] [AROMA_MELODIC_DIMENSIONALITY] [SKULL_STRIP_TEMPLATE] [SKULL_STRIP_FIXED_SEED] [FMAP_BSPLINE] [FMAP_NO_DEMEAN] [USE_SYN_SDC] [FORCE_SYN] [FS_LICENSE] [HIRES] [CIFTI_OUTPUT] [RUN_RECONALL] [WORK_DIR] [RESOURCE_MONITOR] [REPORTS_ONLY] [RUN_UUID] [WRITE_GRAPH] [STOP_ON_FIRST_CRASH] [NOTRACK] [SLOPPY]",    
+    "command-line": "SUB_FULL_PATH=[SUBJECT_DIR]; SUBJECT_NAME=$(basename $SUB_FULL_PATH); FAKE_BIDS_DIR=fake_bids_dir; [[ $SUB_FULL_PATH != /* ]] && SUB_FULL_PATH=$PWD/$SUB_FULL_PATH; mkdir -p $FAKE_BIDS_DIR; ln -s $SUB_FULL_PATH $FAKE_BIDS_DIR/$SUBJECT_NAME; fmriprep $FAKE_BIDS_DIR [OUTPUT_DIR] participant --skip_bids_validation --participant_label $SUBJECT_NAME [TASK_ID] --nthreads 1 --omp-nthreads 1 --mem_mb 8192 [LOW_MEM] [USE_PLUGIN] [ANAT_ONLY] [BOILERPLATE] [VERBOSE_COUNT] [IGNORE] [LONGITUDINAL] [BOLD2T1W_DOF] [USE_BBR] [MEDIAL_SURFACE_NAN] [USE_AROMA] [AROMA_MELODIC_DIMENSIONALITY] [SKULL_STRIP_TEMPLATE] [SKULL_STRIP_FIXED_SEED] [FMAP_BSPLINE] [FMAP_NO_DEMEAN] [USE_SYN_SDC] [FORCE_SYN] [FS_LICENSE] [HIRES] [CIFTI_OUTPUT] [RUN_RECONALL] [WORK_DIR] [RESOURCE_MONITOR] [REPORTS_ONLY] [RUN_UUID] [WRITE_GRAPH] [STOP_ON_FIRST_CRASH] [NOTRACK] [SLOPPY]",    
     "description": "fMRIprep is a functional magneticresonance image pre-processing pipeline that is designed to provide an easily accessible, state-of-the-art interface that is robust to differences in scan acquisition protocols and that requires minimal user input, while providing easily interpretable and comprehensive error and output reporting (https://fmriprep.readthedocs.io). NOTE: This descriptor is designed to integrate specifically with a CBRAIN installation. It takes as input a single subject according to the BIDs specification",    
     "author": "Poldrack lab",
     "url": "https://fmriprep.readthedocs.io",
@@ -19,15 +19,6 @@
             "optional": false,
             "type": "String",
             "value-key": "[OUTPUT_DIR]"
-        },
-        {
-            "command-line-flag": "--skip_bids_validation",
-            "description": "Assume the input dataset is BIDS compliant and skip the validation",
-            "id": "skip_bids_validation",
-            "name": "skip_bids_validation",
-            "optional": true,
-            "type": "Flag",
-            "value-key": "[SKIP_BIDS_VALIDATION]" 
         },
         {
             "command-line-flag": "--fs-license-file",
