@@ -119,15 +119,6 @@
             "type": "Flag"
         },
         {
-            "name": "Hippocampal-subfileds-T1",
-            "id": "hippocampal_subfields_T1_flag",
-            "optional": true,
-            "value-key": "[HYPPOCAMPAL-SUBFIELDS]",
-            "description": "Segmentation of hippocampal subfields using input T1 scan.",
-            "command-line-flag": "-hippocampal-subfields-T1",
-            "type": "Flag"
-        },
-        {
             "name": "Brainstem Structures",
             "id": "brainstem_structures_flag",
             "optional": true,
