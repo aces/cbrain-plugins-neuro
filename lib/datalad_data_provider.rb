@@ -44,7 +44,7 @@ class DataladDataProvider < DataProvider
 
   # Makes sure the subpath is relative.
   def relative_path_is_it #:nodoc:
-    clean = Pathname.new((self.datalad_relative_path.presence || "").strip).clean_path
+    clean = Pathname.new((self.datalad_relative_path.presence || "").strip).cleanpath
     if clean.to_s =~ /^\.\./
       errors.add(:datalad_relative_path, ' must be a relative path')
       return false
