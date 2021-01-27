@@ -265,16 +265,36 @@
             "value-key": "[H]",
             "description": " output a histogram (for the thresholded/masked voxels only) with nbins and histogram limits of min and max",
             "command-line-flag": "-H"
-        }   
+        }
     ],
-    "groups": [{
-        "one-is-required": true,
-        "id": "output_type",
-        "name": "output type",
-        "members": [
-            "r", "R", "e", "E", "v", "V", "m", "M", "s", "S", "w", "x", "X", "c", "C", "p", "P", "h", "H"
-        ]
-    }],
+    "groups": [
+        {
+            "one-is-required": true,
+            "id": "output_type",
+            "name": "output type",
+            "members": [
+                "r",
+                "R",
+                "e",
+                "E",
+                "v",
+                "V",
+                "m",
+                "M",
+                "s",
+                "S",
+                "w",
+                "x",
+                "X",
+                "c",
+                "C",
+                "p",
+                "P",
+                "h",
+                "H"
+            ]
+        }
+    ],
     "name": "fslstats",
     "output-files": [
         {
@@ -284,12 +304,19 @@
             "path-template": "[INPUT_FILE].txt",
             "value-key": "[OUTPUT_FILE]",
             "list": false,
-            "path-template-stripped-extensions": [".nii.gz", ".nii"]
+            "path-template-stripped-extensions": [
+                ".nii.gz",
+                ".nii"
+            ]
         }
     ],
     "schema-version": "0.5",
     "tags": {
-        "domain": ["neuroinformatics", "mri"],
+        "domain": [
+            "neuroinformatics",
+            "mri"
+        ],
         "toolbox": "FSL"
-    }
+    },
+    "doi": "10.5281/zenodo.4472771"
 }
