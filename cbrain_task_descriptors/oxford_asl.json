@@ -2,6 +2,7 @@
     "tool-version": "6.0.4",
     "name": "oxford_asl",
     "author": "Oxford Centre for Functional MRI of the Brain (FMRIB)",
+    "description": "oxford_asl is part of BASIL (https://asl-docs.readthedocs.io/en/latest/oxford_asl_userguide.html)",
     "descriptor-url": "https://github.com/aces/cbrain-plugins-neuro/blob/master/cbrain_task_descriptors/oxford_asl.json",
     "command-line": "oxford_asl [INPUT_FILE] [OUTPUT_DIR] [MASK] [SPATIAL] [WP] [MC] [IAF] [IBF] [TIS] [TIIMG] [CASL] [ARTSUPP] [BOLUS] [BAT] [T1] [T1B] [SLICEDT] [SLICEBAND] [FSLANAT] [S] [SBRAIN] [FASTSRC] [SENSCORR] [M0] [ALPHA] [C] [TR] [CMETHOD] [CBLIP] [PEDIR] [ECHOSPACING] [PVCORR]",
     "schema-version": "0.5",
@@ -431,7 +432,6 @@
                 "pvcorr"
             ]
         }
-
     ],
     "output-files": [
         {
@@ -450,5 +450,8 @@
             "mri"
         ]
     },
-    "description": "oxford_asl is part of BASIL (https://asl-docs.readthedocs.io/en/latest/oxford_asl_userguide.html)"
+    "custom": {
+        "cbrain:author": "Natacha Beck",
+        "cbrain:readonly-input-files": false
+    }
 }
