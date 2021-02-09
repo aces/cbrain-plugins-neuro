@@ -451,7 +451,6 @@
         ]
     },
     "custom": {
-        "cbrain:author": "Natacha Beck",
-        "cbrain:readonly-input-files": false
+        "cbrain:author": "Natacha Beck"
     }
 }
