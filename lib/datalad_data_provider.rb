@@ -58,6 +58,11 @@ class DataladDataProvider < DataProvider
     true
   end
 
+  # Yes, this DP is the first one to have this capability
+  def has_browse_path_capabilities? #:nodoc:
+    true
+  end
+
   def allow_file_owner_change? #:nodoc:
     true
   end
@@ -72,7 +77,9 @@ class DataladDataProvider < DataProvider
 
   # Not a full path, a relative path in this implementation!
   def provider_full_path(userfile) #:nodoc:
-    Pathname.new(self.datalad_relative_path) + userfile.name
+    Pathname.new(self.datalad_relative_path) +
+    (userfile.browse_path.presence || '.')   +
+    userfile.name
   end
 
   def impl_is_alive? #:nodoc:
@@ -83,7 +90,7 @@ class DataladDataProvider < DataProvider
     datalad_repo.get_and_uninit!( provider_full_path(userfile) )
 
     needslash = userfile.is_a?(FileCollection) ? "/" : ""
-    source    = datalad_repo.install_path + self.datalad_relative_path + userfile.name
+    source    = datalad_repo.install_path + provider_full_path(userfile)
 
     mkdir_cache_subdirs(userfile)
     dest      = userfile.cache_full_path
@@ -102,8 +109,9 @@ class DataladDataProvider < DataProvider
     cb_error 'Rename not allowed'
   end
 
-  def impl_provider_list_all(user = nil) #:nodoc: # user ignored
-    provider_readdir(self.datalad_relative_path.presence || ".", false)
+  def impl_provider_list_all(user = nil, browse_path = nil) #:nodoc: # user ignored
+    dir_path = Pathname.new(self.datalad_relative_path.presence || ".") + (browse_path.presence || ".")
+    provider_readdir(dir_path, false)
   end
 
   def impl_provider_collection_index(userfile, directory = :all, allowed_types = :regular) #:nodoc:
@@ -112,7 +120,7 @@ class DataladDataProvider < DataProvider
 
     ### fix the right path name
     directory = "" if directory == :top || directory == :all || directory == '.'
-    subpath   = Pathname.new(self.datalad_relative_path) + userfile.name + directory
+    subpath   = provider_full_path(userfile) + directory
 
     # Scan tree on filesystem
     subtree = provider_readdir(subpath,recursive,allowed_types)
