@@ -4,7 +4,7 @@
     "author": "Oxford Centre for Functional MRI of the Brain (FMRIB)",
     "description": "oxford_asl is part of BASIL (https://asl-docs.readthedocs.io/en/latest/oxford_asl_userguide.html)",
     "descriptor-url": "https://github.com/aces/cbrain-plugins-neuro/blob/master/cbrain_task_descriptors/oxford_asl.json",
-    "command-line": "oxford_asl [INPUT_FILE] [OUTPUT_DIR] [MASK] [SPATIAL] [WP] [MC] [IAF] [IBF] [TIS] [TIIMG] [CASL] [ARTSUPP] [BOLUS] [BAT] [T1] [T1B] [SLICEDT] [SLICEBAND] [FSLANAT] [S] [SBRAIN] [FASTSRC] [SENSCORR] [M0] [ALPHA] [C] [TR] [CMETHOD] [CBLIP] [PEDIR] [ECHOSPACING] [PVCORR]",
+    "command-line": "oxford_asl [INPUT_FILE] [OUTPUT_DIR] [MASK] [SPATIAL] [WP] [MC] [IAF] [IBF] [TIS] [TIIMG] [CASL] [ARTSUPP] [BOLUS] [BAT] [T1] [T1B] [SLICEDT] [SLICEBAND] [RPTS] [FSLANAT] [S] [SBRAIN] [FASTSRC] [SENSCORR] [M0] [ALPHA] [C] [TR] [CMETHOD] [CBLIP] [PEDIR] [ECHOSPACING] [PVCORR]",
     "schema-version": "0.5",
     "container-image": {
         "image": "mcin/docker-fsl:latest",
@@ -210,13 +210,24 @@
         {
             "command-line-flag": "--sliceband",
             "command-line-flag-separator": "=",
-            "description": " Number of slices per band in a multi-band setup",
+            "description": "Number of slices per band in a multi-band setup",
             "value-key": "[SLICEBAND]",
             "type": "String",
             "list": false,
             "optional": true,
             "id": "sliceband",
             "name": "Number of slices"
+        },
+        {
+            "command-line-flag": "--rpts",
+            "command-line-flag-separator": "=",
+            "description": " Number of repeated measurements for each TI/PLD in the TIs list, for use where the number of repeated measurements varies at each TI.",
+            "value-key": "[RPTS]",
+            "type": "String",
+            "list": false,
+            "optional": true,
+            "id": "rpts",
+            "name": "Number of repeated measurements"
         },
         {
             "command-line-flag": "--fslanat",
@@ -391,7 +402,8 @@
                 "t1",
                 "t1b",
                 "slicedt",
-                "sliceband"
+                "sliceband",
+                "rpts"
             ]
         },
         {
