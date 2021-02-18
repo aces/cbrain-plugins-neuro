@@ -111,13 +111,13 @@
         {
             "command-line-flag": "--tis",
             "command-line-flag-separator": "=",
-            "description": "comma separated list of inversion times in seconds, e.g. --tis 0.2,0.4,0.6",
+            "description": "comma separated list of inflow times in seconds, e.g. --tis 0.2,0.4,0.6",
             "value-key": "[TIS]",
             "type": "String",
             "list": false,
             "optional": true,
             "id": "tis",
-            "name": "Inflow time"
+            "name": "Inversion time"
         },
         {
             "command-line-flag": "--tiimg",
@@ -152,7 +152,7 @@
         {
             "command-line-flag": "--bolus",
             "command-line-flag-separator": "=",
-            "description": "Bolus duration - {default: 1}",
+            "description": "Duration of the ASL labeling bolus in seconds - {default: 1}",
             "value-key": "[BOLUS]",
             "type": "String",
             "list": false,
