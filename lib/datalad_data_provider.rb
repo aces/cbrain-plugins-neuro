@@ -75,6 +75,12 @@ class DataladDataProvider < DataProvider
     false
   end
 
+  # This overrides the attribute of the same name
+  # and returns always +true+
+  def read_only
+    true
+  end
+
   # Not a full path, a relative path in this implementation!
   def provider_full_path(userfile) #:nodoc:
     Pathname.new(self.datalad_relative_path) +
