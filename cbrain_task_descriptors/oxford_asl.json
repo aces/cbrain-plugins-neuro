@@ -65,7 +65,7 @@
             "list": false,
             "optional": true,
             "id": "white_perform",
-            "name": "White perform"
+            "name": "White paper mode"
         },
         {
             "command-line-flag": "--mc",
@@ -111,7 +111,7 @@
         {
             "command-line-flag": "--tis",
             "command-line-flag-separator": "=",
-            "description": "comma separated list of inversion times, e.g. --tis 0.2,0.4,0.6",
+            "description": "comma separated list of inflow times in seconds, e.g. --tis 0.2,0.4,0.6",
             "value-key": "[TIS]",
             "type": "String",
             "list": false,
@@ -152,7 +152,7 @@
         {
             "command-line-flag": "--bolus",
             "command-line-flag-separator": "=",
-            "description": "Bolus duration - {default: 1}",
+            "description": "Duration of the ASL labeling bolus in seconds - {default: 1}",
             "value-key": "[BOLUS]",
             "type": "String",
             "list": false,
@@ -163,7 +163,7 @@
         {
             "command-line-flag": "--bat",
             "command-line-flag-separator": "=",
-            "description": "Bolus arrival time - {default: 0.7 (pASL); 1.3 (cASL)}",
+            "description": "Bolus arrival time in seconds - {default: 0.7 (pASL); 1.3 (cASL)}",
             "value-key": "[BAT]",
             "type": "String",
             "list": false,
@@ -198,14 +198,14 @@
         {
             "command-line-flag": "--slicedt",
             "command-line-flag-separator": "=",
-            "description": "Timing difference between slices - {default: 0}",
+            "description": "Timing difference between slices in seconds - {default: 0}",
             "value-key": "[SLICEDT]",
             "default-value": "0",
             "type": "String",
             "list": false,
             "optional": true,
             "id": "slicedt",
-            "name": "Timming difference"
+            "name": "Timing difference"
         },
         {
             "command-line-flag": "--sliceband",
@@ -312,7 +312,7 @@
         },
         {
             "command-line-flag": "--tr",
-            "description": "TR of calibration data - {default: 3.2 s}",
+            "description": "Repetition time of calibration in seconds - {default: 3.2 s}",
             "default-value": "3.2",
             "value-key": "[TR]",
             "type": "String",
@@ -367,7 +367,7 @@
         {
             "command-line-flag": "--echospacing",
             "command-line-flag-separator": "=",
-            "description": "Effective EPI echo spacing (sometimes called dwell time) - in seconds",
+            "description": "Effective EPI echo spacing (sometimes called dwell time) in seconds",
             "value-key": "[ECHOSPACING]",
             "type": "String",
             "list": false,
