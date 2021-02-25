@@ -18,8 +18,8 @@ viewer.loadVolumes({
       volumes: [
         {
           type: "minc",
-          header_url:   "<%= content_userfile_path(@userfile) + "?content_loader=get_headers_to_json" %>",
-          raw_data_url: "<%= content_userfile_path(@userfile) + "?content_loader=get_raw_data" %>",
+          header_url:   false,
+          raw_data_url: "<%= content_userfile_path(@userfile) %>?content_loader=collection_file&arguments=<%= params["file_name"] %>"
         },
       ],
       complete: function() {
