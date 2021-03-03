@@ -32,7 +32,6 @@ class MincFile < SingleFile
                             ( ! u.is_a?(MincFile) || u.class.has_minctools?([2,0,0]))
                       }
 
-
   has_viewer :name => "Info & Headers", :partial => :info_header,             :if =>
              Proc.new { |u| u.class.has_minctools?([2,0,0],["mincinfo","mincheader","mincdump","mincexpand"]) && u.is_locally_synced? }
 
