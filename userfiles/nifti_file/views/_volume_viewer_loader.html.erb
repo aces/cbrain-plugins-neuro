@@ -14,11 +14,13 @@
 // similar function that differ only in how the javascript code
 // loads the volume data.
 
+<% userfile = @view_userfile || @userfile %>
+
 viewer.loadVolumes({
   volumes: [
     {
       type:    "nifti1",
-      nii_url: "<%= content_userfile_path(@userfile) %>?content_loader=collection_file&arguments=<%= params["file_name"] %>"
+      nii_url: "<%= content_userfile_path(userfile) %>?content_loader=collection_file&arguments=<%= userfile.name %>"
     },
   ],
   complete: function() {
