@@ -42,7 +42,6 @@ class MincFile < SingleFile
                             u.is_locally_synced?
                       }
 
-
   has_content :method => :minc_content,        :type => :text
 
   def self.file_name_pattern #:nodoc:
