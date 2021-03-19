@@ -198,7 +198,7 @@ class CbrainTask::CivetMacaque < PortalTask
 
     # Verify thickness value
     if params[:thickness_kernel].blank?
-      params[:thickness_kernel] = "30"
+      params[:thickness_kernel] = "12"
     end
 
     # Verify thickness kernel
