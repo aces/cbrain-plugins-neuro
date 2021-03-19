@@ -1,8 +1,8 @@
-v5.1.2-24 -#- 2020-04-02 09:49:02 -0400 -#- CBRAIN Team -#- __cbrain-plugins-neuro_TAG__
-0edbddf4c732a8ea24013a15e301ab282821c33c -#- 2020-04-02 09:47:51 -0400 -#- Pierre Rioux -#- __cbrain-plugins-neuro_HEAD__
+v6.1.0 -#- 2021-02-26 09:42:27 -0500 -#- CBRAIN Team -#- __cbrain-plugins-neuro_TAG__
+cd178d308ef641dec937dc9bc3aa1abec1b0c1a4 -#- 2021-02-24 10:22:00 -0500 -#- Pierre Rioux -#- __cbrain-plugins-neuro_HEAD__
 f3d83a34bfdc5b5ce84870de7fe331765a1d012e -#- 2016-07-13 09:49:19 -0400 -#- natacha-beck -#- README.md
 d50c15211d849d8ae45601c02bb20880df1364e9 -#- 2017-05-16 15:12:19 -0400 -#- Natacha Beck -#- bin/fsl_sub
-8fe34214f8a91bc019761174bcd97768bb729197 -#- 2019-06-07 14:50:39 -0400 -#- Pierre Rioux -#- cbrain_file_revisions.csv
+98c43e0daf1e7d6f111d0a130c7b100740c5979e -#- 2020-04-02 09:50:23 -0400 -#- Pierre Rioux -#- cbrain_file_revisions.csv
 e3c31f9d63bde5b8239550878e972659a48b0207 -#- 2019-02-13 19:06:46 -0500 -#- Pierre Rioux -#- cbrain_task/bids_app_handler/bids_app_descriptors/README.txt
 0c1954fa9a06e558eb892ba8f3e2b3e5e819cc25 -#- 2019-10-15 12:57:44 -0400 -#- Pierre Rioux -#- cbrain_task/bids_app_handler/bourreau/bids_app_handler.rb
 c2c322dac947c23db838d72cc0549a5fca8ba7e6 -#- 2019-07-10 17:01:14 -0400 -#- Pierre Rioux -#- cbrain_task/bids_app_handler/common/bids_app_handler.rb
@@ -103,7 +103,7 @@ ec1bbb8a1cba3f3a656b1ec04bded0371aa307ec -#- 2016-01-29 17:00:55 -0500 -#- Remi 
 b6809eab52aeeb67e563911bd09a8f31bc402c0b -#- 2015-01-13 14:14:12 -0500 -#- Pierre Rioux -#- cbrain_task/mnc2nii/views/_show_params.html.erb
 b6809eab52aeeb67e563911bd09a8f31bc402c0b -#- 2015-01-13 14:14:12 -0500 -#- Pierre Rioux -#- cbrain_task/mnc2nii/views/_task_params.html.erb
 b6809eab52aeeb67e563911bd09a8f31bc402c0b -#- 2015-01-13 14:14:12 -0500 -#- Pierre Rioux -#- cbrain_task/mnc2nii/views/public/edit_params_help.html
-c9956fb071be7dc79f55a2f4de44187c2449da7a -#- 2015-04-20 16:18:08 -0400 -#- Natacha Beck -#- cbrain_task/nii2mnc/bourreau/nii2mnc.rb
+20ee27e3c7455d4241689b29972c1fe8a2199b8e -#- 2020-07-08 12:03:59 -0400 -#- Pierre Rioux -#- cbrain_task/nii2mnc/bourreau/nii2mnc.rb
 c9956fb071be7dc79f55a2f4de44187c2449da7a -#- 2015-04-20 16:18:08 -0400 -#- Natacha Beck -#- cbrain_task/nii2mnc/common/nii2mnc.rb
 a8a6649404a2a3c0ffb0004dbca4c5ba48b7c9f4 -#- 2017-01-09 14:12:00 -0500 -#- Andrew Doyle -#- cbrain_task/nii2mnc/portal/nii2mnc.rb
 cf238587a5d64f6b4198f09c1feb2718f0a8b98e -#- 2015-02-04 15:54:01 -0500 -#- Natacha Beck -#- cbrain_task/nii2mnc/views/_show_params.html.erb
@@ -128,18 +128,23 @@ f5f7e4191438cfe71891734e4e56b10e91fe8e23 -#- 2015-01-13 14:18:10 -0500 -#- Pierr
 f5f7e4191438cfe71891734e4e56b10e91fe8e23 -#- 2015-01-13 14:18:10 -0500 -#- Pierre Rioux -#- cbrain_task/recon_all_longi/views/public/edit_params_help.html
 8ac6c6a9415adf4fc74549d3cc8162382d93c517 -#- 2019-07-03 10:47:58 -0400 -#- Shawn Brown -#- cbrain_task_descriptors/FSL_bet_pipeline_v6.0.1.json
 8bee0880e5a97a5155a3b5c95d597632038d8279 -#- 2018-11-23 15:24:11 -0500 -#- Erin -#- cbrain_task_descriptors/ICA-AROMA.json
-27610dd80793b60c423db32c3120c049d5553828 -#- 2019-11-01 11:53:25 -0400 -#- Natacha Beck -#- cbrain_task_descriptors/appianpet.json
-e572b62dce793de7a6aff09e8610ccbff020d8a5 -#- 2017-09-15 16:35:57 -0400 -#- Natacha Beck -#- cbrain_task_descriptors/fsl_anat.json
+e2b47985688129928651eb50e7318316ea170a56 -#- 2020-06-25 23:55:58 -0400 -#- Natacha Beck -#- cbrain_task_descriptors/appianpet.json
+004067a7e08ed3dacf607f2e7ce434931e5dc0e4 -#- 2021-02-08 09:45:51 -0500 -#- Pierre Rioux -#- cbrain_task_descriptors/civet_rerun.json
+78ba8033e056aba3b58182b484c4a53988b1de80 -#- 2021-02-08 09:51:04 -0500 -#- Pierre Rioux -#- cbrain_task_descriptors/fmriprep_single_subject_20_1_3.json
+f1f34912904dd80d730acb8f597f038a86f13496 -#- 2021-02-21 14:37:57 -0500 -#- Pierre Rioux -#- cbrain_task_descriptors/freesurfer_7_1_1.json
+b746a256b815b41d1f2b184d9cf7d21e3288df55 -#- 2020-06-16 16:16:23 -0400 -#- Cécile -#- cbrain_task_descriptors/fsl_anat.json
 8bee0880e5a97a5155a3b5c95d597632038d8279 -#- 2018-11-23 15:24:11 -0500 -#- Erin -#- cbrain_task_descriptors/fsl_bet.json
 8bee0880e5a97a5155a3b5c95d597632038d8279 -#- 2018-11-23 15:24:11 -0500 -#- Erin -#- cbrain_task_descriptors/fsl_fast.json
 8bee0880e5a97a5155a3b5c95d597632038d8279 -#- 2018-11-23 15:24:11 -0500 -#- Erin -#- cbrain_task_descriptors/fsl_first.json
 8bee0880e5a97a5155a3b5c95d597632038d8279 -#- 2018-11-23 15:24:11 -0500 -#- Erin -#- cbrain_task_descriptors/fsl_probtrackx2.json
-399c5658e3e6af540e6f312576eb7c7a74ffa4a3 -#- 2020-02-21 14:20:36 -0500 -#- Pierre Rioux -#- cbrain_task_descriptors/fsl_stats.json
+6102e514646ebb2c8659e8157b04d428a920e9a8 -#- 2021-01-27 10:29:31 -0500 -#- Natacha Beck -#- cbrain_task_descriptors/fsl_stats.json
 982d035a8acee39ac672c3b11bab54a8fe2cd8fc -#- 2018-08-19 23:09:18 -0400 -#- Natacha Beck -#- cbrain_task_descriptors/fsl_sub.json
 e572b62dce793de7a6aff09e8610ccbff020d8a5 -#- 2017-09-15 16:35:57 -0400 -#- Natacha Beck -#- cbrain_task_descriptors/mincbet.json
-ea38e1531dfefece1b0b205c55292f7152fee0fc -#- 2019-06-11 11:52:56 -0400 -#- Pierre Rioux -#- lib/datalad_data_provider.rb
-92ddcd388c2a4ae39e7fa9bf426732537de865a5 -#- 2019-10-18 17:35:26 -0400 -#- Pierre Rioux -#- lib/datalad_repository.rb
+7acf4c9cd96b7d94d0d6cdb9a5d9e8abf717f6a7 -#- 2021-02-19 06:26:02 -0800 -#- PaulChang04 -#- cbrain_task_descriptors/oxford_asl.json
+e3680233a091e988e3ebeb72c81d503d49b658f2 -#- 2021-02-21 14:36:02 -0500 -#- Pierre Rioux -#- lib/datalad_data_provider.rb
+cc75ae1812a066effaebdf67132abe496ace2685 -#- 2020-11-13 13:57:46 -0500 -#- Pierre Rioux -#- lib/datalad_repository.rb
 e74cf314c779c65da036a2e85d3ff7290f3bec37 -#- 2019-05-22 11:33:45 -0400 -#- Pierre Rioux -#- lib/tests/check_dl_dp.rb
+f95da6ba22eb7ad0e08f0c508bc09c01d6b44097 -#- 2020-11-13 14:12:53 -0500 -#- Pierre Rioux -#- lib/tests/check_dl_dp2.rb
 de08c226ce1a54b4b223a2afb6f2cc69bc6e4c89 -#- 2019-03-03 12:56:30 -0500 -#- Pierre Rioux -#- userfiles/bids_app_output/bids_app_output.rb
 c2c322dac947c23db838d72cc0549a5fca8ba7e6 -#- 2019-07-10 17:01:14 -0400 -#- Pierre Rioux -#- userfiles/bids_dataset/bids_dataset.rb
 8d0d1afacd64a38e032c382d8fa159eb4c2aff45 -#- 2016-05-26 09:33:09 -0400 -#- Tristan Glatard -#- userfiles/bids_dataset/views/_bids_validator.html.erb
