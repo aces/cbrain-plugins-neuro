@@ -1,0 +1,82 @@
+
+<%-
+#
+# CBRAIN Project
+#
+# Copyright (C) 2008-2012
+# The Royal Institution for the Advancement of Learning
+# McGill University
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+-%>
+
+<% file_args = params[:file_args].presence || {} %>
+<% if file_args.size > 1 %>
+  <%= render :partial => task_partial(:deprecated_warning) %>
+<% end %>
+
+<P>
+<STRONG>Input:</STRONG>
+<P>
+
+<% if params[:collection_id].present? %>
+MINC collection: <%= link_to_userfile_if_accessible params[:collection_id] %>
+<% end  %>
+
+<P>
+
+<% if file_args.present? %>
+  T1 MINC file:
+  <ul>
+  <% file_args.keys.sort { |a,b| a.to_i <=> b.to_i }.each do |arg_idx| %>
+    <% file = file_args[arg_idx] %>
+    <% if params[:collection_id].blank? %>
+      <li><%= link_to_userfile_if_accessible file[:t1_id] %></li>
+    <% else %>
+      <li><%= file[:t1_name] %> (inside collection)</li>
+    <% end %>
+  <% end %>
+  </ul>
+<% end %>
+
+<P>
+<STRONG>Output:</STRONG>
+<P>
+
+<% if params[:output_civetcollection_ids].blank? && params[:output_civetcollection_id].present? %>
+  CIVET Output: <%= link_to_userfile_if_accessible params[:output_civetcollection_id] %>
+<% else %>
+  <% ids = params[:output_civetcollection_ids] || [] %>
+  <% if ids.present? %>
+    <ul>
+    <% ids.each do |id| %>
+      <li>CIVET Output: <%= link_to_userfile_if_accessible(id) %></li>
+    <% end %>
+    </ul>
+  <% else %>
+    No CIVET output generated yet.
+  <% end %>
+<% end %>
+
+<% if file_args.size == 1 %>
+
+<P>
+<STRONG>Other parameters:</STRONG>
+<P>
+
+See this task's <%= link_to "edit page", edit_task_path(task) %> for more information.
+
+<% end %>
+
