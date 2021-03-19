@@ -181,9 +181,10 @@ class CbrainTask::CivetMacaque < PortalTask
     end
 
     # Verify N3_distance value
-    if params[:N3_distance].blank? || params[:N3_distance] !~ /^\d+$/
+    if !is_valid_integer_list(params[:N3_distance], allow_blanks: false)
       params_errors.add(:N3_distance, <<-N3_MESSAGE)
-        suggested values: 200 for 1.5T scan; 50-125 for 3T scan.
+        must be an integer or a list of integers separated by a ':'.
+        Suggested values: 200 for 1.5T scan; 50-125 for 3T scan.
         For older 3T scans, low values nearer 50 may work best;
         for newer 3T scans, high values nearer 125 may work best.
         0 is acceptable for versions later than 1.1.12 for MP2RAGE scanner.

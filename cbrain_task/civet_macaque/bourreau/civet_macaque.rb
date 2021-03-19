@@ -284,7 +284,13 @@ class CbrainTask::CivetMacaque < ClusterTask
     args += "-model #{params[:model].bash_escape} "                 if params[:model].present?
     args += "-surfreg-model #{params[:surfreg_model].bash_escape} " if params[:surfreg_model].present?
     args += "-interp #{params[:interp].bash_escape} "               if params[:interp].present?
-    args += "-N3-distance #{params[:N3_distance].bash_escape} "     if params[:N3_distance].present?
+
+    # Now allow integer separated by ':'
+    if ( params[:N3_distance].present? &&
+         is_valid_integer_list(params[:N3_distance], allow_blanks: false))
+      args += "-N3-distance #{params[:N3_distance].bash_escape} "
+    end
+
     args += "-headheight #{params[:headheight].bash_escape} "       if params[:headheight].present?
     args += "-mask-blood-vessels "                                  if mybool(params[:mask_blood_vessels])
     if params[:lsq] != 0
@@ -313,7 +319,6 @@ class CbrainTask::CivetMacaque < ClusterTask
 
     # Thickness methods and kernel
     if ( params[:thickness_method].present? &&
-         params[:thickness_kernel].present? &&
          is_valid_integer_list(params[:thickness_kernel], allow_blanks: false))
       thickness_methods = Array(params[:thickness_method])
       thickness_methods = thickness_methods & ["tlaplace", "tlink","tfs"]
