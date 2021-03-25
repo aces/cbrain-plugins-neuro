@@ -141,7 +141,7 @@ class CbrainTask::CivetMacaque < ClusterTask
         if t2_id.present?
           t2      = SingleFile.find(t2_id)
           t2_name = t2.name
-          t2ext   = t2_name.match(/.(gz|Z)$/i) ? $1 : ""
+          t2ext   = t2_name.match(/\.(nii|mnc)?(.gz|.Z)?$/i).to_a[0]
           t2sym   = "#{input_symlink_base}_t2.#{t2ext}"
           make_available(t2,t2sym)
           return false unless validate_input_file(t2sym)
