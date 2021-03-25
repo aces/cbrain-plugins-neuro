@@ -633,8 +633,7 @@ class CbrainTask::CivetMacaque < ClusterTask
     end
 
     if out !~ /^file: /m
-       self.addlog("Error: it seems one of the input file '#{base}' we prepared is not a MINC file?!?")
-       self.addlog("Output of 'mincinfo':\n#{out}") if out.present?
+       self.addlog("Error: it seems one of the input file '#{base}' we prepared is not a MINC or a NIfTI file?!?")
        return false
     end
     true
