@@ -56,32 +56,23 @@
 <!-- #################################################################### -->
 
   <fieldset>
-  <legend>Input Options</legend>
-      <%= form.params_label     :input_is_stx, "Input MincFiles are known to be already in stereotaxic space:",
+  <legend>Input/Output Options</legend>
+      <%= form.params_label     :input_is_stx, "Input files are known to be already in stereotaxic space:",
                                 :title => "Check this if you are sure the input files are already registered. This will skip the linear registration steps." %>
       <%= form.params_check_box :input_is_stx %>
 
       <br>
 
-      <%= form.params_label     :pre_mask, "T1 image are known to be already in masked:",
+      <%= form.params_label     :pre_mask, "T1w image are known to be already in masked:",
                                 :title => "Mask will be deduced from thresholding if no user-mask given." %>
       <%= form.params_check_box :pre_mask %>
-  </fieldset>
-  <P>
-
-<!-- #################################################################### -->
-
-  <fieldset>
-  <legend>Output Options</legend>
-      <%= form.params_label     :nii_output, "Output NIfTI files:",
-                                :title => "Output NNIfTI files." %>
-      <%= form.params_check_box :nii_output %>
 
       <br>
 
-      <%= form.params_label     :gaussian_curvature, "Produce Gaussian curvature maps on surfaces",
-                                :title => "Gaussian curvature" %>
-      <%= form.params_check_box :gaussian_curvature %>
+      <%= form.params_label     :nii_output, "Output NIfTI files:",
+                                :title => "Output NIfTI files." %>
+      <%= form.params_check_box :nii_output %>
+
   </fieldset>
   <P>
 
@@ -140,14 +131,14 @@
 <fieldset>
 <legend>Surface options</legend>
 
-  <%= form.params_label  :surfreg_model, "Model for surface registration:", :title => "Define the model for surface registration" %>
-  <%= form.params_select :surfreg_model, [["NMTmacaque", "NMTmacaque", {}]] %>
-
-  <br>
-
   <b><%= form.params_label     :no_surfaces, "Do NOT build surfaces:", :title => "Do NOT build surfaces" %></b>
   <%= show_hide_checkbox("#hide_if_not_build_surfaces", :checked => params[:no_surfaces] == "1" || params[:no_surfaces] == "on",
                                                         :invert => true, :name => "cbrain_task[params][no_surfaces]" ) %>
+
+  <br>
+
+  <%= form.params_label  :surfreg_model, "Model for surface registration:", :title => "Define the model for surface registration" %>
+  <%= form.params_select :surfreg_model, [["NMTmacaque", "NMTmacaque", {}]] %>
 
   <br>
 
@@ -179,7 +170,13 @@
     <%= form.params_label      :thickness_kernel, "Thickness kernel size:",
                                :title => "FWHM for surface blurring,\n default: 20 for version 1.1.11 and lower,\n default: 30 for version 1.1.12 and later\nList of integers separated by a ':' is accepted for version 2.0.0 and later" %>
     <%= form.params_text_field :thickness_kernel, :size => 12 %>
-    <span class="field_explanation" style="max-width: 80em">(30mm by default if left blank)</span>
+    <span class="field_explanation" style="max-width: 80em">(12mm by default if left blank)</span>
+
+    <br>
+
+    <%= form.params_label     :gaussian_curvature, "Produce Gaussian curvature maps on surfaces",
+                              :title => "Gaussian curvature" %>
+    <%= form.params_check_box :gaussian_curvature %>
 
     <br>
 
