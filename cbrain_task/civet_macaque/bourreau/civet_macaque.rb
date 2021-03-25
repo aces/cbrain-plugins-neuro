@@ -98,32 +98,32 @@ class CbrainTask::CivetMacaque < ClusterTask
     if collection
 
       t1ext = t1_name.match(/\.(nii|mnc)?(.gz|.Z)?$/i).to_a[0]
-      t1sym = "#{input_symlink_base}_t1.#{t1ext}"
+      t1sym = "#{input_symlink_base}_t1#{t1ext}"
       make_available(collection, t1sym, t1_name)
       return false unless validate_input_file(t1sym)
 
       if mybool(file0[:multispectral]) || mybool(file0[:spectral_mask])
         if t2_name.present?
           t2ext = t2_name.match(/\.(nii|mnc)?(.gz|.Z)?$/i).to_a[0]
-          t2sym = "#{input_symlink_base}_t2.#{t2ext}"
+          t2sym = "#{input_symlink_base}_t2#{t2ext}"
           make_available(collection, t2sym, t2_name)
           return false unless validate_input_file(t2sym)
         end
         if pd_name.present?
           pdext = pd_name.match(/\.(nii|mnc)?(.gz|.Z)?$/i).to_a[0]
-          pdsym = "#{input_symlink_base}_pd.#{pdext}"
+          pdsym = "#{input_symlink_base}_pd#{pdext}"
           make_available(collection, pdsym, pd_name)
           return false unless validate_input_file(pdsym)
         end
         if mk_name.present?
           mkext = mk_name.match(/\.(nii|mnc)?(.gz|.Z)?$/i).to_a[0]
-          mksym = "#{input_symlink_base}_mask.#{mkext}"
+          mksym = "#{input_symlink_base}_mask#{mkext}"
           make_available(collection, mksym, mk_name)
           return false unless validate_input_file(mksym)
         end
         if mp_name.present?
           mpkext = mp_name.match(/\.(nii|mnc)?(.gz|.Z)?$/i).to_a[0]
-          mpksym = "#{input_symlink_base}_mp2.#{mpkext}"
+          mpksym = "#{input_symlink_base}_mp2#{mpkext}"
           make_available(collection, mpksym, mp_name)
           return false unless validate_input_file(mpksym)
         end
@@ -133,7 +133,7 @@ class CbrainTask::CivetMacaque < ClusterTask
 
       t1_name = t1.name
       t1ext   = t1_name.match(/\.(nii|mnc)?(.gz|.Z)?$/i).to_a[0]
-      t1sym   = "#{input_symlink_base}_t1.#{t1ext}"
+      t1sym   = "#{input_symlink_base}_t1#{t1ext}"
       make_available(t1,t1sym)
       return false unless validate_input_file(t1sym)
 
@@ -142,7 +142,7 @@ class CbrainTask::CivetMacaque < ClusterTask
           t2      = SingleFile.find(t2_id)
           t2_name = t2.name
           t2ext   = t2_name.match(/\.(nii|mnc)?(.gz|.Z)?$/i).to_a[0]
-          t2sym   = "#{input_symlink_base}_t2.#{t2ext}"
+          t2sym   = "#{input_symlink_base}_t2#{t2ext}"
           make_available(t2,t2sym)
           return false unless validate_input_file(t2sym)
         end
@@ -151,7 +151,7 @@ class CbrainTask::CivetMacaque < ClusterTask
           pd      = SingleFile.find(pd_id)
           pd_name = pd.name
           pdext   = pd_name.match(/\.(nii|mnc)?(.gz|.Z)?$/i).to_a[0]
-          pdsym   = "#{input_symlink_base}_pd.#{pdext}"
+          pdsym   = "#{input_symlink_base}_pd#{pdext}"
           make_available(pd,pdsym)
           return false unless validate_input_file(pdsym)
         end
@@ -160,7 +160,7 @@ class CbrainTask::CivetMacaque < ClusterTask
           mk      = SingleFile.find(mk_id)
           mk_name = mk.name
           mkext   = mk_name.match(/\.(nii|mnc)?(.gz|.Z)?$/i).to_a[0]
-          mksym   = "#{input_symlink_base}_mask.#{mkext}"
+          mksym   = "#{input_symlink_base}_mask#{mkext}"
           make_available(mk,mksym)
           return false unless validate_input_file(mksym)
         end
@@ -169,7 +169,7 @@ class CbrainTask::CivetMacaque < ClusterTask
           mp      = SingleFile.find(mp_id)
           mp_name = mp.name
           mpkext   = mp_name.match(/\.(nii|mnc)?(.gz|.Z)?$/i).to_a[0]
-          mpksym   = "#{input_symlink_base}_mp2.#{mpkext}"
+          mpksym   = "#{input_symlink_base}_mp2#{mpkext}"
           make_available(mp,mpksym)
           return false unless validate_input_file(mpksym)
         end
