@@ -31,11 +31,10 @@
 
 <%
   # Models
-  default_models  = [ "icbm152nl_09s", "colin27", "icbm152nl", "icbm152l",
-                      "ibis-v24", "ADNIhires", "NMTmacaque", "NCBRchimp" ]
+  default_models   = [ "NMTmacaque" ]
   default_template = ["0.25","0.50"]
   default_lsq      = ["0", "6", "9", "12"]
-  default_atlas    = ["CHARM3", "lobes", "AAL", "DKT", "D99", "CHARM1", "CHARM2", "CHARM4", "CHARM5", "CHARM6"]
+  default_atlas    = ["CHARM3", "lobes", "D99", "CHARM1", "CHARM2", "CHARM4", "CHARM5", "CHARM6"]
 %>
 
 
@@ -63,7 +62,7 @@
 
       <br>
 
-      <%= form.params_label     :pre_mask, "T1w image are known to be already in masked:",
+      <%= form.params_label     :pre_mask, "T1w images are known to be already masked:",
                                 :title => "Mask will be deduced from thresholding if no user-mask given." %>
       <%= form.params_check_box :pre_mask %>
 
@@ -137,12 +136,12 @@
 
   <br>
 
-  <%= form.params_label  :surfreg_model, "Model for surface registration:", :title => "Define the model for surface registration" %>
-  <%= form.params_select :surfreg_model, [["NMTmacaque", "NMTmacaque", {}]] %>
-
-  <br>
-
   <div id="hide_if_not_build_surfaces", style="padding-left: 10px" >
+
+    <%= form.params_label  :surfreg_model, "Model for surface registration:", :title => "Define the model for surface registration" %>
+    <%= form.params_select :surfreg_model, [["NMTmacaque", "NMTmacaque", {}]] %>
+
+    <br>
 
     <%= form.params_label     :combine_surfaces, "Combine left/right surfaces:", :title => "Combine left and right cortical surfaces" %>
     <%= form.params_check_box :combine_surfaces, :value => "1" %>
@@ -174,7 +173,7 @@
 
     <br>
 
-    <%= form.params_label     :gaussian_curvature, "Produce Gaussian curvature maps on surfaces",
+    <%= form.params_label     :gaussian_curvature, "Produce mean and Gaussian curvature maps on surfaces",
                               :title => "Gaussian curvature" %>
     <%= form.params_check_box :gaussian_curvature %>
 
