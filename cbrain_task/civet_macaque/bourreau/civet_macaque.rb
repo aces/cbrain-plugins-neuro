@@ -307,7 +307,7 @@ class CbrainTask::CivetMacaque < ClusterTask
     args += "-spectral_mask "                                       if mybool(file0[:spectral_mask])
 
     args += "-pre-masked "                                          if mybool(file0[:pre_mask])
-    args += "-gaussian-curvature "                                  if mybool(file0[:gaussian_curvature])
+    args += "-gaussian-curvature -mean-curvature"                   if mybool(file0[:gaussian_curvature])
     args += "-nifti "                                               if mybool(file0[:nii_output])
 
     # PVE
