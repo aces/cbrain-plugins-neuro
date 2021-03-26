@@ -293,6 +293,10 @@ class CbrainTask::CivetMacaque < ClusterTask
 
     args += "-headheight #{params[:headheight].bash_escape} "       if params[:headheight].present?
     args += "-mask-blood-vessels "                                  if mybool(params[:mask_blood_vessels])
+    args += "-pre-masked "                                          if mybool(params[:pre_mask])
+    args += "-gaussian-curvature -mean-curvature"                   if mybool(params[:gaussian_curvature])
+    args += "-nifti "                                               if mybool(params[:nii_output])
+
     if params[:lsq] != 0
       args += "-lsq#{params[:lsq]} "                                if params[:lsq] && params[:lsq].to_i != 9 # there is NO -lsq9 option!
     else
@@ -302,13 +306,8 @@ class CbrainTask::CivetMacaque < ClusterTask
     args += "-correct-pve "                                         if mybool(params[:correct_pve])
     args += "-hi-res-surfaces "                                     if mybool(params[:high_res_surfaces])
     args += "-combine-surfaces "                                    if mybool(params[:combine_surfaces])
-
     args += "-multispectral "                                       if mybool(file0[:multispectral])
     args += "-spectral_mask "                                       if mybool(file0[:spectral_mask])
-
-    args += "-pre-masked "                                          if mybool(file0[:pre_mask])
-    args += "-gaussian-curvature -mean-curvature"                   if mybool(file0[:gaussian_curvature])
-    args += "-nifti "                                               if mybool(file0[:nii_output])
 
     # PVE
     if    params[:pve] == "classic"
