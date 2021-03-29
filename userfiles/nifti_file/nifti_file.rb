@@ -39,7 +39,7 @@ class NiftiFile < SingleFile
   end
 
   def self.file_name_pattern #:nodoc:
-    /\.nii(\.gz)?$/i
+    /\.nii(\.gz|\.Z)?$/i
   end
 
   def raw_content
