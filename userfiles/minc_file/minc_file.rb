@@ -43,7 +43,7 @@ class MincFile < SingleFile
   has_content :method => :minc_content,        :type => :text
 
   def self.file_name_pattern #:nodoc:
-    /\.mi?nc(\.gz|\.Z|\.gz2)?$/i
+    /\.mi?nc(\.gz|\.Z|\.bz2)?$/i
   end
 
   # Returns true only if the current system PATH environment
@@ -85,8 +85,10 @@ class MincFile < SingleFile
 
   # Returns the mincfile itself; uncompressed if it is compressed on the DP.
   def minc_content
-    if self.name =~ /(\.mgz|\.mgh|\.gz)$/i
+    if self.name =~ /(\.mgz|\.gz|\.Z)$/i
       IO.popen("gunzip -c #{self.cache_full_path.to_s.bash_escape}") { |fh| fh.read }
+    elsif self.name =~ /(\.bz2)$/i
+      IO.popen("bunzip2 -c #{self.cache_full_path.to_s.bash_escape}") { |fh| fh.read }
     else
       File.open(self.cache_full_path, "r").read
     end
