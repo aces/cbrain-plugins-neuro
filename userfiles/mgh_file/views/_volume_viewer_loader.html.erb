@@ -18,7 +18,7 @@ viewer.loadVolumes({
   volumes: [
     {
       type: "mgh",
-      url:  "<%= content_userfile_path(@userfile, :content_loader => :collection_file, :arguments => @userfile.name) %>",
+      url: "<%= content_userfile_path(@userfile, :content_loader => :raw_content, :file_name => @userfile.name, :viewer_userfile_class => :MghFile) %>"
     },
   ],
   complete: function() {

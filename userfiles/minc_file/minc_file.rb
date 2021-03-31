@@ -85,7 +85,7 @@ class MincFile < SingleFile
 
   # Returns the mincfile itself; uncompressed if it is compressed on the DP.
   def minc_content
-    if self.name =~ /(\.mgz|\.mgh\.gz)$/i
+    if self.name =~ /(\.mgz|\.mgh|\.gz)$/i
       IO.popen("gunzip -c #{self.cache_full_path.to_s.bash_escape}") { |fh| fh.read }
     else
       File.open(self.cache_full_path, "r").read
