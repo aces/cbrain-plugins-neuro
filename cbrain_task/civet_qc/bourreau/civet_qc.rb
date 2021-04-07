@@ -95,12 +95,11 @@ class CbrainTask::CivetQc < ClusterTask
       end
     end
 
-    # Store the list of DSIDs in a hash in the params
-    dsid_names = {}  # "Xn" => dsid   where n is some number
-    dsid_dirs.each_with_index { |dir,i| dsid_names["X#{i}"] = dir }
-    params[:dsid_names] = dsid_names
+    # Store the list of DSIDs in a string in the params
+    params[:dsid_names] = dsid_dirs.join(",")
     params[:prefix]     = prefix
 
+    self.save
     true
   end
 
@@ -116,12 +115,14 @@ class CbrainTask::CivetQc < ClusterTask
     study_path = study.cache_full_path
 
     prefix     = params[:prefix]
-    dsid_names = params[:dsid_names] # hash, keys are meaningless
-    dsids      = dsid_names.values.sort.join(" ")
+    dsid_names = params_subject_ids()
+    dsids      = dsid_names.sort.map(&:bash_escape).join(" ")
 
-    civetqc_command = "CIVET_QC_Pipeline -sourcedir mincfiles -targetdir '#{study_path}' -prefix #{prefix} #{dsids}"
+    civetqc_command = "CIVET_QC_Pipeline -sourcedir mincfiles -targetdir #{study_path.bash_escape} -prefix #{prefix.bash_escape} #{dsids}"
 
-    self.addlog("Full CIVET QC command:\n  #{civetqc_command.gsub(/ -/, "\n  -")}")
+    if (civetqc_command.size < 1000) # otherwize, we can see it in the logs
+      self.addlog("Full CIVET QC command:\n  #{civetqc_command.gsub(/ -/, "\n  -")}")
+    end
 
     return [
       "echo \"\";echo Showing ENVIRONMENT",
@@ -169,11 +170,25 @@ class CbrainTask::CivetQc < ClusterTask
 
     # Log that it was processed
     prefix     = params[:prefix]
-    dsid_names = params[:dsid_names] # hash, keys are meaningless
-    dsids      = dsid_names.values.sort.join(" ")
+    dsid_names = params_subject_ids()
+    dsids      = dsid_names.sort.join(" ")
+    dsids[50..999999] = " ..." if dsids.size > 50
     self.addlog_to_userfiles_processed(study, "with prefix '#{prefix}' and subjects '#{dsids}'")
 
     true
+  end
+
+  protected
+
+  # For historical reason, some old tasks save the list of subjects IDs
+  # as a hash with meaningless keys. The new convention is a single
+  # long string with commas.
+  def params_subject_ids
+    h = params[:dsid_names].presence || ""
+    return h.split(",") if h.is_a?(String)
+    dsids = h.values
+    params[:dsid_names] = dsids.join(",") # adjust to new convention
+    dsids
   end
 
 end
