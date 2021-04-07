@@ -124,6 +124,7 @@ class CbrainTask::CivetCombiner < ClusterTask
     # Just record the PREFIX in the task's params.
     params[:prefix] = prefix
 
+    self.save
   end
 
   def cluster_commands #:nodoc:
