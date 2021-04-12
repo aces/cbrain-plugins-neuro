@@ -4,7 +4,7 @@
     "author": "Oxford Centre for Functional MRI of the Brain (FMRIB)",
     "description": "oxford_asl is part of BASIL (https://asl-docs.readthedocs.io/en/latest/oxford_asl_userguide.html)",
     "descriptor-url": "https://github.com/aces/cbrain-plugins-neuro/blob/master/cbrain_task_descriptors/oxford_asl.json",
-    "command-line": "oxford_asl [INPUT_FILE] [OUTPUT_DIR] [MASK] [SPATIAL] [WP] [MC] [IAF] [IBF] [TIS] [TIIMG] [CASL] [ARTSUPP] [FIXBOLUS] [BOLUS] [BAT] [T1] [T1B] [SLICEDT] [SLICEBAND] [RPTS] [FSLANAT] [S] [SBRAIN] [FASTSRC] [SENSCORR] [M0] [ALPHA] [C] [TR] [CMETHOD] [CBLIP] [PEDIR] [ECHOSPACING] [PVCORR]",
+    "command-line": "oxford_asl [INPUT_FILE] [OUTPUT_DIR] [MASK] [SPATIAL] [WP] [MC] [IAF] [IBF] [TIS] [TIIMG] [CASL] [ARTSUPP] [FIXBOLUS] [BOLUS] [BAT] [T1] [T1B] [SLICEDT] [SLICEBAND] [RPTS] [FSLANAT] [S] [SBRAIN] [FASTSRC] [SENSCORR] [M0] [ALPHA] [C] [TR] [CMETHOD] [TE] [CBLIP] [PEDIR] [ECHOSPACING] [PVCORR]",
     "schema-version": "0.5",
     "container-image": {
         "image": "mcin/docker-fsl:latest",
@@ -140,7 +140,7 @@
             "name": "Arterial suppression"
         },
         {
-            "command-line-flag": "--fixbolus",
+            "command-line-flag": "--fixbolus=",
             "description": "Bolus duration is fixed, e.g. by QUIPSSII or CASL",
             "value-key": "[FIXBOLUS]",
             "type": "String",
@@ -340,6 +340,17 @@
             "name": "Calibration method"
         },
         {
+            "command-line-flag": "--te",
+            "description": "",
+            "default-value": "",
+            "value-key": "[TE]",
+            "type": "String",
+            "list": false,
+            "optional": true,
+            "id": "te",
+            "name": "TE time"
+        },
+        {
             "command-line-flag": "--cblip",
             "description": "Phase-encode-reversed (blipped) calibration image",
             "value-key": "[CBLIP]",
@@ -430,7 +441,8 @@
                 "alpha",
                 "c",
                 "tr",
-                "cmethod"
+                "cmethod",
+                "te"
             ]
         },
         {
