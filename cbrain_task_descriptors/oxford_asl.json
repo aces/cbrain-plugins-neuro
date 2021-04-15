@@ -341,8 +341,8 @@
         },
         {
             "command-line-flag": "--t2csf",
-            "description": "",
-            "default-value": "Value for T2 of CSF in millisecond for calibration - {default is based on 3T Field Strength}",
+            "description": "Value for T2 of CSF in millisecond for calibration - {default is based on 3T Field Strength}",
+            "default-value": "",
             "value-key": "[T2CSF]",
             "type": "String",
             "list": false,
@@ -352,8 +352,8 @@
         },
         {
             "command-line-flag": "--t2bl",
-            "description": "",
-            "default-value": "Value for T2 of blood in millisecond for calibration - {default: 0}",
+            "description": "Value for T2 of blood in millisecond for calibration - {default: 0}",
+            "default-value": "",
             "value-key": "[T2BL]",
             "type": "String",
             "list": false,
