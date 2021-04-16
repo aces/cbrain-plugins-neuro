@@ -294,7 +294,7 @@ class CbrainTask::CivetMacaque < ClusterTask
     args += "-headheight #{params[:headheight].bash_escape} "       if params[:headheight].present?
     args += "-mask-blood-vessels "                                  if mybool(params[:mask_blood_vessels])
     args += "-pre-masked "                                          if mybool(params[:pre_mask])
-    args += "-gaussian-curvature -mean-curvature"                   if mybool(params[:gaussian_curvature])
+    args += "-gaussian-curvature -mean-curvature "                  if mybool(params[:gaussian_curvature])
     args += "-nifti "                                               if mybool(params[:nii_output])
 
     if params[:lsq] != 0
