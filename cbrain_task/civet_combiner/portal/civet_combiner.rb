@@ -52,9 +52,8 @@ class CbrainTask::CivetCombiner < PortalTask
       cb_error "The name for the study must be a legal CBRAIN filename."
     end
 
-    params[:interface_userfile_ids] = civet_collection_ids # just copy over the clean list
-
-    self.description ||= study_name
+    params[:interface_userfile_ids] = []  # zap; in large studies we need the space in params
+    self.description = study_name unless self.description.present?
     ""
   end
 

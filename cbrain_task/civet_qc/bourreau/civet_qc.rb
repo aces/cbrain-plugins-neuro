@@ -95,12 +95,20 @@ class CbrainTask::CivetQc < ClusterTask
       end
     end
 
-    # Store the list of DSIDs in a hash in the params
-    dsid_names = {}  # "Xn" => dsid   where n is some number
-    dsid_dirs.each_with_index { |dir,i| dsid_names["X#{i}"] = dir }
-    params[:dsid_names] = dsid_names
-    params[:prefix]     = prefix
+    # Store the prefix
+    params[:prefix] = prefix
 
+    # Store the list of DSIDs in a string in the params
+    # If the list is too long, we can use a file in the task's workdir
+    dsids_commas = dsid_dirs.join(",")
+    if dsids_commas.size < 50000
+      params[:dsid_names] = dsids_commas
+    else
+      params[:dsid_names] = nil # will tell params_subject_ids() below to read from file
+    end
+    File.open("dsid_names.lst","w") { |fh| fh.write dsid_dirs.join("\n"); fh.write "\n" }
+
+    self.save
     true
   end
 
@@ -116,12 +124,14 @@ class CbrainTask::CivetQc < ClusterTask
     study_path = study.cache_full_path
 
     prefix     = params[:prefix]
-    dsid_names = params[:dsid_names] # hash, keys are meaningless
-    dsids      = dsid_names.values.sort.join(" ")
+    dsid_names = params_subject_ids()
+    dsids      = dsid_names.sort.map(&:bash_escape).join(" ")
 
-    civetqc_command = "CIVET_QC_Pipeline -sourcedir mincfiles -targetdir '#{study_path}' -prefix #{prefix} #{dsids}"
+    civetqc_command = "CIVET_QC_Pipeline -sourcedir mincfiles -targetdir #{study_path.to_s.bash_escape} -prefix #{prefix.bash_escape} #{dsids}"
 
-    self.addlog("Full CIVET QC command:\n  #{civetqc_command.gsub(/ -/, "\n  -")}")
+    if (civetqc_command.size < 1000) # otherwize, we can see it in the logs
+      self.addlog("Full CIVET QC command:\n  #{civetqc_command.gsub(/ -/, "\n  -")}")
+    end
 
     return [
       "echo \"\";echo Showing ENVIRONMENT",
@@ -129,7 +139,7 @@ class CbrainTask::CivetQc < ClusterTask
       "echo \"\";echo Starting CIVET QC",
       "echo Command: #{civetqc_command}",
       "#{civetqc_command}",
-      "touch has_run"
+      "test $? -lt 2 && touch has_run"
     ]
 
   end
@@ -138,7 +148,7 @@ class CbrainTask::CivetQc < ClusterTask
     params       = self.params
 
     unless File.exist? "has_run"
-      self.addlog("Error: it seems that QC havent't run.")
+      self.addlog("Error: it seems that QC didn't run.")
       return false
     end
     File.unlink "has_run"
@@ -158,7 +168,7 @@ class CbrainTask::CivetQc < ClusterTask
     study = CivetStudy.find(study_id)
     study_path = study.cache_full_path
     unless Dir.exist?("#{study_path}/QC")
-      self.addlog("Error: it seems that QC havent't run.")
+      self.addlog("Error: it seems that QC didn't run.")
       return false
     end
 
@@ -169,11 +179,32 @@ class CbrainTask::CivetQc < ClusterTask
 
     # Log that it was processed
     prefix     = params[:prefix]
-    dsid_names = params[:dsid_names] # hash, keys are meaningless
-    dsids      = dsid_names.values.sort.join(" ")
+    dsid_names = params_subject_ids()
+    dsids      = dsid_names.sort.join(" ")
+    dsids[50..999999] = " ..." if dsids.size > 50
     self.addlog_to_userfiles_processed(study, "with prefix '#{prefix}' and subjects '#{dsids}'")
 
     true
+  end
+
+  protected
+
+  # For historical reason, some old tasks save the list of subjects IDs
+  # as a hash with meaningless keys. The new convention is a single
+  # long string with commas. Since some times that list is too long to
+  # even fit in the params, we can also fetch it from a file.
+  def params_subject_ids
+    # New comma-separated format
+    h = params[:dsid_names].presence
+    return h.split(",") if h.is_a?(String)
+    # From flat file
+    if h.nil?
+      return File.read("dsid_names.lst").split(/[\s,]+/)
+    end
+    # Old hash table format
+    dsids = h.values
+    params[:dsid_names] = dsids.join(",") # adjust to new convention
+    dsids
   end
 
 end

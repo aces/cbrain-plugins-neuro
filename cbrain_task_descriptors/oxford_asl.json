@@ -4,7 +4,7 @@
     "author": "Oxford Centre for Functional MRI of the Brain (FMRIB)",
     "description": "oxford_asl is part of BASIL (https://asl-docs.readthedocs.io/en/latest/oxford_asl_userguide.html)",
     "descriptor-url": "https://github.com/aces/cbrain-plugins-neuro/blob/master/cbrain_task_descriptors/oxford_asl.json",
-    "command-line": "oxford_asl [INPUT_FILE] [OUTPUT_DIR] [MASK] [SPATIAL] [WP] [MC] [IAF] [IBF] [TIS] [TIIMG] [CASL] [ARTSUPP] [BOLUS] [BAT] [T1] [T1B] [SLICEDT] [SLICEBAND] [RPTS] [FSLANAT] [S] [SBRAIN] [FASTSRC] [SENSCORR] [M0] [ALPHA] [C] [TR] [CMETHOD] [CBLIP] [PEDIR] [ECHOSPACING] [PVCORR]",
+    "command-line": "oxford_asl [INPUT_FILE] [OUTPUT_DIR] [MASK] [SPATIAL] [WP] [MC] [IAF] [IBF] [TIS] [TIIMG] [CASL] [ARTSUPP] [FIXBOLUS] [BOLUS] [BAT] [T1] [T1B] [SLICEDT] [SLICEBAND] [RPTS] [FSLANAT] [S] [SBRAIN] [FASTSRC] [SENSCORR] [M0] [ALPHA] [C] [TR] [CMETHOD] [TE] [T2BL] [T2CSF] [CBLIP] [PEDIR] [ECHOSPACING] [PVCORR]",
     "schema-version": "0.5",
     "container-image": {
         "image": "mcin/docker-fsl:latest",
@@ -21,16 +21,6 @@
             "optional": false,
             "id": "asl_data",
             "name": "Asl data"
-        },
-        {
-            "command-line-flag": "-o",
-            "description": "Output directory name",
-            "value-key": "[OUTPUT_DIR]",
-            "type": "String",
-            "list": false,
-            "optional": false,
-            "id": "output_dir",
-            "name": "Output directory name"
         },
         {
             "command-line-flag": "-m",
@@ -141,13 +131,27 @@
         },
         {
             "command-line-flag": "--artsupp",
-            "description": "Arterial suppression (vascular crushing) was used",
+            "description": "Arterial suppression (vascular crushing) was used, same as artoff",
             "value-key": "[ARTSUPP]",
             "type": "Flag",
             "list": false,
             "optional": true,
             "id": "artsupp",
             "name": "Arterial suppression"
+        },
+        {
+            "command-line-flag": "--fixbolus=",
+            "description": "Bolus duration is fixed, e.g. by QUIPSSII or CASL",
+            "value-key": "[FIXBOLUS]",
+            "type": "String",
+            "list": false,
+            "optional": true,
+            "id": "fixbolus",
+            "name": "Bolus duration",
+            "value-choices": [
+              "on",
+              "off"
+            ]
         },
         {
             "command-line-flag": "--bolus",
@@ -323,7 +327,7 @@
         },
         {
             "command-line-flag": "--cmethod",
-            "description": "single - default if structural image is supplied M0 value will be calculated within automatically created CSF mask || voxel  - default if no structral image is supplied voxelwise M0 values derrived from calibration image",
+            "description": "Single - default if structural image is supplied M0 value will be calculated within automatically created CSF mask || voxel  - default if no structral image is supplied voxelwise M0 values derrived from calibration image",
             "value-choices": [
                 "single",
                 "voxel"
@@ -334,6 +338,39 @@
             "optional": true,
             "id": "cmethod",
             "name": "Calibration method"
+        },
+        {
+            "command-line-flag": "--t2csf",
+            "description": "",
+            "default-value": "Value for T2 of CSF in millisecond for calibration - {default is based on 3T Field Strength}",
+            "value-key": "[T2CSF]",
+            "type": "String",
+            "list": false,
+            "optional": true,
+            "id": "t2csf",
+            "name": "T2 CSF"
+        },
+        {
+            "command-line-flag": "--t2bl",
+            "description": "",
+            "default-value": "Value for T2 of blood in millisecond for calibration - {default: 0}",
+            "value-key": "[T2BL]",
+            "type": "String",
+            "list": false,
+            "optional": true,
+            "id": "t2bl",
+            "name": "T2 Blood"
+        },
+        {
+            "command-line-flag": "--te",
+            "description": "Echo time for readout in milliseconds - {default: 0}",
+            "default-value": "0",
+            "value-key": "[TE]",
+            "type": "String",
+            "list": false,
+            "optional": true,
+            "id": "te",
+            "name": "TE time"
         },
         {
             "command-line-flag": "--cblip",
@@ -397,6 +434,7 @@
                 "tiimg",
                 "casl",
                 "artsupp",
+                "fixbolus",
                 "bolus",
                 "bat",
                 "t1",
@@ -425,7 +463,10 @@
                 "alpha",
                 "c",
                 "tr",
-                "cmethod"
+                "cmethod",
+                "te",
+                "t2csf",
+                "t2bl"
             ]
         },
         {
@@ -450,6 +491,7 @@
         "id": "outputs",
         "name": "Oxford asl Outputs",
         "description": "Oxford asl Outputs",
+        "command-line-flag": "-o",
         "value-key": "[OUTPUT_DIR]",
         "path-template": "[INPUT_FILE]",
         "list": false,
