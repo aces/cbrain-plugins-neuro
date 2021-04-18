@@ -140,18 +140,14 @@
             "name": "Arterial suppression"
         },
         {
-            "command-line-flag": "--fixbolus=",
-            "description": "Bolus duration is fixed, e.g. by QUIPSSII or CASL",
+            "command-line-flag": "--fixbolus",
+            "description": "Turn off automatic estimation of bolus duration as it is fixed, e.g. by QUIPSSII or CASL",
             "value-key": "[FIXBOLUS]",
             "type": "String",
             "list": false,
             "optional": true,
             "id": "fixbolus",
-            "name": "Bolus duration",
-            "value-choices": [
-              "on",
-              "off"
-            ]
+            "name": "Bolus duration"
         },
         {
             "command-line-flag": "--bolus",
