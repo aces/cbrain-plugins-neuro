@@ -247,7 +247,8 @@ class CbrainTask::CivetMacaque < ClusterTask
 
     # N3 distance
     if params[:N3_distance].present?
-      cb_error "Bad N3 distance value."  unless params[:N3_distance]  =~ /^\s*\d+\s*$/
+      cb_error "Bad N3 distance value."  unless 
+                         is_valid_integer_list(params[:N3_distance])
     end
 
     # Head height
