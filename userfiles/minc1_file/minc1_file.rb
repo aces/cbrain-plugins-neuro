@@ -26,7 +26,7 @@ class Minc1File < MincFile
   Revision_info=CbrainFileRevision[__FILE__] #:nodoc:
 
   def self.file_name_pattern #:nodoc:
-    /\.mi?nc(\.gz|\.Z|\.gz2)?$/i
+    /\.mi?nc(\.gz|\.Z|\.bz2)?$/i
   end
 
   def self.pretty_type #:nodoc:
