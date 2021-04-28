@@ -539,7 +539,6 @@
     // For a NiftiFile, the partial inserted here comes from:
     //   cbrain-plugins-neuro/userfiles/nifti_file/views/_volume_viewer_loader.html.erb
 
-    <% class_name = @userfile.type.constantize %>
-    <%= render :file => class_name.view_path("volume_viewer_loader") %>
+    <%= render :file => @userfile.view_path("volume_viewer_loader") %>
   });
 </script>
