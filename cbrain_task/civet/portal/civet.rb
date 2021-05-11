@@ -500,7 +500,7 @@ class CbrainTask::Civet < PortalTask
 
       # Find other MINC userfiles with similar names, but with _t2, _pd or _mask instead of _t1
       if t1_name =~ /(\b|_)t1(\b|_)/i
-        all_access = SingleFile.find_all_accessible_by_user(user) # a relation
+        all_access = SingleFile.find_all_accessible_by_user(user, :access_requested => :read) # a relation
         # Names in DB are not case sensitive, so searching for _t2 matches files with _T2
         t2_id = all_access.where(:name => t1_name.sub(/(\b|_)t1(\b|_)/i,'\1t2\2')).limit(1).raw_first_column("#{Userfile.table_name}.id")[0]
         pd_id = all_access.where(:name => t1_name.sub(/(\b|_)t1(\b|_)/i,'\1pd\2')).limit(1).raw_first_column("#{Userfile.table_name}.id")[0]
