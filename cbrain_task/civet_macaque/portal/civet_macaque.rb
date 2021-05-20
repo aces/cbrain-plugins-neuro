@@ -107,7 +107,7 @@ class CbrainTask::CivetMacaque < PortalTask
       :template            => "0.25",      # -template
       :lsq                 => "9",         # -lsq6, -lsq9, -lsq12
       :interp              => "trilinear", # -interp
-      :headheight          => "",          # CIVET 1.1.12 or better only
+      :headheight          => "0",          # CIVET 1.1.12 or better only
       :mask_blood_vessels  => "0",         # -mask-blood-vessels
       :N3_distance         => "",          # -N3-distance
 
@@ -379,7 +379,7 @@ class CbrainTask::CivetMacaque < PortalTask
 
       # Find other MINC/NIfTI userfiles with similar names, but with _t2, _pd or _mask instead of _t1
       if t1_name =~ /(\b|_)t1(\b|_)/i
-        all_access = SingleFile.find_all_accessible_by_user(user) # a relation
+        all_access = SingleFile.find_all_accessible_by_user(user, :access_requested => :read) # a relation
         # Names in DB are not case sensitive, so searching for _t2 matches files with _T2
         t2_id = all_access.where(:name => t1_name.sub(/(\b|_)t1(\b|_)/i,'\1t2\2')).limit(1).raw_first_column("#{Userfile.table_name}.id")[0]
         pd_id = all_access.where(:name => t1_name.sub(/(\b|_)t1(\b|_)/i,'\1pd\2')).limit(1).raw_first_column("#{Userfile.table_name}.id")[0]
