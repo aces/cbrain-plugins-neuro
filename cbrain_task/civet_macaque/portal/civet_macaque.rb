@@ -107,7 +107,7 @@ class CbrainTask::CivetMacaque < PortalTask
       :template            => "0.25",      # -template
       :lsq                 => "9",         # -lsq6, -lsq9, -lsq12
       :interp              => "trilinear", # -interp
-      :headheight          => "",          # CIVET 1.1.12 or better only
+      :headheight          => "0",          # CIVET 1.1.12 or better only
       :mask_blood_vessels  => "0",         # -mask-blood-vessels
       :N3_distance         => "",          # -N3-distance
 
