@@ -18,7 +18,7 @@ viewer.loadVolumes({
   volumes: [
     {
       type:    "nifti1",
-      nii_url: "<%= stream_userfile_path(@userfile) %>"
+      nii_url: "<%= content_userfile_path(@userfile, :content_loader => :raw_content, :file_name => @userfile.name, :viewer_userfile_class => :NiftiFile) %>"
     },
   ],
   complete: function() {
