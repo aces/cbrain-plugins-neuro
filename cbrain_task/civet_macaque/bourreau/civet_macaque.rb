@@ -447,7 +447,7 @@ class CbrainTask::CivetMacaque < ClusterTask
     # Where we find this subject's results
     out_dsid = "civet_out/#{dsid}"
 
-    # If CIVET run partially, CBRAIN will saved
+    # If CIVET run partially, CBRAIN will save
     # the output of CIVET as a FailedCivetOutput.
     is_partial = false
 
@@ -470,7 +470,7 @@ class CbrainTask::CivetMacaque < ClusterTask
       self.addlog("Error: it seems this CIVET run is still processing!")
       self.addlog("We found these files in 'logs' : #{running.sort.join(', ')}")
       self.addlog("Trigger the recovery code to force a cleanup and a try again.")
-      is_partial = true
+      return false # Failed On Cluster
     end
     badnews  = logfiles.select { |lf| lf =~ /\.(fail(ed)?)$/i }
     unless badnews.empty?
