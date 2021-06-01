@@ -447,6 +447,10 @@ class CbrainTask::CivetMacaque < ClusterTask
     # Where we find this subject's results
     out_dsid = "civet_out/#{dsid}"
 
+    # If CIVET run partially, CBRAIN will save
+    # the output of CIVET as a FailedCivetOutput.
+    is_partial = false
+
     # Let's make sure it ran OK, test #1
     unless File.directory?(out_dsid)
       self.addlog("Error: this CIVET run did not complete successfully.")
@@ -456,7 +460,7 @@ class CbrainTask::CivetMacaque < ClusterTask
     unless File.directory?("#{out_dsid}/logs")
       self.addlog("Error: this CIVET run did not complete successfully.")
       self.addlog("We couldn't find the log subdirectory '#{out_dsid}/logs' !")
-      return false # Failed On Cluster
+      is_partial = true
     end
 
     # Let's make sure it ran OK, test #2
@@ -475,12 +479,12 @@ class CbrainTask::CivetMacaque < ClusterTask
          self.addlog("Error: it seems this CIVET run could not process your T1 file!")
          self.addlog("We found this file in 'logs' : #{failed_t1_trigger}")
          self.addlog("The input file is probably not a proper MINC file, there's not much we can do.")
-         return false # Failed On Cluster
+         is_partial = true
       end
       self.addlog("Error: not all processing stages of this CIVET completed successfully.")
       self.addlog("We found these files in 'logs' : #{badnews.sort.join(', ')}")
       self.addlog("Trigger the recovery code to force a cleanup and a try again.")
-      return false # Failed On Cluster
+      is_partial = true
     end
 
     # Let's make sure it ran OK, test #3
@@ -491,12 +495,15 @@ class CbrainTask::CivetMacaque < ClusterTask
       return false # yep, Failed On Cluster
     end
 
-    # Create new CivetOutput
+
+    # Create new CivetOutput or FakeCivetOutput
     out_name    = output_name_from_pattern(file0[:t1_name])
-    civetresult = safe_userfile_find_or_new(CivetOutput,
+    civetresult = safe_userfile_find_or_new(is_partial ? FailedCivetOutput : CivetOutput,
       :name             => out_name,
       :data_provider_id => self.results_data_provider_id
     )
+    civetresult.description = "THIS IS A PARTIAL OUTPUT RESULTING FROM AN INCOMPLETE PROCESSING" if is_partial
+
     unless civetresult.save
       cb_error "Could not save back result file '#{civetresult.name}'."
     end
@@ -511,13 +518,15 @@ class CbrainTask::CivetMacaque < ClusterTask
     FileUtils.cp(self.stderr_cluster_filename,  "#{out_dsid}/logs/CBRAIN_#{uniq_run}.stderr.txt") rescue true
 
     # Transform symbolic links in 'native/' into real files.
-    Dir.chdir("#{out_dsid}/native") do
-      Dir.foreach(".") do |file|
-        next unless File.symlink?(file)
-        realsource = File.readlink(file)  # this might itself be a symlink, that's ok.
-        File.rename(file,"#{file}.tmp")
-        FileUtils.cp_r(realsource,file)
-        File.unlink("#{file}.tmp")
+    if Dir.exist?("#{out_dsid}/native")
+      Dir.chdir("#{out_dsid}/native") do
+        Dir.foreach(".") do |file|
+          next unless File.symlink?(file)
+          realsource = File.readlink(file)  # this might itself be a symlink, that's ok.
+          File.rename(file,"#{file}.tmp")
+          FileUtils.cp_r(realsource,file)
+          File.unlink("#{file}.tmp")
+        end
       end
     end
 
@@ -538,6 +547,10 @@ class CbrainTask::CivetMacaque < ClusterTask
     self.addlog_to_userfiles_these_created_these([ source_userfile ],[ civetresult ])
     civetresult.move_to_child_of(source_userfile)
     self.addlog("Saved new CIVET result file #{civetresult.name}.")
+    if is_partial
+      self.addlog("THIS IS A PARTIAL CIVET RUN RESULTING FROM AN INCOMPLETE PROCESSING")
+      return false # Failed On Cluster
+    end
     true
 
   end
