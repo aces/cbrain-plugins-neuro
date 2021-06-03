@@ -496,14 +496,35 @@ class CbrainTask::CivetMacaque < ClusterTask
     end
 
 
-    # Create new CivetOutput or FakeCivetOutput
-    out_name    = output_name_from_pattern(file0[:t1_name])
-    civetresult = safe_userfile_find_or_new(is_partial ? FailedCivetOutput : CivetOutput,
-      :name             => out_name,
-      :data_provider_id => self.results_data_provider_id
-    )
-    civetresult.description = "THIS IS A PARTIAL OUTPUT RESULTING FROM AN INCOMPLETE PROCESSING" if is_partial
 
+    #############################################
+    # Create new CivetOutput or FailedCivetOutput
+    #############################################
+    out_name    = output_name_from_pattern(file0[:t1_name])
+    out_atts    = {
+      :name             => out_name,
+      :data_provider_id => self.results_data_provider_id,
+    }
+    # Find previous failed results (if any) if this run is NOT failed
+    if ! is_partial
+      civetresult = safe_userfile_find_or_new(FailedCivetOutput, out_atts)
+      civetresult = nil if civetresult.new_record?
+    end
+    # Create a brand new output otherwise
+    civetresult ||= safe_userfile_find_or_new(is_partial ? FailedCivetOutput : CivetOutput, out_atts)
+    # Set or reset its type as necessary
+    civetresult.type = is_partial ? FailedCivetOutput : CivetOutput
+    civetresult.description ||= ""
+    # Adjust description
+    partial_warning = "THIS IS A PARTIAL OUTPUT RESULTING FROM AN INCOMPLETE PROCESSING\n"
+    if is_partial
+      civetresult.description = "#{partial_warning}#{civetresult.description}" unless
+        civetresult.description[partial_warning]
+    else
+      civetresult.description[partial_warning] = ""
+    end
+
+    # Save the userfile
     unless civetresult.save
       cb_error "Could not save back result file '#{civetresult.name}'."
     end
@@ -523,6 +544,9 @@ class CbrainTask::CivetMacaque < ClusterTask
         Dir.foreach(".") do |file|
           next unless File.symlink?(file)
           realsource = File.readlink(file)  # this might itself be a symlink, that's ok.
+          realsource = File.realpath(realsource) rescue nil
+          next unless realsource
+          next unless realsource.start_with?((self.full_cluster_workdir + out_dsid).to_s) # source must be inside the CIVET output
           File.rename(file,"#{file}.tmp")
           FileUtils.cp_r(realsource,file)
           File.unlink("#{file}.tmp")
