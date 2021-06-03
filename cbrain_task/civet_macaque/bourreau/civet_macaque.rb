@@ -492,7 +492,7 @@ class CbrainTask::CivetMacaque < ClusterTask
     if out !~ /^Stopped processing all pipelines/  # ^ in regex because multi-line string
       self.addlog("Error: could not find sentence indicating CIVET finished in its stdout.")
       self.addlog("Trigger the recovery code to force a cleanup and a try again.")
-      return false # yep, Failed On Cluster
+      is_partial = true
     end
 
 
