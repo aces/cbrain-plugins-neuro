@@ -521,7 +521,7 @@ class CbrainTask::CivetMacaque < ClusterTask
       civetresult.description = "#{partial_warning}#{civetresult.description}" unless
         civetresult.description[partial_warning]
     else
-      civetresult.description[partial_warning] = "" if civetresult.description.present?
+      civetresult.description.sub!(partial_warning,"")
     end
 
     # Save the userfile
