@@ -384,7 +384,7 @@ class CbrainTask::CivetMacaque < PortalTask
         t2_id = all_access.where(:name => t1_name.sub(/(\b|_)t1(\b|_)/i,'\1t2\2')).limit(1).raw_first_column("#{Userfile.table_name}.id")[0]
         pd_id = all_access.where(:name => t1_name.sub(/(\b|_)t1(\b|_)/i,'\1pd\2')).limit(1).raw_first_column("#{Userfile.table_name}.id")[0]
         mk_id = all_access.where(:name => t1_name.sub(/(\b|_)t1(\b|_)/i,'\1mask\2')).limit(1).raw_first_column("#{Userfile.table_name}.id")[0]
-        mp_id = all_access.where(:name => t1_name.sub(/(\b|_)t1(\b|_)/i,'\mp2\2')).limit(1).raw_first_column("#{Userfile.table_name}.id")[0]
+        mp_id = all_access.where(:name => t1_name.sub(/(\b|_)t1(\b|_)/i,'\1mp2\2')).limit(1).raw_first_column("#{Userfile.table_name}.id")[0]
       end
 
       if t1_name.match(/(\w+)(\W+|_)(\w+)(\W+|_)t1(\b|_)/i)
