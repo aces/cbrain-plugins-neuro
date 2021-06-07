@@ -28,7 +28,7 @@
 <% end %>
 
 <P>
-<STRONG>Input:</STRONG>
+<STRONG>Input(s):</STRONG>
 <P>
 
 <% if params[:collection_id].present? %>
@@ -38,15 +38,33 @@ File collection: <%= link_to_userfile_if_accessible params[:collection_id] %>
 <P>
 
 <% if file_args.present? %>
-  T1 file:
   <ul>
   <% file_args.keys.sort { |a,b| a.to_i <=> b.to_i }.each do |arg_idx| %>
-    <% file = file_args[arg_idx] %>
+    <% files = file_args[arg_idx] || {} %>
+
     <% if params[:collection_id].blank? %>
-      <li><%= link_to_userfile_if_accessible file[:t1_id] %></li>
+      <li>T1: <%= link_to_userfile_if_accessible files[:t1_id] %></li>    
     <% else %>
-      <li><%= file[:t1_name] %> (inside collection)</li>
+      <li>T1: <%= files[:t1_name] %> (inside collection)</li>
     <% end %>
+
+    <% 
+      dictionary = { mk: "Mask", mp: "MP2" }
+      files.each do |f|
+        params_name = f[0]
+        next if params_name =~ /^t1_/
+        if params_name =~ /^(.*)_id/
+    %>
+        <li>
+          <%= (dictionary[$1.to_sym] || $1.upcase) + " file: " %> <%= link_to_userfile_if_accessible files[params_name] %>
+        </li>
+      <% end %> 
+    <% end %> 
+    
+    <br/>
+    
+    <li><%= "Use multispectral: #{ files[:multispectral] == "1" ? "yes" : "no" }" %></li>
+    <li><%= "Use spectral mask: #{ files[:spectral_mask] == "1" ? "yes" : "no" }" %></li>
   <% end %>
   </ul>
 <% end %>
