@@ -1,0 +1,121 @@
+#!/bin/bash
+
+# See the usage statement below for more information
+
+BASENAME=$(basename $0)
+VERSION="1.0"
+
+if test $# -ne 2 -o "X$1" = "X-h" -o "X$1" = "--help" ; then
+   cat <<USAGE
+This is $BASENAME version $VERSION by Pierre Rioux
+
+Usage: $BASENAME bids_subject_dir new_fake_bids_dataset
+
+where
+    bids_subject_dir
+      is the path to directory containing a BIDS subject (not a
+      BIDS dataset, but a subject subdirectory itself); normally
+      these are called "sub-identifier"
+    new_fake_bids_dataset
+      is the path to a subdirectory that will be created by the
+      program (if it doesn't exist) and which will act as a full
+      BIDS dataset
+
+This program will create a new directory new_fake_bids_dataset and
+create a symbolic link in it that points back to bids_subject_dir
+(trying to resolve it the best it can). It will also populate the
+new_fake_bids_dataset with a dummy dataset_description.json and a
+dummy participants.tsv file, as those are expected in a BIDS dataset.
+
+This program is somewhat limited in what kind of path it can resolve;
+the bids_subject_dir can be most anything, but the new_fake_bids_dataset
+should be a simple name that will be created under the current
+working directory (otherwise the symbolic link created in it will
+be wrong)
+
+CBRAIN installation note:
+
+Given that in a CBRAIN task, at execution time, the RAILS directory
+where plugins are installed are often not in the PATH or even not
+mounted (e.g. under a singularity container), I recommend copying
+this script in a task work directory using the script_prologue of
+the ToolConfig of the task:
+
+   # Insert these two lines in the ToolConfig prologue
+   cp \$(type -p $BASENAME) $BASENAME || exit 2
+   chmod 750 $BASENAME
+
+then in the tool's command, invoking it with
+
+   ./$BASENAME bids_subject_dir new_fake_bids_dataset && bids_tool args
+
+e.g. for a Boutiques task where to command is templated, it could
+look like:
+
+   ./$BASENAME [BIDS_SUBJECT] FakeBids && bids_tool FakeBids [ARGS]
+
+USAGE
+    exit 2
+fi
+
+SUB_DIR="$1"
+BIDS_DIR="$2"
+SUB_NAME="$(basename $SUB_DIR)" # should be 'sub-1234' ; TODO validate here
+
+if ! test -d "$SUB_DIR" ; then
+  echo "BIDS Subject directory $SUB_DIR doesn't seem to exist."
+  exit 2
+fi
+
+# Find the real source for BIDS_DIR
+
+# The readlink command of linux is great;
+# the version on MacOS is terrible. There
+# exists NO WAY on MacOS to resolve a pathname
+# fully in a standard install.
+sub_loc=$(readlink -e $SUB_DIR 2>/dev/null) # linux supports -e, MacOS not
+if test -z "$sub_loc" ; then # stupid mac OS
+  sub_loc=$(perl -e 'use Cwd "abs_path"; print abs_path($ARGV[0])' -- "$SUB_DIR")
+  if test -z "$sub_loc" ; then
+    echo "Cannot resolve path for subject dir $SUB_DIR\n"
+    exit 2
+  fi
+fi
+
+# Create BIDS dir and symlink for subject
+
+mkdir -p "$BIDS_DIR" || exit 2
+rm -f "$BIDS_DIR/$SUB_NAME"
+ln -s "$sub_loc" "$BIDS_DIR/$SUB_NAME" || exit 2
+
+# Create a dummy Dataset Description JSON file
+
+if ! test -f "$BIDS_DIR/dataset_description.json" ; then
+  cat <<JSON >"$BIDS_DIR/dataset_description.json"
+{
+    "Acknowledgements": "Fake single subject dataset created by $BASENAME $VERSION by Pierre Rioux",
+    "Authors": [
+        "TODO"
+    ],
+    "BIDSVersion": "1.4.1",
+    "DatasetDOI": "TODO",
+    "Funding": [
+        "TODO"
+    ],
+    "HowToAcknowledge": "TODO",
+    "License": "TODO",
+    "Name": "$BIDS_DIR",
+    "ReferencesAndLinks": [
+        "TODO"
+    ]
+}
+JSON
+fi
+
+# Create Participant list
+if ! test -f "$BIDS_DIR/participants.tsv" ; then
+  echo "participant_id" > "$BIDS_DIR/participants.tsv"  # header line
+fi
+if ! grep -x $SUB_NAME "$BIDS_DIR/participants.tsv" >/dev/null ; then
+  echo $SUB_NAME >> "$BIDS_DIR/participants.tsv"
+fi
