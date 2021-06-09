@@ -5,7 +5,7 @@
   "author": "Naj Mahani",
   "descriptor-url": "https://github.com/MontrealSergiy/cbrain-plugins-neuro/blob/main/cbrain_task_descriptors/deform_sim.json",
   "shell": "/bin/bash ",
-  "command-line": "deformation.pl [INPUT] [MASK] [OUTPUT] [DEFORMATION_RATIO] [COORDx] [COORDy] [COORDz] [SIZEx] [SIZEy] [SIZEz] [TOLERANCE_SPACE] [BLUR_DETERMINANT] [ERROR] [ITERATION] && cp *_deformed_by* [OUTDIR]; if [ yes == [DELTMP] ]; then rm -rf [OUTDIR]/TMP; fi",
+  "command-line": "deformation.pl [INPUT] [MASK] [OUTPUT] [DEFORMATION_RATIO] [COORDx] [COORDy] [COORDz] [SIZEx] [SIZEy] [SIZEz] [TOLERANCE_SPACE] [BLUR_DETERMINANT] [ERROR] [ITERATION] && cp *_deformed_by* [OUTDIR] && if [ yes == [DELTMP] ]; then rm -rf [OUTDIR]/TMP; fi",
   "output-files": [
     {
       "id": "outdir",
