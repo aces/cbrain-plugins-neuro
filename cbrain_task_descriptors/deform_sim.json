@@ -1,6 +1,6 @@
 {
   "name": "DeformSim",
-  "tool-version": "v3",
+  "tool-version": "v0.1",
   "description": "This is a brain deformation field simulation script that consists from a perl wrapper and a software     This PERL script is a wrapper that is calling sequence of commands for generating deformation fields scrips from https://wiki.mouseimaging.ca/display/MICePub/Generating+deformation+fields",
   "author": "Naj Mahani",
   "descriptor-url": "https://github.com/MontrealSergiy/cbrain-plugins-neuro/blob/main/cbrain_task_descriptors/deform_sim.json",
@@ -223,5 +223,8 @@
   "suggested-resources": {
     "ram": 4,
     "walltime-estimate": 1000
+  },
+  "custom": {
+    "cbrain:readonly-input-files": true
   }
 }
