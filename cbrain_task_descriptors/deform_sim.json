@@ -1,0 +1,231 @@
+{
+  "name": "DeformSim",
+  "tool-version": "v0.1",
+  "description": "This is a brain deformation field simulation script that consists from a perl wrapper and a software     This PERL script is a wrapper that is calling sequence of commands for generating deformation fields scrips from https://wiki.mouseimaging.ca/display/MICePub/Generating+deformation+fields",
+  "author": "Naj Mahani",
+  "descriptor-url": "https://github.com/MontrealSergiy/cbrain-plugins-neuro/blob/main/cbrain_task_descriptors/deform_sim.json",
+  "shell": "/bin/bash ",
+  "command-line": "deformation.pl [INPUT] [MASK] [OUTPUT] [DEFORMATION_RATIO] [COORDx] [COORDy] [COORDz] [SIZEx] [SIZEy] [SIZEz] [TOLERANCE_SPACE] [BLUR_DETERMINANT] [ERROR] [ITERATION] && cp -r *_deformed_by* [OUTDIR] && if [ [DELTMP] == yes ]; then rm -rf [OUTDIR]/TMP; fi",
+  "output-files": [
+    {
+      "id": "outdir",
+      "value-key": "[OUTDIR]",
+      "name": "Output",
+      "description": "A folder containing resulting, deformed image, where the name of the input file is by prefix deformed_by and values defined from ratio and coordinates, and optionally tmp files for debugging",
+      "path-template": "[OUTPUT]",
+      "list": false,
+      "optional": false
+    }
+  ],
+  "inputs": [
+    {
+      "command-line-flag": "-input",
+      "description": "Brain image in minc format",
+      "value-key": "[INPUT]",
+      "optional": false,
+      "list": false,
+      "type": "File",
+      "id": "input",
+      "name": "Input"
+    },
+    {
+      "command-line-flag": "-output",
+      "description": "A folder containing resulting, deformed image, where the name of the input file is by prefix deformed_by and values defined from ratio and coordinates, and optionally tmp files for debugging",
+      "value-key": "[OUTPUT]",
+      "optional": false,
+      "list": false,
+      "type": "String",
+      "id": "output",
+      "name": "Output"
+    },
+    {
+      "command-line-flag": "-deformation_ratio",
+      "value-key": "[DEFORMATION_RATIO]",
+      "optional": false,
+      "list": true,
+      "minimum": 0.1,
+      "maximum": 1.5,
+      "type": "Number",
+      "list-separator": ",",
+      "id": "deformation_ratio",
+      "name": "Deformation ratio",
+      "description": "Deformation ratios. Values must be between 0.1 to 1.50"
+    },
+    {
+      "optional": true,
+      "command-line-flag": "-coordinate",
+      "value-key": "[COORDx]",
+      "list": false,
+      "disables-inputs": [
+        "mask"
+      ],
+      "type": "Number",
+      "id": "x",
+      "name": "Coordinate X"
+    },
+    {
+      "disables-inputs": [
+        "mask"
+      ],
+      "optional": true,
+      "value-key": "[COORDy]",
+      "list": false,
+      "type": "Number",
+      "id": "y",
+      "name": "Coordinate Y"
+    },
+    {
+      "optional": true,
+      "disables-inputs": [
+        "mask"
+      ],
+      "value-key": "[COORDz]",
+      "list": false,
+      "type": "Number",
+      "id": "z",
+      "name": "Coordinate Z"
+    },
+    {
+      "optional": true,
+      "value-key": "[SIZEx]",
+      "list": false,
+      "disables-inputs": [
+        "mask"
+      ],
+      "type": "Number",
+      "id": "sizex",
+      "name": "Size X"
+    },
+    {
+      "optional": true,
+      "value-key": "[SIZEy]",
+      "list": false,
+      "type": "Number",
+      "id": "sizey",
+      "name": "Size Y",
+      "disables-inputs": [
+        "mask"
+      ]
+    },
+    {
+      "disables-inputs": [
+        "mask"
+      ],
+      "value-key": "[SIZEz]",
+      "list": false,
+      "type": "Number",
+      "id": "sizez",
+      "name": "Size Z",
+      "optional": true
+    },
+    {
+      "command-line-flag": "-mask",
+      "description": "A tolerance map file (.mnc) indicating voxels that have a different amount of error allowed e.g., CSF, background. You can either provide mask or coordinates of deformation, but not both in the same time.",
+      "value-key": "[MASK]",
+      "optional": true,
+      "list": false,
+      "type": "File",
+      "id": "mask",
+      "disables-inputs": [
+        "x",
+        "y",
+        "z",
+        "sizex",
+        "sizey",
+        "sizez"
+      ],
+      "name": "Mask"
+    },
+    {
+      "command-line-flag": "-tolerance_space",
+      "value-key": "[TOLERANCE_SPACE]",
+      "optional": false,
+      "list": false,
+      "integer": true,
+      "default-value": 4,
+      "type": "Number",
+      "id": "tolerance_space",
+      "name": "Tolerance space",
+      "description": "Define the area of tolerance around the deformation."
+    },
+    {
+      "command-line-flag": "-blur_determinant",
+      "value-key": "[BLUR_DETERMINANT]",
+      "optional": false,
+      "list": false,
+      "maximum": 1,
+      "minimum": 0,
+      "default-value": 0.25,
+      "type": "Number",
+      "id": "blur_determinant",
+      "name": "Blur determinant",
+      "description": "Blurring kernel size for blurring deformation determinant blurring kernel 0-1"
+    },
+    {
+      "command-line-flag": "-error",
+      "value-key": "[ERROR]",
+      "optional": false,
+      "list": false,
+      "default-value": 0.00001,
+      "type": "Number",
+      "id": "error",
+      "name": "Error",
+      "description": "Specify the amount of error that is allowed between the specified determinant and the final determinant (per voxel)"
+    },
+    {
+      "command-line-flag": "-iteration",
+      "value-key": "[ITERATION]",
+      "optional": false,
+      "list": false,
+      "default-value": 100,
+      "type": "Number",
+      "integer": true,
+      "minimum": -1,
+      "id": "iteration",
+      "name": "Iteration",
+      "description": "Specify the maximum number of iterations to update the deformations field (-1 means until convergence)"
+    },
+    {
+      "id": "deltmp",
+      "name": "Delete temporary and intermediate files",
+      "default-value": "yes",
+      "type": "String",
+      "value-choices": [
+        "yes",
+        "no"
+      ],
+      "value-key": "[DELTMP]"
+    }
+  ],
+  "schema-version": "0.5",
+  "tags": {
+    "domain": [
+      "neuroinformatics",
+      "neuroimaging"
+    ]
+  },
+  "groups": [
+    {
+      "id": "coordinates",
+      "name": "Coordinates",
+      "description": "A hyperslab starting at x, y, z and extending in respective directions by sizex, sizey, sizez",
+      "members": [
+        "x",
+        "y",
+        "z",
+        "sizex",
+        "sizey",
+        "sizez"
+      ],
+      "all-or-none": true
+    }
+  ],
+  "suggested-resources": {
+    "ram": 4,
+    "walltime-estimate": 1000
+  },
+  "custom": {
+    "cbrain:author": "Serge Boroday",
+    "cbrain:readonly-input-files": true
+  }
+}
