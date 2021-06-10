@@ -168,7 +168,8 @@ class CbrainTask::Civet < ClusterTask
 
     cb_error("This CIVET task use the old multi-CIVET structure and cannot be restarted.") if file_args.size != 1
 
-    master_script = [
+    master_script  = []
+    master_script += [
       "echo =============================",
       "echo Showing ENVIRONMENT",
       "echo =============================",
@@ -179,7 +180,7 @@ class CbrainTask::Civet < ClusterTask
       "echo =============================",
       "ulimit -a",
       "echo ''"
-    ]
+    ] if self.user.has_role?(:admin_user)
 
     # Clean option and set ignored option
     self.clean_interdependent_params()
