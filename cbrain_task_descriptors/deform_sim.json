@@ -1,9 +1,9 @@
 {
   "name": "DeformSim",
   "tool-version": "v0.1",
-  "description": "This is a brain deformation field simulation script that consists from a perl wrapper and a software     This PERL script is a wrapper that is calling sequence of commands for generating deformation fields scrips from https://wiki.mouseimaging.ca/display/MICePub/Generating+deformation+fields",
+  "description": "This is a cortical simulation tool that includes a perl wrapper and deformation field generation scrips from https://wiki.mouseimaging.ca/display/MICePub/Generating+deformation+fields",
   "author": "Naj Mahani",
-  "descriptor-url": "https://github.com/MontrealSergiy/cbrain-plugins-neuro/blob/main/cbrain_task_descriptors/deform_sim.json",
+  "descriptor-url": "https://github.com/aces/cbrain-plugins-neuro/blob/main/cbrain_task_descriptors/deform_sim.json",
   "shell": "/bin/bash ",
   "command-line": "deformation.pl [INPUT] [MASK] [OUTPUT] [DEFORMATION_RATIO] [COORDx] [COORDy] [COORDz] [SIZEx] [SIZEy] [SIZEz] [TOLERANCE_SPACE] [BLUR_DETERMINANT] [ERROR] [ITERATION] && cp -r *_deformed_by* [OUTDIR] && if [ [DELTMP] == yes ]; then rm -rf [OUTDIR]/TMP; fi",
   "output-files": [
@@ -153,13 +153,11 @@
       "value-key": "[BLUR_DETERMINANT]",
       "optional": false,
       "list": false,
-      "maximum": 1,
-      "minimum": 0,
-      "default-value": 0.25,
+      "default-value": 2.5,
       "type": "Number",
       "id": "blur_determinant",
       "name": "Blur determinant",
-      "description": "Blurring kernel size for blurring deformation determinant blurring kernel 0-1"
+      "description": "Blurring kernel size for blurring deformation determinant"
     },
     {
       "command-line-flag": "-error",
