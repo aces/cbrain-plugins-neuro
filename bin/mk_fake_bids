@@ -2,7 +2,7 @@
 
 # See the usage statement below for more information
 
-BASENAME=$(basename $0)
+BASENAME=$(basename "$0")
 VERSION="1.0"
 
 if test $# -ne 2 -o "X$1" = "X-h" -o "X$1" = "--help" ; then
@@ -60,7 +60,7 @@ fi
 
 SUB_DIR="$1"
 BIDS_DIR="$2"
-SUB_NAME="$(basename $SUB_DIR)" # should be 'sub-1234' ; TODO validate here
+SUB_NAME=$(basename "$SUB_DIR") # should be 'sub-1234' ; TODO validate here
 
 if ! test -d "$SUB_DIR" ; then
   echo "BIDS Subject directory $SUB_DIR doesn't seem to exist."
@@ -73,11 +73,11 @@ fi
 # the version on MacOS is terrible. There
 # exists NO WAY on MacOS to resolve a pathname
 # fully in a standard install.
-sub_loc=$(readlink -e $SUB_DIR 2>/dev/null) # linux supports -e, MacOS not
+sub_loc=$(readlink -e "$SUB_DIR" 2>/dev/null) # linux supports -e, MacOS not
 if test -z "$sub_loc" ; then # stupid mac OS
   sub_loc=$(perl -e 'use Cwd "abs_path"; print abs_path($ARGV[0])' -- "$SUB_DIR")
   if test -z "$sub_loc" ; then
-    echo "Cannot resolve path for subject dir $SUB_DIR\n"
+    echo "Cannot resolve path for subject dir $SUB_DIR"
     exit 2
   fi
 fi
@@ -116,6 +116,6 @@ fi
 if ! test -f "$BIDS_DIR/participants.tsv" ; then
   echo "participant_id" > "$BIDS_DIR/participants.tsv"  # header line
 fi
-if ! grep -x $SUB_NAME "$BIDS_DIR/participants.tsv" >/dev/null ; then
-  echo $SUB_NAME >> "$BIDS_DIR/participants.tsv"
+if ! grep -x "$SUB_NAME" "$BIDS_DIR/participants.tsv" >/dev/null ; then
+  echo "$SUB_NAME" >> "$BIDS_DIR/participants.tsv"
 fi
