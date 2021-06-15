@@ -9,7 +9,7 @@
     "cbrain:readonly-input-files": true, 
     "cbrain:author": "Natacha Beck <natacha.beck@mcgill.ca>"
   },
-  "command-line": "mkdir -p opt_freesurfer || exit 2; ln -f -s /opt/freesurfer/* opt_freesurfer/ | exit 2; cp -rL [FREESURFER_LICENSE] opt_freesurfer/license.txt || exit 2; source /BigBrainWarp/scripts/init.sh || exit 2; export FREESURFER_HOME=$PWD/opt_freesurfer; mkdir -p bigbrainwarp-results; bigbrainwarp [IN_SPACE] [OUT_SPACE] --wd $PWD [IN_VOL] [IN_LH] [IN_RH] [INTERP] [OUT_TYPE] --out_name bigbrainwarp-results/",
+  "command-line": "mkdir -p opt_freesurfer || exit 2; ln -f -s /opt/freesurfer/* opt_freesurfer/ | exit 2; cp -rL [FREESURFER_LICENSE] opt_freesurfer/license.txt || exit 2; export FREESURFER_HOME=$PWD/opt_freesurfer; source /BigBrainWarp/scripts/init.sh || exit 2; mkdir -p bigbrainwarp-results; bigbrainwarp [IN_SPACE] [OUT_SPACE] --wd $PWD [IN_VOL] [IN_LH] [IN_RH] [INTERP] [OUT_TYPE] --out_name bigbrainwarp-results/",
   "container-image": {
       "image": "caseypaquola/bigbrainwarp:latest",
       "type": "singularity",
