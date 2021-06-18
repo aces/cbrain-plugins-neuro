@@ -39,32 +39,33 @@ File collection: <%= link_to_userfile_if_accessible params[:collection_id] %>
 
 <% if file_args.present? %>
   <ul>
+  <% params_to_string = { mk: "Mask", mp: "MP2" } %>
+
   <% file_args.keys.sort { |a,b| a.to_i <=> b.to_i }.each do |arg_idx| %>
-    <% files = file_args[arg_idx] || {} %>
+    <% file_params = file_args[arg_idx] || {} %>
 
     <% if params[:collection_id].blank? %>
-      <li>T1: <%= link_to_userfile_if_accessible files[:t1_id] %></li>    
+      <li>T1: <%= link_to_userfile_if_accessible file_params[:t1_id] %></li>    
     <% else %>
-      <li>T1: <%= files[:t1_name] %> (inside collection)</li>
+      <li>T1: <%= file_params[:t1_name] %> (inside collection)</li>
     <% end %>
 
     <% 
-      dictionary = { mk: "Mask", mp: "MP2" }
-      files.each do |f|
-        params_name = f[0]
-        next if params_name =~ /^t1_/
-        if params_name =~ /^(.*)_id/
+      file_params.each do |param_name, param_value|
+      next if param_name =~ /^t1_/
+        if param_name =~ /^(.*)_(id|name)/
+          param_wo_id = $1
     %>
         <li>
-          <%= (dictionary[$1.to_sym] || $1.upcase) + " file: " %> <%= link_to_userfile_if_accessible files[params_name] %>
+          <%= (params_to_string[param_wo_id.to_sym] || param_wo_id.upcase) + " file: " %> <%= (param_name =~ /_name/ ? "#{file_params[param_name]} (inside collection)"  : link_to_userfile_if_accessible(file_params[param_name])) %>
         </li>
       <% end %> 
     <% end %> 
     
     <br/>
     
-    <li><%= "Use multispectral: #{ files[:multispectral] == "1" ? "yes" : "no" }" %></li>
-    <li><%= "Use spectral mask: #{ files[:spectral_mask] == "1" ? "yes" : "no" }" %></li>
+    <li><%= "Use multispectral: #{ file_params[:multispectral] == "1" ? "yes" : "no" }" %></li>
+    <li><%= "Use spectral mask: #{ file_params[:spectral_mask] == "1" ? "yes" : "no" }" %></li>
   <% end %>
   </ul>
 <% end %>
