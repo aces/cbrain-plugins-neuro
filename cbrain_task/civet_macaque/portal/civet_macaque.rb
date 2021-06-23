@@ -650,8 +650,8 @@ class CbrainTask::CivetMacaque < PortalTask
   # A destructive method; tries to find some
   # names in the array minclist, and if found
   # returns them while removing them from the array.
-  # Returns a quadruplet:
-  #   [ t2_name, pd_name, mk_name, mp2_mask modified_minclist ]
+  # Returns a quintuplet:
+  #   [ t2_name, pd_name, mk_name, mp2_mask, modified_minclist ]
   def extract_t2_pd_mask_mp2(t1,minclist)  #:nodoc:
     t2_name = nil
     pd_name = nil
