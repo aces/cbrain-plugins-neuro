@@ -28,7 +28,7 @@
 <% end %>
 
 <P>
-<STRONG>Input:</STRONG>
+<STRONG>Input(s):</STRONG>
 <P>
 
 <% if params[:collection_id].present? %>
@@ -38,15 +38,38 @@ File collection: <%= link_to_userfile_if_accessible params[:collection_id] %>
 <P>
 
 <% if file_args.present? %>
-  T1 file:
   <ul>
+  <% params_to_string = { mk: "Mask", mp: "MP2" } %>
+
   <% file_args.keys.sort { |a,b| a.to_i <=> b.to_i }.each do |arg_idx| %>
-    <% file = file_args[arg_idx] %>
+    <% file_params = file_args[arg_idx] || {} %>
+
     <% if params[:collection_id].blank? %>
-      <li><%= link_to_userfile_if_accessible file[:t1_id] %></li>
+      <li>T1: <%= link_to_userfile_if_accessible file_params[:t1_id] %></li>
     <% else %>
-      <li><%= file[:t1_name] %> (inside collection)</li>
+      <li>T1: <%= file_params[:t1_name] %> (inside collection)</li>
     <% end %>
+
+    <%
+      file_params.each do |param_name, param_value|
+        next if param_name =~ /^t1_/
+        next if param_name !~ /^(.*)_(id|name)/
+        param_wo_id = $1
+    %>
+        <li>
+          <%= params_to_string[param_wo_id.to_sym] || param_wo_id.upcase %>: file
+          <% if param_name =~ /_name/ %>
+            <%= file_params[param_name] %> (inside collection)
+          <% else %>
+            <%= link_to_userfile_if_accessible(file_params[param_name]) %>
+        </li>
+      <% end %>
+    <% end %>
+
+    <br/>
+
+    <li>Use multispectral: <%= file_params[:multispectral] == "1" ? "yes" : "no" %></li>
+    <li>Use spectral mask: <%= file_params[:spectral_mask] == "1" ? "yes" : "no" %></li>
   <% end %>
   </ul>
 <% end %>
