@@ -4,7 +4,7 @@
     "author": "Oxford Centre for Functional MRI of the Brain (FMRIB)",
     "description": "oxford_asl is part of BASIL (https://asl-docs.readthedocs.io/en/latest/oxford_asl_userguide.html)",
     "descriptor-url": "https://github.com/aces/cbrain-plugins-neuro/blob/master/cbrain_task_descriptors/oxford_asl.json",
-    "command-line": "oxford_asl [INPUT_FILE] [OUTPUT_DIR] [MASK] [SPATIAL] [WP] [MC] [IAF] [IBF] [TIS] [TIIMG] [CASL] [ARTSUPP] [FIXBOLUS] [BOLUS] [BAT] [T1] [T1B] [SLICEDT] [SLICEBAND] [RPTS] [FSLANAT] [S] [SBRAIN] [FASTSRC] [SENSCORR] [M0] [ALPHA] [C] [TR] [CMETHOD] [TE] [T2BL] [T2CSF] [CBLIP] [PEDIR] [ECHOSPACING] [PVCORR]",
+    "command-line": "if [[ -f \"[FSL_INFILE]\" ]]; then FSLANAT=[FSLANAT_FRESH]; fsl_anat -i [FSL_INFILE]; elif [[ -d \"[FSLANAT]\" ]]; then FSLANAT=\"--fslanat=[FSLANAT]\"; else FSLANAT=''; fi && oxford_asl [INPUT_FILE] [OUTPUT_DIR] [MASK] [SPATIAL] [WP] [MC] [IAF] [IBF] [TIS] [TIIMG] [CASL] [ARTSUPP] [FIXBOLUS] [BOLUS] [BAT] [T1] [T1B] [SLICEDT] [SLICEBAND] [RPTS] $FSLANAT [S] [SBRAIN] [FASTSRC] [SENSCORR] [M0] [ALPHA] [C] [TR] [CMETHOD] [TE] [T2BL] [T2CSF] [CBLIP] [PEDIR] [ECHOSPACING] [PVCORR]; ",
     "schema-version": "0.5",
     "container-image": {
         "image": "mcin/docker-fsl:latest",
@@ -146,7 +146,7 @@
             "list": false,
             "optional": true,
             "id": "fixbolus",
-            "name": "Bolus duration"
+            "name": "Fix bolus duration"
         },
         {
             "command-line-flag": "--bolus",
@@ -229,15 +229,22 @@
             "name": "Number of repeated measurements"
         },
         {
-            "command-line-flag": "--fslanat",
-            "command-line-flag-separator": "=",
-            "description": "An fsl_anat directory from structural image",
+            "description": "An existing fsl_anat directory from structural image",
             "value-key": "[FSLANAT]",
             "type": "File",
             "list": false,
             "optional": true,
             "id": "fslanat",
             "name": "fsl_anat directory"
+        },
+        {
+            "description": "Run Anat FSL with a single input image file, such as .nii.gz. The result will be used with Oxford ASL --fslanat option",
+            "value-key": "[FSL_INFILE]",
+            "type": "File",
+            "list": false,
+            "optional": true,
+            "id": "infile",
+            "name": "An image to run FSL Anat with before Oxford Asl"
         },
         {
             "command-line-flag": "-s",
@@ -441,12 +448,21 @@
             "id": "structural",
             "name": "Structural image",
             "members": [
-                "fslanat",
                 "s",
                 "sbrain",
                 "fastsrc",
                 "senscorr"
             ]
+        },
+        {
+            "description": "Run a new FSL Anat or provide results folder of already executed FSL Anat. You can use either run FSL Anat on an image file or supply an existing folder with previously saved results of FSL Anat, but not both." ,
+            "mutually-exclusive": true,
+            "members": [
+                "fslanat",
+                "infile"
+            ],
+            "id": "group_1",
+            "name": "FSL Anat Structural data"
         },
         {
             "id": "calibration",
@@ -478,17 +494,36 @@
                 "pvcorr"
             ]
         }
+
     ],
     "output-files": [
         {
-        "id": "outputs",
-        "name": "Oxford asl Outputs",
-        "description": "Oxford asl Outputs",
-        "command-line-flag": "-o",
-        "value-key": "[OUTPUT_DIR]",
-        "path-template": "[INPUT_FILE]",
-        "list": false,
-        "path-template-stripped-extensions": [".nii.gz", ".nii"]
+            "id": "outputs",
+            "name": "Oxford asl Outputs",
+            "description": "Oxford asl Outputs",
+            "command-line-flag": "-o",
+            "value-key": "[OUTPUT_DIR]",
+            "path-template": "[INPUT_FILE]",
+            "list": false,
+            "path-template-stripped-extensions": [
+                ".nii.gz",
+                ".nii"
+            ]
+        },
+        {
+            "description": "A folder containing the output files for fsl_anat. Includes outputs for the images, reorientation, cropping, bias correction, registration, brain extraction, and segmentation.",
+            "list": false,
+            "id": "fsl_out",
+            "optional": true,
+            "path-template": "[FSL_INFILE].anat",
+            "command-line-flag": "--fslanat",
+            "command-line-flag-separator": "=",
+            "value-key": "[FSLANAT_FRESH]",
+            "name": "FSL Anat Output folder",
+            "path-template-stripped-extensions": [
+                ".nii.gz",
+                ".nii"
+            ]
         }
     ],
     "tags": {
@@ -497,7 +532,12 @@
             "mri"
         ]
     },
+    "suggested-resources": {
+        "ram": 4,
+        "walltime-estimate": 6000
+    },
     "custom": {
-        "cbrain:author": "Natacha Beck"
+        "cbrain:author": "Natacha Beck",
+        "cbrain:readonly-input-files": true
     }
 }
