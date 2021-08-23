@@ -79,7 +79,7 @@
     {
       "description": "To run FreeSurfer a license file must exist and be pointed to. The license can be acquired by filling out this form: https://surfer.nmr.mgh.harvard.edu/registration.html.",
         "id": "freesurfer_license",
-        "name": "infant-abcd-hcp-pipeline freesurfer license",
+        "name": "Freesurfer license",
         "optional": false,
         "type": "File",
       "value-key": "[FREESURFER_LICENSE]"
