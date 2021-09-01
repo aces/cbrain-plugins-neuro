@@ -4,7 +4,7 @@
     "author": "Oxford Centre for Functional MRI of the Brain (FMRIB)",
     "description": "oxford_asl is part of BASIL (https://asl-docs.readthedocs.io/en/latest/oxford_asl_userguide.html)",
     "descriptor-url": "https://github.com/aces/cbrain-plugins-neuro/blob/master/cbrain_task_descriptors/oxford_asl.json",
-    "command-line": "if [[ -f \"[FSL_INFILE]\" ]]; then fsl_anat -i [FSL_INFILE] -o [FSLANAT_OUTPUT]; FSLANAT='--fslanat=[FSLANAT_OUTPUT]'; elif [[ -d \"[FSLANAT]\" ]]; then FSLANAT=\"--fslanat=[FSLANAT]\"; else FSLANAT=''; fi && oxford_asl [INPUT_FILE] [OUTPUT_DIR] [MASK] [SPATIAL] [WP] [MC] [IAF] [IBF] [TIS] [TIIMG] [CASL] [ARTSUPP] [FIXBOLUS] [BOLUS] [BAT] [T1] [T1B] [SLICEDT] [SLICEBAND] [RPTS] $FSLANAT [S] [SBRAIN] [FASTSRC] [SENSCORR] [M0] [ALPHA] [C] [TR] [CMETHOD] [TE] [T2BL] [T2CSF] [CBLIP] [PEDIR] [ECHOSPACING] [PVCORR]; ",
+    "command-line": "if [[ -f \"[FSL_INFILE]\" ]]; then fsl_anat -i [FSL_INFILE] -o FSLANAT_OUT; FSLANAT='--fslanat=FSLANAT_OUT.anat'; elif [[ -d \"[FSLANAT]\" ]]; then FSLANAT=\"--fslanat=[FSLANAT]\"; else FSLANAT=''; fi && oxford_asl [INPUT_FILE] [OUTPUT_DIR] [MASK] [SPATIAL] [WP] [MC] [IAF] [IBF] [TIS] [TIIMG] [CASL] [ARTSUPP] [FIXBOLUS] [BOLUS] [BAT] [T1] [T1B] [SLICEDT] [SLICEBAND] [RPTS] $FSLANAT [S] [SBRAIN] [FASTSRC] [SENSCORR] [M0] [ALPHA] [C] [TR] [CMETHOD] [TE] [T2BL] [T2CSF] [CBLIP] [PEDIR] [ECHOSPACING] [PVCORR]; ",
     "schema-version": "0.5",
     "container-image": {
         "image": "mcin/docker-fsl:latest",
@@ -515,13 +515,8 @@
             "list": false,
             "id": "fsl_out",
             "optional": true,
-            "path-template": "[FSL_INFILE].anat",
-            "value-key": "[FSLANAT_OUTPUT]",
-            "name": "FSL Anat Output folder",
-            "path-template-stripped-extensions": [
-                ".nii.gz",
-                ".nii"
-            ]
+            "path-template": "FSLANAT_OUT.anat",
+            "name": "FSL Anat Output folder"
         }
     ],
     "tags": {
