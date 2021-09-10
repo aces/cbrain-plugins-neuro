@@ -149,8 +149,19 @@ class CbrainTask::CivetMacaque < PortalTask
     cb_error "Error: Too many files selected, this task can only handle #{InterfaceUserfileIDsLimit} T1 files at a time." if userfiles.size > InterfaceUserfileIDsLimit
     userfiles = userfiles.all.to_a
 
+    # MODE A, we have a single FileCollection in argument
+    if userfiles.size == 1 && userfiles[0].is_a?(FileCollection)
+      collection = userfiles[0]
+      file_args  = old_get_default_args_for_collection(collection)
+      params[:collection_id] = collection.id
+      params[:file_args]     = file_args
+      return ""
+    end
+
+    # MODE B, we have one or many T1s in argument
     if userfiles.any? { |u| ! u.is_a?(SingleFile) }
-      cb_error "Error: CIVET can only be launched on a set of T1 files\n"
+      cb_error "Error: CIVET can only be launched on one FileCollection\n" +
+               "or a set of T1 Minc files\n"
     end
 
     file_args = old_get_default_args_for_t1list(userfiles)
@@ -360,6 +371,114 @@ class CbrainTask::CivetMacaque < PortalTask
   #################################################
   # OLD API BELOW (+ modified)
   #################################################
+  def old_get_default_args_for_collection(collection) #:nodoc:
+
+    # Get the list of all files inside the collection
+    if collection.is_a?(LorisSubject)
+      files_inside  = collection.list_files().map(&:name) # will work synchronized or not
+    else
+      # TODO: Provide the link directly in the CIVET args page?
+      cb_error "Error: in order to process this collection, it must first have been synchronized.\n" +
+               "In the file manager, click on the collection then on the 'synchronize' link." unless collection.is_locally_synced?
+      # we only look one level deep inside the directory.
+      files_inside  = collection.list_files(:top).map(&:name)
+      files_inside  = files_inside.map { |f| Pathname.new(f).basename.to_s }
+    end
+
+    # Parse the list of all files and extract the MINC files.
+    # We ignore everything else.
+    minc_files = []
+    warned_bad = 0
+    files_inside.each do |basename|
+      if basename.match(/\.mnc(\.gz|\.Z)?$/i)
+        if Userfile.is_legal_filename?(basename)
+          minc_files << basename
+        else
+          warned_bad += 1
+        end
+      end
+    end
+
+    if warned_bad > 0
+      self.errors.add(:base, "Some filenames (#{warned_bad} of them) inside the collection are not correct and will be ignored.")
+    end
+
+    cb_error "There are no valid MINC files in this collection!" unless minc_files.size > 0
+
+    # From the list of minc files, try to identify files
+    # that are clearly 't1' files, based on the filename.
+    t1_files = []
+    minc_files.each do |minc|
+      t1_files << minc if minc.match(/(\b|_)t1(\b|_)/i)
+    end
+
+    # If we have any, we remove them from the total list of minc files.
+    minc_files = minc_files - t1_files
+
+    # Prepare the structure for all the CIVET operations;
+    # each CIVET has a mandatory t1, and optional t2, pd and mk.
+    minc_groups = []  #  [ t1, t2, pd, mk ]
+
+    # For properly named t1 files, try to also find
+    # the optional t2, pd and masks files; if they are
+    # found they are extracted from the list of minc files
+    t1_files.each do |t1|
+      (t2,pd,mk,mp2, minc_files) = extract_t2_pd_mask_mp2(t1,minc_files) # modifies array minc_files
+      minc_groups << [ t1, t2, pd, mk, mp2 ]
+    end
+
+    # For all remaining minc files, we assume they are t1s
+    # and we process them without any t2, pd, mk and mp2.
+    minc_files.each do |minc|
+      next if minc.match(/(\b|_)(t2|pd|mask|mp2)(\b|_)/i)  # ignore spurious t2s, pds, masks, mp2
+      minc_groups << [ minc, nil, nil, nil, nil ]
+    end
+
+    # OK, build an arg structure for each minc group
+    file_args_array = []
+    minc_groups.each_with_index do |group,idx|
+
+      t1_name  = group[0]
+      t2_name  = group[1]
+      pd_name  = group[2]
+      mk_name  = group[3]
+      mp_name = group[4]
+
+      if t1_name.match(/(\w+)(\W+|_)(\w+)(\W+|_)t1(\b|_)/i)
+        prefix = Regexp.last_match[1]
+        dsid   = Regexp.last_match[3]
+      else
+        prefix = self.tool_config && !self.tool_config.is_version("2.1.0") ? "prefix"  : ""
+        dsid   = "subject"  # maybe "auto_#{idx}"
+      end
+
+      file_args_array << {
+        :launch              => true,
+
+        :t1_id               => nil, # we will use the collection_id instead
+
+        :t1_name             => t1_name,  # inside col
+        :t2_name             => t2_name,  # inside col
+        :pd_name             => pd_name,  # inside col
+        :mk_name             => mk_name,  # inside col
+        :mp_name            => mp_name, # inside col
+
+
+        :prefix              => prefix,      # -prefix
+        :dsid                => dsid,        #
+
+        :multispectral       => (t2_name.present? || pd_name.present?),  # -multispectral for true
+        :spectral_mask       => mk_name.present?,                        # -spectral-mask for true
+      }
+
+    end
+
+    # The final structure, for historical reasons, is a hash
+    # with stringified numerical keys (yuk) : { "0" => { struct }, "1" => { struct } ... }
+    file_args = {}
+    file_args_array.each_with_index { |file,i| file_args[i.to_s] = file }
+    return file_args
+  end
 
   def old_get_default_args_for_t1list(minc_userfiles) #:nodoc:
 
@@ -531,9 +650,9 @@ class CbrainTask::CivetMacaque < PortalTask
   # A destructive method; tries to find some
   # names in the array minclist, and if found
   # returns them while removing them from the array.
-  # Returns a quadruplet:
-  #   [ t2_name, pd_name, mk_name, modified_minclist ]
-  def extract_t2_pd_mask(t1,minclist)  #:nodoc:
+  # Returns a quintuplet:
+  #   [ t2_name, pd_name, mk_name, mp2_mask, modified_minclist ]
+  def extract_t2_pd_mask_mp2(t1,minclist)  #:nodoc:
     t2_name = nil
     pd_name = nil
     mk_name = nil
