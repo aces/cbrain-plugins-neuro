@@ -6,10 +6,10 @@
   "descriptor-url": "https://raw.githubusercontent.com/glatard/enigma_shape-docker/master/shape_group_run.json",
   "schema-version": "0.5",
   "custom": {
-    "cbrain:readonly-input-files": true, 
+    "cbrain:readonly-input-files": true,
     "cbrain:author": "Natacha Beck <natacha.beck@mcgill.ca>"
   },
-  "command-line": "mkdir -p opt_freesurfer || exit 2; ln -f -s /opt/freesurfer/* opt_freesurfer/ | exit 2; cp -rL [FREESURFER_LICENSE] opt_freesurfer/license.txt || exit 2; export FREESURFER_HOME=$PWD/opt_freesurfer; source /BigBrainWarp/scripts/init.sh || exit 2; mkdir -p bigbrainwarp-results; bigbrainwarp [IN_SPACE] [OUT_SPACE] --wd $PWD [IN_VOL] [IN_LH] [IN_RH] [INTERP] [OUT_TYPE] --out_name bigbrainwarp-results/",
+  "command-line": "mkdir -p opt_freesurfer || exit 2 && ln -f -s /opt/freesurfer/* opt_freesurfer/ || exit 2 && cp -rL [FREESURFER_LICENSE] opt_freesurfer/license.txt || exit 2 && export FREESURFER_HOME=$PWD/opt_freesurfer && source /BigBrainWarp/scripts/init.sh || exit 2 && mkdir -p bigbrainwarp-results && bigbrainwarp [IN_SPACE] [OUT_SPACE] --wd bigbrainwarp-results [IN_VOL] [IN_LH] [IN_RH] [INTERP] [OUT_NAME] [OUT_TYPE]",
   "container-image": {
       "image": "caseypaquola/bigbrainwarp:latest",
       "type": "singularity",
@@ -26,21 +26,21 @@
       [
         "in_volume",
         "in_lh",
-        "in_rh"  
+        "in_rh"
       ],
       "one-is-required": true,
       "name": "Inputs"
     },
     {
-      "description": "Optional arguments",
-      "id": "optional",
+      "description": "Extra arguments",
+      "id": "extra",
       "members":
       [
         "interp",
+        "out_name",
         "out_type"
       ],
-      "one-is-required": true,
-      "name": "Inputs"
+      "name": "Extra parameters"
     }
   ],
   "inputs": [
@@ -51,14 +51,14 @@
         "type": "String",
         "optional": false,
         "command-line-flag": "--in_space",
-        "value-key": "[IN_SPACE]", 
+        "value-key": "[IN_SPACE]",
         "value-choices": [
           "bigbrain",
           "bigbrainsym",
           "icbm",
           "fsaverage",
           "fs_LR"
-      ]
+        ]
     },
     {
       "id": "output_space",
@@ -114,7 +114,7 @@
     {
       "id": "interp",
       "name": "Interpolation method (--interp)",
-      "description": "Optional for txt input. Not permitted for other surface inputs. For in_vol, can be trilinear (default), tricubic, nearest or sinc. For txt, can be linear or nearest",
+      "description": "For -in_vol, it can be trilinear (default), tricubic, nearest or sinc. For -in_lh/-in_rh, can be linear or nearest. Only works for .txt, however. Other types are forced to defaults (label.gii and .annot to nearest, shape.gii and .curv to linear)",
       "type": "String",
       "value-key": "[INTERP]",
       "optional": true,
@@ -128,11 +128,20 @@
       ]
     },
     {
+      "id": "out_name",
+      "name": "Output type (--out_type)",
+      "description": "Prefix for output files. Defaults to prefix of input file for -in_vol. Output will be in the form {wd}/{out_name}_{out_space}",
+      "type": "String",
+      "value-key": "[OUT_NAME]",
+      "optional": true,
+      "command-line-flag": "--out_name"
+    },
+    {
       "id": "out_type",
       "name": "Output type (--out_type)",
-      "description": "Specifies whether output in surface or volume space",
+      "description": "Specify output in surface or volume space for bigbrain and bigbrainsym. Otherwise, defaults to the same type as the input.",
       "type": "String",
-      "value-key": "[OUT_TYPE]", 
+      "value-key": "[OUT_TYPE]",
       "optional": true,
       "command-line-flag": "--out_type",
       "value-choices": [
@@ -143,7 +152,7 @@
   ],
   "output-files": [
     {
-     "id": "outputs",
+      "id": "outputs",
       "name": "Output directory",
       "path-template": "bigbrainwarp-results"
     }
@@ -154,6 +163,6 @@
     ]
   },
   "suggested-resources": {
-    "walltime-estimate": 3600
+    "walltime-estimate": 7200
   }
 }
