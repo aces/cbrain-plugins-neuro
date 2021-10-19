@@ -139,6 +139,10 @@ class DataladDataProvider < DataProvider
     subtree
   end
 
+  def self.rsync_ignore_patterns
+    (super || []) | [ '.git*', '.datalad' ]
+  end
+
   private
 
   # Name of the automatically-created userfile that
