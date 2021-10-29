@@ -27,7 +27,7 @@ class CbrainTask::BidsExample < ClusterTask
       cache_source = bids_dataset.cache_full_path
       captout = "/tmp/capt.#{Process.pid}.#{rand(9999)}"
       capterr = "#{captout}.err"
-      system "rsync -a --delete --no-p --no-g --chmod=ugo=rwX #{cache_source.to_s.bash_escape}/ #{localname.bash_escape} > #{captout} 2> #{capterr}"
+      system "rsync -a --delete --no-g --chmod=ugo=rwX #{cache_source.to_s.bash_escape}/ #{localname.bash_escape} > #{captout} 2> #{capterr}"
       out = File.read(captout) rescue "Cannot read captured output of rsync"
       err = File.read(capterr) rescue "Cannot read captured stderr of rsync"
       if out.present?
@@ -112,7 +112,7 @@ class CbrainTask::BidsExample < ClusterTask
 
     captout = "/tmp/capt.#{Process.pid}.#{rand(9999)}"
     capterr = "#{captout}.err"
-    system "rsync -a --delete --no-p --no-g --chmod=ugo=rwX #{outputdir}/ #{cache_dir_for_outputs} > #{captout} 2> #{capterr}"
+    system "rsync -a --delete --no-g --chmod=ugo=rwX #{outputdir}/ #{cache_dir_for_outputs} > #{captout} 2> #{capterr}"
     out = File.read(captout) rescue "Cannot read captured output of rsync"
     err = File.read(capterr) rescue "Cannot read captured stderr of rsync"
     if out.present?
