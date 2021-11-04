@@ -71,11 +71,13 @@ class CbrainTask::CivetMacaque < ClusterTask
         return false
       end
       collection.sync_to_cache
-      t1_name = file0[:t1_name]  # cannot be nil
-      t2_name = file0[:t2_name]  # can be nil
-      pd_name = file0[:pd_name]  # can be nil
-      mk_name = file0[:mk_name]  # can be nil
-      mp_name = file0[:mp_name]  # can be nil
+      t1_name  = file0[:t1_name]  # cannot be nil
+      t2_name  = file0[:t2_name]  # can be nil
+      pd_name  = file0[:pd_name]  # can be nil
+      mk_name  = file0[:mk_name]  # can be nil
+      mp_name  = file0[:mp_name]  # can be nil
+      csf_name = file0[:csf_name] # can be nil
+
     else # MODE B: singlefiles
       t1_id  = file0[:t1_id]  # cannot be nil
       t1     = SingleFile.find(t1_id)
@@ -89,6 +91,7 @@ class CbrainTask::CivetMacaque < ClusterTask
       pd_id  = file0[:pd_id]  # can be nil
       mk_id  = file0[:mk_id]  # can be nil
       mp_id  = file0[:mp_id]  # can be nil
+      csf_id = file0[:csf_id] # can be nil
     end
 
     self.results_data_provider_id ||= collection ? collection.data_provider_id : t1.data_provider_id
@@ -97,83 +100,53 @@ class CbrainTask::CivetMacaque < ClusterTask
     # MODE A (collection) symlinks
     if collection
 
-      t1ext = t1_name.match(/\.(nii|mnc)?(.gz|.Z)?$/i).to_a[0]
-      t1sym = "#{input_symlink_base}_t1#{t1ext}"
-      make_available(collection, t1sym, t1_name)
-      return false unless validate_input_file(t1sym)
+      return false if !make_available_collection(t1_name, "t1")
+      
+      if mk_name.present?
+        return false if !make_available_collection(mk_name, "mask")
+      end
+      if mp_name.present?
+        return false if !make_available_collection(mp_name, "mp2")
+      end
+      if csf_name.present?
+        return false if !make_available_collection(csf_name, "csf")
+      end
 
       if mybool(file0[:multispectral]) || mybool(file0[:spectral_mask])
         if t2_name.present?
-          t2ext = t2_name.match(/\.(nii|mnc)?(.gz|.Z)?$/i).to_a[0]
-          t2sym = "#{input_symlink_base}_t2#{t2ext}"
-          make_available(collection, t2sym, t2_name)
-          return false unless validate_input_file(t2sym)
+          return false if !make_available_collection(t2_name, "t2")
         end
         if pd_name.present?
-          pdext = pd_name.match(/\.(nii|mnc)?(.gz|.Z)?$/i).to_a[0]
-          pdsym = "#{input_symlink_base}_pd#{pdext}"
-          make_available(collection, pdsym, pd_name)
-          return false unless validate_input_file(pdsym)
-        end
-        if mk_name.present?
-          mkext = mk_name.match(/\.(nii|mnc)?(.gz|.Z)?$/i).to_a[0]
-          mksym = "#{input_symlink_base}_mask#{mkext}"
-          make_available(collection, mksym, mk_name)
-          return false unless validate_input_file(mksym)
-        end
-        if mp_name.present?
-          mpkext = mp_name.match(/\.(nii|mnc)?(.gz|.Z)?$/i).to_a[0]
-          mpksym = "#{input_symlink_base}_mp2#{mpkext}"
-          make_available(collection, mpksym, mp_name)
-          return false unless validate_input_file(mpksym)
+          return false if !make_available_collection(pd_name, "pd")
         end
       end
 
     else   # MODE B (singlefiles) symlinks
 
-      t1_name = t1.name
-      t1ext   = t1_name.match(/\.(nii|mnc)?(.gz|.Z)?$/i).to_a[0]
-      t1sym   = "#{input_symlink_base}_t1#{t1ext}"
-      make_available(t1,t1sym)
-      return false unless validate_input_file(t1sym)
+      return false if !make_available_singlefile(t1.id, "t1")
+
+      if mk_id.present?
+        return false if !make_available_singlefile(mk_id, "mask")
+      end
+
+      if mp_id.present?
+        return false if !make_available_singlefile(mp_id, "mp_2")
+      end
+
+      if csf_id.present?
+        return false if !make_available_singlefile(csf_id, "csf")
+      end
 
       if mybool(file0[:multispectral]) || mybool(file0[:spectral_mask])
         if t2_id.present?
-          t2      = SingleFile.find(t2_id)
-          t2_name = t2.name
-          t2ext   = t2_name.match(/\.(nii|mnc)?(.gz|.Z)?$/i).to_a[0]
-          t2sym   = "#{input_symlink_base}_t2#{t2ext}"
-          make_available(t2,t2sym)
-          return false unless validate_input_file(t2sym)
+          return false if !make_available_singlefile(t2_id, "t2")
         end
 
         if pd_id.present?
-          pd      = SingleFile.find(pd_id)
-          pd_name = pd.name
-          pdext   = pd_name.match(/\.(nii|mnc)?(.gz|.Z)?$/i).to_a[0]
-          pdsym   = "#{input_symlink_base}_pd#{pdext}"
-          make_available(pd,pdsym)
-          return false unless validate_input_file(pdsym)
-        end
-
-        if mk_id.present?
-          mk      = SingleFile.find(mk_id)
-          mk_name = mk.name
-          mkext   = mk_name.match(/\.(nii|mnc)?(.gz|.Z)?$/i).to_a[0]
-          mksym   = "#{input_symlink_base}_mask#{mkext}"
-          make_available(mk,mksym)
-          return false unless validate_input_file(mksym)
-        end
-
-        if mp_id.present?
-          mp      = SingleFile.find(mp_id)
-          mp_name = mp.name
-          mpkext   = mp_name.match(/\.(nii|mnc)?(.gz|.Z)?$/i).to_a[0]
-          mpksym   = "#{input_symlink_base}_mp2#{mpkext}"
-          make_available(mp,mpksym)
-          return false unless validate_input_file(mpksym)
+          return false if !make_available_singlefile(pd_id, "pd")
         end
       end # if multispectral or spectral_mask
+
     end # MODE B
 
     true
@@ -628,6 +601,7 @@ class CbrainTask::CivetMacaque < ClusterTask
       t2_id  = file0[:t2_id]  # can be nil
       pd_id  = file0[:pd_id]  # can be nil
       mk_id  = file0[:mk_id]  # can be nil
+      csf_id = file0[:csf_id] # can be nil
 
       addlog("Resyncing input T1 ##{t1_id}.")
       SingleFile.find(t1_id).sync_to_cache
@@ -645,6 +619,11 @@ class CbrainTask::CivetMacaque < ClusterTask
       if mk_id.present?
         addlog("Resyncing input MASK ##{mk_id}.")
         SingleFile.find(mk_id).sync_to_cache
+      end
+      
+      if csf_id.present?
+        addlog("Resyncing input CSF ##{csf_id}.")
+        SingleFile.find(csf_id).sync_to_cache
       end
     end
 
@@ -733,6 +712,22 @@ class CbrainTask::CivetMacaque < ClusterTask
       Userfile.is_legal_filename?(final)
 
     return final
+  end
+
+  def make_available_collection(name, type) #:nodoc:
+    ext = name.match(/\.(nii|mnc)?(.gz|.Z)?$/i).to_a[0]
+    sym = "#{input_symlink_base}_#{type}#{ext}"
+    make_available(collection, sym, name)
+    return false unless validate_input_file(sym)
+  end
+
+  def make_available_singlefile(file_id, type) #:nodoc:
+    file = SingleFile.find(file_id)
+    name = file.name
+    ext  = name.match(/\.(nii|mnc)?(.gz|.Z)?$/i).to_a[0]
+    sym  = "#{input_symlink_base}_#{type}#{ext}"
+    make_available(file,sym)
+    return false unless validate_input_file(sym)
   end
 
 end

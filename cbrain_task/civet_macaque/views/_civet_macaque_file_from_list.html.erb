@@ -34,6 +34,7 @@
   <%= form.params_hidden_field "file_args[#{idx}][pd_id]"   %>
   <%= form.params_hidden_field "file_args[#{idx}][mk_id]"   %>
   <%= form.params_hidden_field "file_args[#{idx}][mp_id]"   %>
+  <%= form.params_hidden_field "file_args[#{idx}][csf_id]"  %>
 </td>
 
 <td><%= form.params_text_field "file_args[#{idx}][prefix]" %></td>
@@ -63,15 +64,16 @@
   <td><FONT COLOR="green">&#10004;</FONT></td>
 <% end %>
 
-<% if file[:t2_id].blank? && file[:pd_id].blank? %>
+<% if file[:csf_id].blank? %>
+  <td><FONT COLOR="red">&times;</FONT></td>
+<% else %>
+  <td><FONT COLOR="green">&#10004;</FONT></td>
+<% end %>
+
+<% if file[:t2_id].blank? || file[:pd_id].blank? %>
   <td></td>
 <% else %>
   <td><%= form.params_check_box "file_args[#{idx}][multispectral]", :class => "use_multispectral" %></td>
-<% end %>
-
-<% if file[:mk_id].blank? %>
-  <td></td>
-<% else %>
   <td><%= form.params_check_box "file_args[#{idx}][spectral_mask]", :class => "use_spectral_mask" %></td>
 <% end %>
 

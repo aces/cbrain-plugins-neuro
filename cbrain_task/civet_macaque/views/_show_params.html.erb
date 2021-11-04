@@ -39,7 +39,7 @@ File collection: <%= link_to_userfile_if_accessible params[:collection_id] %>
 
 <% if file_args.present? %>
   <ul>
-  <% params_to_string = { mk: "Mask", mp: "MP2" } %>
+  <% params_to_string = { mk: "Mask", mp: "MP2", csf: "CSF" } %>
 
   <% file_args.keys.sort { |a,b| a.to_i <=> b.to_i }.each do |arg_idx| %>
     <% file_params = file_args[arg_idx] || {} %>
