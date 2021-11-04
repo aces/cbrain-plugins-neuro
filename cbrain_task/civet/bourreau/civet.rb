@@ -100,6 +100,13 @@ class CbrainTask::Civet < ClusterTask
       make_available(collection, t1sym, t1_name)
       return false unless validate_minc_file(t1sym)
 
+      if mk_name.present?
+        mkext = mk_name.match(/.gz$/i) ? ".gz" : ""
+        mksym = "#{input_symlink_base}_mask.mnc#{mkext}"
+        make_available(collection, mksym, mk_name)
+        return false unless validate_minc_file(mksym)
+      end
+
       if mybool(file0[:multispectral]) || mybool(file0[:spectral_mask])
         if t2_name.present?
           t2ext = t2_name.match(/.gz$/i) ? ".gz" : ""
@@ -107,17 +114,12 @@ class CbrainTask::Civet < ClusterTask
           make_available(collection, t2sym, t2_name)
           return false unless validate_minc_file(t2sym)
         end
+        
         if pd_name.present?
           pdext = pd_name.match(/.gz$/i) ? ".gz" : ""
           pdsym = "#{input_symlink_base}_pd.mnc#{pdext}"
           make_available(collection, pdsym, pd_name)
           return false unless validate_minc_file(pdsym)
-        end
-        if mk_name.present?
-          mkext = mk_name.match(/.gz$/i) ? ".gz" : ""
-          mksym = "#{input_symlink_base}_mask.mnc#{mkext}"
-          make_available(collection, mksym, mk_name)
-          return false unless validate_minc_file(mksym)
         end
       end
 
@@ -128,6 +130,15 @@ class CbrainTask::Civet < ClusterTask
       t1sym   = "#{input_symlink_base}_t1.mnc#{t1ext}"
       make_available(t1,t1sym)
       return false unless validate_minc_file(t1sym)
+
+      if mk_id.present?
+        mk      = SingleFile.find(mk_id)
+        mk_name = mk.name
+        mkext   = mk_name.match(/.gz$/i) ? ".gz" : ""
+        mksym   = "#{input_symlink_base}_mask.mnc#{mkext}"
+        make_available(mk,mksym)
+        return false unless validate_minc_file(mksym)
+      end
 
       if mybool(file0[:multispectral]) || mybool(file0[:spectral_mask])
         if t2_id.present?
@@ -146,15 +157,6 @@ class CbrainTask::Civet < ClusterTask
           pdsym   = "#{input_symlink_base}_pd.mnc#{pdext}"
           make_available(pd,pdsym)
           return false unless validate_minc_file(pdsym)
-        end
-
-        if mk_id.present?
-          mk      = SingleFile.find(mk_id)
-          mk_name = mk.name
-          mkext   = mk_name.match(/.gz$/i) ? ".gz" : ""
-          mksym   = "#{input_symlink_base}_mask.mnc#{mkext}"
-          make_available(mk,mksym)
-          return false unless validate_minc_file(mksym)
         end
       end # if multispectral or spectral_mask
     end # MODE B
