@@ -4,7 +4,6 @@
   "schema-version": "0.5",
   "author":         "Khan Computational Imaging Lab ",
   "description":    "BIDS App for Hippocampal AutoTop (automated hippocampal unfolding and subfield segmentation)",
-  "descriptor-url": "hippunfold.json",
   "command-line": "bash mk_fake_bids [SUBJECT_DIR] FakeBids && hippunfold FakeBids [OUTPUT_DIR] participant [EXCLUDE_PARTICIPANT_LABEL] [MODALITY] [DERIVATIVES] [SKIP_PREPROC] [SKIP_COREG] [SKIP_INJECT_TEMPLATE_LABELS] [RIGID_REG_TEMPLATE] [NO_REG_TEMPLATE] [OUTPUT_SPACES] [OUTPUT_DENSITY] [HEMI] [LAMINAR_COORDS_METHOD] [KEEP_WORK] -c1",
   "inputs": [
       {
