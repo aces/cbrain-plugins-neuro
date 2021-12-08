@@ -1,0 +1,222 @@
+{
+  "name":           "hippunfold",
+  "tool-version":   "1",
+  "schema-version": "0.5",
+  "author":         "Khan Computational Imaging Lab ",
+  "description":    "BIDS App for Hippocampal AutoTop (automated hippocampal unfolding and subfield segmentation)",
+  "descriptor-url": "hippunfold.json",
+  "command-line": "bash mk_fake_bids [SUBJECT_DIR] FakeBids && hippunfold FakeBids [OUTPUT_DIR] participant [EXCLUDE_PARTICIPANT_LABEL] [MODALITY] [DERIVATIVES] [SKIP_PREPROC] [SKIP_COREG] [SKIP_INJECT_TEMPLATE_LABELS] [RIGID_REG_TEMPLATE] [NO_REG_TEMPLATE] [OUTPUT_SPACES] [OUTPUT_DENSITY] [HEMI] [LAMINAR_COORDS_METHOD] [KEEP_WORK] -c1",
+  "inputs": [
+      {
+        "description": "subject folder for BIDS (folders name should be sub-XXXXX).",
+        "id": "subject_dir",
+        "name": "subject_dir",
+        "optional": false,
+        "type": "File",
+        "value-key": "[SUBJECT_DIR]"
+      },
+      {
+        "description": "The label(s) of the participant(s) that should be\nexcluded. The label corresponds to\nsub-<participant_label> from the BIDS spec (so it does\nnot include 'sub-'). If this parameter is not provided\nall subjects should be analyzed. Multiple participants\ncan be specified with a space separated list.",
+        "id": "exclude_participant_label",
+        "name": "exclude_participant_label",
+        "optional": true,
+        "type": "String",
+        "value-key": "[EXCLUDE_PARTICIPANT_LABEL]",
+        "command-line-flag": "--exclude_participant_label"
+      },
+      {
+        "description": "Type of image to run hippocampal autotop on, suffixed\nwith seg will import an existing hippocampal tissue\nsegmentation from that space, instead of running\nneural network (default: ['T2w'])",
+        "id": "modality",
+        "name": "modality",
+        "optional": true, 
+        "type": "String",
+        "list": true,
+        "value-choices": [
+          "T1w",
+          "T2w",
+          "hippb500",
+          "dwi",
+          "segT1w",
+          "segT2w",
+          "cropseg"
+        ],
+        "default-value": ["T2w"],
+        "value-key": "[MODALITY]", 
+        "command-line-flag": "--modality"
+      },
+      {
+        "description": "Path to the derivatives folder (e.g. for finding manual segs) (default: False)",
+        "id": "derivatives",
+        "name": "derivatives",
+        "optional": true, 
+        "type": "File", 
+        "value-key": "[DERIVATIVES]", 
+        "command-line-flag": "--derivatives"
+      },
+      {
+        "description": "Set this flag if your inputs (e.g. T2w, dwi) are already pre-processed (default: False)",
+        "id": "skip_preproc",
+        "name": "skip_preproc",
+        "optional": true, 
+        "type": "Flag", 
+        "value-key": "[SKIP_PREPROC]",
+        "command-line-flag": "--skip_preproc" 
+      },
+      {
+        "description": "Set this flag if your inputs (e.g. T2w, dwi) are already registered to T1w space (default: False)",
+        "id": "skip_coreg",
+        "name": "skip_coreg",
+        "optional": true, 
+        "type": "Flag", 
+        "value-key": "[SKIP_COREG]", 
+        "command-line-flag": "--skip_coreg"
+      },
+      {
+        "description": "Set this flag to skip post-processing template injection into CNN segmentation (default: False)",
+        "id": "skip_inject_template_labels",
+        "name": "skip_inject_template_labels",
+        "optional": true, 
+        "type": "Flag", 
+        "value-key": "[SKIP_INJECT_TEMPLATE_LABELS]",
+        "command-line-flag": "--skip_inject_template_labels" 
+      },
+      {
+        "description": "Use rigid instead of affine for registration to\ntemplate. Try this if your images are reduced FOV\n(default: False)",
+        "id": "rigid_reg_template",
+        "name": "rigid_reg_template",
+        "optional": true, 
+        "type": "Flag", 
+        "value-key": "[RIGID_REG_TEMPLATE]", 
+        "command-line-flag": "--rigid_reg_template" 
+      },
+      {
+        "description": "Use if input data is already in space-CITI168\n(default: False)",
+        "id": "no_reg_template",
+        "name": "no_reg_template",
+        "optional": true, 
+        "type": "Flag", 
+        "value-key": "[NO_REG_TEMPLATE]", 
+        "command-line-flag": "--no_reg_template" 
+      },
+      {
+        "description": "Sets the output space for results (default:['cropT1w'])",
+        "id": "output_spaces",
+        "name": "output_spaces",
+        "optional": true, 
+        "type": "String", 
+        "value-key": "[OUTPUT_SPACES]", 
+        "command-line-flag": "--output_spaces",
+        "value-choices": [
+          "cropT1w",
+          "corobl"
+        ],
+        "default-value": "cropT1w"
+      },
+      {
+        "description": "Sets the output vertex density for results. Options\ncorrespond to approximate vertex spacings of 0.5mm,\n1.0mm, and 2.0mm, respectively, with the 32k vertices\noption having unequal vertex spacing. (default: ['7k','2k'])",
+        "id": "output_density",
+        "name": "output_density",
+        "optional": true, 
+        "type": "String", 
+        "value-key": "[OUTPUT_DENSITY]", 
+        "command-line-flag": "--output_density",
+        "list": true,
+        "value-choices": [
+          "7k",
+          "2k",
+          "400",
+          "32k"
+        ],
+        "default-value": [
+          "7k",
+          "2k"
+        ]
+      },
+      {
+        "description": "Hemisphere(s) to process (default: ['L', 'R'])",
+        "id": "hemi",
+        "name": "hemi",
+        "optional": true, 
+        "type": "String", 
+        "list": true,
+        "value-key": "[HEMI]",
+        "command-line-flag": "--hemi",
+        "value-choices": [
+          "L",
+          "R"
+        ],
+        "default-value": [
+          "L",
+          "R"
+        ]
+      },
+      {
+        "description": "Method to use for laminar coordinates. Equivolume uses\nequivolumetric layering from Waehnert et al 2014\n(Nighres implementation). (default: ['equivolume'])",
+        "id": "laminar_coords_method",
+        "name": "laminar_coords_method",
+        "optional": true, 
+        "type": "String", 
+        "value-key": "[LAMINAR_COORDS_METHOD]", 
+        "command-line-flag": "--laminar_coords_method",
+        "value-choices": [
+          "laplace",
+          "equivolume"
+        ],
+        "default-value": "equivolume"
+      },
+      {
+        "description": "Keep work folder intact instead of archiving it for each subject (default: False)",
+        "id": "keep_work",
+        "name": "keep_work",
+        "optional": true, 
+        "type": "Flag", 
+        "value-key": "[KEEP_WORK]", 
+        "command-line-flag": "--keep_work" 
+      }
+  ],
+  "output-files": [
+      {
+          "name":          "Output dir",
+          "id":            "outpu_dir",
+          "description":   "The output of the command",
+          "optional":      false,
+          "list":          false,
+          "value-key": "[OUTPUT_DIR]",
+          "path-template": "[SUBJECT_DIR]_res"
+      }
+  ],
+  "groups": [
+      {
+          "id": "snakebids",
+          "name": "snakebids",
+          "members": [
+              "exclude_participant_label",
+              "modality",
+              "derivatives",
+              "skip_preproc",
+              "skip_coreg",
+              "skip_inject_template_labels",
+              "rigid_reg_template",
+              "no_reg_template",
+              "output_spaces",
+              "output_density",
+              "hemi",
+              "laminar_coords_method",
+              "keep_work"
+          ]
+      }
+  ],
+  "tags": {
+      "domain": [
+          "boutiques"
+      ]
+  },
+  "suggested-resources": {
+      "cpu-cores":         1,
+      "ram":               1,
+      "walltime-estimate": 60
+  },
+  "custom": {
+      "cbrain:readonly-input-files": true
+  }
+}
