@@ -216,6 +216,7 @@
       "walltime-estimate": 60
   },
   "custom": {
-      "cbrain:readonly-input-files": true
+      "cbrain:readonly-input-files": true, 
+      "cbrain:author": "Natacha Beck <natacha.beck@mcgill.ca>"
   }
 }
