@@ -1,0 +1,132 @@
+{
+  "name":           "cbellum",
+  "tool-version":   "1",
+  "schema-version": "0.5",
+  "author":         "Pétur Helgi Einarsson",
+  "description":    "Surface reconstruction of the cerebellum",
+  "container-image": {
+    "index": "docker://",
+    "image": "peturhelgi/cbellum",
+    "type": "singularity"
+  },
+  "command-line": "/cerebellum/bin/build_mesh [INPUT] [OUTPUT_FILE] [OUTPUT_FILE_2] [DIMS] [NITS] [STEP_SIZE] [BAND_SIZE] [BOUNDARY_NBRHOOD] [PRESERVE_THIN]",
+  "inputs": [
+      {
+        "description": "Path to the input volume file (.npy)",
+        "id": "input_file",
+        "name": "Input volume file",
+        "optional": false,
+        "type": "File",
+        "value-key": "[INPUT]",
+        "command-line-flag": "-i"
+      },
+      {
+        "description": "The number (int) of iterations to run.",
+        "id": "nits",
+        "name": "Number of iterations",
+        "optional": false, 
+        "type": "Number",
+        "default-value": "1000",
+        "value-key": "[NITS]", 
+        "command-line-flag": "--n-its"
+      },
+      {
+        "description": "The interpolation value at each Jacobi iteration (0 < STEP_SIZE <= 1).",
+        "id": "step_size",
+        "name": "Step size",
+        "optional": false, 
+        "type": "Number",
+        "default-value": "0.5",
+        "value-key": "[STEP_SIZE]",
+        "command-line-flag": "--step-size",
+        "minimum": 0, 
+        "exclusive-minimum": true,
+        "maximum": 1,
+        "exclusive-maximum": false
+      },
+      {
+        "description": "If no input file is provided, the dimensions of the data is X x Y x Z.",
+        "id": "dimension",
+        "name": "Dimemsions",
+        "optional": true,
+        "type": "String",
+        "value-key": "[DIMS]",
+        "default-value": "X Y Z",
+        "command-line-flag": "-dims"
+      },
+      {
+        "description": "The size of the band surrounding the boundary. The voxels within the distance of BAND_SIZE (>0) are used for the QP.",
+        "id": "band_size",
+        "name": "Band size",
+        "optional": true, 
+        "type": "Number",
+        "value-key": "[BAND_SIZE]", 
+        "command-line-flag": "--band-size", 
+        "minimum": 0, 
+        "exclusive-minimum": true
+      },
+      {
+        "description": "The size of the band surrounding the boundary. The voxels within the distance of BAND_SIZE (>0) are used for the QP.",
+        "id": "boundary_nbrhood",
+        "name": "Boundary nbrhood",
+        "optional": true, 
+        "type": "Number",
+        "value-key": "[BOUNDARY_NBRHOOD]", 
+        "command-line-flag": "--boundary-nbrhood",
+        "value-choices": [
+          "0", 
+          "6",
+          "18",
+          "26"
+        ] 
+      },
+      {
+        "description": "Use this flag if thin structures are supposed to be preserved.",
+        "id": "preserve_thin",
+        "name": "Preserve thin",
+        "optional": true, 
+        "type": "Flag",
+        "value-key": "[PRESERVE_THIN]", 
+        "command-line-flag": "--preserve-thin"
+      }
+  ],
+  "output-files": [
+      {
+          "name":          "Output mesh file",
+          "id":            "output_file",
+          "description":   "The output of the command",
+          "optional":      false,
+          "list":          false,
+          "value-key": "[OUTPUT_FILE]",
+          "path-template-stripped-extensions": [".npy"],
+          "path-template": "[INPUT]_res.ply",
+          "command-line-flag": "-o"
+      },
+      {
+        "name":          "Output emb file",
+        "id":            "output_file_2",
+        "description":   "The output of the command",
+        "optional":      false,
+        "list":          false,
+        "value-key": "[OUTPUT_FILE_2]",
+        "path-template-stripped-extensions": [".npy"],
+        "path-template": "[INPUT]_res.npy",
+        "command-line-flag": "-o2"
+    }
+  ],
+  "tags": {
+      "domain": [
+          "boutiques",
+          "bigbrain"
+      ]
+  },
+  "suggested-resources": {
+      "cpu-cores":         1,
+      "ram":               1,
+      "walltime-estimate": 60
+  },
+  "custom": {
+      "cbrain:readonly-input-files": true, 
+      "cbrain:author": "Natacha Beck <natacha.beck@mcgill.ca>"
+  }
+}
