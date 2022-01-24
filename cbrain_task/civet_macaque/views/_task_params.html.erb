@@ -31,8 +31,8 @@
 
 <%
   # Models
-  default_models   = [ "NMTmacaque" ]
-  default_template = ["0.25","0.50"]
+  default_models   = [ "NMTmacaque", "NCBRchimp" ]
+  default_template = ["0.25","0.50", "0.40", "0.80"]
   default_lsq      = ["0", "6", "9", "12"]
   default_atlas    = ["lobes", "D99", "CHARM1", "CHARM2", "CHARM3", "CHARM4", "CHARM5", "CHARM6"]
 %>
@@ -88,6 +88,7 @@
 
   <%= form.params_label  :template, "Template:", :title => "Define the template for image processing" %>
   <%= form.params_select :template, default_template %>
+  <span class="field_explanation" style="max-width: 80em">0.25 (or 0.5) recommended for NMTmacaque and 0.4 (or 0.8) recommanded for NCBRchimp (CIVET default if left blank)</span>
 
   <br>
 
@@ -139,7 +140,9 @@
   <div id="hide_if_not_build_surfaces", style="padding-left: 10px" >
 
     <%= form.params_label  :surfreg_model, "Model for surface registration:", :title => "Define the model for surface registration" %>
-    <%= form.params_select :surfreg_model, [["NMTmacaque", "NMTmacaque", {}]] %>
+    <%= form.params_select :surfreg_model, [["NMTmacaque", "NMTmacaque", {}],
+                                            ["NCBRchimp", "NCBRchimp", {}]
+                                           ] %>
 
     <br>
 
@@ -217,7 +220,7 @@
   <div id="hide_if_not_process_vbm", , style="padding-left: 10px" >
     <%= form.params_label :VBM_fwhm, "Blurring kernel size in mm for volume:", :title => "Blurring kernel size in mm for volume" %>
     <%= form.params_text_field :VBM_fwhm, :size => 4 %>
-    <span class="field_explanation" style="max-width: 80em">(CIVET default if left blank)</span>
+    <span class="field_explanation" style="max-width: 80em">8mm recommended for NMTmacaque and 16mm recommanded for NCBRchimp (CIVET default if left blank)</span>
 
     <br>
 
@@ -254,6 +257,7 @@
     <th>PD found?</th>
     <th>Mask found?</th>
     <th>MP2 found?</th>
+    <th>CSF found?</th>
     <th title="Use T1, T2 and PD native files for tissue classification"><%= select_all_checkbox 'use_multispectral' %>Use multispectral?</th>
     <th title="Use T1, T2 and PD native files for brain masking"><%= select_all_checkbox 'use_spectral_mask' %>Use mask?</th>
   </tr>

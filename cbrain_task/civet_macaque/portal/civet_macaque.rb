@@ -417,21 +417,21 @@ class CbrainTask::CivetMacaque < PortalTask
 
     # Prepare the structure for all the CIVET operations;
     # each CIVET has a mandatory t1, and optional t2, pd and mk.
-    minc_groups = []  #  [ t1, t2, pd, mk ]
+    minc_groups = []  #  [ t1, t2, pd, mk, csf ]
 
     # For properly named t1 files, try to also find
     # the optional t2, pd and masks files; if they are
     # found they are extracted from the list of minc files
     t1_files.each do |t1|
-      (t2,pd,mk,mp2, minc_files) = extract_t2_pd_mask_mp2(t1,minc_files) # modifies array minc_files
-      minc_groups << [ t1, t2, pd, mk, mp2 ]
+      (t2,pd,mk,mp2,csf,minc_files) = extract_t2_pd_mask_mp2_csf(t1,minc_files) # modifies array minc_files
+      minc_groups << [ t1, t2, pd, mk, mp2, csf ]
     end
 
     # For all remaining minc files, we assume they are t1s
-    # and we process them without any t2, pd, mk and mp2.
+    # and we process them without any t2, pd, mk mp2 and csf.
     minc_files.each do |minc|
-      next if minc.match(/(\b|_)(t2|pd|mask|mp2)(\b|_)/i)  # ignore spurious t2s, pds, masks, mp2
-      minc_groups << [ minc, nil, nil, nil, nil ]
+      next if minc.match(/(\b|_)(t2|pd|mask|mp2|csf)(\b|_)/i)  # ignore spurious t2s, pds, masks, mp2, csf
+      minc_groups << [ minc, nil, nil, nil, nil, nil ]
     end
 
     # OK, build an arg structure for each minc group
@@ -442,7 +442,8 @@ class CbrainTask::CivetMacaque < PortalTask
       t2_name  = group[1]
       pd_name  = group[2]
       mk_name  = group[3]
-      mp_name = group[4]
+      mp_name  = group[4]
+      csf_name = group[5]
 
       if t1_name.match(/(\w+)(\W+|_)(\w+)(\W+|_)t1(\b|_)/i)
         prefix = Regexp.last_match[1]
@@ -461,7 +462,8 @@ class CbrainTask::CivetMacaque < PortalTask
         :t2_name             => t2_name,  # inside col
         :pd_name             => pd_name,  # inside col
         :mk_name             => mk_name,  # inside col
-        :mp_name            => mp_name, # inside col
+        :mp_name             => mp_name,  # inside col
+        :csf_name            => csf_name, # inside col
 
 
         :prefix              => prefix,      # -prefix
@@ -491,19 +493,17 @@ class CbrainTask::CivetMacaque < PortalTask
       t1_name = t1.name
       t1_id   = t1.id
 
-      t2_id   = nil
-      pd_id   = nil
-      mk_id   = nil
-      mp_id   = nil
+      t2_id   = pd_id = mk_id = mp_id = csf_id = nil
 
       # Find other MINC/NIfTI userfiles with similar names, but with _t2, _pd or _mask instead of _t1
       if t1_name =~ /(\b|_)t1(\b|_)/i
         all_access = SingleFile.find_all_accessible_by_user(user, :access_requested => :read) # a relation
         # Names in DB are not case sensitive, so searching for _t2 matches files with _T2
-        t2_id = all_access.where(:name => t1_name.sub(/(\b|_)t1(\b|_)/i,'\1t2\2')).limit(1).raw_first_column("#{Userfile.table_name}.id")[0]
-        pd_id = all_access.where(:name => t1_name.sub(/(\b|_)t1(\b|_)/i,'\1pd\2')).limit(1).raw_first_column("#{Userfile.table_name}.id")[0]
-        mk_id = all_access.where(:name => t1_name.sub(/(\b|_)t1(\b|_)/i,'\1mask\2')).limit(1).raw_first_column("#{Userfile.table_name}.id")[0]
-        mp_id = all_access.where(:name => t1_name.sub(/(\b|_)t1(\b|_)/i,'\1mp2\2')).limit(1).raw_first_column("#{Userfile.table_name}.id")[0]
+        t2_id  = all_access.where(:name => t1_name.sub(/(\b|_)t1(\b|_)/i,'\1t2\2')).limit(1).raw_first_column("#{Userfile.table_name}.id")[0]
+        pd_id  = all_access.where(:name => t1_name.sub(/(\b|_)t1(\b|_)/i,'\1pd\2')).limit(1).raw_first_column("#{Userfile.table_name}.id")[0]
+        mk_id  = all_access.where(:name => t1_name.sub(/(\b|_)t1(\b|_)/i,'\1mask\2')).limit(1).raw_first_column("#{Userfile.table_name}.id")[0]
+        mp_id  = all_access.where(:name => t1_name.sub(/(\b|_)t1(\b|_)/i,'\1mp2\2')).limit(1).raw_first_column("#{Userfile.table_name}.id")[0]
+        csf_id = all_access.where(:name => t1_name.sub(/(\b|_)t1(\b|_)/i,'\1csf\2')).limit(1).raw_first_column("#{Userfile.table_name}.id")[0]
       end
 
       if t1_name.match(/(\w+)(\W+|_)(\w+)(\W+|_)t1(\b|_)/i)
@@ -524,6 +524,7 @@ class CbrainTask::CivetMacaque < PortalTask
         :pd_id               => pd_id,
         :mk_id               => mk_id,
         :mp_id               => mp_id,
+        :csf_id              => csf_id,
 
         :prefix              => prefix,      # -prefix
         :dsid                => dsid,        #
@@ -652,11 +653,8 @@ class CbrainTask::CivetMacaque < PortalTask
   # returns them while removing them from the array.
   # Returns a quintuplet:
   #   [ t2_name, pd_name, mk_name, mp2_mask, modified_minclist ]
-  def extract_t2_pd_mask_mp2(t1,minclist)  #:nodoc:
-    t2_name = nil
-    pd_name = nil
-    mk_name = nil
-    mp_name = nil
+  def extract_t2_pd_mask_mp2_csf(t1,minclist)  #:nodoc:
+    t2_name = pd_name = mk_name = mp_name = csf_name = nil
 
     expect = t1.sub(/(\b|_)t1(\b|_)/i,'\1t2\2')
     t2_name = minclist.detect { |n| n.downcase == expect.downcase }
@@ -670,10 +668,15 @@ class CbrainTask::CivetMacaque < PortalTask
     expect = t1.sub(/(\b|_)t1(\b|_)/i,'\1mp2\2')
     mp_name = minclist.detect { |n| n.downcase == expect.downcase }
 
+    expect = t1.sub(/(\b|_)t1(\b|_)/i,'\1mp2\2')
+    mp_name = minclist.detect { |n| n.downcase == expect.downcase }
 
-    minclist = minclist - [ t2_name, pd_name, mk_name, mp_name ]
+    expect = t1.sub(/(\b|_)t1(\b|_)/i,'\1csf\2')
+    csf_name = minclist.detect { |n| n.downcase == expect.downcase }
 
-    [ t2_name, pd_name, mk_name, mp_name, minclist ]
+    minclist = minclist - [ t2_name, pd_name, mk_name, mp_name, csf_name ]
+
+    [ t2_name, pd_name, mk_name, mp_name, csf_name, minclist ]
   end
 
 end

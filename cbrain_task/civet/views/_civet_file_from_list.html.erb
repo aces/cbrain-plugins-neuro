@@ -56,15 +56,11 @@
   <td><FONT COLOR="green">&#10004;</FONT></td>
 <% end %>
 
-<% if file[:t2_id].blank? && file[:pd_id].blank? %>
+<% if file[:t2_id].blank? || file[:pd_id].blank? %>
+  <td></td>
   <td></td>
 <% else %>
   <td><%= form.params_check_box "file_args[#{idx}][multispectral]", :class => "use_multispectral" %></td>
-<% end %>
-
-<% if file[:mk_id].blank? %>
-  <td></td>
-<% else %>
   <td><%= form.params_check_box "file_args[#{idx}][spectral_mask]", :class => "use_spectral_mask" %></td>
 <% end %>
 
