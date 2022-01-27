@@ -390,7 +390,11 @@
             "BoutiquesFreesurferLicenseFinder": "fs_license_file",
             "BoutiquesOutputFileTypeSetter": {
                 "output_dir": "FmriPrepOutput"
-            }
+            },
+            "BoutiquesPostProcessingCleaner": [
+                "work",
+                "[OUTPUT_DIR]/sourcedata/freesurfer/fsaverage"
+            ]
         }
     }
 }
