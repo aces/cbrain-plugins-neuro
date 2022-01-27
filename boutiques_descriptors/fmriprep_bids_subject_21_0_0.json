@@ -389,7 +389,7 @@
             },
             "BoutiquesFreesurferLicenseFinder": "fs_license_file",
             "BoutiquesOutputFileTypeSetter": {
-                "output_dir": "FmriprepOutput"
+                "output_dir": "FmriPrepOutput"
             }
         }
     }
