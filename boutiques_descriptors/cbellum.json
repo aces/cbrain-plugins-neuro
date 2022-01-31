@@ -132,6 +132,9 @@
       "BoutiquesFileTypeVerifier": {
         "input_file": [ "NpyFile" ]
       },
+      "BoutiquesFileNameMatcher": {
+        "input_file": "\\.npy$"
+      },
       "BoutiquesOutputFileTypeSetter": {
         "output_file_ply": "PlyFile", 
         "output_file_npy": "NpyFile"
