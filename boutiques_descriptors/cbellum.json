@@ -9,7 +9,7 @@
     "image": "peturhelgi/cbellum",
     "type": "singularity"
   },
-  "command-line": "/cerebellum/bin/build_mesh [INPUT] [OUTPUT_FILE] [OUTPUT_FILE_2] [DIMS] [NITS] [STEP_SIZE] [BAND_SIZE] [BOUNDARY_NBRHOOD] [PRESERVE_THIN]",
+  "command-line": "/cerebellum/bin/build_mesh [INPUT] [OUTPUT_FILE_PLY] [OUTPUT_FILE_NPY] [DIMS] [NITS] [STEP_SIZE] [BAND_SIZE] [BOUNDARY_NBRHOOD] [PRESERVE_THIN]",
   "inputs": [
       {
         "description": "Path to the input volume file (.npy)",
@@ -93,22 +93,22 @@
   "output-files": [
       {
           "name":          "Output mesh file",
-          "id":            "output_file",
+          "id":            "output_file_ply",
           "description":   "The output of the command",
           "optional":      false,
           "list":          false,
-          "value-key": "[OUTPUT_FILE]",
+          "value-key": "[OUTPUT_FILE_PLY]",
           "path-template-stripped-extensions": [".npy"],
           "path-template": "[INPUT]_res.ply",
           "command-line-flag": "-o"
       },
       {
         "name":          "Output emb file",
-        "id":            "output_file_2",
+        "id":            "output_file_npy",
         "description":   "The output of the command",
         "optional":      false,
         "list":          false,
-        "value-key": "[OUTPUT_FILE_2]",
+        "value-key": "[OUTPUT_FILE_NPY]",
         "path-template-stripped-extensions": [".npy"],
         "path-template": "[INPUT]_res.npy",
         "command-line-flag": "-o2"
@@ -127,6 +127,12 @@
   },
   "custom": {
       "cbrain:readonly-input-files": true, 
-      "cbrain:author": "Natacha Beck <natacha.beck@mcgill.ca>"
+      "cbrain:author": "Natacha Beck <natacha.beck@mcgill.ca>",
+      "cbrain:integrator_modules": {
+        "BoutiquesOutputFileTypeSetter": {
+          "output_file_ply": "PlyFile", 
+          "output_file_npy": "NpyFile"
+        }
+      }
   }
 }
