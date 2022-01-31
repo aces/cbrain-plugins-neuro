@@ -1,0 +1,51 @@
+
+<p>
+The link below will launch a <em>prototype</em> for PLY file 
+in a separate window.
+<p>
+
+It is not garanteed to work well.
+<p>
+
+<% link_id = "ply_viewer_#{@userfile.id}" %>
+
+<%= link_to("Click to start PLY viewer!",
+      PlyFile.public_path('PlyViewer/index.html').to_s,
+      :class  => "action_link",
+      :id     => link_id,
+      :target => "_blank",
+    )
+%>
+
+<br>
+<span class="error_link" id="mn_message"></span>
+
+<style type="text/css">
+    a[disabled="disabled"] {
+        pointer-events: none;
+    }
+</style>
+
+<script type="text/javascript">
+  (function() {
+
+    // Values obtained from Rails server side
+    var link_id    = "<%= link_id %>";
+    var url        = "<%= content_userfile_path(@userfile, :content_loader => :ply_content) %>";
+
+    // Our main launch link.
+    var start_link = $("#"+link_id);
+
+    // Check for localStorage
+    if (typeof(Storage) === "undefined") {
+    //if (1) {
+      start_link.attr('disabled','disabled').html('Cannot launch Ply Viewer.');
+      $('#mn_message').html('Your browser does not support LocalStorage.').
+      return;
+    }
+
+    // I hate that I have to pass the URL as a localStorage, but this is prototype stuff.
+    start_link.bind('click', function() { localStorage.setItem("plyUrl", url); });
+  })();
+</script>
+
