@@ -228,7 +228,7 @@
   "output-files": [
       {
           "name":          "Output dir",
-          "id":            "outpu_dir",
+          "id":            "output_dir",
           "description":   "The output of the command",
           "optional":      false,
           "list":          false,
