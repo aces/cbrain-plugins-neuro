@@ -52,6 +52,9 @@
 # to force users to provide a proper BIDS subject in input.
 module BoutiquesBidsSingleSubjectMaker
 
+  # Note: to access the revision info of the module,
+  # you need to access the constant directly, the
+  # object method revision_info() won't work.
   Revision_info=CbrainFileRevision[__FILE__] #:nodoc:
 
   # This is the name of the directory where we create
@@ -64,8 +67,6 @@ module BoutiquesBidsSingleSubjectMaker
   def setup
     return false unless super
 
-    # Note: we can't use the 'revision_info()' method
-    # for getting the module's info.
     basename = Revision_info.basename
     commit   = Revision_info.short_commit
 
@@ -117,8 +118,6 @@ module BoutiquesBidsSingleSubjectMaker
 
   def dataset_description_json(name) #:nodoc:
 
-    # Note: we can't use the 'revision_info()' method
-    # for getting the module's info.
     basename = Revision_info.basename
     commit   = Revision_info.short_commit
 

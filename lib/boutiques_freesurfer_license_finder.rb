@@ -41,6 +41,11 @@
 # owned by the user.
 module BoutiquesFreesurferLicenseFinder
 
+  # Note: to access the revision info of the module,
+  # you need to access the constant directly, the
+  # object method revision_info() won't work.
+  Revision_info=CbrainFileRevision[__FILE__] #:nodoc:
+
   def before_form #:nodoc:
     descriptor = self.descriptor_for_before_form
     inputid    = descriptor.custom_module_info('BoutiquesFreesurferLicenseFinder')

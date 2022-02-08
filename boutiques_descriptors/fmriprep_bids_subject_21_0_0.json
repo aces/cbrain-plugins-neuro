@@ -393,7 +393,7 @@
             },
             "BoutiquesPostProcessingCleaner": [
                 "work",
-                "[OUTPUT_DIR]/sourcedata/freesurfer/fsaverage"
+                "[OUTPUT_DIR]"
             ]
         }
     }
