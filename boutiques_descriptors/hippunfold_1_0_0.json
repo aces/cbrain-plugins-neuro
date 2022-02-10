@@ -271,8 +271,8 @@
   },
   "suggested-resources": {
       "cpu-cores":         1,
-      "ram":               1,
-      "walltime-estimate": 60
+      "ram":               4,
+      "walltime-estimate": 120
   },
   "custom": {
       "cbrain:readonly-input-files": true, 
