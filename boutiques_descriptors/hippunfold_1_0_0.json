@@ -20,7 +20,7 @@
         "value-key": "[SUBJECT_DIR]"
       },
       {
-        "description": "Type of image to run hippocampal autotop on, suffixed\nwith seg will import an existing hippocampal tissue\nsegmentation from that space, instead of running\nneural network (default: ['T2w'])",
+        "description": "Type of image to run hippunfold on, prefixed\nwith seg will import an existing hippocampal tissue\nsegmentation from that space, instead of running\nneural network (default: ['T2w'])",
         "id": "modality",
         "name": "modality",
         "optional": true, 
@@ -113,7 +113,7 @@
           "dHCP"
         ],
         "value-key": "[TEMPLATE]", 
-        "command-line-flag": "--t1-reg-template" 
+        "command-line-flag": "--template" 
       },
       {
         "description": "Use T1w to register to template space, instead of the segmentation modality. Note: this was the default behavior prior to v1.0.0. (default: False)",
@@ -134,7 +134,7 @@
         "command-line-flag": "--nnunet_disable_tta" 
       },
       {
-        "description": "Sets the output space for resultss",
+        "description": "Sets the output space for results",
         "id": "output_spaces",
         "name": "output_spaces",
         "optional": true, 
@@ -144,6 +144,9 @@
         "value-choices": [
           "native",
           "T1w"
+        ],
+        "default-value": [
+          "native"
         ]
       },
       {
