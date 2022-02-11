@@ -145,9 +145,7 @@
           "native",
           "T1w"
         ],
-        "default-value": [
-          "native"
-        ]
+        "default-value": "native"
       },
       {
         "description": "Sets the output vertex density for results. Options\ncorrespond to approximate vertex spacings of 0.5mm,\n1.0mm, and 2.0mm, respectively, with the 32k vertices\noption having unequal vertex spacing. (default: ['7k','2k'])",
@@ -271,8 +269,8 @@
   },
   "suggested-resources": {
       "cpu-cores":         1,
-      "ram":               4,
-      "walltime-estimate": 120
+      "ram":               8,
+      "walltime-estimate": 7200
   },
   "custom": {
       "cbrain:readonly-input-files": true, 
