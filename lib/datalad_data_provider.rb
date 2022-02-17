@@ -101,7 +101,7 @@ class DataladDataProvider < DataProvider
     mkdir_cache_subdirs(userfile)
     dest      = userfile.cache_full_path
 
-    rsyncout = bash_this("rsync -a -l --no-g --chmod=u=rwX,g=rX,o=r --delete #{self.rsync_excludes} #{shell_escape(source)}#{needslash} #{shell_escape(dest)} 2>&1")
+    rsyncout = bash_this("rsync -a -l --no-g --chmod=u=rwX,g=rX,Dg+s,o=r --delete #{self.rsync_excludes} #{shell_escape(source)}#{needslash} #{shell_escape(dest)} 2>&1")
     cb_error "Failed to rsync local file '#{source}' to cache file '#{dest}';\nrsync reported: #{rsyncout}" unless rsyncout.blank?
 
     true
