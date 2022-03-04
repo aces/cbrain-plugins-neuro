@@ -100,50 +100,50 @@ class CbrainTask::CivetMacaque < ClusterTask
     # MODE A (collection) symlinks
     if collection
 
-      return false if !make_available_collection(t1_name, "t1")
+      return false if !make_available_collection(collection, t1_name, input_symlink_base, "t1")
       
       if mk_name.present?
-        return false if !make_available_collection(mk_name, "mask")
+        return false if !make_available_collection(collection, mk_name, input_symlink_base, "mask")
       end
       if mp_name.present?
-        return false if !make_available_collection(mp_name, "mp2")
+        return false if !make_available_collection(collection, mp_name, input_symlink_base, "mp2")
       end
       if csf_name.present?
-        return false if !make_available_collection(csf_name, "csf")
+        return false if !make_available_collection(collection, csf_name, input_symlink_base, "csf")
       end
 
       if mybool(file0[:multispectral]) || mybool(file0[:spectral_mask])
         if t2_name.present?
-          return false if !make_available_collection(t2_name, "t2")
+          return false if !make_available_collection(collection, t2_name, input_symlink_base, "t2")
         end
         if pd_name.present?
-          return false if !make_available_collection(pd_name, "pd")
+          return false if !make_available_collection(collection, pd_name, input_symlink_base, "pd")
         end
       end
 
     else   # MODE B (singlefiles) symlinks
 
-      return false if !make_available_singlefile(t1.id, "t1")
+      return false if !make_available_singlefile(t1.id, input_symlink_base, "t1")
 
       if mk_id.present?
-        return false if !make_available_singlefile(mk_id, "mask")
+        return false if !make_available_singlefile(mk_id, input_symlink_base, "mask")
       end
 
       if mp_id.present?
-        return false if !make_available_singlefile(mp_id, "mp_2")
+        return false if !make_available_singlefile(mp_id, input_symlink_base, "mp_2")
       end
 
       if csf_id.present?
-        return false if !make_available_singlefile(csf_id, "csf")
+        return false if !make_available_singlefile(csf_id, input_symlink_base, "csf")
       end
 
       if mybool(file0[:multispectral]) || mybool(file0[:spectral_mask])
         if t2_id.present?
-          return false if !make_available_singlefile(t2_id, "t2")
+          return false if !make_available_singlefile(t2_id, input_symlink_base, "t2")
         end
 
         if pd_id.present?
-          return false if !make_available_singlefile(pd_id, "pd")
+          return false if !make_available_singlefile(pd_id, input_symlink_base, "pd")
         end
       end # if multispectral or spectral_mask
 
@@ -714,14 +714,14 @@ class CbrainTask::CivetMacaque < ClusterTask
     return final
   end
 
-  def make_available_collection(name, type) #:nodoc:
+  def make_available_collection(collection, name, input_symlink_base, type) #:nodoc:
     ext = name.match(/\.(nii|mnc)?(.gz|.Z)?$/i).to_a[0]
     sym = "#{input_symlink_base}_#{type}#{ext}"
     make_available(collection, sym, name)
     return false unless validate_input_file(sym)
   end
 
-  def make_available_singlefile(file_id, type) #:nodoc:
+  def make_available_singlefile(file_id, input_symlink_base, type) #:nodoc:
     file = SingleFile.find(file_id)
     name = file.name
     ext  = name.match(/\.(nii|mnc)?(.gz|.Z)?$/i).to_a[0]
