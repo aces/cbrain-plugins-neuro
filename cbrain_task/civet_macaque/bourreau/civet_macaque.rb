@@ -100,7 +100,7 @@ class CbrainTask::CivetMacaque < ClusterTask
     # MODE A (collection) symlinks
     if collection
 
-      return false if !make_available_collection(collection, input_symlink_base, t1_name, "t1")
+      return false if   !make_available_collection(collection, input_symlink_base, t1_name, "t1")
       
       if mk_name.present?
         return false if !make_available_collection(collection, input_symlink_base, mk_name, "mask")
@@ -123,7 +123,7 @@ class CbrainTask::CivetMacaque < ClusterTask
 
     else   # MODE B (singlefiles) symlinks
 
-      return false if !make_available_singlefile(t1.id, input_symlink_base, "t1")
+      return false if   !make_available_singlefile(t1.id, input_symlink_base, "t1")
 
       if mk_id.present?
         return false if !make_available_singlefile(mk_id, input_symlink_base, "mask")
@@ -719,6 +719,7 @@ class CbrainTask::CivetMacaque < ClusterTask
     sym = "#{input_symlink_base}_#{type}#{ext}"
     make_available(collection, sym, name)
     return false unless validate_input_file(sym)
+    return true
   end
 
   def make_available_singlefile(file_id, input_symlink_base, type) #:nodoc:
@@ -728,6 +729,7 @@ class CbrainTask::CivetMacaque < ClusterTask
     sym  = "#{input_symlink_base}_#{type}#{ext}"
     make_available(file,sym)
     return false unless validate_input_file(sym)
+    return true
   end
 
 end
