@@ -100,24 +100,24 @@ class CbrainTask::CivetMacaque < ClusterTask
     # MODE A (collection) symlinks
     if collection
 
-      return false if !make_available_collection(collection, t1_name, input_symlink_base, "t1")
+      return false if !make_available_collection(collection, input_symlink_base, t1_name, "t1")
       
       if mk_name.present?
-        return false if !make_available_collection(collection, mk_name, input_symlink_base, "mask")
+        return false if !make_available_collection(collection, input_symlink_base, mk_name, "mask")
       end
       if mp_name.present?
-        return false if !make_available_collection(collection, mp_name, input_symlink_base, "mp2")
+        return false if !make_available_collection(collection, input_symlink_base, mp_name, "mp2")
       end
       if csf_name.present?
-        return false if !make_available_collection(collection, csf_name, input_symlink_base, "csf")
+        return false if !make_available_collection(collection, input_symlink_base, csf_name, "csf")
       end
 
       if mybool(file0[:multispectral]) || mybool(file0[:spectral_mask])
         if t2_name.present?
-          return false if !make_available_collection(collection, t2_name, input_symlink_base, "t2")
+          return false if !make_available_collection(collection, input_symlink_base, t2_name, "t2")
         end
         if pd_name.present?
-          return false if !make_available_collection(collection, pd_name, input_symlink_base, "pd")
+          return false if !make_available_collection(collection, input_symlink_base, pd_name, "pd")
         end
       end
 
@@ -714,7 +714,7 @@ class CbrainTask::CivetMacaque < ClusterTask
     return final
   end
 
-  def make_available_collection(collection, name, input_symlink_base, type) #:nodoc:
+  def make_available_collection(collection, input_symlink_base, name, type) #:nodoc:
     ext = name.match(/\.(nii|mnc)?(.gz|.Z)?$/i).to_a[0]
     sym = "#{input_symlink_base}_#{type}#{ext}"
     make_available(collection, sym, name)
