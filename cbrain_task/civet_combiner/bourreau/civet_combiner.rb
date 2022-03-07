@@ -227,7 +227,7 @@ class CbrainTask::CivetCombiner < ClusterTask
       colpath  = col.cache_full_path.to_s
       dsid_dir = (coldir + dsid).to_s
       Dir.mkdir(dsid_dir) unless File.directory?(dsid_dir)
-      rsyncout = IO.popen("rsync -a -l --no-g --chmod=u=rwX,g=rX,o=r --delete #{colpath.bash_escape}/ #{dsid_dir.bash_escape} 2>&1 | tee -a #{errfile.to_s.bash_escape}","r") do |fh|
+      rsyncout = IO.popen("rsync -a -l --no-g --chmod=u=rwX,g=rX,Dg+s,o=r --delete #{colpath.bash_escape}/ #{dsid_dir.bash_escape} 2>&1 | tee -a #{errfile.to_s.bash_escape}","r") do |fh|
         fh.read
       end
       unless rsyncout.blank?

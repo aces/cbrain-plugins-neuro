@@ -166,8 +166,20 @@ module BoutiquesBidsSingleSubjectMaker
 
     # Make the substitution
     command = command.sub(token, FakeBidsDirName) # we replace only the first one
-    descriptor.command_line = command
 
+    # In order to prevent bosh from complaining if the value-key is no longer found
+    # anywhere in the command-line, we re-instert a dummy no-op bash statement at the
+    # beginning of the command with at least one use of that value-key. It will look
+    # like e.g.
+    #
+    #   "true [BIDSDATASET] ; real command here"
+    #
+    # In bash, the 'true' statement doesn't do anything and ignores all arguments.
+    if ! command.include? token
+      command = "true #{token} ; #{command}"
+    end
+
+    descriptor.command_line = command
     descriptor
   end
 

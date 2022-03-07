@@ -218,6 +218,7 @@ class CbrainTask::BidsAppHandler < ClusterTask
       rm -f status.all/#{run_id}
 
       # Main science command
+      export HOME="$PWD" # because bosh and other tools polute the home dir
       bosh exec launch                                                          \\
         --imagepath #{cached_image.cache_full_path.to_s.bash_escape}            \\
         -v #{cache_dir.to_s.bash_escape}:#{cache_dir.to_s.bash_escape}          \\
@@ -382,7 +383,7 @@ class CbrainTask::BidsAppHandler < ClusterTask
       self.addlog("Attempting to install prepared BidsAppOuput #{prep_output.name}")
       src = prep_output.cache_full_path
       # The trailing slash is important in the src argument for rsync below
-      ret = system("rsync -a -l --no-g --chmod=u=rwX,g=rX,o=r --delete #{src.to_s.bash_escape}/ #{tempdest.bash_escape} 1>#{outerrfile} 2>&1")
+      ret = system("rsync -a -l --no-g --chmod=u=rwX,g=rX,Dg+s,o=r --delete #{src.to_s.bash_escape}/ #{tempdest.bash_escape} 1>#{outerrfile} 2>&1")
       outerr = File.read(outerrfile) rescue "(No rsync output)"
       cb_error "Can't seem to rsync prepared BidsAppOutput: message: #{outerr}" unless ret
 

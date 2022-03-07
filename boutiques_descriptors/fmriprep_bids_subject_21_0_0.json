@@ -4,16 +4,16 @@
     "tool-version": "21.0.0",
     "author": "Poldrack lab",
     "url": "https://fmriprep.readthedocs.io",
-    "command-line": "bash mk_fake_bids [SUBJECT_DIR] BidsDataset || exit $?; fmriprep BidsDataset [OUTPUT_DIR] participant --skip_bids_validation --participant_label [SUBJECT_DIR] [TASK_ID] --nthreads 1 --omp-nthreads 1 --mem_mb 8192 [LOW_MEM] [USE_PLUGIN] [ANAT_ONLY] [BOILERPLATE] [VERBOSE_COUNT] [IGNORE] [LONGITUDINAL] [BOLD2T1W_DOF] [USE_BBR] [MEDIAL_SURFACE_NAN] [USE_AROMA] [AROMA_MELODIC_DIMENSIONALITY] [SKULL_STRIP_TEMPLATE] [SKULL_STRIP_FIXED_SEED] [FMAP_BSPLINE] [FMAP_NO_DEMEAN] [USE_SYN_SDC] [FORCE_SYN] [FS_LICENSE] [HIRES] [CIFTI_OUTPUT] [RUN_RECONALL] [RESOURCE_MONITOR] [REPORTS_ONLY] [RUN_UUID] [WRITE_GRAPH] [STOP_ON_FIRST_CRASH] [NOTRACK] [SLOPPY]; status=$?; test $status -eq 0 && rm -rf [OUTPUT_DIR]/sourcedata/freesurfer/fsaverage; bash -c \"exit $status\"",
+    "command-line": "fmriprep [BIDS_DIR] [OUTPUT_DIR] participant --skip_bids_validation [TASK_ID] --nthreads 1 --omp-nthreads 1 --mem_mb 8192 [LOW_MEM] [USE_PLUGIN] [ANAT_ONLY] [BOILERPLATE] [VERBOSE_COUNT] [IGNORE] [LONGITUDINAL] [BOLD2T1W_DOF] [USE_BBR] [MEDIAL_SURFACE_NAN] [USE_AROMA] [AROMA_MELODIC_DIMENSIONALITY] [SKULL_STRIP_TEMPLATE] [SKULL_STRIP_FIXED_SEED] [FMAP_BSPLINE] [FMAP_NO_DEMEAN] [USE_SYN_SDC] [FORCE_SYN] [FS_LICENSE] [HIRES] [CIFTI_OUTPUT] [RUN_RECONALL] [RESOURCE_MONITOR] [REPORTS_ONLY] [RUN_UUID] [WRITE_GRAPH] [STOP_ON_FIRST_CRASH] [NOTRACK] [SLOPPY]",
         "description": "fMRIprep is a functional magneticresonance image pre-processing pipeline that is designed to provide an easily accessible, state-of-the-art interface that is robust to differences in scan acquisition protocols and that requires minimal user input, while providing easily interpretable and comprehensive error and output reporting (https://fmriprep.readthedocs.io). NOTE: This descriptor is designed to integrate specifically with a CBRAIN installation. It takes as input a single subject according to the BIDs specification",
     "inputs": [
         {
-            "description": "subject folder for BIDS (folders name should be sub-XXXXX).",
-            "id": "subject_dir",
-            "name": "subject_dir",
+            "description": "BIDS dataset input file",
+            "id": "bids_dir",
+            "name": "bids_dir",
             "optional": false,
             "type": "File",
-            "value-key": "[SUBJECT_DIR]"
+            "value-key": "[BIDS_DIR]"
         },
         {
             "description": "the name of the output for the outcomes of preprocessing and visual reports",
@@ -381,11 +381,11 @@
         "cbrain:author": "Natacha Beck <natacha.beck@mcgill.ca>, Pierre Rioux <pierre.rioux@mcgill.ca>",
         "cbrain:integrator_modules": {
             "BoutiquesFileTypeVerifier": {
-                "subject_dir": [ "BidsSubject" ],
+                "bids_dir": [ "BidsSubject" ],
                 "fs_license_file": [ "FreesurferLicense", "TextFile", "SingleFile" ]
             },
             "BoutiquesFileNameMatcher": {
-                "subject_dir": "^sub-[a-zA-Z0-9_]+$"
+                "bids_dir": "^sub-[a-zA-Z0-9_]+$"
             },
             "BoutiquesFreesurferLicenseFinder": "fs_license_file",
             "BoutiquesOutputFileTypeSetter": {
@@ -394,7 +394,8 @@
             "BoutiquesPostProcessingCleaner": [
                 "work",
                 "[OUTPUT_DIR]"
-            ]
+            ],
+            "BoutiquesBidsSingleSubjectMaker": "bids_dir"
         }
     }
 }
