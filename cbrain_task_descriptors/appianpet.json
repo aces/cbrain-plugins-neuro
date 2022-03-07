@@ -1,7 +1,7 @@
 {
     "name": "APPIANPET",
     "tool-version" : "1",
-    "description" : "APPIAN-PET",
+    "description" : "APPIAN is an automated pipeline for user-friendly and reproducible analysis of positron emission tomography (PET) images with the aim of automating all processing steps up to the statistical analysis of measures derived from the final output images.",
     "command-line" : "mkdir [OUTPUT_DIR];python3 /opt/APPIAN/Launcher.py [BIDS_DIR] -t [OUTPUT_DIR]",
     "container-image": {
         "image": "APPIAN-PET/APPIAN",
