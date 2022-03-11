@@ -632,8 +632,10 @@ class CbrainTask::CivetMacaque < PortalTask
       comps_array = t1_name.split(/([a-zA-Z0-9]+)/)
       comps = {} # From "abc_def" will make { "0" => 'abc', "1" => 'def' ... }
       1.step(comps_array.size,2) { |i| comps[((i-1)/2+1).to_s] = comps_array[i] }
-      struct[:prefix] = prefpat.pattern_substitute(comps) if prefpat.present?
-      struct[:dsid]   = dsidpat.pattern_substitute(comps) if dsidpat.present?
+      if prefpat.present? || dsidpat.present? 
+        struct[:prefix] = prefpat.pattern_substitute(comps) 
+        struct[:dsid]   = dsidpat.pattern_substitute(comps)
+      end
     end
     ""
   end
