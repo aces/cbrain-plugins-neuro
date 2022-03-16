@@ -31,7 +31,7 @@
 
 <%
   # Models
-  default_models   = [ "NMTmacaque", "NCBRchimp" ]
+  default_models   = ["NMTmacaque", "NCBRchimp"]
   default_template = ["0.25","0.50", "0.40", "0.80"]
   default_lsq      = ["0", "6", "9", "12"]
   default_atlas    = ["lobes", "D99", "CHARM1", "CHARM2", "CHARM3", "CHARM4", "CHARM5", "CHARM6"]
@@ -481,6 +481,41 @@ job's output doesn't crush another job's output!</strong>.
  <BIG>Fake run:</BIG><P>
  Enter the numeric ID of a pre-existing CivetOutput to use it as 'pretend' output:
  <%= form.params_text_field :fake_run_civetcollection_id %>
-
+ 
 <% end %>
 
+<script>
+  var surfreg_model_name   = "cbrain_task[params][surfreg_model]";
+  var surfreg_model_select = $('select[name="' + surfreg_model_name + '"]')
+
+  var atlas_name           = "cbrain_task[params][atlas]";
+  var atlas_name_select    = $('select[name="' + atlas_name + '"]')
+
+  $(document).ready(function() {
+    surfreg_model_select.on('change', function(){
+      var atlas_options            = atlas_name_select[0].options;
+      var surfreg_model_select_val = surfreg_model_select.val();
+      
+      if (surfreg_model_select_val === "NCBRchimp") {
+        var lobes = "lobes";
+        var index = Array.prototype.slice.call( atlas_options ).findIndex(o => o.value === lobes)
+        atlas_options.selectedIndex = index;
+        for(var i = 0; i < atlas_options.length; i++) {
+          var option = $(atlas_options[i]);
+          if (option.val() !== lobes) {
+            $(option).attr("disabled",true);
+          }
+        }
+      }
+      else if (surfreg_model_select_val === "NMTmacaque") {
+        for(var i = 0; i < atlas_options.length; i++) {
+          var option = $(atlas_options[i]);
+          $(option).attr("disabled",false);
+        }
+      }
+
+      atlas_name_select.trigger("chosen:updated")
+    });
+  });
+
+</script>
