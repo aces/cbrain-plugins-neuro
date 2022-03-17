@@ -706,7 +706,7 @@ class CbrainTask::CivetMacaque < ClusterTask
 
     # Create new basename
     final = pattern.pattern_substitute(components)   # in cbrain_extensions.rb
-    final = final[$1.length..-1] if final =~ /^(-+)/ # avoid file that star with `-`
+    final = final.sub( /^-+/, "")                    # avoid file that star with `-`
 
     # Validate it
     cb_error "Pattern for new filename produces an invalid filename: '#{final}'." unless

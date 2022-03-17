@@ -239,15 +239,14 @@ class CbrainTask::CivetMacaque < PortalTask
     end
 
     # Verify output_filename
-    allowed_keyword_filename_pattern = ["date", "time", "task_id", "run_number", "prefix", "subject", "cluster"]
+    allowed_keyword_filename_pattern = %w("{date}" "{time}" "{task_id}" "{run_number}" "{prefix}" "{subject}" "{cluster}")
     not_allowed_keywords = []
     params[:output_filename_pattern].scan(/\{.*?\}/).map{|extracted_keyword|
-      extracted_keyword = extracted_keyword[1..-2]
-      not_allowed_keywords.push(extracted_keyword) if extracted_keyword !~ /^\d+$/ && !allowed_keyword_filename_pattern.include?(extracted_keyword)
-      if not_allowed_keywords.present?
-        params_errors.add(:output_filename_pattern, "Use of non authorized keyword #{not_allowed_keywords.join(',')}")
-      end
+      not_allowed_keywords.push(extracted_keyword) if extracted_keyword !~ /^\{\d+\}$/ && !allowed_keyword_filename_pattern.include?(extracted_keyword)
     }    
+    if not_allowed_keywords.present?
+      params_errors.add(:output_filename_pattern, "Use of non authorized keyword #{not_allowed_keywords.join(',')}")
+    end
 
     # Verify validity of subject IDs and prefix
     file_args_hash.each do |idx,fa|
@@ -643,10 +642,8 @@ class CbrainTask::CivetMacaque < PortalTask
       comps_array = t1_name.split(/([a-zA-Z0-9]+)/)
       comps = {} # From "abc_def" will make { "0" => 'abc', "1" => 'def' ... }
       1.step(comps_array.size,2) { |i| comps[((i-1)/2+1).to_s] = comps_array[i] }
-      if prefpat.present? || dsidpat.present? 
-        struct[:prefix] = prefpat.pattern_substitute(comps) 
-        struct[:dsid]   = dsidpat.pattern_substitute(comps)
-      end
+      struct[:prefix] = prefpat.pattern_substitute(comps) if prefpat.present?
+      struct[:dsid]   = dsidpat.pattern_substitute(comps) if dsidpat.present?
     end
     ""
   end
