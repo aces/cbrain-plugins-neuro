@@ -484,38 +484,103 @@ job's output doesn't crush another job's output!</strong>.
  
 <% end %>
 
+
+
+
+
 <script>
-  var surfreg_model_name   = "cbrain_task[params][surfreg_model]";
-  var surfreg_model_select = $('select[name="' + surfreg_model_name + '"]')
-
-  var atlas_name           = "cbrain_task[params][atlas]";
-  var atlas_name_select    = $('select[name="' + atlas_name + '"]')
-
+  
   $(document).ready(function() {
-    surfreg_model_select.on('change', function(){
-      var atlas_options            = atlas_name_select[0].options;
-      var surfreg_model_select_val = surfreg_model_select.val();
-      
-      if (surfreg_model_select_val === "NCBRchimp") {
-        var lobes = "lobes";
-        var index = Array.prototype.slice.call( atlas_options ).findIndex(o => o.value === lobes)
-        atlas_options.selectedIndex = index;
-        for(var i = 0; i < atlas_options.length; i++) {
-          var option = $(atlas_options[i]);
-          if (option.val() !== lobes) {
-            $(option).attr("disabled",true);
-          }
-        }
+    var disable_options = (active_values        = [], 
+                            deactivated_selector = undefined, 
+                          ) => {
+
+      if (deactivated_selector === undefined ) {
+        return
+      } 
+
+      var deactivated_current_value = deactivated_selector[0].value;
+      var deactivated_options       = deactivated_selector[0].options;
+
+      // Set the value to something available 
+      if (!active_values.includes(deactivated_current_value)){
+        var first_value_available = active_values[0] || undefined;
+        var index = Array.prototype.slice.call( deactivated_options ).findIndex(o => o.value === first_value_available)
+        deactivated_options.selectedIndex = index;
       }
-      else if (surfreg_model_select_val === "NMTmacaque") {
-        for(var i = 0; i < atlas_options.length; i++) {
-          var option = $(atlas_options[i]);
+
+      // Disable non available values
+      for(var i = 0; i < deactivated_options.length; i++) {
+        var option = $(deactivated_options[i]);
+        if (active_values.includes(option.val())) {
           $(option).attr("disabled",false);
+        } else {
+          $(option).attr("disabled",true);
         }
       }
+      deactivated_selector.trigger("chosen:updated")
+    } 
 
-      atlas_name_select.trigger("chosen:updated")
-    });
+    var extract_current_value = (selector) => {
+      var current_value = "";
+      if (selector.type === "change") {
+        current_value = selector.currentTarget.value;
+      } else {
+        current_value = selector.val();
+      }
+      return current_value;
+    }; 
+
+    var update_template = (selector) => {
+      var current_value = extract_current_value(selector);
+      
+      var template_name        = "cbrain_task[params][template]";
+      var deactivated_selector = $('select[name="' + template_name + '"]')
+
+      var active_value_mapper = {
+        "NMTmacaque": ["0.25", "0.50"], 
+        "NCBRchimp":  ["0.40", "0.80"]
+      };
+
+      var active_value_array = active_value_mapper[current_value];
+      if (active_value_array === undefined) {
+        return
+      }
+
+      disable_options(active_value_array, deactivated_selector)
+    }
+
+    var update_atlas = (selector) => {
+      var current_value = extract_current_value(selector);
+
+      var atlas_name           = "cbrain_task[params][atlas]";
+      var deactivated_selector = $('select[name="' + atlas_name + '"]')
+
+      var active_value_mapper = {
+        "NMTmacaque": ["lobes", "D99", "CHARM1", "CHARM2", "CHARM3", "CHARM4", "CHARM5", "CHARM6"], 
+        "NCBRchimp":  ["lobes"]
+      };
+
+      var active_value_array = active_value_mapper[current_value];
+      if (active_value_array === undefined) {
+        return
+      }
+
+      disable_options(active_value_array, deactivated_selector)
+    }
+
+    // Handle expclusion between model and template
+    var model_name   = "cbrain_task[params][model]";
+    var model_select = $('select[name="' + model_name + '"]')
+
+    update_template(model_select);
+    model_select.on('change', update_template);
+
+    // Handle expclusion between surfreg_model and atlas
+    var surfreg_model_name   = "cbrain_task[params][surfreg_model]";
+    var surfreg_model_select = $('select[name="' + surfreg_model_name + '"]')
+
+    update_atlas(surfreg_model_select)  
+    surfreg_model_select.on('change', update_atlas);
   });
-
 </script>

@@ -238,6 +238,17 @@ class CbrainTask::CivetMacaque < PortalTask
       dsid_counts[dsid]  += 1
     end
 
+    # Verify output_filename
+    allowed_keyword_filename_pattern = ["date", "time", "task_id", "run_number", "prefix", "subject", "cluster"]
+    not_allowed_keywords = []
+    params[:output_filename_pattern].scan(/\{.*?\}/).map{|extracted_keyword|
+      extracted_keyword = extracted_keyword[1..-2]
+      not_allowed_keywords.push(extracted_keyword) if extracted_keyword !~ /^\d+$/ && !allowed_keyword_filename_pattern.include?(extracted_keyword)
+      if not_allowed_keywords.present?
+        params_errors.add(:output_filename_pattern, "Use of non authorized keyword #{not_allowed_keywords.join(',')}")
+      end
+    }    
+
     # Verify validity of subject IDs and prefix
     file_args_hash.each do |idx,fa|
       next unless fa[:launch] == '1'
