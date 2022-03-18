@@ -31,7 +31,7 @@
 
 <%
   # Models
-  default_models   = [ "NMTmacaque", "NCBRchimp" ]
+  default_models   = ["NMTmacaque", "NCBRchimp"]
   default_template = ["0.25","0.50", "0.40", "0.80"]
   default_lsq      = ["0", "6", "9", "12"]
   default_atlas    = ["lobes", "D99", "CHARM1", "CHARM2", "CHARM3", "CHARM4", "CHARM5", "CHARM6"]
@@ -258,8 +258,8 @@
     <th>Mask found?</th>
     <th>MP2 found?</th>
     <th>CSF found?</th>
-    <th title="Use T1, T2 and PD native files for tissue classification"><%= select_all_checkbox 'use_multispectral' %>Use multispectral?</th>
-    <th title="Use T1, T2 and PD native files for brain masking"><%= select_all_checkbox 'use_spectral_mask' %>Use mask?</th>
+    <th title="Use T1, T2 and PD native files for tissue classification"><%= select_all_checkbox 'use_multispectral' %>Use multispectral classification?</th>
+    <th title="Use T1, T2 and PD native files for brain masking"><%= select_all_checkbox 'use_spectral_mask' %>Use multispectral mask?</th>
   </tr>
   <%
     keys = params[:file_args].keys
@@ -481,6 +481,108 @@ job's output doesn't crush another job's output!</strong>.
  <BIG>Fake run:</BIG><P>
  Enter the numeric ID of a pre-existing CivetOutput to use it as 'pretend' output:
  <%= form.params_text_field :fake_run_civetcollection_id %>
-
+ 
 <% end %>
 
+
+
+
+# Handle option for Civet-macaque or Civet-chimp in oorder to exclude some values 
+# when one or the the other is selected
+
+<script type="text/javascript">
+  
+  $(document).ready(function() {
+    var disable_options = (active_values        = [], 
+                           deactivated_selector = undefined, 
+                          ) => {
+
+      if (deactivated_selector === undefined ) {
+        return
+      } 
+
+      var deactivated_current_value = deactivated_selector[0].value;
+      var deactivated_options       = deactivated_selector[0].options;
+
+      // Set the value to something available 
+      if (!active_values.includes(deactivated_current_value)){
+        var first_value_available = active_values[0] || undefined;
+        var index = Array.prototype.slice.call( deactivated_options ).findIndex(o => o.value === first_value_available)
+        deactivated_options.selectedIndex = index;
+      }
+
+      // Disable non available values
+      for(var i = 0; i < deactivated_options.length; i++) {
+        var option = $(deactivated_options[i]);
+        if (active_values.includes(option.val())) {
+          $(option).attr("disabled",false);
+        } else {
+          $(option).attr("disabled",true);
+        }
+      }
+      deactivated_selector.trigger("chosen:updated")
+    } 
+
+    var extract_current_value = (selector) => {
+      var current_value = "";
+      if (selector.type === "change") {
+        current_value = selector.currentTarget.value;
+      } else {
+        current_value = selector.val();
+      }
+      return current_value;
+    }; 
+
+    var update_template = (selector) => {
+      var current_value = extract_current_value(selector);
+      
+      var template_name        = "cbrain_task[params][template]";
+      var deactivated_selector = $('select[name="' + template_name + '"]')
+
+      var active_value_mapper = {
+        "NMTmacaque": ["0.25", "0.50"], 
+        "NCBRchimp":  ["0.40", "0.80"]
+      };
+
+      var active_value_array = active_value_mapper[current_value];
+      if (active_value_array === undefined) {
+        return
+      }
+
+      disable_options(active_value_array, deactivated_selector)
+    }
+
+    var update_atlas = (selector) => {
+      var current_value = extract_current_value(selector);
+
+      var atlas_name           = "cbrain_task[params][atlas]";
+      var deactivated_selector = $('select[name="' + atlas_name + '"]')
+
+      var active_value_mapper = {
+        "NMTmacaque": ["lobes", "D99", "CHARM1", "CHARM2", "CHARM3", "CHARM4", "CHARM5", "CHARM6"], 
+        "NCBRchimp":  ["lobes"]
+      };
+
+      var active_value_array = active_value_mapper[current_value];
+      if (active_value_array === undefined) {
+        return
+      }
+
+      disable_options(active_value_array, deactivated_selector)
+    }
+
+    // Handle expclusion between model and template
+    var model_name   = "cbrain_task[params][model]";
+    var model_select = $('select[name="' + model_name + '"]')
+
+    update_template(model_select);
+    model_select.on('change', update_template);
+
+    // Handle expclusion between surfreg_model and atlas
+    var surfreg_model_name   = "cbrain_task[params][surfreg_model]";
+    var surfreg_model_select = $('select[name="' + surfreg_model_name + '"]')
+
+    update_atlas(surfreg_model_select)  
+    surfreg_model_select.on('change', update_atlas);
+  });
+</script>
