@@ -239,13 +239,18 @@ class CbrainTask::CivetMacaque < PortalTask
     end
 
     # Verify output_filename
-    allowed_keyword_filename_pattern = %w("{date}" "{time}" "{task_id}" "{run_number}" "{prefix}" "{subject}" "{cluster}")
-    not_allowed_keywords = []
-    params[:output_filename_pattern].scan(/\{.*?\}/).map{|extracted_keyword|
-      not_allowed_keywords.push(extracted_keyword) if extracted_keyword !~ /^\{\d+\}$/ && !allowed_keyword_filename_pattern.include?(extracted_keyword)
-    }    
+    allowed_keyword_filename_pattern = %w({date} {time} {task_id} {run_number} {prefix} {subject} {cluster})
+    not_allowed_keywords             = []
+    params[:output_filename_pattern]
+      .scan(/\{.*?\}/)
+      .each do |extracted_keyword|
+        next if extracted_keyword =~ /^\{\d+\}$/
+        next if allowed_keyword_filename_pattern.include?(extracted_keyword)
+        not_allowed_keywords << extracted_keyword 
+    end
+
     if not_allowed_keywords.present?
-      params_errors.add(:output_filename_pattern, "Use of non authorized keyword #{not_allowed_keywords.join(',')}")
+      params_errors.add(:output_filename_pattern, "use of non authorized keyword(s) #{not_allowed_keywords.join(',')}")
     end
 
     # Verify validity of subject IDs and prefix
