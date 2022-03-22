@@ -26,16 +26,4 @@
 
 <script type="text/javascript">
 
-  window.onload = () => {
-    if (document.querySelectorAll('[id^="brainbrowser-wrapper"]').length === 1) {
-      document.querySelectorAll('[id^="brainbrowser_volume_closer-"]').forEach( (button) => {
-        button.setAttribute('disabled','disabled')
-      });
-    } else {
-      document.querySelectorAll('[id^="brainbrowser_volume_closer-"]').forEach( (button) => {
-        button.removeAttr('disabled')
-      });
-    }
-  }
-
 </script>

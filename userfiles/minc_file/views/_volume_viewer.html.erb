@@ -33,7 +33,7 @@
   <div id="volume-viewer-<%= bb_identifier %>">
     <div id="global-controls-<%= bb_identifier %>" class="volume-viewer-controls">
       <button id="brainbrowser_volume_screenshot-<%= bb_identifier %>">Screenshot</button>
-      <button id="brainbrowser_volume_closer-<%= bb_identifier %>" onclick="close_wrapper(event)">Close</button>
+      <button id="brainbrowser_volume_closer-<%= bb_identifier %>">Close</button>
     </div>
 
     <div id="brainbrowser-volume-<%= bb_identifier %>"></div>
@@ -114,6 +114,18 @@
     event.target.closest('[id*="brainbrowser-wrapper"]').remove();
   }
 
+  const handleCloseButton = () => {
+    if (document.querySelectorAll('[id^="brainbrowser-wrapper"]').length === 1) {
+      document.querySelectorAll('[id^="brainbrowser_volume_closer-"]').forEach( (button) => {
+        button.setAttribute('disabled','disabled')
+      });
+    } else {
+      document.querySelectorAll('[id^="brainbrowser_volume_closer-"]').forEach( (button) => {
+        $(button).removeAttr('disabled')
+      });
+    }
+  }
+
   BrainBrowser.VolumeViewer.start("brainbrowser-volume-<%= bb_identifier %>", function(viewer) {
     var loading_div = $("#loading-<%= bb_identifier %>");
 
@@ -184,6 +196,10 @@
       };
 
       img.src = canvas.toDataURL();
+    });
+
+    $("#brainbrowser_volume_closer-<%= bb_identifier %>").click(function(event) {
+      event.target.closest('[id*="brainbrowser-wrapper"]').remove();
     });
 
     viewer.addEventListener("volumeuiloaded", function(event) {
@@ -522,6 +538,8 @@
     // Set the size of slice display panels.
     ////////////////////////////////////////
     viewer.setDefaultPanelSize(256, 256);
+
+    handleCloseButton();
 
     ///////////////////
     // Start rendering.
