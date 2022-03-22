@@ -3,7 +3,7 @@
 #
 # CBRAIN Project
 #
-# Copyright (C) 2008-2012
+# Copyright (C) 2008-2022
 # The Royal Institution for the Advancement of Learning
 # McGill University
 #
@@ -25,13 +25,15 @@
 <%= stylesheet_link_tag    MincFile.public_path("stylesheets/volume_viewer.css").to_s, :media => "all" %>
 <%= javascript_include_tag MincFile.public_path("javascripts/brainbrowser.volume-viewer.min.js").to_s %>
 
-<% bb_identifier = @userfile.id %>
-<% bb_identifier = bb_identifier.to_s + @target if @target.present? %>
+<% bb_identifier  = @userfile.id.to_s  %>
+<% bb_identifier += "_" + "#{@userfile.file_index || 0}" if @userfile.file_index.present? %>
+<% bb_identifier  = bb_identifier.to_s + '_' + @target   if @target.present? %>
 
 <div id="brainbrowser-wrapper-<%= bb_identifier %>">
   <div id="volume-viewer-<%= bb_identifier %>">
     <div id="global-controls-<%= bb_identifier %>" class="volume-viewer-controls">
       <span id="brainbrowser_volume_screenshot-<%= bb_identifier %>" class="button">Screenshot</span>
+      <span id="brainbrowser_volume_closer-<%= bb_identifier %>" class="button" onclick="close_wrapper(event)">Close</span>
     </div>
 
     <div id="brainbrowser-volume-<%= bb_identifier %>"></div>
@@ -107,6 +109,11 @@
 </div>
 
 <script type="text/javascript">
+
+  const close_wrapper = (event) => {
+    event.target.closest('[id*="brainbrowser-wrapper"]').remove();
+  }
+
   BrainBrowser.VolumeViewer.start("brainbrowser-volume-<%= bb_identifier %>", function(viewer) {
     var loading_div = $("#loading-<%= bb_identifier %>");
 
