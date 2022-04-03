@@ -29,84 +29,87 @@
 <% bb_identifier += "_" + "#{@userfile.file_index || 0}" if @userfile.file_index.present? %>
 <% bb_identifier  = bb_identifier.to_s + '_' + @target   if @target.present? %>
 
-<div id="brainbrowser-wrapper-<%= bb_identifier %>">
-  <div id="volume-viewer-<%= bb_identifier %>">
-    <div id="global-controls-<%= bb_identifier %>" class="volume-viewer-controls">
-      <button id="brainbrowser_volume_screenshot-<%= bb_identifier %>">Screenshot</button>
-      <button id="brainbrowser_volume_closer-<%= bb_identifier %>">Close</button>
-    </div>
+<div id="brainbrowser-volume-<%= bb_identifier %>"></div>
 
-    <div id="brainbrowser-volume-<%= bb_identifier %>"></div>
-    <div id="display-<%= bb_identifier %>">
-      <div id="loading-<%= bb_identifier %>" style="display: none"><img src="/images/brainbrowser-loader.gif" /></div>
-    </div>
-
-    <div class="volume-viewer-controls volume-controls">
-
-      <div class="coords">
-        <div class="control-heading" id="voxel-coordinates-heading-<%= bb_identifier %>">
-          Voxel Coordinates:
-        </div>
-        <div id="voxel-coords-<%= bb_identifier %>" class="voxel-coords" data-volume-id="<%= bb_identifier %>">
-          I:<input id="voxel-i-<%= bb_identifier %>" class="control-inputs">
-          J:<input id="voxel-j-<%= bb_identifier %>" class="control-inputs">
-          K:<input id="voxel-k-<%= bb_identifier %>" class="control-inputs">
-        </div>
-        <div class="control-heading" id="world-coordinates-heading-<%= bb_identifier %>">
-          World Coordinates:
-        </div>
-        <div id="world-coords-<%= bb_identifier %>" class="world-coords" data-volume-id="<%= bb_identifier %>">
-          X:<input id="world-x-<%= bb_identifier %>" class="control-inputs">
-          Y:<input id="world-y-<%= bb_identifier %>" class="control-inputs">
-          Z:<input id="world-z-<%= bb_identifier %>" class="control-inputs">
-        </div>
+<script id="volume-ui-template" type="x-volume-ui-template">
+  <div id="brainbrowser-wrapper-<%= bb_identifier %>">
+    <div id="volume-viewer-<%= bb_identifier %>">
+      <div id="global-controls-<%= bb_identifier %>" class="volume-viewer-controls">
+        <button id="brainbrowser_volume_screenshot-<%= bb_identifier %>">Screenshot</button>
+        <button id="brainbrowser_volume_closer-<%= bb_identifier %>">Close</button>
       </div>
 
-      <div id="intensity-value-div-<%= bb_identifier %>">
-        <span class="control-heading" data-volume-id="<%= bb_identifier %>">
-          Value:
-        </span>
-        <span id="intensity-value-<%= bb_identifier %>" class="intensity-value"></span>
+      <div class="volume-viewer-display">
+        <div id="loading-<%= bb_identifier %>" style="display: none"><img src="/images/brainbrowser-loader.gif" /></div>
       </div>
 
+      <div class="volume-viewer-controls volume-controls">
 
-      <div id="color-map-<%= bb_identifier %>">
-        <span class="control-heading" id="color-map-heading-<%= bb_identifier %>">
-          Color Map:
-        </span>
-      </div>
-
-
-      <div id="threshold-div-<%= bb_identifier %>" class="threshold-div" data-volume-id="<%= bb_identifier %>">
-        <div class="control-heading">
-          Threshold:
+        <div class="coords">
+          <div class="control-heading" id="voxel-coordinates-heading-<%= bb_identifier %>">
+            Voxel Coordinates:
+          </div>
+          <div id="voxel-coords-<%= bb_identifier %>" class="voxel-coords" data-volume-id="<%= bb_identifier %>">
+            I:<input id="voxel-i-<%= bb_identifier %>" class="control-inputs">
+            J:<input id="voxel-j-<%= bb_identifier %>" class="control-inputs">
+            K:<input id="voxel-k-<%= bb_identifier %>" class="control-inputs">
+          </div>
+          <div class="control-heading" id="world-coordinates-heading-<%= bb_identifier %>">
+            World Coordinates:
+          </div>
+          <div id="world-coords-<%= bb_identifier %>" class="world-coords" data-volume-id="<%= bb_identifier %>">
+            X:<input id="world-x-<%= bb_identifier %>" class="control-inputs">
+            Y:<input id="world-y-<%= bb_identifier %>" class="control-inputs">
+            Z:<input id="world-z-<%= bb_identifier %>" class="control-inputs">
+          </div>
         </div>
-        <br>
-        <div class="thresh-inputs">
-          <input id="min-threshold-<%= bb_identifier %>" class="control-inputs thresh-input-left"  value="0"/>
-          <input id="max-threshold-<%= bb_identifier %>" class="control-inputs thresh-input-right" value="255"/>
+
+        <div id="intensity-value-div-<%= bb_identifier %>">
+          <span class="control-heading" data-volume-id="<%= bb_identifier %>">
+            Value:
+          </span>
+          <span id="intensity-value-<%= bb_identifier %>" class="intensity-value"></span>
         </div>
-        <div class="slider volume-viewer-threshold" id="threshold-slider-<%= bb_identifier %>"></div>
-      </div>
 
-      <div id="time-<%= bb_identifier %>" class="time-div" data-volume-id="<%= bb_identifier %>" style="display:none">
-        <span class="control-heading">Time:</span>
-        <input class="control-inputs" value="0" id="time-val-<%= bb_identifier %>"/>
-        <div class="slider volume-viewer-threshold" id="threshold-time-slider-<%= bb_identifier %>"></div>
-        <br>
-        <input type="checkbox" class="button" id="play-<%= bb_identifier %>"><label for="play-<%= bb_identifier %>">Play</label>
-      </div>
 
-      <div id="slice-series-<%= bb_identifier %>" class="slice-series-div" data-volume-id="0">
-        <div class="control-heading" id="slice-series-heading-<%= bb_identifier %>">All slices: </div>
-        <span class="slice-series-button button" data-axis="xspace">Sagittal</span>
-        <span class="slice-series-button button" data-axis="yspace">Coronal</span>
-        <span class="slice-series-button button" data-axis="zspace">Transverse</span>
-      </div>
+        <div id="color-map-<%= bb_identifier %>">
+          <span class="control-heading" id="color-map-heading-<%= bb_identifier %>">
+            Color Map:
+          </span>
+        </div>
 
+
+        <div id="threshold-div-<%= bb_identifier %>" class="threshold-div" data-volume-id="<%= bb_identifier %>">
+          <div class="control-heading">
+            Threshold:
+          </div>
+          <br>
+          <div class="thresh-inputs">
+            <input id="min-threshold-<%= bb_identifier %>" class="control-inputs thresh-input-left"  value="0"/>
+            <input id="max-threshold-<%= bb_identifier %>" class="control-inputs thresh-input-right" value="255"/>
+          </div>
+          <div class="slider volume-viewer-threshold" id="threshold-slider-<%= bb_identifier %>"></div>
+        </div>
+
+        <div id="time-<%= bb_identifier %>" class="time-div" data-volume-id="<%= bb_identifier %>" style="display:none">
+          <span class="control-heading">Time:</span>
+          <input class="control-inputs" value="0" id="time-val-<%= bb_identifier %>"/>
+          <div class="slider volume-viewer-threshold" id="threshold-time-slider-<%= bb_identifier %>"></div>
+          <br>
+          <input type="checkbox" class="button" id="play-<%= bb_identifier %>"><label for="play-<%= bb_identifier %>">Play</label>
+        </div>
+
+        <div id="slice-series-<%= bb_identifier %>" class="slice-series-div" data-volume-id="0">
+          <div class="control-heading" id="slice-series-heading-<%= bb_identifier %>">All slices: </div>
+          <span class="slice-series-button button" data-axis="xspace">Sagittal</span>
+          <span class="slice-series-button button" data-axis="yspace">Coronal</span>
+          <span class="slice-series-button button" data-axis="zspace">Transverse</span>
+        </div>
+
+      </div>
     </div>
   </div>
-</div>
+</script>
 
 <script type="text/javascript">
 
