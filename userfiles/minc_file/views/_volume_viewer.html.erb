@@ -31,16 +31,17 @@
 
 <div id="brainbrowser-volume-<%= bb_identifier %>"></div>
 
+<div id="global-controls-<%= bb_identifier %>" class="volume-viewer-controls">
+  <button id="brainbrowser_volume_screenshot-<%= bb_identifier %>">Screenshot</button>
+</div>
+
+
 <script id="volume-ui-template" type="x-volume-ui-template">
   <div id="brainbrowser-wrapper-<%= bb_identifier %>-{{VOLID}}">
     <div id="volume-viewer-<%= bb_identifier %>-{{VOLID}}">
-      <div id="global-controls-<%= bb_identifier %>-{{VOLID}}" class="volume-viewer-controls">
-        <button id="brainbrowser_volume_screenshot-<%= bb_identifier %>-{{VOLID}}">Screenshot</button>
-        <button id="brainbrowser_volume_closer-<%= bb_identifier %>-{{VOLID}}">Close</button>
-      </div>
 
       <div class="volume-viewer-display">
-        <div id="loading-<%= bb_identifier %>-{{VOLID}}" style="display: none"><img src="/images/brainbrowser-loader.gif" /></div>
+        <div id="loading" style="display: none"><img src="/images/brainbrowser-loader.gif" /></div>
       </div>
 
       <div class="volume-viewer-controls volume-controls">
@@ -144,62 +145,6 @@
         cursor_color: "#FFFFFF"
       },
     ]);
-
-    $("#brainbrowser_volume_screenshot-<%= bb_identifier %>").click(function() {
-      var width        = 0;
-      var height       = 0;
-      var active_panel = viewer.active_panel;
-
-      // Create a canvas on which we'll draw the images.
-      var canvas  = document.createElement("canvas");
-      var context = canvas.getContext("2d");
-      var img     = new Image();
-
-      viewer.volumes.forEach(function(volume) {
-        volume.display.forEach(function(panel) {
-          width   = Math.max(width,  panel.canvas.width);
-          height  = Math.max(height, panel.canvas.height);
-        });
-      });
-
-      canvas.width      = width * viewer.volumes.length;
-      canvas.height     = height * 3;
-      context.fillStyle = "#000000";
-      context.fillRect(0, 0, canvas.width, canvas.height);
-
-      // The active canvas is highlighted by the viewer,
-      // so we set it to null and redraw the highlighting
-      // isn't shown in the image.
-      if (active_panel) {
-        active_panel.updated = true;
-        viewer.active_panel  = null;
-        viewer.draw();
-      }
-
-      viewer.volumes.forEach(function(volume, x) {
-        volume.display.forEach(function(panel, axis_name, y) {
-          context.drawImage(panel.canvas, x * width, y * height);
-        });
-      });
-
-      // Restore the active canvas.
-      if (active_panel) {
-        active_panel.updated = true;
-        viewer.active_panel  = active_panel;
-        viewer.draw();
-      }
-
-      // Show the created image in a dialog box.
-      img.onload = function() {
-        $("<div></div>").append(img).dialog({
-          title: "Slices",
-          height: img.height,
-          width:  img.width
-        });
-      };
-
-      img.src = canvas.toDataURL();
-    });
 
     $("#brainbrowser_volume_closer-<%= bb_identifier %>").click(function(event) {
       event.target.closest('[id*="brainbrowser-wrapper"]').remove();
@@ -441,12 +386,12 @@
         };
 
         div.find(".slice-series-button").click(function() {
-          var axis_name = $(this).data("axis");
-          var axis = volume.header[axis_name];
+          var axis_name    = $(this).data("axis");
+          var axis         = volume.header[axis_name];
           var space_length = axis.space_length;
-          var time = volume.current_time;
-          var per_column = 10;
-          var zoom = 0.5;
+          var time         = volume.current_time;
+          var per_column   = 10;
+          var zoom         = 0.5;
           var i, x, y;
 
           // Canvas on which to draw the images.
@@ -485,6 +430,62 @@
           img.src = canvas.toDataURL();
         });
       });
+
+    $("#brainbrowser_volume_screenshot-<%= bb_identifier %>").click(function() {
+      var width        = 0;
+      var height       = 0;
+      var active_panel = viewer.active_panel;
+
+      // Create a canvas on which we'll draw the images.
+      var canvas  = document.createElement("canvas");
+      var context = canvas.getContext("2d");
+      var img     = new Image();
+
+      viewer.volumes.forEach(function(volume) {
+        volume.display.forEach(function(panel) {
+          width   = Math.max(width,  panel.canvas.width);
+          height  = Math.max(height, panel.canvas.height);
+        });
+      });
+
+      canvas.width      = width * viewer.volumes.length;
+      canvas.height     = height * 3;
+      context.fillStyle = "#000000";
+      context.fillRect(0, 0, canvas.width, canvas.height);
+
+      // The active canvas is highlighted by the viewer,
+      // so we set it to null and redraw the highlighting
+      // isn't shown in the image.
+      if (active_panel) {
+        active_panel.updated = true;
+        viewer.active_panel  = null;
+        viewer.draw();
+      }
+
+      viewer.volumes.forEach(function(volume, x) {
+        volume.display.forEach(function(panel, axis_name, y) {
+          context.drawImage(panel.canvas, x * width, y * height);
+        });
+      });
+
+      // Restore the active canvas.
+      if (active_panel) {
+        active_panel.updated = true;
+        viewer.active_panel  = active_panel;
+        viewer.draw();
+      }
+
+      // Show the created image in a dialog box.
+      img.onload = function() {
+        $("<div></div>").append(img).dialog({
+          title: "Slices",
+          height: img.height,
+          width:  img.width
+        });
+      };
+
+      img.src = canvas.toDataURL();
+    });
 
     });
 
