@@ -32,6 +32,7 @@
 <div id="brainbrowser-volume-<%= bb_identifier %>"></div>
 
 <div id="global-controls-<%= bb_identifier %>" class="volume-viewer-controls">
+  <div id="loading-<%= bb_identifier %>" style="display: none"><img src="/images/brainbrowser-loader.gif" /></div>
   <button id="brainbrowser_volume_screenshot-<%= bb_identifier %>">Screenshot</button>
 </div>
 
@@ -41,7 +42,6 @@
     <div id="volume-viewer-<%= bb_identifier %>-{{VOLID}}">
 
       <div class="volume-viewer-display">
-        <div id="loading" style="display: none"><img src="/images/brainbrowser-loader.gif" /></div>
       </div>
 
       <div class="volume-viewer-controls volume-controls">
