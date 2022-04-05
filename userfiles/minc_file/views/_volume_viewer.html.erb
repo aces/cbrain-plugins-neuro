@@ -26,7 +26,6 @@
 <%= javascript_include_tag MincFile.public_path("javascripts/brainbrowser.volume-viewer.min.js").to_s %>
 
 <% bb_identifier  = @userfile.id.to_s  %>
-<% bb_identifier += "_" + "#{@userfile.file_index || 0}" if @userfile.file_index.present? %>
 <% bb_identifier  = bb_identifier.to_s + '_' + @target   if @target.present? %>
 
 <div id="brainbrowser-volume-<%= bb_identifier %>"></div>
