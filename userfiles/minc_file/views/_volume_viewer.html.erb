@@ -36,6 +36,11 @@
   <button id="brainbrowser_volume_screenshot-<%= bb_identifier %>">Screenshot</button>
 </div>
 
+<%- 
+######################
+# Volume UI template #
+######################
+-%>
 
 <script id="volume-ui-template" type="x-volume-ui-template">
   <div id="brainbrowser-wrapper-<%= bb_identifier %>-{{VOLID}}">
@@ -111,6 +116,38 @@
   </div>
 </script>
 
+<%- 
+#######################
+# Overlay UI template #
+#######################
+-%>
+
+<script id="overlay-ui-template" type="x-volume-ui-template">
+  <div class="overlay-viewer-display">
+  </div>
+  <div class="volume-viewer-controls volume-controls">
+
+    <div class="blend-div" data-volume-id="<%= bb_identifier %>-{{VOLID}}>
+      <span class="control-heading">Blend (0.0 to 1.0):</span>
+      <input class="control-inputs" value="0.5" id="blend-val"/>
+      <div id="blend-slider" class="slider volume-viewer-blend"></div>
+    </div>
+
+    <div class="contrast-div" data-volume-id="<%= bb_identifier %>-{{VOLID}}">
+      <span class="control-heading" id="contrast-heading-">Contrast (0.0 to 2.0):</span>
+      <input class="control-inputs" value="1.0" id="contrast-val"/>
+      <div id="contrast-slider" class="slider volume-viewer-contrast"></div>
+    </div>
+
+    <div class="brightness-div" data-volume-id="{{VOLID}}">
+      <span class="control-heading" id="brightness-heading{{VOLID}}">Brightness (-1 to 1):</span>
+      <input class="control-inputs" value="0" id="brightness-val"/>
+      <div id="brightness-slider" class="slider volume-viewer-brightness"></div>
+    </div>
+
+  </div>
+</script>
+
 <script type="text/javascript">
 
   const close_wrapper = (event) => {
@@ -150,6 +187,8 @@
     });
 
     viewer.addEventListener("volumeuiloaded", function(event) {
+      var container = event.container;
+      container = $(container);
       var volume    = event.volume;
       var vol_id    = event.volume_id;
 
@@ -430,62 +469,194 @@
         });
       });
 
-    $("#brainbrowser_volume_screenshot-<%= bb_identifier %>").click(function() {
-      var width        = 0;
-      var height       = 0;
-      var active_panel = viewer.active_panel;
+      $("#brainbrowser_volume_screenshot-<%= bb_identifier %>").click(function() {
+        var width        = 0;
+        var height       = 0;
+        var active_panel = viewer.active_panel;
 
-      // Create a canvas on which we'll draw the images.
-      var canvas  = document.createElement("canvas");
-      var context = canvas.getContext("2d");
-      var img     = new Image();
+        // Create a canvas on which we'll draw the images.
+        var canvas  = document.createElement("canvas");
+        var context = canvas.getContext("2d");
+        var img     = new Image();
 
-      viewer.volumes.forEach(function(volume) {
-        volume.display.forEach(function(panel) {
-          width   = Math.max(width,  panel.canvas.width);
-          height  = Math.max(height, panel.canvas.height);
+        viewer.volumes.forEach(function(volume) {
+          volume.display.forEach(function(panel) {
+            width   = Math.max(width,  panel.canvas.width);
+            height  = Math.max(height, panel.canvas.height);
+          });
+        });
+
+        canvas.width      = width * viewer.volumes.length;
+        canvas.height     = height * 3;
+        context.fillStyle = "#000000";
+        context.fillRect(0, 0, canvas.width, canvas.height);
+
+        // The active canvas is highlighted by the viewer,
+        // so we set it to null and redraw the highlighting
+        // isn't shown in the image.
+        if (active_panel) {
+          active_panel.updated = true;
+          viewer.active_panel  = null;
+          viewer.draw();
+        }
+
+        viewer.volumes.forEach(function(volume, x) {
+          volume.display.forEach(function(panel, axis_name, y) {
+            context.drawImage(panel.canvas, x * width, y * height);
+          });
+        });
+
+        // Restore the active canvas.
+        if (active_panel) {
+          active_panel.updated = true;
+          viewer.active_panel  = active_panel;
+          viewer.draw();
+        }
+
+        // Show the created image in a dialog box.
+        img.onload = function() {
+          $("<div></div>").append(img).dialog({
+            title: "Slices",
+            height: img.height,
+            width:  img.width
+          });
+        };
+
+        img.src = canvas.toDataURL();
+      });
+
+      // Blend controls for a multivolume overlay.
+      container.find(".blend-div").each(function() {
+        var div         = $(this);
+        var slider      = div.find(".slider");
+        var blend_input = div.find("#blend-val");
+
+        // Slider to select blend value.
+        slider.slider({
+          min: 0,
+          max: 1,
+          step: 0.01,
+          value: 0.5,
+          slide: function(event, ui) {
+            var value = parseFloat(ui.value);
+            volume.blend_ratios[0] = 1 - value;
+            volume.blend_ratios[1] = value;
+
+
+
+            blend_input.val(value);
+            viewer.redrawVolumes();
+          },
+          stop: function() {
+            $(this).find("a").blur();
+          }
+        });
+
+        // Input field to select blend values explicitly.
+        blend_input.change(function() {
+          var value = parseFloat(this.value);
+
+          // Check that input is numeric and in range.
+          if (!BrainBrowser.utils.isNumeric(value)) {
+            value = 0;
+          }
+          value = Math.max(0, Math.min(value, 1));
+          this.value = value;
+
+          // Update slider and redraw volumes.
+          slider.slider("value", value);
+          volume.blend_ratios[0] = 1 - value;
+          volume.blend_ratios[1] = value;
+          viewer.redrawVolumes();
         });
       });
 
-      canvas.width      = width * viewer.volumes.length;
-      canvas.height     = height * 3;
-      context.fillStyle = "#000000";
-      context.fillRect(0, 0, canvas.width, canvas.height);
+            // Contrast controls
+      container.find(".contrast-div").each(function() {
+        var div            = $(this);
+        var slider        = div.find(".slider");
+        var contrast_input = div.find("#contrast-val");
 
-      // The active canvas is highlighted by the viewer,
-      // so we set it to null and redraw the highlighting
-      // isn't shown in the image.
-      if (active_panel) {
-        active_panel.updated = true;
-        viewer.active_panel  = null;
-        viewer.draw();
-      }
+        // Slider to select contrast value.
+        slider.slider({
+          min: 0,
+          max: 2,
+          step: 0.05,
+          value: 1,
+          slide: function(event, ui) {
+            var value = parseFloat(ui.value);
+            volume.display.setContrast(value);
+            volume.display.refreshPanels();
 
-      viewer.volumes.forEach(function(volume, x) {
-        volume.display.forEach(function(panel, axis_name, y) {
-          context.drawImage(panel.canvas, x * width, y * height);
+            contrast_input.val(value);
+          },
+          stop: function() {
+            $(this).find("a").blur();
+          }
+        });
+
+        // Input field to select contrast values explicitly.
+        contrast_input.change(function() {
+          var value = parseFloat(this.value);
+
+          // Check that input is numeric and in range.
+          if (!BrainBrowser.utils.isNumeric(value)) {
+            value = 0;
+          }
+          value = Math.max(0, Math.min(value, 2));
+          this.value = value;
+
+          // Update slider and redraw volumes.
+          slider.slider("value", value);
+          volume.display.setContrast(value);
+          volume.display.refreshPanels();
+          viewer.redrawVolumes();
         });
       });
 
-      // Restore the active canvas.
-      if (active_panel) {
-        active_panel.updated = true;
-        viewer.active_panel  = active_panel;
-        viewer.draw();
-      }
+      // Contrast controls
+      container.find(".brightness-div").each(function() {
+        var div              = $(this);
+        var slider           = div.find(".slider");
+        var brightness_input = div.find("#brightness-val");
 
-      // Show the created image in a dialog box.
-      img.onload = function() {
-        $("<div></div>").append(img).dialog({
-          title: "Slices",
-          height: img.height,
-          width:  img.width
+        // Slider to select brightness value.
+        slider.slider({
+          min: -1,
+          max: 1,
+          step: 0.05,
+          value: 0,
+          slide: function(event, ui) {
+            var value = parseFloat(ui.value);
+            volume.display.setBrightness(value);
+            volume.display.refreshPanels();
+
+            brightness_input.val(value);
+          },
+          stop: function() {
+            $(this).find("a").blur();
+          }
         });
-      };
 
-      img.src = canvas.toDataURL();
-    });
+        // Input field to select brightness values explicitly.
+        brightness_input.change(function() {
+          var value = parseFloat(this.value);
 
+          // Check that input is numeric and in range.
+          if (!BrainBrowser.utils.isNumeric(value)) {
+            value = 0;
+          }
+          value = Math.max(-1, Math.min(value, 1));
+          this.value = value;
+
+          // Update slider and redraw volumes.
+          slider.slider("value", value);
+          volume.display.setBrightness(value);
+          volume.display.refreshPanels();
+          viewer.redrawVolumes();
+        });
+      });
+      
     });
 
     /////////////////////////////////////////////////////

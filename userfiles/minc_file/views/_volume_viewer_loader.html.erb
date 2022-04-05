@@ -35,6 +35,12 @@ viewer.loadVolumes({
           }
         }
       ],
+      overlay: {
+        template: {
+          element_id: "overlay-ui-template",
+          viewer_insert_class: "overlay-viewer-display"
+        }
+      },
       complete: function() {
         loading_div.hide();
         $("#brainbrowser-wrapper").slideDown({duration: 600});
