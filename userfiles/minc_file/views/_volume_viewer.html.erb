@@ -28,12 +28,91 @@
 <% bb_identifier  = @userfile.id.to_s  %>
 <% bb_identifier  = bb_identifier.to_s + '_' + @target   if @target.present? %>
 
+<%
+  top_userfile = Userfile.find(@userfile.id)
+  viewable_by_volume_viewer       = []
+  files_viewable_by_volume_viewer = []
+  volumes_info_for_viewer         = {}
+
+  top_userfile.list_files.each do |f|
+    matched_class                   = SingleFile.descendants.unshift(SingleFile).find { |c| f.name =~ c.file_name_pattern }
+    viewer                          = nil
+
+    if matched_class 
+      file   = matched_class.new(
+        :id            => @userfile.id,
+        :name          => f.name,
+        :data_provider => @userfile.data_provider,
+        :user_id       => @userfile.user_id,
+        :group_id      => @userfile.group_id,
+        :size          => @top_userfile.provider_collection_index.detect { |u| u.name == f.name }.size
+      )
+      viewer = file.viewers.first.partial rescue nil
+    end
+
+    if viewer == :volume_viewer 
+      viewable_by_volume_viewer.push(f.name) if viewer == :volume_viewer
+      
+      volume = {}
+      if file.type == "MincFile" || file.type == "Minc1File" || file.type == "Minc2File"
+        volume = 
+        {
+          type: "minc",
+          header_url:   false,
+          raw_data_url: content_userfile_path(file, :content_loader => :minc_content, :file_name => file.name, :viewer_userfile_class => :MincFile),
+          template: {
+            element_id: "volume-ui-template",
+            viewer_insert_class: "volume-viewer-display"
+          }
+        }
+      end
+      
+      if file.type == "NiftiFile"
+        volume = 
+        {
+          type:    "nifti1",
+          nii_url: content_userfile_path(file, :content_loader => :raw_content, :file_name => file.name, :viewer_userfile_class => :NiftiFile),
+          template: {
+            element_id: "volume-ui-template",
+            viewer_insert_class: "volume-viewer-display"
+          }
+        }
+      end
+      
+      if file.type == "MghFile"
+        volume =     
+        {
+          type: "mgh",
+          url: content_userfile_path(file, :content_loader => :raw_content, :file_name => file.name, :viewer_userfile_class => :MghFile),
+          template: {
+            element_id: "volume-ui-template",
+            viewer_insert_class: "volume-viewer-display"
+          }
+        }
+      end
+      
+      volumes_info_for_viewer[f.name] = volume
+    end
+  end
+
+%>
+
+<% json = lambda { |x| JSON[x].html_safe } %>
+
+
 <div id="brainbrowser-volume-<%= bb_identifier %>"></div>
 
 <div id="global-controls-<%= bb_identifier %>" class="volume-viewer-controls">
   <div id="loading-<%= bb_identifier %>" style="display: none"><img src="/images/brainbrowser-loader.gif" /></div>
+  <% if !viewable_by_volume_viewer.empty? %>
+    <select id="overlay_selection">
+      <%= options_for_select viewable_by_volume_viewer %>
+    </select>
+  <% end %>
+  <br>
   <button id="brainbrowser_volume_screenshot-<%= bb_identifier %>">Screenshot</button>
 </div>
+
 
 <%- 
 ######################
@@ -524,6 +603,37 @@
         img.src = canvas.toDataURL();
       });
 
+      $(document).ready(function(){
+        $("#overlay_selection").chosen().change(function(e){
+          var volume_name = e.target.value;
+          var volumes_info_for_viewer =  <%= json.( volumes_info_for_viewer ) %>;
+          var volume_1 = volumes_info_for_viewer["<%= @userfile.name %>"];
+          var volume_2 = volumes_info_for_viewer[volume_name];
+
+          console.log(volume_1);
+          console.log(volume_2);
+
+          console.log("<%= @userfile.name %>")
+          console.log(viewer);
+          viewer.clearVolumes();
+          viewer.loadVolumes({
+            volumes: [volume_1, volume_2],
+            overlay: {
+              template: {
+                element_id: "overlay-ui-template",
+                viewer_insert_class: "overlay-viewer-display"
+              }
+            },
+            complete: function() {
+              loading_div.hide();
+              $("#brainbrowser-wrapper").slideDown({duration: 600});
+            }
+          });
+          // var volume = volumes_info_for_viewer[volume_name];
+          console.log(volume);
+        });
+      })
+
       // Blend controls for a multivolume overlay.
       container.find(".blend-div").each(function() {
         var div         = $(this);
@@ -573,7 +683,7 @@
             // Contrast controls
       container.find(".contrast-div").each(function() {
         var div            = $(this);
-        var slider        = div.find(".slider");
+        var slider         = div.find(".slider");
         var contrast_input = div.find("#contrast-val");
 
         // Slider to select contrast value.

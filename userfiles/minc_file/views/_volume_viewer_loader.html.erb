@@ -14,27 +14,19 @@
 // similar function that differ only in how the javascript code
 // loads the volume data.
 
+first_volume =         
+  {
+    type: "minc",
+    header_url:   false,
+    raw_data_url: "<%= content_userfile_path(@userfile, :content_loader => :minc_content, :file_name => @userfile.name, :viewer_userfile_class => :MincFile) %>",
+    template: {
+      element_id: "volume-ui-template",
+      viewer_insert_class: "volume-viewer-display"
+    }
+  }
+
 viewer.loadVolumes({
-      volumes: [
-        {
-          type: "minc",
-          header_url:   false,
-          raw_data_url: "<%= content_userfile_path(@userfile, :content_loader => :minc_content, :file_name => @userfile.name, :viewer_userfile_class => :MincFile) %>",
-          template: {
-            element_id: "volume-ui-template",
-            viewer_insert_class: "volume-viewer-display"
-          }
-        },
-        {
-         type: "minc",
-         header_url:   false,
-         raw_data_url: "<%= content_userfile_path(@userfile, :content_loader => :minc_content, :file_name => @userfile.name, :viewer_userfile_class => :MincFile) %>",
-         template: {
-           element_id: "volume-ui-template",
-           viewer_insert_class: "volume-viewer-display"
-          }
-        }
-      ],
+      volumes: [first_volume],
       overlay: {
         template: {
           element_id: "overlay-ui-template",
