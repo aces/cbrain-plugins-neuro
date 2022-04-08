@@ -88,8 +88,7 @@
 
   <%= form.params_label  :template, "Template:", :title => "Define the template for image processing" %>
   <%= form.params_select :template, default_template %>
-  <span class="field_explanation" style="max-width: 80em">0.25 (or 0.5) recommended for NMTmacaque and 0.4 (or 0.8) recommanded for NCBRchimp (CIVET default if left blank)</span>
-
+  
   <br>
 
   <%= form.params_label  :lsq, "Degrees of freedom for linear registration:", :title => "Degrees of freedom for linear registration to stereotaxic space.\n0 means that the input volume is already in stereotaxic space and linear registration will be skipped.
@@ -491,6 +490,25 @@ job's output doesn't crush another job's output!</strong>.
 # when one or the the other is selected
 
 <script type="text/javascript">
+
+  var options_by_model =
+    { 
+      icbm152MCsym : {
+        headheight : '175',
+        template   : [ '0.50', '1.0' ],
+        atlas      : [ 'lobes', 'Gyri', 'DKT', 'AAL' ]
+      },
+      NMTmacaque   : {
+        headheight : 50,
+        template   : [ '0.25', '0.50' ],
+        atlas      : [ 'lobes', 'D99', 'CHARM1', 'CHARM2', 'CHARM3', 'CHARM4', 'CHARM5', 'CHARM6' ]
+      },
+      NCBRchimp    : {
+        headheight : '110',
+        template   : [ '0.40', '0.80' ],
+        atlas      : [ 'lobes' ]
+      }
+    };
   
   $(document).ready(function() {
     var disable_options = (active_values        = [], 
@@ -533,25 +551,6 @@ job's output doesn't crush another job's output!</strong>.
       return current_value;
     }; 
 
-    var update_template = (selector) => {
-      var current_value = extract_current_value(selector);
-      
-      var template_name        = "cbrain_task[params][template]";
-      var deactivated_selector = $('select[name="' + template_name + '"]')
-
-      var active_value_mapper = {
-        "NMTmacaque": ["0.25", "0.50"], 
-        "NCBRchimp":  ["0.40", "0.80"]
-      };
-
-      var active_value_array = active_value_mapper[current_value];
-      if (active_value_array === undefined) {
-        return
-      }
-
-      disable_options(active_value_array, deactivated_selector)
-    }
-
     var update_atlas = (selector) => {
       var current_value = extract_current_value(selector);
 
@@ -571,18 +570,72 @@ job's output doesn't crush another job's output!</strong>.
       disable_options(active_value_array, deactivated_selector)
     }
 
+    var update_according_to_model = (selector) => {
+      var current_value = extract_current_value(selector);
+
+      var model_option = options_by_model[current_value]; 
+
+      if (model_option === undefined ) {
+        return;
+      }
+
+      // Update template        
+      var template_values = model_option['template']
+      if (template_values !== undefined) { 
+        var template_name        = "cbrain_task[params][template]";
+        var deactivated_selector = $('select[name="' + template_name + '"]');  
+        if (deactivated_selector !== undefined) {
+          disable_options(template_values, deactivated_selector)
+        }
+      }
+
+      var headheight_name  = "[name='cbrain_task[params][headheight]']";
+      var headheight_input = $(headheight_name)[0];
+
+      if (headheight_input !== undefined) {
+        var headheight_value = model_option['headheight']
+        if (headheight_value !== undefined) {
+          headheight_input.value = headheight_value
+        }
+      }
+    }
+
+
+    var update_according_to_surfreg = (selector) => {
+      var current_value = extract_current_value(selector);
+
+      var model_option = options_by_model[current_value]; 
+
+      if (model_option === undefined ) {
+        return;
+      }
+
+      // Update atlas        
+      var atlas_values = model_option['atlas']
+      if (atlas_values !== undefined) { 
+        var atlas_name        = "cbrain_task[params][atlas]";
+        var deactivated_selector = $('select[name="' + atlas_name + '"]');  
+        if (deactivated_selector !== undefined) {
+          disable_options(atlas_values, deactivated_selector)
+        }
+      }
+
+    }
+
     // Handle expclusion between model and template
     var model_name   = "cbrain_task[params][model]";
     var model_select = $('select[name="' + model_name + '"]')
 
-    update_template(model_select);
-    model_select.on('change', update_template);
+    update_according_to_model(model_select);
+    model_select.on('change', update_according_to_model);
 
     // Handle expclusion between surfreg_model and atlas
     var surfreg_model_name   = "cbrain_task[params][surfreg_model]";
     var surfreg_model_select = $('select[name="' + surfreg_model_name + '"]')
 
-    update_atlas(surfreg_model_select)  
-    surfreg_model_select.on('change', update_atlas);
+    // update_atlas(surfreg_model_select)  
+    // surfreg_model_select.on('change', update_atlas);
+    update_according_to_surfreg(surfreg_model_select)  
+    surfreg_model_select.on('change', update_according_to_surfreg);
   });
 </script>
