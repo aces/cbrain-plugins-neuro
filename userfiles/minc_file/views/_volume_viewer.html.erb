@@ -99,7 +99,6 @@
 
 <% json = lambda { |x| JSON[x].html_safe } %>
 
-
 <div id="brainbrowser-volume-<%= bb_identifier %>"></div>
 
 <div id="global-controls-<%= bb_identifier %>" class="volume-viewer-controls">
@@ -124,10 +123,9 @@
   <div id="brainbrowser-wrapper-<%= bb_identifier %>-{{VOLID}}">
     <div id="volume-viewer-<%= bb_identifier %>-{{VOLID}}">
 
+      <fieldset><legend><%= @userfile.name %></legend>
       <div class="volume-viewer-display"></div>
-
       <div class="volume-viewer-controls volume-controls">
-
         <div class="coords">
           <div class="control-heading" id="voxel-coordinates-heading-<%= bb_identifier %>-{{VOLID}}">
             Voxel Coordinates:
@@ -201,29 +199,32 @@
 -%>
 
 <script id="overlay-ui-template" type="x-volume-ui-template">
-  <div class="overlay-viewer-display">
-  </div>
-  <div class="volume-viewer-controls volume-controls">
-
-    <div class="blend-div" data-volume-id="<%= bb_identifier %>-{{VOLID}}>
-      <span class="control-heading">Blend (0.0 to 1.0):</span>
-      <input class="control-inputs" value="0.5" id="blend-val"/>
-      <div id="blend-slider" class="slider volume-viewer-blend"></div>
+  <fieldset>
+    <legend>Overlay</legend>
+    <div class="overlay-viewer-display">
     </div>
+    <div class="volume-viewer-controls volume-controls">
 
-    <div class="contrast-div" data-volume-id="<%= bb_identifier %>-{{VOLID}}">
-      <span class="control-heading" id="contrast-heading-">Contrast (0.0 to 2.0):</span>
-      <input class="control-inputs" value="1.0" id="contrast-val"/>
-      <div id="contrast-slider" class="slider volume-viewer-contrast"></div>
+      <div class="blend-div" data-volume-id="<%= bb_identifier %>-{{VOLID}}>
+        <span class="control-heading">Blend (0.0 to 1.0):</span>
+        <input class="control-inputs" value="0.5" id="blend-val"/>
+        <div id="blend-slider" class="slider volume-viewer-blend"></div>
+      </div>
+
+      <div class="contrast-div" data-volume-id="<%= bb_identifier %>-{{VOLID}}">
+        <span class="control-heading" id="contrast-heading-">Contrast (0.0 to 2.0):</span>
+        <input class="control-inputs" value="1.0" id="contrast-val"/>
+        <div id="contrast-slider" class="slider volume-viewer-contrast"></div>
+      </div>
+
+      <div class="brightness-div" data-volume-id="{{VOLID}}">
+        <span class="control-heading" id="brightness-heading{{VOLID}}">Brightness (-1 to 1):</span>
+        <input class="control-inputs" value="0" id="brightness-val"/>
+        <div id="brightness-slider" class="slider volume-viewer-brightness"></div>
+      </div>
+
     </div>
-
-    <div class="brightness-div" data-volume-id="{{VOLID}}">
-      <span class="control-heading" id="brightness-heading{{VOLID}}">Brightness (-1 to 1):</span>
-      <input class="control-inputs" value="0" id="brightness-val"/>
-      <div id="brightness-slider" class="slider volume-viewer-brightness"></div>
-    </div>
-
-  </div>
+  </fieldset>
 </script>
 
 <script type="text/javascript">
@@ -610,11 +611,6 @@
           var volume_1 = volumes_info_for_viewer["<%= @userfile.name %>"];
           var volume_2 = volumes_info_for_viewer[volume_name];
 
-          console.log(volume_1);
-          console.log(volume_2);
-
-          console.log("<%= @userfile.name %>")
-          console.log(viewer);
           viewer.clearVolumes();
           viewer.loadVolumes({
             volumes: [volume_1, volume_2],
@@ -629,8 +625,6 @@
               $("#brainbrowser-wrapper").slideDown({duration: 600});
             }
           });
-          // var volume = volumes_info_for_viewer[volume_name];
-          console.log(volume);
         });
       })
 
