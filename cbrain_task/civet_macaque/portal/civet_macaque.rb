@@ -382,7 +382,7 @@ class CbrainTask::CivetMacaque < PortalTask
   end
 
 
-  
+
   #################################################
   # OLD API BELOW (+ modified)
   #################################################
