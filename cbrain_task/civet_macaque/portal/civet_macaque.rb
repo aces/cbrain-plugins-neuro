@@ -649,7 +649,7 @@ class CbrainTask::CivetMacaque < PortalTask
       comps = {} # From "abc_def" will make { "0" => 'abc', "1" => 'def' ... }
       1.step(comps_array.size,2) { |i| comps[((i-1)/2+1).to_s] = comps_array[i] }
       struct[:prefix] = prefpat.present? ? prefpat.pattern_substitute(comps) : ""
-      struct[:dsid]   = dsidpat.present? ? dsidpat.pattern_substitute(comps) : ""
+      struct[:dsid]   = dsidpat.pattern_substitute(comps) if dsidpat.present?
     end
     ""
   end
