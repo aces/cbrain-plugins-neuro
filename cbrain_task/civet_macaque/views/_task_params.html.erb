@@ -88,7 +88,7 @@
 
   <%= form.params_label  :template, "Template:", :title => "Define the template for image processing" %>
   <%= form.params_select :template, default_template %>
-  
+
   <br>
 
   <%= form.params_label  :lsq, "Degrees of freedom for linear registration:", :title => "Degrees of freedom for linear registration to stereotaxic space.\n0 means that the input volume is already in stereotaxic space and linear registration will be skipped.
@@ -171,7 +171,6 @@
     <%= form.params_label      :thickness_kernel, "Thickness kernel size:",
                                :title => "FWHM for surface blurring,\n default: 20 for version 1.1.11 and lower,\n default: 30 for version 1.1.12 and later\nList of integers separated by a ':' is accepted for version 2.0.0 and later" %>
     <%= form.params_text_field :thickness_kernel, :size => 12 %>
-    <span class="field_explanation" style="max-width: 80em">(12mm by default if left blank)</span>
 
     <br>
 
@@ -494,19 +493,22 @@ job's output doesn't crush another job's output!</strong>.
   var options_by_model =
     { 
       icbm152MCsym : {
-        headheight : '175',
-        template   : [ '0.50', '1.0' ],
-        atlas      : [ 'lobes', 'Gyri', 'DKT', 'AAL' ]
+        headheight       : 175,
+        template         : [ '0.50', '1.0' ],
+        atlas            : [ 'lobes', 'Gyri', 'DKT', 'AAL' ],
+        thickness_kernel : 20
       },
       NMTmacaque   : {
-        headheight : 50,
-        template   : [ '0.25', '0.50' ],
-        atlas      : [ 'lobes', 'D99', 'CHARM1', 'CHARM2', 'CHARM3', 'CHARM4', 'CHARM5', 'CHARM6' ]
+        headheight       : 50,
+        template         : [ '0.25', '0.50' ],
+        atlas            : [ 'lobes', 'D99', 'CHARM1', 'CHARM2', 'CHARM3', 'CHARM4', 'CHARM5', 'CHARM6' ],
+        thickness_kernel : 12
       },
-      NCBRchimp    : {
-        headheight : '110',
-        template   : [ '0.40', '0.80' ],
-        atlas      : [ 'lobes' ]
+      NCBRchimp   : {
+        headheight       : 110,
+        template         : [ '0.40', '0.80' ],
+        atlas            : [ 'lobes' ],
+        thickness_kernel : 16
       }
     };
   
@@ -551,25 +553,6 @@ job's output doesn't crush another job's output!</strong>.
       return current_value;
     }; 
 
-    var update_atlas = (selector) => {
-      var current_value = extract_current_value(selector);
-
-      var atlas_name           = "cbrain_task[params][atlas]";
-      var deactivated_selector = $('select[name="' + atlas_name + '"]')
-
-      var active_value_mapper = {
-        "NMTmacaque": ["lobes", "D99", "CHARM1", "CHARM2", "CHARM3", "CHARM4", "CHARM5", "CHARM6"], 
-        "NCBRchimp":  ["lobes"]
-      };
-
-      var active_value_array = active_value_mapper[current_value];
-      if (active_value_array === undefined) {
-        return
-      }
-
-      disable_options(active_value_array, deactivated_selector)
-    }
-
     var update_according_to_model = (selector) => {
       var current_value = extract_current_value(selector);
 
@@ -589,6 +572,7 @@ job's output doesn't crush another job's output!</strong>.
         }
       }
 
+      // Update headheight
       var headheight_name  = "[name='cbrain_task[params][headheight]']";
       var headheight_input = $(headheight_name)[0];
 
@@ -599,7 +583,6 @@ job's output doesn't crush another job's output!</strong>.
         }
       }
     }
-
 
     var update_according_to_surfreg = (selector) => {
       var current_value = extract_current_value(selector);
@@ -620,6 +603,19 @@ job's output doesn't crush another job's output!</strong>.
         }
       }
 
+      // Update thickness_kernel
+      var thickness_kernel_name  = "[name='cbrain_task[params][thickness_kernel]']";
+      var thickness_kernel_input = $(thickness_kernel_name)[0];
+
+      console.log(thickness_kernel_input)
+
+      if (thickness_kernel_input !== undefined) {
+        var thickness_kernel_value = model_option['thickness_kernel']
+        if (thickness_kernel_value !== undefined) {
+          thickness_kernel_input.value = thickness_kernel_value
+        }
+      }
+
     }
 
     // Handle expclusion between model and template
@@ -633,8 +629,6 @@ job's output doesn't crush another job's output!</strong>.
     var surfreg_model_name   = "cbrain_task[params][surfreg_model]";
     var surfreg_model_select = $('select[name="' + surfreg_model_name + '"]')
 
-    // update_atlas(surfreg_model_select)  
-    // surfreg_model_select.on('change', update_atlas);
     update_according_to_surfreg(surfreg_model_select)  
     surfreg_model_select.on('change', update_according_to_surfreg);
   });

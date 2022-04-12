@@ -371,7 +371,7 @@ class CbrainTask::CivetMacaque < PortalTask
   end
 
   def untouchable_params_attributes #:nodoc:
-    { :collection_id => true,
+    { :collection_id              => true,
       :output_civetcollection_id  => true, # OLD deprecated
       :output_civetcollection_ids => true  # The NEW convention is to use output_civetcollection_ids (with an 's'), not _id
     }
@@ -382,7 +382,7 @@ class CbrainTask::CivetMacaque < PortalTask
   end
 
 
-
+  
   #################################################
   # OLD API BELOW (+ modified)
   #################################################
@@ -513,6 +513,7 @@ class CbrainTask::CivetMacaque < PortalTask
       # Find other MINC/NIfTI userfiles with similar names, but with _t2, _pd or _mask instead of _t1
       if t1_name =~ /(\b|_)t1(\b|_)/i
         all_access = SingleFile.find_all_accessible_by_user(user, :access_requested => :read) # a relation
+                               .where("#{Userfile.table_name}.group_id" => t1.group_id)
         # Names in DB are not case sensitive, so searching for _t2 matches files with _T2
         t2_id  = all_access.where(:name => t1_name.sub(/(\b|_)t1(\b|_)/i,'\1t2\2')).limit(1).raw_first_column("#{Userfile.table_name}.id")[0]
         pd_id  = all_access.where(:name => t1_name.sub(/(\b|_)t1(\b|_)/i,'\1pd\2')).limit(1).raw_first_column("#{Userfile.table_name}.id")[0]
@@ -647,8 +648,8 @@ class CbrainTask::CivetMacaque < PortalTask
       comps_array = t1_name.split(/([a-zA-Z0-9]+)/)
       comps = {} # From "abc_def" will make { "0" => 'abc', "1" => 'def' ... }
       1.step(comps_array.size,2) { |i| comps[((i-1)/2+1).to_s] = comps_array[i] }
-      struct[:prefix] = prefpat.pattern_substitute(comps) if prefpat.present?
-      struct[:dsid]   = dsidpat.pattern_substitute(comps) if dsidpat.present?
+      struct[:prefix] = prefpat.present? ? prefpat.pattern_substitute(comps) : ""
+      struct[:dsid]   = dsidpat.present? ? dsidpat.pattern_substitute(comps) : ""
     end
     ""
   end
