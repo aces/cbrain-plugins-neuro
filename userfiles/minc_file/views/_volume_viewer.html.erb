@@ -55,42 +55,29 @@
     
     volume = {}
     if file.type == "MincFile" || file.type == "Minc1File" || file.type == "Minc2File"
-      volume = 
-      {
-        type: "minc",
-        header_url:   false,
-        raw_data_url: content_userfile_path(file, :content_loader => :minc_content, :file_name => file.name, :viewer_userfile_class => :MincFile),
-        template: {
-          element_id: "volume-ui-template",
-          viewer_insert_class: "volume-viewer-display"
-        }
-      }
+      volume = { type: "minc",
+                 header_url:   false,
+                 raw_data_url: content_userfile_path(file, :content_loader => :minc_content, :file_name => file.name, :viewer_userfile_class => :MincFile),
+               }
     end
     
     if file.type == "NiftiFile"
-      volume = 
-      {
-        type:    "nifti1",
-        nii_url: content_userfile_path(file, :content_loader => :raw_content, :file_name => file.name, :viewer_userfile_class => :NiftiFile),
-        template: {
-          element_id: "volume-ui-template",
-          viewer_insert_class: "volume-viewer-display"
-        }
-      }
+      volume = { type:    "nifti1",
+                 nii_url: content_userfile_path(file, :content_loader => :raw_content, :file_name => file.name, :viewer_userfile_class => :NiftiFile),
+               }
     end
     
     if file.type == "MghFile"
-      volume =     
-      {
-        type: "mgh",
-        url: content_userfile_path(file, :content_loader => :raw_content, :file_name => file.name, :viewer_userfile_class => :MghFile),
-        template: {
-          element_id: "volume-ui-template",
-          viewer_insert_class: "volume-viewer-display"
-        }
-      }
+      volume = { type: "mgh",
+                 url: content_userfile_path(file, :content_loader => :raw_content, :file_name => file.name, :viewer_userfile_class => :MghFile),
+               }
     end
     
+    next if volume.empty?
+    volume[:template] = { element_id:          "volume-ui-template",
+                          viewer_insert_class: "volume-viewer-display"
+                        }
+
     volumes_info_for_viewer[f.name] = volume
   end
 %>
