@@ -246,10 +246,6 @@
       },
     ]);
 
-    $("#brainbrowser_volume_closer-<%= bb_identifier %>").click(function(event) {
-      event.target.closest('[id*="brainbrowser-wrapper"]').remove();
-    });
-
     viewer.addEventListener("volumeuiloaded", function(event) {
       var container = event.container;
       container = $(container);
