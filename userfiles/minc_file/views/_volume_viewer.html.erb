@@ -29,52 +29,30 @@
 <% bb_identifier = bb_identifier.to_s + @target if @target.present? %>
 
 <%
-  top_userfile = Userfile.find(@userfile.id)
-  volumes_info_for_viewer         = {}
+  top_userfile            = Userfile.find(@userfile.id) 
+  list_fake_files         = top_userfile.list_fake_files
+  volumes_info_for_viewer = {}
+ 
+  list_fake_files.each do |file|
+    viewer = file.viewers.first.partial rescue nil
+    next if viewer && viewer != :volume_viewer
+    url    = nil
+    volume = nil 
 
-  top_userfile.list_files.each do |f|
-    matched_class                   = SingleFile.descendants.unshift(SingleFile).find { |c| f.name =~ c.file_name_pattern }
-    viewer                          = nil
+    url = content_userfile_path(file, :content_loader => :minc_content, :file_name => file.name, :viewer_userfile_class => :MincFile) if
+      file.type == "MincFile" || file.type == "Minc1File" || file.type == "Minc2File"
+    url = content_userfile_path(file, :content_loader => :raw_content, :file_name => file.name, :viewer_userfile_class => :NiftiFile) if
+      file.type == "NiftiFile"
+    url = content_userfile_path(file, :content_loader => :raw_content, :file_name => file.name, :viewer_userfile_class => :MghFile) if 
+      file.type == "MghFile"
 
-    if matched_class 
-      file   = matched_class.new(
-        :id            => @userfile.id,
-        :name          => f.name,
-        :data_provider => @userfile.data_provider,
-        :user_id       => @userfile.user_id,
-        :group_id      => @userfile.group_id,
-        :size          => @top_userfile.provider_collection_index.detect { |u| u.name == f.name }.size
-      )
-      viewer = file.viewers.first.partial rescue nil
-    end
-
-    next if viewer != :volume_viewer   
-    volume = {}
-    if file.type == "MincFile" || file.type == "Minc1File" || file.type == "Minc2File"
-      volume = { type: "minc",
-                 header_url:   false,
-                 raw_data_url: content_userfile_path(file, :content_loader => :minc_content, :file_name => file.name, :viewer_userfile_class => :MincFile),
-               }
-    end
-    
-    if file.type == "NiftiFile"
-      volume = { type:    "nifti1",
-                 nii_url: content_userfile_path(file, :content_loader => :raw_content, :file_name => file.name, :viewer_userfile_class => :NiftiFile),
-               }
-    end
-    
-    if file.type == "MghFile"
-      volume = { type: "mgh",
-                 url: content_userfile_path(file, :content_loader => :raw_content, :file_name => file.name, :viewer_userfile_class => :MghFile),
-               }
-    end
-    
-    next if volume.empty?
+    volume = file.createVolume(url) if url 
+    next if !volume
     volume[:template] = { element_id:          "volume-ui-template",
                           viewer_insert_class: "volume-viewer-display"
                         }
 
-    volumes_info_for_viewer[f.name] = volume
+    volumes_info_for_viewer[file.name] = volume
   end
 
   viewable_by_volume_viewer = volumes_info_for_viewer.keys

@@ -86,5 +86,10 @@ class MincFile < SingleFile
     end
   end
 
+  # Create a volume hash for BrainBrowser
+  def createVolume(url) 
+    { type: "minc", header_url: false, raw_data_url: url}
+  end
+
 end
 
