@@ -104,6 +104,7 @@
 <div id="global-controls-<%= bb_identifier %>" class="volume-viewer-controls">
   <div id="loading-<%= bb_identifier %>" style="display: none"><img src="/images/brainbrowser-loader.gif" /></div>
   <% if !viewable_by_volume_viewer.empty? %>
+    Volume to overlay:
     <select id="overlay_selection">
       <%= options_for_select viewable_by_volume_viewer %>
     </select>
@@ -131,17 +132,17 @@
             Voxel Coordinates:
           </div>
           <div id="voxel-coords-<%= bb_identifier %>-{{VOLID}}" class="voxel-coords" data-volume-id="<%= bb_identifier %>-{{VOLID}}">
-            I:<input id="voxel-i-<%= bb_identifier %>-{{VOLID}}" class="control-inputs">
-            J:<input id="voxel-j-<%= bb_identifier %>-{{VOLID}}" class="control-inputs">
-            K:<input id="voxel-k-<%= bb_identifier %>-{{VOLID}}" class="control-inputs">
+            I:<input id="voxel-i-<%= bb_identifier %>-{{VOLID}}" size="8" class="control-inputs">
+            J:<input id="voxel-j-<%= bb_identifier %>-{{VOLID}}" size="8" class="control-inputs">
+            K:<input id="voxel-k-<%= bb_identifier %>-{{VOLID}}" size="8" class="control-inputs">
           </div>
           <div class="control-heading" id="world-coordinates-heading-<%= bb_identifier %>-{{VOLID}}">
             World Coordinates:
           </div>
           <div id="world-coords-<%= bb_identifier %>-{{VOLID}}" class="world-coords" data-volume-id="<%= bb_identifier %>-{{VOLID}}">
-            X:<input id="world-x-<%= bb_identifier %>-{{VOLID}}" class="control-inputs">
-            Y:<input id="world-y-<%= bb_identifier %>-{{VOLID}}" class="control-inputs">
-            Z:<input id="world-z-<%= bb_identifier %>-{{VOLID}}" class="control-inputs">
+            X:<input id="world-x-<%= bb_identifier %>-{{VOLID}}" size="8" class="control-inputs">
+            Y:<input id="world-y-<%= bb_identifier %>-{{VOLID}}" size="8" class="control-inputs">
+            Z:<input id="world-z-<%= bb_identifier %>-{{VOLID}}" size="8" class="control-inputs">
           </div>
         </div>
 
@@ -608,12 +609,12 @@
         $("#overlay_selection").chosen().change(function(e){
           var volume_name = e.target.value;
           var volumes_info_for_viewer =  <%= json.( volumes_info_for_viewer ) %>;
-          var volume_1 = volumes_info_for_viewer["<%= @userfile.name %>"];
-          var volume_2 = volumes_info_for_viewer[volume_name];
+          var volume_0 = volumes_info_for_viewer["<%= @userfile.name %>"];
+          var volume_1 = volumes_info_for_viewer[volume_name];
 
           viewer.clearVolumes();
           viewer.loadVolumes({
-            volumes: [volume_1, volume_2],
+            volumes: [volume_0, volume_1],
             overlay: {
               template: {
                 element_id: "overlay-ui-template",
@@ -623,6 +624,14 @@
             complete: function() {
               loading_div.hide();
               $("#brainbrowser-wrapper").slideDown({duration: 600});
+              
+              var volume_viewer_1 = $("#volume-viewer-" + <%= bb_identifier %> + "-1");
+          
+              if (volume_viewer_1 !== undefined ) {
+                if (volume_viewer_1 && volume_viewer_1[0].children[0] && volume_viewer_1[0].children[0].children[0]) {
+                  volume_viewer_1[0].children[0].children[0].innerText = volume_name;
+                }
+              }
             }
           });
         });
