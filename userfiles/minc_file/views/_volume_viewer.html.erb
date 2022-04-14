@@ -274,8 +274,8 @@
         }
 
         // Set coordinates and redraw.
-        volume.setWorldCoords(x, y, z);
-
+        viewer.volumes[vol_id].setWorldCoords(x, y, z);
+        
         viewer.redrawVolumes();
       });
 
