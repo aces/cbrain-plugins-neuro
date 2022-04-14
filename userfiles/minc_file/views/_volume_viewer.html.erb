@@ -30,8 +30,6 @@
 
 <%
   top_userfile = Userfile.find(@userfile.id)
-  viewable_by_volume_viewer       = []
-  files_viewable_by_volume_viewer = []
   volumes_info_for_viewer         = {}
 
   top_userfile.list_files.each do |f|
@@ -50,9 +48,7 @@
       viewer = file.viewers.first.partial rescue nil
     end
 
-    next if viewer != :volume_viewer 
-    viewable_by_volume_viewer.push(f.name)
-    
+    next if viewer != :volume_viewer   
     volume = {}
     if file.type == "MincFile" || file.type == "Minc1File" || file.type == "Minc2File"
       volume = { type: "minc",
@@ -80,6 +76,8 @@
 
     volumes_info_for_viewer[f.name] = volume
   end
+
+  viewable_by_volume_viewer = volumes_info_for_viewer.keys
 %>
 
 <% json = lambda { |x| JSON[x].html_safe } %>
