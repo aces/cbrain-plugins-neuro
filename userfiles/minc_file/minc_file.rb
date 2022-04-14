@@ -25,14 +25,14 @@ class MincFile < SingleFile
 
   Revision_info=CbrainFileRevision[__FILE__] #:nodoc:
 
-  has_viewer :name => "Volume Viewer",  :partial => :volume_viewer,           :if => :size_allows_viewing_500_000_000_000_000
+  has_viewer :name => "Volume Viewer",  :partial => :volume_viewer,  :if => :size_allows_viewing_500_000_000
 
-  has_viewer :name => "Info & Headers", :partial => :info_header,             :if =>
+  has_viewer :name => "Info & Headers", :partial => :info_header,    :if =>
              Proc.new { |u| u.class.has_minctools?([2,0,0],["mincinfo","mincheader","mincdump","mincexpand"]) && u.is_locally_synced? }
 
-  has_viewer :name => "MincNavigator",  :partial => :minc_navigator,          :if => :size_allows_viewing_500_000_000_000_000
+  has_viewer :name => "MincNavigator",  :partial => :minc_navigator, :if => :size_allows_viewing_500_000_000
 
-  has_content :method => :minc_content,        :type => :text
+  has_content :method => :minc_content, :type => :text
 
   def self.file_name_pattern #:nodoc:
     /\.mi?nc(\.gz|\.Z|\.bz2)?$/i
