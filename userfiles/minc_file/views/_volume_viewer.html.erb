@@ -50,51 +50,49 @@
       viewer = file.viewers.first.partial rescue nil
     end
 
-    if viewer == :volume_viewer 
-      viewable_by_volume_viewer.push(f.name) if viewer == :volume_viewer
-      
-      volume = {}
-      if file.type == "MincFile" || file.type == "Minc1File" || file.type == "Minc2File"
-        volume = 
-        {
-          type: "minc",
-          header_url:   false,
-          raw_data_url: content_userfile_path(file, :content_loader => :minc_content, :file_name => file.name, :viewer_userfile_class => :MincFile),
-          template: {
-            element_id: "volume-ui-template",
-            viewer_insert_class: "volume-viewer-display"
-          }
+    next if viewer != :volume_viewer 
+    viewable_by_volume_viewer.push(f.name)
+    
+    volume = {}
+    if file.type == "MincFile" || file.type == "Minc1File" || file.type == "Minc2File"
+      volume = 
+      {
+        type: "minc",
+        header_url:   false,
+        raw_data_url: content_userfile_path(file, :content_loader => :minc_content, :file_name => file.name, :viewer_userfile_class => :MincFile),
+        template: {
+          element_id: "volume-ui-template",
+          viewer_insert_class: "volume-viewer-display"
         }
-      end
-      
-      if file.type == "NiftiFile"
-        volume = 
-        {
-          type:    "nifti1",
-          nii_url: content_userfile_path(file, :content_loader => :raw_content, :file_name => file.name, :viewer_userfile_class => :NiftiFile),
-          template: {
-            element_id: "volume-ui-template",
-            viewer_insert_class: "volume-viewer-display"
-          }
-        }
-      end
-      
-      if file.type == "MghFile"
-        volume =     
-        {
-          type: "mgh",
-          url: content_userfile_path(file, :content_loader => :raw_content, :file_name => file.name, :viewer_userfile_class => :MghFile),
-          template: {
-            element_id: "volume-ui-template",
-            viewer_insert_class: "volume-viewer-display"
-          }
-        }
-      end
-      
-      volumes_info_for_viewer[f.name] = volume
+      }
     end
+    
+    if file.type == "NiftiFile"
+      volume = 
+      {
+        type:    "nifti1",
+        nii_url: content_userfile_path(file, :content_loader => :raw_content, :file_name => file.name, :viewer_userfile_class => :NiftiFile),
+        template: {
+          element_id: "volume-ui-template",
+          viewer_insert_class: "volume-viewer-display"
+        }
+      }
+    end
+    
+    if file.type == "MghFile"
+      volume =     
+      {
+        type: "mgh",
+        url: content_userfile_path(file, :content_loader => :raw_content, :file_name => file.name, :viewer_userfile_class => :MghFile),
+        template: {
+          element_id: "volume-ui-template",
+          viewer_insert_class: "volume-viewer-display"
+        }
+      }
+    end
+    
+    volumes_info_for_viewer[f.name] = volume
   end
-
 %>
 
 <% json = lambda { |x| JSON[x].html_safe } %>
