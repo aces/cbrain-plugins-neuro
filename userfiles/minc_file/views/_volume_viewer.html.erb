@@ -25,8 +25,8 @@
 <%= stylesheet_link_tag    MincFile.public_path("stylesheets/volume_viewer.css").to_s, :media => "all" %>
 <%= javascript_include_tag MincFile.public_path("javascripts/brainbrowser.volume-viewer.min.js").to_s %>
 
-<% bb_identifier  = @userfile.id.to_s  %>
-<% bb_identifier  = bb_identifier.to_s + '_' + @target   if @target.present? %>
+<% bb_identifier = @userfile.id %>
+<% bb_identifier = bb_identifier.to_s + @target if @target.present? %>
 
 <%
   top_userfile = Userfile.find(@userfile.id)
@@ -229,22 +229,6 @@
 </script>
 
 <script type="text/javascript">
-
-  const close_wrapper = (event) => {
-    event.target.closest('[id*="brainbrowser-wrapper"]').remove();
-  }
-
-  const handleCloseButton = () => {
-    if (document.querySelectorAll('[id^="brainbrowser-wrapper"]').length === 1) {
-      document.querySelectorAll('[id^="brainbrowser_volume_closer-"]').forEach( (button) => {
-        button.setAttribute('disabled','disabled')
-      });
-    } else {
-      document.querySelectorAll('[id^="brainbrowser_volume_closer-"]').forEach( (button) => {
-        $(button).removeAttr('disabled')
-      });
-    }
-  }
 
   BrainBrowser.VolumeViewer.start("brainbrowser-volume-<%= bb_identifier %>", function(viewer) {
     var loading_div = $("#loading-<%= bb_identifier %>");
@@ -825,8 +809,6 @@
     // Set the size of slice display panels.
     ////////////////////////////////////////
     viewer.setDefaultPanelSize(256, 256);
-
-    handleCloseButton();
 
     ///////////////////
     // Start rendering.
