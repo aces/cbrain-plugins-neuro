@@ -29,8 +29,7 @@
 <% bb_identifier = bb_identifier.to_s + @target if @target.present? %>
 
 <%
-  top_userfile            = Userfile.find(@userfile.id) 
-  list_fake_files         = top_userfile.list_fake_files
+  list_fake_files         = Userfile.find(@userfile.id).list_fake_files rescue [@userfile]
   volumes_info_for_viewer = {}
  
   list_fake_files.each do |file|
@@ -64,12 +63,14 @@
 
 <div id="global-controls-<%= bb_identifier %>" class="volume-viewer-controls">
   <div id="loading-<%= bb_identifier %>" style="display: none"><img src="/images/brainbrowser-loader.gif" /></div>
-  <% if !viewable_by_volume_viewer.empty? %>
-    Volume to overlay:
-    <select id="overlay_selection">
-      <%= options_for_select viewable_by_volume_viewer %>
-    </select>
-  <% end %>
+  <div id="overlay-selection" >
+    <% if !viewable_by_volume_viewer.empty? && viewable_by_volume_viewer.size > 1 %>
+      Volume to overlay:
+      <select id="overlay_selection">
+        <%= options_for_select viewable_by_volume_viewer %>
+      </select>
+    <% end %>
+  </div>
   <br>
   <button id="brainbrowser_volume_screenshot-<%= bb_identifier %>">Screenshot</button>
 </div>
@@ -564,8 +565,9 @@
             },
             complete: function() {
               loading_div.hide();
+              $("#overlay-selection").hide();
               $("#brainbrowser-wrapper").slideDown({duration: 600});
-              
+          
               var volume_viewer_1 = $("#volume-viewer-" + <%= bb_identifier %> + "-1");
           
               if (volume_viewer_1 !== undefined ) {
