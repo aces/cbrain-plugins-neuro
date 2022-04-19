@@ -34,18 +34,20 @@
  
   list_fake_files.each do |file|
     viewer = file.viewers.first.partial rescue nil
-    next if viewer && viewer != :volume_viewer
+    next if viewer.blank?
+    next if viewer != :volume_viewer
     url    = nil
     volume = nil 
 
-    url = content_userfile_path(file, :content_loader => :minc_content, :file_name => file.name, :viewer_userfile_class => :MincFile) if
-      file.type == "MincFile" || file.type == "Minc1File" || file.type == "Minc2File"
-    url = content_userfile_path(file, :content_loader => :raw_content, :file_name => file.name, :viewer_userfile_class => :NiftiFile) if
-      file.type == "NiftiFile"
-    url = content_userfile_path(file, :content_loader => :raw_content, :file_name => file.name, :viewer_userfile_class => :MghFile) if 
-      file.type == "MghFile"
+    if    file.is_a?(MincFile)
+      url = content_userfile_path(file, :content_loader => :minc_content, :file_name => file.name, :viewer_userfile_class => :MincFile)
+    elsif file.is_a?(NiftiFile) 
+      url = content_userfile_path(file, :content_loader => :raw_content, :file_name => file.name, :viewer_userfile_class => :NiftiFile)
+    elsif
+      url = content_userfile_path(file, :content_loader => :raw_content, :file_name => file.name, :viewer_userfile_class => :MghFile)
+    end
 
-    volume = file.createVolume(url) if url 
+    volume = file.to_BrainBrowser_volume(url) if url 
     next if !volume
     volume[:template] = { element_id:          "volume-ui-template",
                           viewer_insert_class: "volume-viewer-display"
@@ -64,7 +66,7 @@
 <div id="global-controls-<%= bb_identifier %>" class="volume-viewer-controls">
   <div id="loading-<%= bb_identifier %>" style="display: none"><img src="/images/brainbrowser-loader.gif" /></div>
   <div id="overlay-selection" >
-    <% if !viewable_by_volume_viewer.empty? && viewable_by_volume_viewer.size > 1 %>
+    <% if viewable_by_volume_viewer.present? && viewable_by_volume_viewer.size > 1 %>
       Volume to overlay:
       <select id="overlay_selection">
         <%= options_for_select viewable_by_volume_viewer %>

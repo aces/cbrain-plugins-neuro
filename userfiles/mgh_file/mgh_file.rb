@@ -56,7 +56,7 @@ class MghFile < SingleFile
   end
 
   # Create a volume hash for BrainBrowser
-  def createVolume(url)
+  def to_BrainBrowser_volume(url)
     { type: "mgh", url: url }
   end
 
