@@ -558,6 +558,7 @@
           var volume_0 = volumes_info_for_viewer["<%= @userfile.name %>"];
           var volume_1 = volumes_info_for_viewer[volume_name];
 
+          loading_div.show();
           viewer.clearVolumes();
           viewer.loadVolumes({
             volumes: [volume_0, volume_1],
