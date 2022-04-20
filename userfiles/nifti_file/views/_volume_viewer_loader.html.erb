@@ -18,8 +18,12 @@ viewer.loadVolumes({
   volumes: [
     {
       type:    "nifti1",
-      nii_url: "<%= content_userfile_path(@userfile, :content_loader => :raw_content, :file_name => @userfile.name, :viewer_userfile_class => :NiftiFile) %>"
-    },
+      nii_url: "<%= content_userfile_path(@userfile, :content_loader => :raw_content, :file_name => @userfile.name, :viewer_userfile_class => :NiftiFile) %>",
+      template: {
+        element_id: "volume-ui-template",
+        viewer_insert_class: "volume-viewer-display"
+      }
+    }
   ],
   complete: function() {
     loading_div.hide();

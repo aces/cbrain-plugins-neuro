@@ -3,7 +3,7 @@
 #
 # CBRAIN Project
 #
-# Copyright (C) 2008-2012
+# Copyright (C) 2008-2022
 # The Royal Institution for the Advancement of Learning
 # McGill University
 #
@@ -28,85 +28,174 @@
 <% bb_identifier = @userfile.id %>
 <% bb_identifier = bb_identifier.to_s + @target if @target.present? %>
 
-<div id="brainbrowser-wrapper-<%= bb_identifier %>">
-  <div id="volume-viewer-<%= bb_identifier %>">
-    <div id="global-controls-<%= bb_identifier %>" class="volume-viewer-controls">
-      <span id="brainbrowser_volume_screenshot-<%= bb_identifier %>" class="button">Screenshot</span>
-    </div>
+<%
+  list_fake_files         = Userfile.find(@userfile.id).list_fake_files rescue [@userfile]
+  volumes_info_for_viewer = {}
+ 
+  list_fake_files.each do |file|
+    viewer = file.viewers.first.partial rescue nil
+    next if viewer.blank?
+    next if viewer != :volume_viewer
+    url    = nil
+    volume = nil 
 
-    <div id="brainbrowser-volume-<%= bb_identifier %>"></div>
-    <div id="display-<%= bb_identifier %>">
-      <div id="loading-<%= bb_identifier %>" style="display: none"><img src="/images/brainbrowser-loader.gif" /></div>
-    </div>
+    if    file.is_a?(MincFile)
+      url = content_userfile_path(file, :content_loader => :minc_content, :file_name => file.name, :viewer_userfile_class => :MincFile)
+    elsif file.is_a?(NiftiFile) 
+      url = content_userfile_path(file, :content_loader => :raw_content, :file_name => file.name, :viewer_userfile_class => :NiftiFile)
+    elsif
+      url = content_userfile_path(file, :content_loader => :raw_content, :file_name => file.name, :viewer_userfile_class => :MghFile)
+    end
 
-    <div class="volume-viewer-controls volume-controls">
+    volume = file.to_BrainBrowser_volume(url) if url 
+    next if !volume
+    volume[:template] = { element_id:          "volume-ui-template",
+                          viewer_insert_class: "volume-viewer-display"
+                        }
 
-      <div class="coords">
-        <div class="control-heading" id="voxel-coordinates-heading-<%= bb_identifier %>">
-          Voxel Coordinates:
-        </div>
-        <div id="voxel-coords-<%= bb_identifier %>" class="voxel-coords" data-volume-id="<%= bb_identifier %>">
-          I:<input id="voxel-i-<%= bb_identifier %>" class="control-inputs">
-          J:<input id="voxel-j-<%= bb_identifier %>" class="control-inputs">
-          K:<input id="voxel-k-<%= bb_identifier %>" class="control-inputs">
-        </div>
-        <div class="control-heading" id="world-coordinates-heading-<%= bb_identifier %>">
-          World Coordinates:
-        </div>
-        <div id="world-coords-<%= bb_identifier %>" class="world-coords" data-volume-id="<%= bb_identifier %>">
-          X:<input id="world-x-<%= bb_identifier %>" class="control-inputs">
-          Y:<input id="world-y-<%= bb_identifier %>" class="control-inputs">
-          Z:<input id="world-z-<%= bb_identifier %>" class="control-inputs">
-        </div>
-      </div>
+    volumes_info_for_viewer[file.name] = volume
+  end
 
-      <div id="intensity-value-div-<%= bb_identifier %>">
-        <span class="control-heading" data-volume-id="<%= bb_identifier %>">
-          Value:
-        </span>
-        <span id="intensity-value-<%= bb_identifier %>" class="intensity-value"></span>
-      </div>
+  viewable_by_volume_viewer = volumes_info_for_viewer.keys
+%>
 
+<% json = lambda { |x| JSON[x].html_safe } %>
 
-      <div id="color-map-<%= bb_identifier %>">
-        <span class="control-heading" id="color-map-heading-<%= bb_identifier %>">
-          Color Map:
-        </span>
-      </div>
+<div id="brainbrowser-volume-<%= bb_identifier %>"></div>
 
-
-      <div id="threshold-div-<%= bb_identifier %>" class="threshold-div" data-volume-id="<%= bb_identifier %>">
-        <div class="control-heading">
-          Threshold:
-        </div>
-        <br>
-        <div class="thresh-inputs">
-          <input id="min-threshold-<%= bb_identifier %>" class="control-inputs thresh-input-left"  value="0"/>
-          <input id="max-threshold-<%= bb_identifier %>" class="control-inputs thresh-input-right" value="255"/>
-        </div>
-        <div class="slider volume-viewer-threshold" id="threshold-slider-<%= bb_identifier %>"></div>
-      </div>
-
-      <div id="time-<%= bb_identifier %>" class="time-div" data-volume-id="<%= bb_identifier %>" style="display:none">
-        <span class="control-heading">Time:</span>
-        <input class="control-inputs" value="0" id="time-val-<%= bb_identifier %>"/>
-        <div class="slider volume-viewer-threshold" id="threshold-time-slider-<%= bb_identifier %>"></div>
-        <br>
-        <input type="checkbox" class="button" id="play-<%= bb_identifier %>"><label for="play-<%= bb_identifier %>">Play</label>
-      </div>
-
-      <div id="slice-series-<%= bb_identifier %>" class="slice-series-div" data-volume-id="0">
-        <div class="control-heading" id="slice-series-heading-<%= bb_identifier %>">All slices: </div>
-        <span class="slice-series-button button" data-axis="xspace">Sagittal</span>
-        <span class="slice-series-button button" data-axis="yspace">Coronal</span>
-        <span class="slice-series-button button" data-axis="zspace">Transverse</span>
-      </div>
-
-    </div>
+<div id="global-controls-<%= bb_identifier %>" class="volume-viewer-controls">
+  <div id="loading-<%= bb_identifier %>" style="display: none"><img src="/images/brainbrowser-loader.gif" /></div>
+  <div id="overlay-selection" >
+    <% if viewable_by_volume_viewer.present? && viewable_by_volume_viewer.size > 1 %>
+      Volume to overlay:
+      <select id="overlay_selection">
+        <%= options_for_select viewable_by_volume_viewer %>
+      </select>
+      <br>
+      <span class="warning">This is an experimental feature, it is based on the ability of BrainBrowser volume viewer to overlay 2 volumes</span>
+    <% end %>
   </div>
+  <br>
+  <button id="brainbrowser_volume_screenshot-<%= bb_identifier %>">Screenshot</button>
 </div>
 
+
+<%- 
+######################
+# Volume UI template #
+######################
+-%>
+
+<script id="volume-ui-template" type="x-volume-ui-template">
+  <div id="brainbrowser-wrapper-<%= bb_identifier %>-{{VOLID}}">
+    <div id="volume-viewer-<%= bb_identifier %>-{{VOLID}}">
+
+      <fieldset><legend><%= @userfile.name %></legend>
+      <div class="volume-viewer-display"></div>
+      <div class="volume-viewer-controls volume-controls">
+        <div class="coords">
+          <div class="control-heading" id="voxel-coordinates-heading-<%= bb_identifier %>-{{VOLID}}">
+            Voxel Coordinates:
+          </div>
+          <div id="voxel-coords-<%= bb_identifier %>-{{VOLID}}" class="voxel-coords" data-volume-id="<%= bb_identifier %>-{{VOLID}}">
+            I:<input id="voxel-i-<%= bb_identifier %>-{{VOLID}}" size="8" class="control-inputs">
+            J:<input id="voxel-j-<%= bb_identifier %>-{{VOLID}}" size="8" class="control-inputs">
+            K:<input id="voxel-k-<%= bb_identifier %>-{{VOLID}}" size="8" class="control-inputs">
+          </div>
+          <div class="control-heading" id="world-coordinates-heading-<%= bb_identifier %>-{{VOLID}}">
+            World Coordinates:
+          </div>
+          <div id="world-coords-<%= bb_identifier %>-{{VOLID}}" class="world-coords" data-volume-id="<%= bb_identifier %>-{{VOLID}}">
+            X:<input id="world-x-<%= bb_identifier %>-{{VOLID}}" size="8" class="control-inputs">
+            Y:<input id="world-y-<%= bb_identifier %>-{{VOLID}}" size="8" class="control-inputs">
+            Z:<input id="world-z-<%= bb_identifier %>-{{VOLID}}" size="8" class="control-inputs">
+          </div>
+        </div>
+
+        <div id="intensity-value-div-<%= bb_identifier %>-{{VOLID}}">
+          <span class="control-heading" data-volume-id="<%= bb_identifier %>-{{VOLID}}">
+            Value:
+          </span>
+          <span id="intensity-value-<%= bb_identifier %>-{{VOLID}}" class="intensity-value"></span>
+        </div>
+
+
+        <div id="color-map-<%= bb_identifier %>-{{VOLID}}">
+          <span class="control-heading" id="color-map-heading-<%= bb_identifier %>-{{VOLID}}">
+            Color Map:
+          </span>
+        </div>
+
+
+        <div id="threshold-div-<%= bb_identifier %>-{{VOLID}}" class="threshold-div" data-volume-id="<%= bb_identifier %>-{{VOLID}}">
+          <div class="control-heading">
+            Threshold:
+          </div>
+          <br>
+          <div class="thresh-inputs">
+            <input id="min-threshold-<%= bb_identifier %>-{{VOLID}}" class="control-inputs thresh-input-left"  value="0"/>
+            <input id="max-threshold-<%= bb_identifier %>-{{VOLID}}" class="control-inputs thresh-input-right" value="255"/>
+          </div>
+          <div class="slider volume-viewer-threshold" id="threshold-slider-<%= bb_identifier %>-{{VOLID}}"></div>
+        </div>
+
+        <div id="time-<%= bb_identifier %>-{{VOLID}}" class="time-div" data-volume-id="<%= bb_identifier %>-{{VOLID}}" style="display:none">
+          <span class="control-heading">Time:</span>
+          <input class="control-inputs" value="0" id="time-val-<%= bb_identifier %>-{{VOLID}}"/>
+          <div class="slider volume-viewer-threshold" id="threshold-time-slider-<%= bb_identifier %>-{{VOLID}}"></div>
+          <br>
+          <input type="checkbox" class="button" id="play-<%= bb_identifier %>-{{VOLID}}"><label for="play-<%= bb_identifier %>-{{VOLID}}">Play</label>
+        </div>
+
+        <div id="slice-series-<%= bb_identifier %>-{{VOLID}}" class="slice-series-div" data-volume-id="0">
+          <div class="control-heading" id="slice-series-heading-<%= bb_identifier %>-{{VOLID}}">All slices: </div>
+          <span class="slice-series-button button" data-axis="xspace">Sagittal</span>
+          <span class="slice-series-button button" data-axis="yspace">Coronal</span>
+          <span class="slice-series-button button" data-axis="zspace">Transverse</span>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</script>
+
+<%- 
+#######################
+# Overlay UI template #
+#######################
+-%>
+
+<script id="overlay-ui-template" type="x-volume-ui-template">
+  <fieldset>
+    <legend>Overlay</legend>
+    <div class="overlay-viewer-display">
+    </div>
+    <div class="volume-viewer-controls volume-controls">
+
+      <div class="blend-div" data-volume-id="<%= bb_identifier %>-{{VOLID}}>
+        <span class="control-heading">Blend (0.0 to 1.0):</span>
+        <input class="control-inputs" value="0.5" id="blend-val"/>
+        <div id="blend-slider" class="slider volume-viewer-blend"></div>
+      </div>
+
+      <div class="contrast-div" data-volume-id="<%= bb_identifier %>-{{VOLID}}">
+        <span class="control-heading" id="contrast-heading-">Contrast (0.0 to 2.0):</span>
+        <input class="control-inputs" value="1.0" id="contrast-val"/>
+        <div id="contrast-slider" class="slider volume-viewer-contrast"></div>
+      </div>
+
+      <div class="brightness-div" data-volume-id="{{VOLID}}">
+        <span class="control-heading" id="brightness-heading{{VOLID}}">Brightness (-1 to 1):</span>
+        <input class="control-inputs" value="0" id="brightness-val"/>
+        <div id="brightness-slider" class="slider volume-viewer-brightness"></div>
+      </div>
+
+    </div>
+  </fieldset>
+</script>
+
 <script type="text/javascript">
+
   BrainBrowser.VolumeViewer.start("brainbrowser-volume-<%= bb_identifier %>", function(viewer) {
     var loading_div = $("#loading-<%= bb_identifier %>");
 
@@ -123,75 +212,21 @@
       },
     ]);
 
-    $("#brainbrowser_volume_screenshot-<%= bb_identifier %>").click(function() {
-      var width        = 0;
-      var height       = 0;
-      var active_panel = viewer.active_panel;
-
-      // Create a canvas on which we'll draw the images.
-      var canvas  = document.createElement("canvas");
-      var context = canvas.getContext("2d");
-      var img     = new Image();
-
-      viewer.volumes.forEach(function(volume) {
-        volume.display.forEach(function(panel) {
-          width   = Math.max(width,  panel.canvas.width);
-          height  = Math.max(height, panel.canvas.height);
-        });
-      });
-
-      canvas.width      = width * viewer.volumes.length;
-      canvas.height     = height * 3;
-      context.fillStyle = "#000000";
-      context.fillRect(0, 0, canvas.width, canvas.height);
-
-      // The active canvas is highlighted by the viewer,
-      // so we set it to null and redraw the highlighting
-      // isn't shown in the image.
-      if (active_panel) {
-        active_panel.updated = true;
-        viewer.active_panel  = null;
-        viewer.draw();
-      }
-
-      viewer.volumes.forEach(function(volume, x) {
-        volume.display.forEach(function(panel, axis_name, y) {
-          context.drawImage(panel.canvas, x * width, y * height);
-        });
-      });
-
-      // Restore the active canvas.
-      if (active_panel) {
-        active_panel.updated = true;
-        viewer.active_panel  = active_panel;
-        viewer.draw();
-      }
-
-      // Show the created image in a dialog box.
-      img.onload = function() {
-        $("<div></div>").append(img).dialog({
-          title: "Slices",
-          height: img.height,
-          width:  img.width
-        });
-      };
-
-      img.src = canvas.toDataURL();
-    });
-
     viewer.addEventListener("volumeuiloaded", function(event) {
+      var container = event.container;
+      container = $(container);
       var volume    = event.volume;
       var vol_id    = event.volume_id;
 
       $(".button").button();
 
-     // The world coordinate input fields.
-      $("#world-coords-<%= bb_identifier %>").change(function() {
+      // The world coordinate input fields.
+      $("#world-coords-<%= bb_identifier %>-" + vol_id).change(function() {
         var div = $(this);
 
-        var x = parseFloat(div.find("#world-x-<%= bb_identifier %>").val());
-        var y = parseFloat(div.find("#world-y-<%= bb_identifier %>").val());
-        var z = parseFloat(div.find("#world-z-<%= bb_identifier %>").val());
+        var x = parseFloat(div.find("#world-x-<%= bb_identifier %>-" + vol_id).val());
+        var y = parseFloat(div.find("#world-y-<%= bb_identifier %>-" + vol_id).val());
+        var z = parseFloat(div.find("#world-z-<%= bb_identifier %>-" + vol_id).val());
 
         // Make sure the values are numeric.
         if (!BrainBrowser.utils.isNumeric(x)) {
@@ -206,17 +241,17 @@
 
         // Set coordinates and redraw.
         viewer.volumes[vol_id].setWorldCoords(x, y, z);
-
+        
         viewer.redrawVolumes();
       });
 
       // The voxel coordinate input fields.
-      $("#voxel-coords-<%= bb_identifier %>").change(function() {
+      $("#voxel-coords-<%= bb_identifier %>-" + vol_id).change(function() {
         var div = $(this);
 
-        var i = parseInt(div.find("#voxel-i-<%= bb_identifier %>").val(), 10);
-        var j = parseInt(div.find("#voxel-j-<%= bb_identifier %>").val(), 10);
-        var k = parseInt(div.find("#voxel-k-<%= bb_identifier %>").val(), 10);
+        var i = parseInt(div.find("#voxel-i-<%= bb_identifier %>-" + vol_id).val(), 10);
+        var j = parseInt(div.find("#voxel-j-<%= bb_identifier %>-" + vol_id).val(), 10);
+        var k = parseInt(div.find("#voxel-k-<%= bb_identifier %>-" + vol_id).val(), 10);
 
         // Make sure the values are numeric.
         if (!BrainBrowser.utils.isNumeric(i)) {
@@ -251,18 +286,18 @@
         );
       });
 
-      $("#color-map-<%= bb_identifier %>").append(color_map_select);
+      $("#color-map-<%= bb_identifier %>-" + vol_id).append(color_map_select);
 
       // Change the range of intensities that will be displayed.
-      $("#threshold-div-<%= bb_identifier %>").each(function() {
+      $("#threshold-div-<%= bb_identifier %>-" + vol_id).each(function() {
         var div = $(this);
 
         // Input fields to input min and max thresholds directly.
-        var min_input = div.find("#min-threshold-<%= bb_identifier %>");
-        var max_input = div.find("#max-threshold-<%= bb_identifier %>");
+        var min_input = div.find("#min-threshold-<%= bb_identifier %>-" + vol_id);
+        var max_input = div.find("#max-threshold-<%= bb_identifier %>-" + vol_id);
 
         // Slider to modify min and max thresholds.
-        var slider = div.find("#threshold-slider-<%= bb_identifier %>");
+        var slider = div.find("#threshold-slider-<%= bb_identifier %>-" + vol_id);
 
         var volume = viewer.volumes[vol_id];
 
@@ -336,7 +371,7 @@
 
 
       if (volume.header.time) {
-        $("#time-<%= bb_identifier %>").each(function() {
+        $("#time-<%= bb_identifier %>-" + vol_id).each(function() {
           var div = $(this);
 
           if (volume.header.time) {
@@ -345,9 +380,9 @@
             return;
           }
 
-          var slider      = div.find("#threshold-time-slider-<%= bb_identifier %>");
-          var time_input  = div.find("#time-val-<%= bb_identifier %>");
-          var play_button = div.find("#play-<%= bb_identifier %>");
+          var slider      = div.find("#threshold-time-slider-<%= bb_identifier %>-" + vol_id);
+          var time_input  = div.find("#time-val-<%= bb_identifier %>-" + vol_id);
+          var play_button = div.find("#play-<%= bb_identifier %>-" + vol_id);
 
           var min = 0;
           var max = volume.header.time.space_length - 1;
@@ -404,9 +439,8 @@
 
       }
 
-      // Create an image of all slices in a certain
-      // orientation.
-      $("#slice-series-<%= bb_identifier %>").each(function() {
+      // Create an image of all slices in a certain orientation.
+      $("#slice-series-<%= bb_identifier %>-" + vol_id).each(function() {
         var div = $(this);
 
         var space_names = {
@@ -416,12 +450,12 @@
         };
 
         div.find(".slice-series-button").click(function() {
-          var axis_name = $(this).data("axis");
-          var axis = volume.header[axis_name];
+          var axis_name    = $(this).data("axis");
+          var axis         = volume.header[axis_name];
           var space_length = axis.space_length;
-          var time = volume.current_time;
-          var per_column = 10;
-          var zoom = 0.5;
+          var time         = volume.current_time;
+          var per_column   = 10;
+          var zoom         = 0.5;
           var i, x, y;
 
           // Canvas on which to draw the images.
@@ -461,6 +495,227 @@
         });
       });
 
+      $("#brainbrowser_volume_screenshot-<%= bb_identifier %>").click(function() {
+        var width        = 0;
+        var height       = 0;
+        var active_panel = viewer.active_panel;
+
+        // Create a canvas on which we'll draw the images.
+        var canvas  = document.createElement("canvas");
+        var context = canvas.getContext("2d");
+        var img     = new Image();
+
+        viewer.volumes.forEach(function(volume) {
+          volume.display.forEach(function(panel) {
+            width   = Math.max(width,  panel.canvas.width);
+            height  = Math.max(height, panel.canvas.height);
+          });
+        });
+
+        canvas.width      = width * viewer.volumes.length;
+        canvas.height     = height * 3;
+        context.fillStyle = "#000000";
+        context.fillRect(0, 0, canvas.width, canvas.height);
+
+        // The active canvas is highlighted by the viewer,
+        // so we set it to null and redraw the highlighting
+        // isn't shown in the image.
+        if (active_panel) {
+          active_panel.updated = true;
+          viewer.active_panel  = null;
+          viewer.draw();
+        }
+
+        viewer.volumes.forEach(function(volume, x) {
+          volume.display.forEach(function(panel, axis_name, y) {
+            context.drawImage(panel.canvas, x * width, y * height);
+          });
+        });
+
+        // Restore the active canvas.
+        if (active_panel) {
+          active_panel.updated = true;
+          viewer.active_panel  = active_panel;
+          viewer.draw();
+        }
+
+        // Show the created image in a dialog box.
+        img.onload = function() {
+          $("<div></div>").append(img).dialog({
+            title: "Slices",
+            height: img.height,
+            width:  img.width
+          });
+        };
+
+        img.src = canvas.toDataURL();
+      });
+
+      $(document).ready(function(){
+        $("#overlay_selection").chosen().change(function(e){
+          var volume_name = e.target.value;
+          var volumes_info_for_viewer =  <%= json.( volumes_info_for_viewer ) %>;
+          var volume_0 = volumes_info_for_viewer["<%= @userfile.name %>"];
+          var volume_1 = volumes_info_for_viewer[volume_name];
+
+          viewer.clearVolumes();
+          viewer.loadVolumes({
+            volumes: [volume_0, volume_1],
+            overlay: {
+              template: {
+                element_id: "overlay-ui-template",
+                viewer_insert_class: "overlay-viewer-display"
+              }
+            },
+            complete: function() {
+              loading_div.hide();
+              $("#overlay-selection").hide();
+              $("#brainbrowser-wrapper").slideDown({duration: 600});
+          
+              var volume_viewer_1 = $("#volume-viewer-" + <%= bb_identifier %> + "-1");
+          
+              if (volume_viewer_1 !== undefined ) {
+                if (volume_viewer_1 && volume_viewer_1[0].children[0] && volume_viewer_1[0].children[0].children[0]) {
+                  volume_viewer_1[0].children[0].children[0].innerText = volume_name;
+                }
+              }
+            }
+          });
+        });
+      })
+
+      // Blend controls for a multivolume overlay.
+      container.find(".blend-div").each(function() {
+        var div         = $(this);
+        var slider      = div.find(".slider");
+        var blend_input = div.find("#blend-val");
+
+        // Slider to select blend value.
+        slider.slider({
+          min: 0,
+          max: 1,
+          step: 0.01,
+          value: 0.5,
+          slide: function(event, ui) {
+            var value = parseFloat(ui.value);
+            volume.blend_ratios[0] = 1 - value;
+            volume.blend_ratios[1] = value;
+
+
+
+            blend_input.val(value);
+            viewer.redrawVolumes();
+          },
+          stop: function() {
+            $(this).find("a").blur();
+          }
+        });
+
+        // Input field to select blend values explicitly.
+        blend_input.change(function() {
+          var value = parseFloat(this.value);
+
+          // Check that input is numeric and in range.
+          if (!BrainBrowser.utils.isNumeric(value)) {
+            value = 0;
+          }
+          value = Math.max(0, Math.min(value, 1));
+          this.value = value;
+
+          // Update slider and redraw volumes.
+          slider.slider("value", value);
+          volume.blend_ratios[0] = 1 - value;
+          volume.blend_ratios[1] = value;
+          viewer.redrawVolumes();
+        });
+      });
+
+            // Contrast controls
+      container.find(".contrast-div").each(function() {
+        var div            = $(this);
+        var slider         = div.find(".slider");
+        var contrast_input = div.find("#contrast-val");
+
+        // Slider to select contrast value.
+        slider.slider({
+          min: 0,
+          max: 2,
+          step: 0.05,
+          value: 1,
+          slide: function(event, ui) {
+            var value = parseFloat(ui.value);
+            volume.display.setContrast(value);
+            volume.display.refreshPanels();
+
+            contrast_input.val(value);
+          },
+          stop: function() {
+            $(this).find("a").blur();
+          }
+        });
+
+        // Input field to select contrast values explicitly.
+        contrast_input.change(function() {
+          var value = parseFloat(this.value);
+
+          // Check that input is numeric and in range.
+          if (!BrainBrowser.utils.isNumeric(value)) {
+            value = 0;
+          }
+          value = Math.max(0, Math.min(value, 2));
+          this.value = value;
+
+          // Update slider and redraw volumes.
+          slider.slider("value", value);
+          volume.display.setContrast(value);
+          volume.display.refreshPanels();
+          viewer.redrawVolumes();
+        });
+      });
+
+      // Contrast controls
+      container.find(".brightness-div").each(function() {
+        var div              = $(this);
+        var slider           = div.find(".slider");
+        var brightness_input = div.find("#brightness-val");
+
+        // Slider to select brightness value.
+        slider.slider({
+          min: -1,
+          max: 1,
+          step: 0.05,
+          value: 0,
+          slide: function(event, ui) {
+            var value = parseFloat(ui.value);
+            volume.display.setBrightness(value);
+            volume.display.refreshPanels();
+
+            brightness_input.val(value);
+          },
+          stop: function() {
+            $(this).find("a").blur();
+          }
+        });
+
+        // Input field to select brightness values explicitly.
+        brightness_input.change(function() {
+          var value = parseFloat(this.value);
+
+          // Check that input is numeric and in range.
+          if (!BrainBrowser.utils.isNumeric(value)) {
+            value = 0;
+          }
+          value = Math.max(-1, Math.min(value, 1));
+          this.value = value;
+
+          // Update slider and redraw volumes.
+          slider.slider("value", value);
+          volume.display.setBrightness(value);
+          volume.display.refreshPanels();
+          viewer.redrawVolumes();
+        });
+      });
+      
     });
 
     /////////////////////////////////////////////////////
@@ -469,24 +724,26 @@
     viewer.addEventListener("sliceupdate", function(event) {
       var panel  = event.target;
       var volume = event.volume;
+      var vol_id = panel.volume_id;
+      var world_coords, voxel_coords;
       var value;
 
       if (BrainBrowser.utils.isFunction(volume.getWorldCoords)) {
         world_coords = volume.getWorldCoords();
-        $("#world-x-<%= bb_identifier %>").val(world_coords.x.toPrecision(6));
-        $("#world-y-<%= bb_identifier %>").val(world_coords.y.toPrecision(6));
-        $("#world-z-<%= bb_identifier %>").val(world_coords.z.toPrecision(6));
+        $("#world-x-<%= bb_identifier %>-" + vol_id).val(world_coords.x.toPrecision(6));
+        $("#world-y-<%= bb_identifier %>-" + vol_id).val(world_coords.y.toPrecision(6));
+        $("#world-z-<%= bb_identifier %>-" + vol_id).val(world_coords.z.toPrecision(6));
       }
 
       if (BrainBrowser.utils.isFunction(volume.getVoxelCoords)) {
         voxel_coords = volume.getVoxelCoords();
-        $("#voxel-i-<%= bb_identifier %>").val(parseInt(voxel_coords.i, 10));
-        $("#voxel-j-<%= bb_identifier %>").val(parseInt(voxel_coords.j, 10));
-        $("#voxel-k-<%= bb_identifier %>").val(parseInt(voxel_coords.k, 10));
+        $("#voxel-i-<%= bb_identifier %>-" + vol_id).val(parseInt(voxel_coords.i, 10));
+        $("#voxel-j-<%= bb_identifier %>-" + vol_id).val(parseInt(voxel_coords.j, 10));
+        $("#voxel-k-<%= bb_identifier %>-" + vol_id).val(parseInt(voxel_coords.k, 10));
       }
 
       value = volume.getIntensityValue();
-      $("#intensity-value-<%= bb_identifier %>")
+      $("#intensity-value-<%= bb_identifier %>-" + vol_id)
       .css("background-color", "#" + volume.color_map.colorFromValue(value, {
         hex: true,
         min: volume.min,
@@ -497,8 +754,8 @@
       .html(Math.floor(value));
 
       if (volume.data && volume.header.time) {
-        $("#time-slider-<%= bb_identifier %>").slider("option", "value", volume.current_time);
-        $("#time-val-<%= bb_identifier %>").val(volume.current_time);
+        $("#time-slider-<%= bb_identifier %>-" + vol_id).slider("option", "value", volume.current_time);
+        $("#time-val-<%= bb_identifier %>-" + vol_id).val(volume.current_time);
       }
     });
 

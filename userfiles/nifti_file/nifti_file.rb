@@ -50,4 +50,9 @@ class NiftiFile < SingleFile
     end
   end
 
+  # Create a volume hash for BrainBrowser
+  def to_BrainBrowser_volume(url)
+    { type:    "nifti1", nii_url: url }
+  end
+
 end
