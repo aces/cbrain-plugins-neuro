@@ -55,7 +55,9 @@ class DataladDataProvider < DataProvider
   end
 
   def is_browsable?(by_user = nil) #:nodoc:
-    true
+    return true if by_user.blank? || self.meta[:browse_gid].blank?
+    return true if by_user.is_a?(AdminUser) || by_user.id == self.user_id
+    by_user.is_member_of_group(self.meta[:browse_gid].to_i)
   end
 
   # Yes, this DP is the first one to have this capability
