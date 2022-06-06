@@ -135,6 +135,11 @@ class CbrainTask::CivetMacaque < PortalTask
       # CBRAIN output renaming
       :output_filename_pattern => '{subject}-{cluster}-{task_id}-{run_number}',
 
+      # select_all initial value
+      :launch_it         => "all",
+      :use_multispectral => "all",
+      :use_spectral_mask => "all",
+
     }
   end
 
@@ -467,7 +472,7 @@ class CbrainTask::CivetMacaque < PortalTask
         prefix = self.tool_config && !self.tool_config.is_version("2.1.0") ? "prefix"  : ""
         dsid   = "subject"  # maybe "auto_#{idx}"
       end
-
+      
       file_args_array << {
         :launch              => true,
 

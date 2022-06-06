@@ -247,7 +247,12 @@
 
 <table class="simple">
   <tr>
-    <th><%= select_all_checkbox 'launch_it', :checked => true %>Launch CIVET?</th>
+    <th>
+      <%= select_all_checkbox 'launch_it', 
+                              :checked => true, 
+                              :name    => 'launch_it'.to_la  %>
+        Launch CIVET?
+    </th>
     <th>T1 name</th>
     <th>Prefix</th>
     <th>Subject ID</th>
@@ -256,8 +261,20 @@
     <th>Mask found?</th>
     <th>MP2 found?</th>
     <th>CSF found?</th>
-    <th title="Use T1, T2 and PD native files for tissue classification"><%= select_all_checkbox 'use_multispectral' %>Use multispectral classification?</th>
-    <th title="Use T1, T2 and PD native files for brain masking"><%= select_all_checkbox 'use_spectral_mask' %>Use multispectral mask?</th>
+    <th title="Use T1, T2 and PD native files for tissue classification">
+      <%= select_all_checkbox 'use_multispectral', 
+                              :checked => params[:use_multispectral] == "none" ? false : true, 
+                              :name    => 'use_multispectral'.to_la
+                              %>
+        Use multispectral classification?
+    </th>
+    <th title="Use T1, T2 and PD native files for brain masking">
+      <%= select_all_checkbox 'use_spectral_mask', 
+                              :checked => params[:use_spectral_mask] == "none" ? false : true, 
+                              :name    => 'use_spectral_mask'.to_la
+      %>
+      Use multispectral mask?
+    </th>
   </tr>
   <%
     keys = params[:file_args].keys
@@ -502,13 +519,15 @@ job's output doesn't crush another job's output!</strong>.
         headheight       : 50,
         template         : [ '0.25', '0.50' ],
         atlas            : [ 'lobes', 'D99', 'CHARM1', 'CHARM2', 'CHARM3', 'CHARM4', 'CHARM5', 'CHARM6' ],
-        thickness_kernel : 12
+        thickness_kernel : 12,
+        surfreg_model    : [ 'NMTmacaque' ]
       },
       NCBRchimp   : {
         headheight       : 110,
         template         : [ '0.40', '0.80' ],
         atlas            : [ 'lobes' ],
-        thickness_kernel : 16
+        thickness_kernel : 16,
+        surfreg_model    : [ 'NCBRchimp' ]
       }
     };
   
@@ -577,9 +596,19 @@ job's output doesn't crush another job's output!</strong>.
       var headheight_input = $(headheight_name)[0];
 
       if (headheight_input !== undefined) {
-        var headheight_value = model_option['headheight']
+        var headheight_value = model_option['headheight'];
         if (headheight_value !== undefined) {
           headheight_input.value = headheight_value
+        }
+      }
+
+      // Update surfreg_model
+      var surfreg_model_values = model_option['surfreg_model']
+      if (surfreg_model_values !== undefined) { 
+        var surfreg_model_name        = "cbrain_task[params][surfreg_model]";
+        var deactivated_selector = $('select[name="' + surfreg_model_name + '"]');  
+        if (deactivated_selector !== undefined) {
+          disable_options(surfreg_model_values, deactivated_selector)
         }
       }
     }
@@ -606,8 +635,6 @@ job's output doesn't crush another job's output!</strong>.
       // Update thickness_kernel
       var thickness_kernel_name  = "[name='cbrain_task[params][thickness_kernel]']";
       var thickness_kernel_input = $(thickness_kernel_name)[0];
-
-      console.log(thickness_kernel_input)
 
       if (thickness_kernel_input !== undefined) {
         var thickness_kernel_value = model_option['thickness_kernel']
