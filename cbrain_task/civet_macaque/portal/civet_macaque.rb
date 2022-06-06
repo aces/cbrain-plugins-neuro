@@ -472,7 +472,7 @@ class CbrainTask::CivetMacaque < PortalTask
         prefix = self.tool_config && !self.tool_config.is_version("2.1.0") ? "prefix"  : ""
         dsid   = "subject"  # maybe "auto_#{idx}"
       end
-      
+
       file_args_array << {
         :launch              => true,
 
