@@ -136,7 +136,6 @@ class CbrainTask::CivetMacaque < PortalTask
       :output_filename_pattern => '{subject}-{cluster}-{task_id}-{run_number}',
 
       # select_all initial value
-      :launch_it         => "all",
       :use_multispectral => "all",
       :use_spectral_mask => "all",
       
