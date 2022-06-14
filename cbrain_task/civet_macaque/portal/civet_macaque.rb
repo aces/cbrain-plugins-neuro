@@ -139,7 +139,7 @@ class CbrainTask::CivetMacaque < PortalTask
       :launch_it         => "all",
       :use_multispectral => "all",
       :use_spectral_mask => "all",
-
+      
     }
   end
 
@@ -490,7 +490,7 @@ class CbrainTask::CivetMacaque < PortalTask
         :dsid                => dsid,        #
 
         :multispectral       => (t2_name.present? || pd_name.present?),  # -multispectral for true
-        :spectral_mask       => mk_name.present?,                        # -spectral-mask for true
+        :spectral_mask       => (t2_name.present? || pd_name.present?),  # -spectral_mask for true
       }
 
     end
@@ -551,7 +551,7 @@ class CbrainTask::CivetMacaque < PortalTask
         :dsid                => dsid,        #
 
         :multispectral       => (t2_id.present? || pd_id.present?), # -multispectral for true
-        :spectral_mask       => mk_id.present?,                     # -spectral-mask for true
+        :spectral_mask       => (t2_id.present? || pd_id.present?), # -spectral-mask for true
       }
     end
 
