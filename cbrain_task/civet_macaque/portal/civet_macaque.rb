@@ -135,6 +135,10 @@ class CbrainTask::CivetMacaque < PortalTask
       # CBRAIN output renaming
       :output_filename_pattern => '{subject}-{cluster}-{task_id}-{run_number}',
 
+      # select_all initial value
+      :use_multispectral => "all",
+      :use_spectral_mask => "all",
+      
     }
   end
 
@@ -485,7 +489,7 @@ class CbrainTask::CivetMacaque < PortalTask
         :dsid                => dsid,        #
 
         :multispectral       => (t2_name.present? || pd_name.present?),  # -multispectral for true
-        :spectral_mask       => mk_name.present?,                        # -spectral-mask for true
+        :spectral_mask       => (t2_name.present? || pd_name.present?),  # -spectral_mask for true
       }
 
     end
@@ -546,7 +550,7 @@ class CbrainTask::CivetMacaque < PortalTask
         :dsid                => dsid,        #
 
         :multispectral       => (t2_id.present? || pd_id.present?), # -multispectral for true
-        :spectral_mask       => mk_id.present?,                     # -spectral-mask for true
+        :spectral_mask       => (t2_id.present? || pd_id.present?), # -spectral-mask for true
       }
     end
 
