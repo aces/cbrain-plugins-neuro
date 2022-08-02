@@ -61,6 +61,56 @@ module BoutiquesBidsSingleSubjectMaker
   # our fake BIDS dataset with a single subject.
   FakeBidsDirName = 'CbrainBidsSingleSubject'
 
+
+
+  ############################################
+  # Portal Side Modifications
+  # The form contains a new input file for
+  # an optional participants.tsv
+  ############################################
+
+  # Adjust the description for the input so that it says we expect
+  # a single subject now. Also adds the new input field
+  # for the optional participants.tsv file.
+  def descriptor_for_form
+    descriptor = super.dup
+    inputid    = descriptor.custom_module_info('BoutiquesBidsSingleSubjectMaker')
+    input      = descriptor.input_by_id(inputid)
+
+    # Adjust the description
+    description  = input.description.presence || ""
+    description += "\n" if description
+    description += "(Note: this integration requires a BIDS single subject as input, a folder named like 'sub-xyz')"
+    input.description = description
+
+    # Add a new File input for the participants.tsv file
+    descriptor = descriptor_with_participant_tsv_input_file(descriptor)
+
+    descriptor
+  end
+
+  def descriptor_for_before_form #:nodoc:
+    descriptor_for_form
+  end
+
+  def descriptor_for_after_form #:nodoc:
+    descriptor_for_form
+  end
+
+  def descriptor_for_show_params #:nodoc:
+    descriptor_for_form
+  end
+
+  ############################################
+  # Bourreau (Cluster) Side Modifications
+  ############################################
+
+  # We need the extended descriptor so the standard setup() will
+  # synchronize the participants.tsv file, is any.
+  def descriptor_for_setup
+    descriptor_with_participant_tsv_input_file(super)
+  end
+
   # This method overrides the one in BoutiquesClusterTask.
   # It does the normal stuff, but then afterwards it creates
   # the fake BIDS dataset with a symlink to the subject directory.
@@ -100,22 +150,65 @@ module BoutiquesBidsSingleSubjectMaker
     end
 
     # Create participants.tsv
+    tsv_header, tsv_record = read_or_make_tsv_for_subject(subject_name)
     if ! File.exists?(participants_tsv_path)
-      File.open(participants_tsv_path,"w") { |fh| fh.write "participant_id\n#{subject_name}\n" }
+      self.addlog "Creating new participants.tsv file for subject #{subject_name}"
+      File.open(participants_tsv_path,"w") { |fh| fh.write "#{tsv_header}\n#{tsv_record}\n" }
     else
       # Append to existing participants.tsv.
       # For the sake of supporting the case where several participants are processed within the
       # same FakeBidsDirName, we will just append the subject name IF IT'S NOT ALREADY THERE.
       tsv_content = File.read(participants_tsv_path).split("\n")
       # This code will break if several processes are all trying to do this at the exact same time.
-      if ! tsv_content.any? { |line| line == subject_name }
-        File.open(participants_tsv_path,"a") { |fh| fh.write "#{subject_name}\n" }
+      if ! tsv_content.any? { |line| line.sub(/[\s,].*/,"") == subject_name }
+        self.addlog "Appending record for #{subject_name} to participants.tsv"
+        File.open(participants_tsv_path,"a") { |fh| fh.write "#{tsv_record}\n" }
       end
     end
 
     true
   end
 
+  # This method returns a TSV header and a single
+  # tsv record for the +subject_name+ ; if the user
+  # provided a TSV file in the special input file,
+  # the header and record will be fetched from there.
+  # Otherwise a dummy simply header and record (with
+  # only the participant_id field) will be returned.
+  def read_or_make_tsv_for_subject(subject_name)
+    tsv_input_file_id = self.invoke_params[:cbrain_participants_tsv]
+
+    # In the case there is no specific participants.tsv file provided
+    # in input, we return the info to create a simple one.
+    if tsv_input_file_id.blank?
+      self.addlog "participants.tsv file will contain only the subject name"
+      return [ "participant_id", subject_name ] # TSV contains only participant ID
+    end
+
+    # Ok, so there is a participants.tsv file, let's read its
+    # header and find the line for our subject.
+    # setup() has already synced it to the cache.
+    cached_tsv_path = Userfile.find(tsv_input_file_id).cache_full_path
+    tsv_content  = File.read(cached_tsv_path.to_s).split("\n")
+    tsv_header   = tsv_content[0].presence || "participant_id"
+    tsv_record   = tsv_content.detect { |line| line.sub(/[\s,].*/,"") == subject_name }
+    if tsv_record.present?
+      self.addlog "participants.tsv record for #{subject_name} extracted from supplied file"
+    else
+      self.addlog "Warning: no record for #{subject_name} found in participants.tsv file"
+      tsv_record = subject_name
+    end
+    [ tsv_header, tsv_record ]
+  end
+
+  # Overrides the same method in BoutiquesClusterTask, as used
+  # during cluster_commands()
+  def finalize_bosh_invoke_struct(invoke_struct) #:nodoc:
+    super
+      .reject { |k,v| k.to_s == "cbrain_participants_tsv" } # returns a dup()
+  end
+
+  # Returns a fixed JSON for the BIDS dataset description.
   def dataset_description_json(name) #:nodoc:
 
     basename = Revision_info.basename
@@ -154,7 +247,11 @@ module BoutiquesBidsSingleSubjectMaker
   #
   # To:
   #
-  #   "command-line": "bidsapptool CbrainBidsSingleSubject [OUTPUT] stuff"
+  #   "command-line": "true [BIDSDATASET]; bidsapptool CbrainBidsSingleSubject [OUTPUT] stuff"
+  #
+  # The reason a dummy true statement is prefixed at the beginning of the command
+  # is so that bosh won't complain if it can't find the token [BIDSDATASET] anywhere
+  # in the string.
   def descriptor_for_cluster_commands
     descriptor = super.dup
     inputid    = descriptor.custom_module_info('BoutiquesBidsSingleSubjectMaker')
@@ -183,19 +280,44 @@ module BoutiquesBidsSingleSubjectMaker
     descriptor
   end
 
-  # Adjust the description for the input so that it says we expect
-  # a single subject now.
-  def descriptor_for_form
-    descriptor = super.dup
-    inputid    = descriptor.custom_module_info('BoutiquesBidsSingleSubjectMaker')
-    input      = descriptor.input_by_id(inputid)
 
-    # Adjust the description
-    description  = input.description.presence || ""
-    description += "\n" if description
-    description += "(Note: this integration requires a BIDS single subject as input, a folder named like 'sub-xyz')"
-    input.description = description
 
+  ########################################################
+  # Modifications common to both Portal and Bourreau sides
+  ########################################################
+
+  # This method takes a descriptor and adds a new
+  # File input, in a group at the bottom of all the other
+  # input groups. This input recives, optionally, the
+  # content of a participants.tsv file .
+  def descriptor_with_participant_tsv_input_file(descriptor)
+    descriptor = descriptor.dup
+
+    # Add new input
+    new_input = BoutiquesSupport::Input.new(
+      "name"          => "BIDS dataset 'participants.tsv' file",
+      "id"            => "cbrain_participants_tsv",
+      "description"   => "If set, provides a separate participants.tsv file. Must contain at least the subject being processed. If not set, a plain participants.tsv file will be generated with only the subject ID in it.",
+      "type"          => "File",
+      "optional"      => true,
+    )
+    descriptor.inputs <<= new_input
+
+    # Add new group with that input
+    groups       = descriptor.groups || []
+    cb_mod_group = groups.detect { |group| group.id == 'cbrain_modules_options' }
+    if cb_mod_group.blank?
+      cb_mod_group = BoutiquesSupport::Group.new(
+        "name"        => 'CBRAIN BIDS Extensions',
+        "id"          => 'cbrain_bids_extensions',
+        "description" => 'Special options for BIDS data files',
+        "members"     => [],
+      )
+      groups.unshift cb_mod_group
+    end
+    cb_mod_group.members <<= new_input.id
+
+    descriptor.groups = groups
     descriptor
   end
 
