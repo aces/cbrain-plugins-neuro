@@ -281,8 +281,8 @@ class CbrainTask::CivetMacaque < ClusterTask
     args += "-correct-pve "                                         if mybool(params[:correct_pve])
     args += "-hi-res-surfaces "                                     if mybool(params[:high_res_surfaces])
     args += "-combine-surfaces "                                    if mybool(params[:combine_surfaces])
-    args += "-multispectral "                                       if mybool(params[:use_multispectral] == "all")
-    args += "-spectral_mask "                                       if mybool(params[:use_spectral_mask] == "all")
+    args += "-multispectral "                                       if params[:use_multispectral] == "all"
+    args += "-spectral_mask "                                       if params[:use_spectral_mask] == "all"
 
     # PVE
     if    params[:pve] == "classic"
