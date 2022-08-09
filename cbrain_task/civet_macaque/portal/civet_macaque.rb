@@ -138,7 +138,7 @@ class CbrainTask::CivetMacaque < PortalTask
       # select_all initial value
       :use_multispectral => "all",
       :use_spectral_mask => "all",
-      
+
     }
   end
 
@@ -250,7 +250,7 @@ class CbrainTask::CivetMacaque < PortalTask
       .each do |extracted_keyword|
         next if extracted_keyword =~ /^\{\d+\}$/
         next if allowed_keyword_filename_pattern.include?(extracted_keyword)
-        not_allowed_keywords << extracted_keyword 
+        not_allowed_keywords << extracted_keyword
     end
 
     if not_allowed_keywords.present?

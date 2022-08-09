@@ -101,7 +101,7 @@ class CbrainTask::CivetMacaque < ClusterTask
     if collection
 
       return false if   !make_available_collection(collection, input_symlink_base, t1_name, "t1")
-      
+
       if mk_name.present?
         return false if !make_available_collection(collection, input_symlink_base, mk_name, "mask")
       end
@@ -221,7 +221,7 @@ class CbrainTask::CivetMacaque < ClusterTask
 
     # N3 distance
     if params[:N3_distance].present?
-      cb_error "Bad N3 distance value."  unless 
+      cb_error "Bad N3 distance value."  unless
                          is_valid_integer_list(params[:N3_distance])
     end
 
@@ -281,8 +281,8 @@ class CbrainTask::CivetMacaque < ClusterTask
     args += "-correct-pve "                                         if mybool(params[:correct_pve])
     args += "-hi-res-surfaces "                                     if mybool(params[:high_res_surfaces])
     args += "-combine-surfaces "                                    if mybool(params[:combine_surfaces])
-    args += "-multispectral "                                       if mybool(file0[:multispectral])
-    args += "-spectral_mask "                                       if mybool(file0[:spectral_mask])
+    args += "-multispectral "                                       if mybool(params[:use_multispectral] == "all")
+    args += "-spectral_mask "                                       if mybool(params[:use_spectral_mask] == "all")
 
     # PVE
     if    params[:pve] == "classic"
@@ -620,7 +620,7 @@ class CbrainTask::CivetMacaque < ClusterTask
         addlog("Resyncing input MASK ##{mk_id}.")
         SingleFile.find(mk_id).sync_to_cache
       end
-      
+
       if csf_id.present?
         addlog("Resyncing input CSF ##{csf_id}.")
         SingleFile.find(csf_id).sync_to_cache

@@ -70,13 +70,5 @@
   <td><FONT COLOR="green">&#10004;</FONT></td>
 <% end %>
 
-<% if file[:t2_name].present? || file[:pd_name].present? %>
-  <td><div  style="display:none;"><%= form.params_check_box "file_args[#{idx}][multispectral]", :class => "use_multispectral" %></div></td>
-  <td><div  style="display:none;"><%= form.params_check_box "file_args[#{idx}][spectral_mask]", :class => "use_spectral_mask" %></div></td>
-<% else %>
-  <td></td>
-  <td></td>
-<% end %>
-
 </tr>
 

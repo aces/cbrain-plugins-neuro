@@ -68,8 +68,8 @@ File collection: <%= link_to_userfile_if_accessible params[:collection_id] %>
 
     <br/>
 
-    <li>Use multispectral classification: <%= file_params[:multispectral] == "1" ? "yes" : "no" %></li>
-    <li>Use multispectral mask: <%= file_params[:spectral_mask] == "1" ? "yes" : "no" %></li>
+    <li>Use multispectral classification: <%= params[:use_multispectral] == "all" ? "yes" : "no" %></li>
+    <li>Use multispectral mask:           <%= params[:use_spectral_mask] == "all" ? "yes" : "no" %></li>
   <% end %>
   </ul>
 <% end %>
