@@ -614,6 +614,13 @@ job's output doesn't crush another job's output!</strong>.
           disable_options(surfreg_model_values, deactivated_selector)
         }
       }
+
+      // Handle exclusion between surfreg_model and atlas (since to surfreg_model update)
+      var surfreg_model_name   = "cbrain_task[params][surfreg_model]";
+      var surfreg_model_select = $('select[name="' + surfreg_model_name + '"]')
+
+      update_according_to_surfreg(surfreg_model_select)
+      surfreg_model_select.on('change', update_according_to_surfreg);
     }
 
     var update_according_to_surfreg = (selector) => {
@@ -648,14 +655,14 @@ job's output doesn't crush another job's output!</strong>.
 
     }
 
-    // Handle expclusion between model and template
+    // Handle exclusion between model and template
     var model_name   = "cbrain_task[params][model]";
     var model_select = $('select[name="' + model_name + '"]')
 
     update_according_to_model(model_select);
     model_select.on('change', update_according_to_model);
 
-    // Handle expclusion between surfreg_model and atlas
+    // Handle exclusion between surfreg_model and atlas
     var surfreg_model_name   = "cbrain_task[params][surfreg_model]";
     var surfreg_model_select = $('select[name="' + surfreg_model_name + '"]')
 
