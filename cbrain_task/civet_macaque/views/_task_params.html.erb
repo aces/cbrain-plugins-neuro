@@ -108,17 +108,17 @@
   <br>
 
   <%= form.params_label     :use_multispectral, "Use multispectral classification", :title => "Use multispectral classification using t2, pd if present" %>
-  <%= select_all_checkbox 'use_multispectral', 
+  <%= select_all_checkbox 'use_multispectral',
                           :checked => params[:use_multispectral] == "all" ? true : false,
-                          :persistant_name => 'use_multispectral'.to_la  
+                          :persistant_name => 'use_multispectral'.to_la
   %>
 
   <br>
 
   <%= form.params_label     :use_spectral_mask, "Use multispectral masking", :title => "Use multispectral masking using t2, pd if present" %>
-  <%= select_all_checkbox 'use_spectral_mask', 
+  <%= select_all_checkbox 'use_spectral_mask',
                           :checked => params[:use_spectral_mask] == "all" ? true : false,
-                          :persistant_name => 'use_spectral_mask'.to_la  
+                          :persistant_name => 'use_spectral_mask'.to_la
   %>
 
 
@@ -499,19 +499,19 @@ job's output doesn't crush another job's output!</strong>.
  <BIG>Fake run:</BIG><P>
  Enter the numeric ID of a pre-existing CivetOutput to use it as 'pretend' output:
  <%= form.params_text_field :fake_run_civetcollection_id %>
- 
+
 <% end %>
 
 
 
 
-# Handle option for Civet-macaque or Civet-chimp in oorder to exclude some values 
+# Handle option for Civet-macaque or Civet-chimp in oorder to exclude some values
 # when one or the the other is selected
 
 <script type="text/javascript">
 
   var options_by_model =
-    { 
+    {
       icbm152MCsym : {
         headheight       : 175,
         template         : [ '0.50', '1.0' ],
@@ -533,20 +533,20 @@ job's output doesn't crush another job's output!</strong>.
         surfreg_model    : [ 'NCBRchimp' ]
       }
     };
-  
+
   $(document).ready(function() {
-    var disable_options = (active_values        = [], 
-                           deactivated_selector = undefined, 
+    var disable_options = (active_values        = [],
+                           deactivated_selector = undefined,
                           ) => {
 
       if (deactivated_selector === undefined ) {
         return
-      } 
+      }
 
       var deactivated_current_value = deactivated_selector[0].value;
       var deactivated_options       = deactivated_selector[0].options;
 
-      // Set the value to something available 
+      // Set the value to something available
       if (!active_values.includes(deactivated_current_value)){
         var first_value_available = active_values[0] || undefined;
         var index = Array.prototype.slice.call( deactivated_options ).findIndex(o => o.value === first_value_available)
@@ -563,7 +563,7 @@ job's output doesn't crush another job's output!</strong>.
         }
       }
       deactivated_selector.trigger("chosen:updated")
-    } 
+    }
 
     var extract_current_value = (selector) => {
       var current_value = "";
@@ -573,22 +573,22 @@ job's output doesn't crush another job's output!</strong>.
         current_value = selector.val();
       }
       return current_value;
-    }; 
+    };
 
     var update_according_to_model = (selector) => {
       var current_value = extract_current_value(selector);
 
-      var model_option = options_by_model[current_value]; 
+      var model_option = options_by_model[current_value];
 
       if (model_option === undefined ) {
         return;
       }
 
-      // Update template        
+      // Update template
       var template_values = model_option['template']
-      if (template_values !== undefined) { 
+      if (template_values !== undefined) {
         var template_name        = "cbrain_task[params][template]";
-        var deactivated_selector = $('select[name="' + template_name + '"]');  
+        var deactivated_selector = $('select[name="' + template_name + '"]');
         if (deactivated_selector !== undefined) {
           disable_options(template_values, deactivated_selector)
         }
@@ -607,29 +607,36 @@ job's output doesn't crush another job's output!</strong>.
 
       // Update surfreg_model
       var surfreg_model_values = model_option['surfreg_model']
-      if (surfreg_model_values !== undefined) { 
+      if (surfreg_model_values !== undefined) {
         var surfreg_model_name        = "cbrain_task[params][surfreg_model]";
-        var deactivated_selector = $('select[name="' + surfreg_model_name + '"]');  
+        var deactivated_selector = $('select[name="' + surfreg_model_name + '"]');
         if (deactivated_selector !== undefined) {
           disable_options(surfreg_model_values, deactivated_selector)
         }
       }
+
+      // Handle exclusion between surfreg_model and atlas (since to surfreg_model update)
+      var surfreg_model_name   = "cbrain_task[params][surfreg_model]";
+      var surfreg_model_select = $('select[name="' + surfreg_model_name + '"]')
+
+      update_according_to_surfreg(surfreg_model_select)
+      surfreg_model_select.on('change', update_according_to_surfreg);
     }
 
     var update_according_to_surfreg = (selector) => {
       var current_value = extract_current_value(selector);
 
-      var model_option = options_by_model[current_value]; 
+      var model_option = options_by_model[current_value];
 
       if (model_option === undefined ) {
         return;
       }
 
-      // Update atlas        
+      // Update atlas
       var atlas_values = model_option['atlas']
-      if (atlas_values !== undefined) { 
+      if (atlas_values !== undefined) {
         var atlas_name        = "cbrain_task[params][atlas]";
-        var deactivated_selector = $('select[name="' + atlas_name + '"]');  
+        var deactivated_selector = $('select[name="' + atlas_name + '"]');
         if (deactivated_selector !== undefined) {
           disable_options(atlas_values, deactivated_selector)
         }
@@ -648,18 +655,18 @@ job's output doesn't crush another job's output!</strong>.
 
     }
 
-    // Handle expclusion between model and template
+    // Handle exclusion between model and template
     var model_name   = "cbrain_task[params][model]";
     var model_select = $('select[name="' + model_name + '"]')
 
     update_according_to_model(model_select);
     model_select.on('change', update_according_to_model);
 
-    // Handle expclusion between surfreg_model and atlas
+    // Handle exclusion between surfreg_model and atlas
     var surfreg_model_name   = "cbrain_task[params][surfreg_model]";
     var surfreg_model_select = $('select[name="' + surfreg_model_name + '"]')
 
-    update_according_to_surfreg(surfreg_model_select)  
+    update_according_to_surfreg(surfreg_model_select)
     surfreg_model_select.on('change', update_according_to_surfreg);
   });
 </script>
