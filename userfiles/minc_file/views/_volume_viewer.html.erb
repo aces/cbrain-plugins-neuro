@@ -31,23 +31,23 @@
 <%
   list_fake_files         = Userfile.find(@userfile.id).list_fake_files rescue [@userfile]
   volumes_info_for_viewer = {}
- 
+
   list_fake_files.each do |file|
     viewer = file.viewers.first.partial rescue nil
     next if viewer.blank?
     next if viewer != :volume_viewer
     url    = nil
-    volume = nil 
+    volume = nil
 
     if    file.is_a?(MincFile)
       url = content_userfile_path(file, :content_loader => :minc_content, :file_name => file.name, :viewer_userfile_class => :MincFile)
-    elsif file.is_a?(NiftiFile) 
+    elsif file.is_a?(NiftiFile)
       url = content_userfile_path(file, :content_loader => :raw_content, :file_name => file.name, :viewer_userfile_class => :NiftiFile)
     elsif
       url = content_userfile_path(file, :content_loader => :raw_content, :file_name => file.name, :viewer_userfile_class => :MghFile)
     end
 
-    volume = file.to_BrainBrowser_volume(url) if url 
+    volume = file.to_BrainBrowser_volume(url) if url
     next if !volume
     volume[:template] = { element_id:          "volume-ui-template",
                           viewer_insert_class: "volume-viewer-display"
@@ -80,7 +80,7 @@
 </div>
 
 
-<%- 
+<%-
 ######################
 # Volume UI template #
 ######################
@@ -159,7 +159,7 @@
   </div>
 </script>
 
-<%- 
+<%-
 #######################
 # Overlay UI template #
 #######################
@@ -241,7 +241,7 @@
 
         // Set coordinates and redraw.
         viewer.volumes[vol_id].setWorldCoords(x, y, z);
-        
+
         viewer.redrawVolumes();
       });
 
@@ -572,9 +572,9 @@
               loading_div.hide();
               $("#overlay-selection").hide();
               $("#brainbrowser-wrapper").slideDown({duration: 600});
-          
+
               var volume_viewer_1 = $("#volume-viewer-" + <%= bb_identifier %> + "-1");
-          
+
               if (volume_viewer_1 !== undefined ) {
                 if (volume_viewer_1 && volume_viewer_1[0].children[0] && volume_viewer_1[0].children[0].children[0]) {
                   volume_viewer_1[0].children[0].children[0].innerText = volume_name;
@@ -716,7 +716,7 @@
           viewer.redrawVolumes();
         });
       });
-      
+
     });
 
     /////////////////////////////////////////////////////
@@ -743,15 +743,41 @@
         $("#voxel-k-<%= bb_identifier %>-" + vol_id).val(parseInt(voxel_coords.k, 10));
       }
 
+      /* Set background color of intensity value to match colormap
+      * entry for that value.
+      */
       value = volume.getIntensityValue();
-      $("#intensity-value-<%= bb_identifier %>-" + vol_id)
-      .css("background-color", "#" + volume.color_map.colorFromValue(value, {
+      var bg_color = volume.color_map.colorFromValue(value, {
         hex: true,
-        min: volume.min,
-        max: volume.max,
+        min: volume.intensity_min,
+        max: volume.intensity_max,
         contrast: panel.contrast,
         brightness: panel.brightness
-      }))
+      });
+
+      /* This function simply takes an input hex background color
+      * and returns either "black" or "white" as the appropriate
+      * foreground color for text rendered over the background colour.
+      * Idea from https://24ways.org/2010/calculating-color-contrast/
+      * Equation is from http://www.w3.org/TR/AERT#color-contrast
+      */
+      function getContrastYIQ(hexcolor) {
+        var r = parseInt(hexcolor.substr(0, 2), 16);
+        var g = parseInt(hexcolor.substr(2, 2), 16);
+        var b = parseInt(hexcolor.substr(4, 2), 16);
+        var yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
+        return (yiq >= 128) ? 'black' : 'white';
+      }
+
+      /* Given that the background color has a wide range, use a little
+      * cleverness to pick either white or black as the foreground color
+      * of the intensity value. This improves readability.
+      */
+      var fg_color = getContrastYIQ(bg_color);
+
+      $("#intensity-value-<%= bb_identifier %>-" + vol_id)
+      .css("background-color", "#" + bg_color)
+      .css("color", fg_color)
       .html(Math.floor(value));
 
       if (volume.data && volume.header.time) {
