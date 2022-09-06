@@ -1,0 +1,66 @@
+{
+  "name":           "ACAPULCO",
+  "tool-version":   "0.2.1",
+  "schema-version": "0.5",
+  "author":         "Shuo Han and colleagues at Johns Hopkins University",
+  "description":    "ACAPULCO performs the segmentation of the cerebellum into 28 subunits using a deep learning algorithm.\n\nPlease cite the paper in the DOI link: https://doi.org/10.1016/j.neuroimage.2020.116819",
+  "tool-doi":       "https://doi.org/10.1016/j.neuroimage.2020.116819",
+  "url":            "none-configured",
+  "descriptor-url": "https://github.com/aces/cbrain-plugins-neuro/blob/master/boutiques_descriptors/acapulco.json",
+  "command-line":   "acapulco.sh [NIFTII_INPUTFILE] [NAME_OUTDIR]",
+  "inputs": [
+    {
+      "id": "input_file",
+      "name": "Input volume file",
+      "description": "Path to the input volume file (.nii)",
+      "type": "File",
+      "optional": false,
+      "value-key": "[NIFTII_INPUTFILE]",
+      "command-line-flag": "-i"
+    },
+    {
+      "id": "output_file",
+      "name": "Output Folder",
+      "description": "The folder where the results will be stored",
+      "type": "String",
+      "optional": false,
+      "value-key": "[NAME_OUTDIR]",
+      "command-line-flag": "-o"
+    }
+  ],
+  "output-files": [
+    {
+      "name":          "ACAPULCO Combined Output",
+      "id":            "acapulco_output",
+      "description":   "The directory containining the processed files",
+      "optional":      false,
+      "list":          false,
+      "path-template": "[NAME_OUTDIR]"
+    }
+  ],
+  "tags": {
+    "domain": [
+      "nifti",
+      "boutiques",
+      "cerebellum",
+      "segmentation"
+    ]
+  },
+  "suggested-resources": {
+    "cpu-cores":         1,
+    "ram":               6,
+    "walltime-estimate": 20
+  },
+  "custom": {
+    "cbrain:readonly-input-files": true,
+    "cbrain:author": "Pierre Rioux <pierre.rioux@mcgill.ca>",
+    "cbrain:integrator_modules": {
+      "BoutiquesFileTypeVerifier": {
+        "input_file": [ "NiftiFile" ]
+      },
+      "BoutiquesFileNameMatcher": {
+        "input_file": "\\.nii(\\.gz)?$"
+      }
+    }
+  }
+}
