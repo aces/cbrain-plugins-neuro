@@ -390,6 +390,7 @@ class CbrainTask::Civet < ClusterTask
     fake_id = params[:fake_run_civetcollection_id]
     if fake_id.blank?
       local_script << civet_command  # the real thing
+      local_script << "_civet_status_=$?"
     else
       # Cheating mode (for debugging/development)
       self.addlog("Triggering fake run with pre-saved collection ID '#{fake_id}'.")
@@ -422,6 +423,12 @@ class CbrainTask::Civet < ClusterTask
 
     FAILED_STAGED_LOGS
 
+    # Make sure the CIVET status code is returned
+    local_script += [
+      "\n",
+      "# Return CIVET's status code",
+      "bash -c \"exit $_civet_status_\"",
+    ]
     local_script
   end
 

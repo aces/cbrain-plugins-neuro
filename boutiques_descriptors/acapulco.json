@@ -5,7 +5,6 @@
   "author":         "Shuo Han and colleagues at Johns Hopkins University",
   "description":    "ACAPULCO performs the segmentation of the cerebellum into 28 subunits using a deep learning algorithm.\n\nPlease cite the paper in the DOI link: https://doi.org/10.1016/j.neuroimage.2020.116819",
   "tool-doi":       "https://doi.org/10.1016/j.neuroimage.2020.116819",
-  "url":            "none-configured",
   "descriptor-url": "https://github.com/aces/cbrain-plugins-neuro/blob/master/boutiques_descriptors/acapulco.json",
   "command-line":   "acapulco.sh [NIFTII_INPUTFILE] [NAME_OUTDIR]",
   "inputs": [
