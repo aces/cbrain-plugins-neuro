@@ -101,6 +101,16 @@ module BoutiquesBidsSingleSubjectMaker
     descriptor_for_form
   end
 
+  def final_task_list #:nodoc:
+    # We need to remove the participants.tsv file ID from the
+    # interface_userfile_ids, now that's it's been assigned to
+    # a field in the invoke structure. Otherwise, the final_task_list
+    # method might want to create a task for it too.
+    tsv_input_file_id = self.invoke_params[:cbrain_participants_tsv]
+    self.params[:interface_userfile_ids].reject! { |v| v.to_s == tsv_input_file_id.to_s }
+    super
+  end
+
   ############################################
   # Bourreau (Cluster) Side Modifications
   ############################################
