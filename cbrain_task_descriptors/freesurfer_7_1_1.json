@@ -14,14 +14,14 @@
             "path-template": "[SUBJID]"
         }
     ],
-    "name": "FreeSurfer-Recon-all",
+    "name": "FreeSurfer-Recon-all-basic",
     "container-image": {
         "index": "docker://",
         "image": "freesurfer/freesurfer:7.1.1",
         "type": "singularity"
     },
     "tool-version": "v7.1.1",
-    "command-line": "export SUBJECTS_DIR=`pwd`; export FS_LICENSE=`pwd`/[LICENSE_FILE]; recon-all [SUBJID] [INPUT] [DIRECTIVES] [QCACHE] [MPRAGE] [3T] [CW256] [NOTAL-CHECK] [BRAINSTEM-STRUCTURES] [NO-WSGCAATLAS] [NO-SKULLSTRIP]",
+    "command-line": "export SUBJECTS_DIR=`pwd`\nexport FS_LICENSE=`pwd`/[LICENSE_FILE]\nif test ! -d [SUBJID] ; then\n  recon-all -subjid [SUBJID] [INPUT] [DIRECTIVES] [QCACHE] [MPRAGE] [3T] [CW256] [NOTAL-CHECK] [BRAINSTEM-STRUCTURES] [NO-WSGCAATLAS] [NO-SKULLSTRIP]\nelse\n  recon-all -subjid [SUBJID]         [DIRECTIVES] [QCACHE] [MPRAGE] [3T] [CW256] [NOTAL-CHECK] [BRAINSTEM-STRUCTURES] [NO-WSGCAATLAS] [NO-SKULLSTRIP]\nfi",
     "author": "Laboratory for Computational Neuroimaging ",
     "error-codes": [
         {
@@ -40,7 +40,6 @@
         },
         {
             "name": "Output name",
-            "command-line-flag": "-subjid",
             "optional": false,
             "value-key": "[SUBJID]",
             "type": "String",
