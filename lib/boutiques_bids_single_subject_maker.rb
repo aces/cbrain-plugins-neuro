@@ -102,12 +102,15 @@ module BoutiquesBidsSingleSubjectMaker
   end
 
   def final_task_list #:nodoc:
-    # We need to remove the participants.tsv file ID from the
-    # interface_userfile_ids, now that's it's been assigned to
-    # a field in the invoke structure. Otherwise, the final_task_list
-    # method might want to create a task for it too.
+    # We need to remove the special file IDs from the
+    # interface_userfile_ids, now that's they've been assigned to
+    # fields in the invoke structure. Otherwise, the final_task_list
+    # method might want to create a task for them too.
     tsv_input_file_id = self.invoke_params[:cbrain_participants_tsv]
-    self.params[:interface_userfile_ids].reject! { |v| v.to_s == tsv_input_file_id.to_s }
+    dd_input_file_id  = self.invoke_params[:dataset_description_json]
+    self.params[:interface_userfile_ids].reject! do |v|
+       v.to_s == tsv_input_file_id.to_s || v.to_s == dd_input_file_id.to_s
+    end
     super
   end
 
@@ -156,7 +159,7 @@ module BoutiquesBidsSingleSubjectMaker
 
     # Create dataset_description.json
     if ! File.exists?(desc_json_path)
-      File.open(desc_json_path,"w") { |fh| fh.write dataset_description_json(FakeBidsDirName) }
+      File.open(desc_json_path,"w") { |fh| fh.write read_or_make_dataset_description(FakeBidsDirName) }
     end
 
     # Create participants.tsv
@@ -211,33 +214,58 @@ module BoutiquesBidsSingleSubjectMaker
     [ tsv_header, tsv_record ]
   end
 
+  # Returns the content of the JSON file for the dataset description,
+  # as a single string. The content either comes from a file explicitely
+  # selected by the user, or a fake content is generated otherwise.
+  def read_or_make_dataset_description(name)
+    dd_input_file_id = self.invoke_params[:dataset_description_json]
+
+    # Create a fake JSON file
+    if dd_input_file_id.blank?
+      return fixed_dataset_description_json(name)
+    end
+
+    # Read the content of the file selected by the user
+    cached_dd_path = Userfile.find(dd_input_file_id).cache_full_path
+    dd_content     = File.read(cached_dd_path)
+    dd_content
+  end
+
   # Overrides the same method in BoutiquesClusterTask, as used
   # during cluster_commands()
   def finalize_bosh_invoke_struct(invoke_struct) #:nodoc:
     super
-      .reject { |k,v| k.to_s == "cbrain_participants_tsv" } # returns a dup()
+      .reject do |k,v|
+         k.to_s == "cbrain_participants_tsv" or k.to_s == "dataset_description_json"
+      end # returns a dup()
   end
 
   # Returns a fixed JSON for the BIDS dataset description.
-  def dataset_description_json(name) #:nodoc:
+  def fixed_dataset_description_json(name) #:nodoc:
 
     basename = Revision_info.basename
     commit   = Revision_info.short_commit
 
     json = <<-DATASET_DESCRIPTION
 {
+    "Name": "#{name}",
+    "BIDSVersion": "1.4.1",
     "Acknowledgements": "Fake single subject dataset created by #{basename} rev. #{commit}",
+    "GeneratedBy": [
+      {
+        "Name": "BoutiquesBidsSingleSubjectMaker",
+        "Version": "#{commit}"
+      }
+    ],
     "Authors": [
         "TODO"
     ],
-    "BIDSVersion": "1.4.1",
     "DatasetDOI": "TODO",
     "Funding": [
         "TODO"
     ],
     "HowToAcknowledge": "TODO",
     "License": "TODO",
-    "Name": "#{name}",
     "ReferencesAndLinks": [
         "TODO"
     ]
@@ -303,19 +331,29 @@ module BoutiquesBidsSingleSubjectMaker
   def descriptor_with_participant_tsv_input_file(descriptor)
     descriptor = descriptor.dup
 
-    # Add new input
-    new_input = BoutiquesSupport::Input.new(
+    # Add new input for dataset_description.json
+    new_input_dd = BoutiquesSupport::Input.new(
+      "name"          => "BIDS 'dataset_description.json' file",
+      "id"            => "dataset_description_json",
+      "description"   => "If set, provides a separate dataset_description.json file. If not set, a plain JSON file will be generated with dummy data.",
+      "type"          => "File",
+      "optional"      => true,
+    )
+    descriptor.inputs <<= new_input_dd
+
+    # Add new input for participants.tsv
+    new_input_part = BoutiquesSupport::Input.new(
       "name"          => "BIDS dataset 'participants.tsv' file",
       "id"            => "cbrain_participants_tsv",
       "description"   => "If set, provides a separate participants.tsv file. Must contain at least the subject being processed. If not set, a plain participants.tsv file will be generated with only the subject ID in it.",
       "type"          => "File",
       "optional"      => true,
     )
-    descriptor.inputs <<= new_input
+    descriptor.inputs <<= new_input_part
 
     # Add new group with that input
     groups       = descriptor.groups || []
-    cb_mod_group = groups.detect { |group| group.id == 'cbrain_modules_options' }
+    cb_mod_group = groups.detect { |group| group.id == 'cbrain_bids_extensions' }
     if cb_mod_group.blank?
       cb_mod_group = BoutiquesSupport::Group.new(
         "name"        => 'CBRAIN BIDS Extensions',
@@ -325,7 +363,8 @@ module BoutiquesBidsSingleSubjectMaker
       )
       groups.unshift cb_mod_group
     end
-    cb_mod_group.members <<= new_input.id
+    cb_mod_group.members <<= new_input_dd.id
+    cb_mod_group.members <<= new_input_part.id
 
     descriptor.groups = groups
     descriptor
