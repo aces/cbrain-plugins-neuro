@@ -319,7 +319,7 @@
         {
             "id": "memory_and_parallelism",
             "name": "Memory and Parallel Control Parameters",
-            "description": "Paramters used to define memory requirements and multithreading",
+            "description": "Parameters used to define memory requirements and multithreading",
             "members": [
                 "low_mem"
             ]
