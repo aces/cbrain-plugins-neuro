@@ -1,0 +1,340 @@
+{
+    "tool-version": "6.0.5",
+    "name": "Oxford_asl_single_subject",
+    "author": "Oxford Centre for Functional MRI of the Brain (FMRIB)",
+    "description": "Oxford_asl for BIDS subject",
+    "command-line": "bids_ox_asl [BIDS_DIR] [NAME_OUTDIR] [SPATIAL_FLAG] [WP_FLAG] [MC_FLAG] [ARTOFF_FLAG] [FIXBOLUS_FLAG] [IAF] [IBF] [TIS] [CASL_FLAG] [BOLUS] [BAT] [T1] [T1B] [SLICEDT] [SLICEBAND] [RPT] [MNI_REG_FLAG] [TR_CALIB] [PV_CORR]",
+    "schema-version": "0.5",
+    "container-image": {
+        "image": "mcin/fsl:6.0.5",
+        "index": "docker://",
+        "type": "singularity"
+    },
+    "inputs": [
+        {
+            "description": "BIDS dataset input file",
+            "id": "bids_dir",
+            "name": "bids_dir",
+            "optional": false,
+            "type": "File",
+            "value-key": "[BIDS_DIR]"
+        },
+        {
+            "description": "Oxford_asl output directory.",
+            "id": "output_dir",
+            "name": "output_dir",
+            "optional": false,
+            "type": "String",
+            "value-key": "[NAME_OUTDIR]"
+        },
+        {
+            "id": "spatial",
+            "name": "Spatial processing",
+            "description": "Use spatial regularisation. This option is highly recommended.",
+            "optional": false,
+            "default-value": "on",
+            "value-choices": [
+                "on",
+                "off"
+            ],
+            "type": "String",
+            "value-key": "[SPATIAL_FLAG]",
+            "command-line-flag": "--spatial"
+        },
+        {
+            "id": "white_paper",
+            "name": "White paper mode",
+            "optional": false,
+            "default-value": 0,
+            "value-choices": [
+                0,
+                1
+            ],
+            "type": "Number",
+            "value-key": "[WP_FLAG]",
+            "command-line-flag": "--wp"
+        },
+        {
+            "id": "motion_correction",
+            "name": " Motion correction",
+            "optional": false,
+            "default-value": 0,
+            "value-choices": [
+                0,
+                1
+            ],
+            "type": "Number",
+            "value-key": "[MC_FLAG]",
+            "command-line-flag": "--mc"
+        },
+        {
+            "id": "artoff",
+            "name": " Arterial suppression",
+            "description": "Arterial suppression (vascular crushing) was used.",
+            "optional": false,
+            "default-value": 0,
+            "value-choices": [
+                0,
+                1
+            ],
+            "type": "Number",
+            "value-key": "[ARTOFF_FLAG]",
+            "command-line-flag": "--artoff"
+        },
+        {
+            "id": "fixbolus",
+            "name": "Fix bolus duration",
+            "description": "Turn off automatic estimation of bolus duration as it is fixed, e.g. by QUIPSSII or CASL.",
+            "optional": false,
+            "default-value": 0,
+            "value-choices": [
+                0,
+                1
+            ],
+            "type": "Number",
+            "value-key": "[FIXBOLUS_FLAG]",
+            "command-line-flag": "--fixbolus"
+        },
+        {
+            "id": "iaf",
+            "name": "Input ASL format",
+            "optional": false,
+            "default-value": "diff",
+            "value-choices": [
+                "diff",
+                "ct",
+                "tc"
+            ],
+            "type": "String",
+            "value-key": "[IAF]",
+            "command-line-flag": "--iaf"
+        },
+        {
+            "id": "ibf",
+            "name": "Input block format",
+            "optional": false,
+            "value-choices": [
+                "tis",
+                "rpt"
+            ],
+            "type": "String",
+            "value-key": "[IBF]",
+            "command-line-flag": "--ibf"
+        },
+        {
+            "id": "tis",
+            "name": "Inversion time",
+            "description": "Comma separated list of inflow times in seconds (e.g. --tis 0.2,0.4,0.6).",
+            "optional": false,
+            "type": "String",
+            "value-key": "[TIS]",
+            "command-line-flag": "--tis"
+        },
+        {
+            "id": "casl",
+            "name": "CASL",
+            "description": "ASL acquisition is pseudo cASL (pcASL) rather than pASL.",
+            "optional": false,
+            "default-value": 0,
+            "value-choices": [
+                0,
+                1
+            ],
+            "type": "Number",
+            "value-key": "[CASL_FLAG]",
+            "command-line-flag": "--casl"
+        },
+        {
+            "id": "bolus",
+            "name": "Bolus",
+            "description": "Duration of the ASL labeling bolus in seconds.",
+            "optional": true,
+            "default-value": 1,
+            "type": "Number",
+            "value-key": "[BOLUS]",
+            "command-line-flag": "--bolus"
+        },
+        {
+            "id": "bat",
+            "name": "Bolus arrival time",
+            "description": "Bolus arrival time in seconds - {Enter: 0.7 (pASL); 1.3 (cASL)}",
+            "optional": false,
+            "type": "Number",
+            "value-key": "[BAT]",
+            "command-line-flag": "--bat"
+        },
+        {
+            "id": "t1",
+            "name": "Tissue T1 value",
+            "default-value": 1.3,
+            "optional": true,
+            "type": "Number",
+            "value-key": "[T1]",
+            "command-line-flag": "--t1"
+        },
+        {
+            "id": "t1b",
+            "name": "Blood T1 value",
+            "optional": true,
+            "default-value": 1.65,
+            "type": "Number",
+            "value-key": "[T1B]",
+            "command-line-flag": "--t1b"
+        },
+        {
+            "id": "slicedt",
+            "name": "Timing difference",
+            "description": "Timing difference between slices in seconds.",
+            "optional": true,
+            "default-value": 0,
+            "type": "Number",
+            "value-key": "[SLICEDT]",
+            "command-line-flag": "--slicedt"
+        },
+        {
+            "id": "sliceband",
+            "name": "Number of slices",
+            "description": "Number of slices per band in a multi-band setup.",
+            "optional": true,
+            "default-value": 0,
+            "type": "Number",
+            "value-key": "[SLICEBAND]",
+            "command-line-flag": "--sliceband"
+        },
+        {
+            "id": "rpts",
+            "name": " Number of repeated measurements",
+            "description": "Number of repeated measurements for each TI/PLD in the TIs list, for use where the number of repeated measurements varies at each TI.",
+            "optional": true,
+            "default-value": 0,
+            "type": "Number",
+            "value-key": "[RPT]",
+            "command-line-flag": "--rpts"
+        },
+        {
+            "id": "mni_reg_flag",
+            "name": "Registration to MNI space",
+            "optional": true,
+            "default-value": 0,
+            "value-choices": [
+                0,
+                1
+            ],
+            "type": "Number",
+            "value-key": "[MNI_REG_FLAG]",
+            "command-line-flag": "--mni_reg"
+        },
+        {
+            "id": "tr",
+            "name": "TR of calibration",
+            "description": "Repetition time of calibration in seconds - {default: 3.2s}",
+            "optional": true,
+            "default-value": 3.2,
+            "type": "Number",
+            "value-key": "[TR_CALIB]",
+            "command-line-flag": "--tr"
+        },
+        {
+            "id": "pvcorr",
+            "name": "Volume correction",
+            "optional": true,
+            "default-value": 0,
+            "value-choices": [
+                0,
+                1
+            ],
+            "type": "Number",
+            "value-key": "[PV_CORR]",
+            "command-line-flag": "--pvcorr"
+        }
+    ],
+    "groups": [
+        {
+            "id": "main_options",
+            "name": "Main options",
+            "members": [
+                "spatial",
+                "white_paper",
+                "motion_correction"
+            ]
+        },
+        {
+            "id": "acquisition_specific",
+            "name": "Acquisition specific options",
+            "members": [
+                "iaf",
+                "ibf",
+                "tis",
+                "casl",
+                "bolus",
+                "slicedt",
+                "bat",
+                "t1",
+                "t1b",
+                "rpts",
+                "sliceband"
+            ]
+        },
+        {
+            "id": "calibration",
+            "name": "Calibration",
+            "members": [
+                "tr"
+            ]
+        },
+        {
+            "id": "kinetic_analysis",
+            "name": "Kinetic analysis",
+            "members": [
+                "artoff",
+                "fixbolus"
+            ]
+        },
+        {
+            "id": "partial_volume_correction",
+            "name": "Partial volume correction",
+            "members": [
+                "pvcorr"
+            ]
+        }
+    ],
+    "output-files": [
+        {
+            "name": "Output folder",
+            "id": "oxford_output",
+            "description": "A folder containing the output files.",
+            "optional": false,
+            "list": false,
+            "path-template": "[NAME_OUTDIR]"
+        }
+    ],
+    "tags": {
+        "domain": [
+            "neuroinformatics",
+            "neuroimaging"
+        ]
+    },
+    "suggested-resources": {
+        "walltime-estimate": 3660
+    },
+    "custom": {
+        "cbrain:author": [
+            "Safa Sanami <s.sanami70@gmail.com>",
+            "Darius Valevicius <darius.valevicius@mail.mcgill.ca>",
+            "Natacha Beck <nbeck@mcin.ca>"
+        ],
+        "cbrain:readonly-input-files": true,
+        "cbrain:integrator_modules": {
+            "BoutiquesFileTypeVerifier": {
+                "bids_dir": [ "BidsSubject" ]
+            },
+            "BoutiquesFileNameMatcher": {
+                "bids_dir": "^sub-[a-zA-Z0-9_]+$"
+            },
+            "BoutiquesOutputFileTypeSetter": {
+                "output_dir": "OxfordAslOutput"
+            },
+            "BoutiquesBidsSingleSubjectMaker": "bids_dir"
+        }
+    }
+}
