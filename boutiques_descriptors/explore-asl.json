@@ -3,7 +3,7 @@
     "description": "A pipeline and toolbox for image processing and statistics of arterial spin labeling perfusion MR images.",
     "tool-version": "1.9.0",
     "schema-version": "0.5",
-    "command-line": "python3.10 -u /opt/xasl_wrapper.py [INPUT_FOLDER] [INPUT_TYPE] [OUTPUT_FOLDER] [SUBJECT_QUANTITY] [DATASET_DESCRIPTION] [SOURCE_STRUCTURE] [STUDY_PAR] [PARAMETER_BEHAVIOUR] [ImportModules_DCM2NII] [ImportModules_NII2BIDS] [ImportModules_DEFACE] [ImportModules_BIDS2LEGACY] [ProcessModules_STRUCTURAL] [ProcessModules_ASL] [ProcessModules_POPULATION] [X__SESSIONS] [X__SESSION__OPTIONS] [X__DATASET__SUBJECTREGEXP] [X__DATASET__EXCLUSION] [X__DATASET__FORCEINCLUSIONLIST] [X__MODULES__ASL__M0_CONVENTIONALPROCESSING] [X__MODULES__ASL__M0_GMSCALEFACTOR] [X__MODULES__ASL__M0POSITIONINASL4D] [X__MODULES__ASL__DUMMYSCANPOSITIONINASL4D] [X__Q__M0] [X__Q__BACKGROUNDSUPPRESSIONNUMBERPULSES] [X__Q__BACKGROUNDSUPPRESSIONPULSETIME] [X__Q__PRESATURATIONTIME] [X__Q__READOUTDIM] [X__Q__VENDOR] [X__Q__SEQUENCE] [X__Q__LABELINGTYPE] [X__Q__INITIAL_PLD] [X__Q__LABELINGDURATION] [X__Q__SLICEREADOUTTIME] [X__Q__BUSEBASILQUANTIFICATION] [X__Q__LAMBDA] [X__Q__T2ART] [X__Q__BLOODT1] [X__Q__TISSUET1] [X__Q__NCOMPARTMENTS] [X__Q__APPLYQUANTIFICATION] [X__Q__SAVECBF4D] [X__MODULES__ASL__MOTIONCORRECTION] [X__MODULES__ASL__SPIKEREMOVALTHRESHOLD] [X__MODULES__ASL__BREGISTRATIONCONTRAST] [X__MODULES__ASL__BAFFINEREGISTRATION] [X__MODULES__ASL__BDCTREGISTRATION] [X__MODULES__ASL__BREGISTERM02ASL] [X__MODULES__ASL__BUSEMNIASDUMMYSTRUCTURAL] [X__MODULES__ASL__BPVCNATIVESPACE] [X__MODULES__ASL__PVCNATIVESPACEKERNEL] [X__MODULES__ASL__BPVCGAUSSIANMM] [X__MODULES__ASL__BMAKENIFTI4DICOM] [X__MODULES__BRUNLONGREG] [X__MODULES__BRUNDARTEL] [X__MODULES__STRUCTURAL__BSEGMENTSPM12] [X__MODULES__STRUCTURAL__BHAMMERSCAT12] [X__MODULES__STRUCTURAL__BFIXRESOLUTION] [X__SETTINGS__QUALITY] [X__SETTINGS__DELETETEMP] [X__SETTINGS__SKIPIFNOFLAIR] [X__SETTINGS__SKIPIFNOASL] [X__SETTINGS__SKIPIFNOM0] [X__SETTINGS__STOPAFTERERRORS] [X__SETTINGS__BLESIONFILLING] [X__SETTINGS__BAUTOACPC] [X__S__BMASKING] [X__S__ATLASES]",
+    "command-line": "xasl_wrapper.py [INPUT_FOLDER] [INPUT_TYPE] [OUTPUT_FOLDER] [SUBJECT_QUANTITY] [DATASET_DESCRIPTION] [SOURCE_STRUCTURE] [STUDY_PAR] [PARAMETER_BEHAVIOUR] [ImportModules_DCM2NII] [ImportModules_NII2BIDS] [ImportModules_DEFACE] [ImportModules_BIDS2LEGACY] [ProcessModules_STRUCTURAL] [ProcessModules_ASL] [ProcessModules_POPULATION] [X__SESSIONS] [X__SESSION__OPTIONS] [X__DATASET__SUBJECTREGEXP] [X__DATASET__EXCLUSION] [X__DATASET__FORCEINCLUSIONLIST] [X__MODULES__ASL__M0_CONVENTIONALPROCESSING] [X__MODULES__ASL__M0_GMSCALEFACTOR] [X__MODULES__ASL__M0POSITIONINASL4D] [X__MODULES__ASL__DUMMYSCANPOSITIONINASL4D] [X__Q__M0] [X__Q__BACKGROUNDSUPPRESSIONNUMBERPULSES] [X__Q__BACKGROUNDSUPPRESSIONPULSETIME] [X__Q__PRESATURATIONTIME] [X__Q__READOUTDIM] [X__Q__VENDOR] [X__Q__SEQUENCE] [X__Q__LABELINGTYPE] [X__Q__INITIAL_PLD] [X__Q__LABELINGDURATION] [X__Q__SLICEREADOUTTIME] [X__Q__BUSEBASILQUANTIFICATION] [X__Q__LAMBDA] [X__Q__T2ART] [X__Q__BLOODT1] [X__Q__TISSUET1] [X__Q__NCOMPARTMENTS] [X__Q__APPLYQUANTIFICATION] [X__Q__SAVECBF4D] [X__MODULES__ASL__MOTIONCORRECTION] [X__MODULES__ASL__SPIKEREMOVALTHRESHOLD] [X__MODULES__ASL__BREGISTRATIONCONTRAST] [X__MODULES__ASL__BAFFINEREGISTRATION] [X__MODULES__ASL__BDCTREGISTRATION] [X__MODULES__ASL__BREGISTERM02ASL] [X__MODULES__ASL__BUSEMNIASDUMMYSTRUCTURAL] [X__MODULES__ASL__BPVCNATIVESPACE] [X__MODULES__ASL__PVCNATIVESPACEKERNEL] [X__MODULES__ASL__BPVCGAUSSIANMM] [X__MODULES__ASL__BMAKENIFTI4DICOM] [X__MODULES__BRUNLONGREG] [X__MODULES__BRUNDARTEL] [X__MODULES__STRUCTURAL__BSEGMENTSPM12] [X__MODULES__STRUCTURAL__BHAMMERSCAT12] [X__MODULES__STRUCTURAL__BFIXRESOLUTION] [X__SETTINGS__QUALITY] [X__SETTINGS__DELETETEMP] [X__SETTINGS__SKIPIFNOFLAIR] [X__SETTINGS__SKIPIFNOASL] [X__SETTINGS__SKIPIFNOM0] [X__SETTINGS__STOPAFTERERRORS] [X__SETTINGS__BLESIONFILLING] [X__SETTINGS__BAUTOACPC] [X__S__BMASKING] [X__S__ATLASES]",
     "container-image": {
         "image": "dvalev/xasl_cbrain:latest",
         "index": "docker://",
@@ -115,7 +115,7 @@
         {
             "id": "import_modules_dcm2nii",
             "name": "DCM2NII Conversion",
-            "description": "Boolean: Use the DICOM to NIfTI import module",
+            "description": "Use the DICOM to NIfTI import module",
             "optional": true,
             "default-value": 0,
             "value-choices": [
@@ -129,7 +129,7 @@
         {
             "id": "import_modules_nii2bids",
             "name": "NII2BIDS Conversion",
-            "description": "Boolean: Use the NIfTI to BIDS import module",
+            "description": "Use the NIfTI to BIDS import module",
             "optional": true,
             "default-value": 0,
             "value-choices": [
@@ -143,7 +143,7 @@
         {
             "id": "import_modules_deface",
             "name": "Defacing",
-            "description": "Boolean: Use the defacing import module",
+            "description": "Use the defacing import module",
             "optional": true,
             "default-value": 0,
             "value-choices": [
@@ -157,7 +157,7 @@
         {
             "id": "import_modules_bids2legacy",
             "name": "BIDS2LEGACY Conversion",
-            "description": "Boolean: Use the BIDS to xASL Legacy import module",
+            "description": "Use the BIDS to xASL Legacy import module",
             "optional": true,
             "default-value": 0,
             "value-choices": [
@@ -171,7 +171,7 @@
         {
             "id": "process_modules_structural",
             "name": "Structural Process Module",
-            "description": "Boolean: Use the structural process module",
+            "description": "Use the structural process module",
             "optional": true,
             "default-value": 0,
             "value-choices": [
@@ -185,7 +185,7 @@
         {
             "id": "process_modules_asl",
             "name": "ASL Process Module",
-            "description": "Boolean: Use the ASL process module",
+            "description": "Use the ASL process module",
             "optional": true,
             "default-value": 0,
             "value-choices": [
@@ -199,7 +199,7 @@
         {
             "id": "process_modules_population",
             "name": "Population Process Module",
-            "description": "Boolean: Use the population process module\nNOTE: Input folder must be a collection containing all subject data.",
+            "description": "Use the population process module\nNOTE: Input folder must be a collection containing all subject data.",
             "optional": true,
             "default-value": 0,
             "value-choices": [
@@ -844,6 +844,7 @@
         {
             "id": "import_modules",
             "name": "Import Modules",
+            "description": "Module includes for importing. Set to '1' to run the module on this dataset.",
             "members": [
                 "import_modules_dcm2nii",
                 "import_modules_nii2bids",
@@ -854,6 +855,7 @@
         {
             "id": "process_modules",
             "name": "Process Modules",
+            "description": "Module includes for processing. Set to '1' to run the module on this dataset.",
             "members": [
                 "process_modules_structural",
                 "process_modules_asl",
@@ -863,6 +865,7 @@
         {
             "id": "study_parameters",
             "name": "Study Parameters",
+            "description": "Basic information about the session names within a study.",
             "members": [
                 "x__SESSIONS",
                 "x__session__options"
@@ -880,6 +883,7 @@
         {
             "id": "m0_parameters_and_options",
             "name": "M0 Parameters and Options",
+            "description": "Parameters to define M0-processing choices and also extra information about M0-scan position within the ASL series if not specified in the ASLcontext.tsv already.",
             "members": [
                 "x__modules__asl__M0_conventionalProcessing",
                 "x__modules__asl__M0_GMScaleFactor",
@@ -890,6 +894,7 @@
         {
             "id": "sequence_parameters",
             "name": "Sequence Parameters",
+            "description": "Parameters of the ASL sequence. Note that these parameters should have been defined in the ASL-BIDS format for each subject and saved in its JSON-sidecar. These fields are only used if the corresponding ASL-BIDS field is missing. Use of these parameters is thus discouraged unless really needed.",
             "members": [
                 "x__Q__M0",
                 "x__Q__BackgroundSuppressionNumberPulses",
@@ -907,6 +912,7 @@
         {
             "id": "quantification_parameters",
             "name": "Quantification Parameters",
+            "description": "Please use these fields to modify the quantification model parameters for the entire study. Note that normally, the default values are used for each field-strength and these values do not have to be provided.",
             "members": [
                 "x__Q__bUseBasilQuantification",
                 "x__Q__Lambda",
@@ -921,6 +927,7 @@
         {
             "id": "asl_processing_parameters",
             "name": "ASL Processing Parameters",
+            "description": "All ASL module related parameters are stored within this subfield. Use these for extra ASL-processing options or to turn OFF/ON certain steps.",
             "members": [
                 "x__modules__asl__motionCorrection",
                 "x__modules__asl__SpikeRemovalThreshold",
@@ -938,6 +945,7 @@
         {
             "id": "structural_processing_parameters",
             "name": "Structural Proceesing Parameters",
+            "description": "All structural module related parameters are stored within this subfield. Use these to configure processing options of the structural module.",
             "members": [
                 "x__modules__bRunLongReg",
                 "x__modules__bRunDARTEL",
