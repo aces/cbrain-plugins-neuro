@@ -2,13 +2,13 @@
   "name": "BigBrainWarp",
   "author": "Casey Paquola",
   "description": "Toolbox for integration of BigBrain 3D histology with mutlimodal neuroimaging. Casey Paquola, Jessica Royer, Lindsay B Lewis, Claude Lepage, Tristan Glatard, Konrad Wagstyl, Jordan DeKraker, Paule-J Toussaint, Sofie Louise Valk, D. Louis Collins, Ali Khan, Katrin Amunts, Alan C Evans, Timo Dickscheid, Boris Bernhardt bioRxiv 2021.05.04.442563; doi: https://doi.org/10.1101",
-  "tool-version": "unknown",
+  "tool-version": "August-2022",
   "schema-version": "0.5",
   "custom": {
     "cbrain:readonly-input-files": true,
     "cbrain:author": "Natacha Beck <natacha.beck@mcgill.ca>"
   },
-  "command-line": "mkdir -p opt_freesurfer || exit 2 && ln -f -s /opt/freesurfer/* opt_freesurfer/ || exit 2 && cp -rL [FREESURFER_LICENSE] opt_freesurfer/license.txt || exit 2 && export FREESURFER_HOME=$PWD/opt_freesurfer && source /BigBrainWarp/scripts/init.sh || exit 2 && mkdir -p bigbrainwarp-results && bigbrainwarp [IN_SPACE] [OUT_SPACE] --wd bigbrainwarp-results [IN_VOL] [IN_LH] [IN_RH] [INTERP] [OUT_NAME] [OUT_TYPE]",
+  "command-line": "wd=$(pwd) && mkdir -p opt_freesurfer || exit 2 && ln -f -s /opt/freesurfer/* opt_freesurfer/ || exit 2 && cp -rL [FREESURFER_LICENSE] opt_freesurfer/license.txt || exit 2 && export FREESURFER_HOME=$PWD/opt_freesurfer && source /BigBrainWarp/scripts/init.sh || exit 2 && cd $wd || exit 2   f&& mkdir -p bigbrainwarp-results && bigbrainwarp [IN_SPACE] [OUT_SPACE] --wd bigbrainwarp-results [DESC] [IN_VOL] [IN_LH] [IN_RH] [INTERP] [OUT_NAME] [OUT_TYPE]",
   "container-image": {
       "image": "caseypaquola/bigbrainwarp:latest",
       "type": "singularity",
@@ -76,11 +76,20 @@
       ]
     },
     {
+      "description": "descriptor of input data, which will be used to name the output.",
+      "id": "descriptor_of_input",
+      "name": "Descriptor of input",
+      "optional": false,
+      "type": "String",
+      "command-line-flag": "--desc",
+      "value-key": "[DESC]"
+    },
+    {
       "description": "To run FreeSurfer a license file must exist and be pointed to. The license can be acquired by filling out this form: https://surfer.nmr.mgh.harvard.edu/registration.html.",
-        "id": "freesurfer_license",
-        "name": "Freesurfer license",
-        "optional": false,
-        "type": "File",
+      "id": "freesurfer_license",
+      "name": "Freesurfer license",
+      "optional": false,
+      "type": "File",
       "value-key": "[FREESURFER_LICENSE]"
     },
     {
