@@ -9,9 +9,9 @@
     "cbrain:author": "Natacha Beck <natacha.beck@mcgill.ca>",
     "cbrain:integrator_modules": {
          "BoutiquesFileTypeVerifier": {
-             "fs_license_file": [ "FreesurferLicense", "TextFile", "SingleFile" ]
+             "freesurfer_license": [ "FreesurferLicense", "TextFile", "SingleFile" ]
          },
-         "BoutiquesFreesurferLicenseFinder": "fs_license_file"
+         "BoutiquesFreesurferLicenseFinder": "freesurfer_license"
      }
   },
     "command-line": "wd=\"$PWD\"; mkdir -p opt_freesurfer || exit 2; ln -f -s /opt/freesurfer/* opt_freesurfer/ || exit 2; cp -rL [FREESURFER_LICENSE] opt_freesurfer/license.txt || exit 2; export FREESURFER_HOME=\"$PWD\"/opt_freesurfer; source /BigBrainWarp/scripts/init.sh || exit 2; cd \"$wd\" || exit 2; mkdir -p bigbrainwarp-results || exit 2; bigbrainwarp [IN_SPACE] [OUT_SPACE] --wd bigbrainwarp-results [DESC] [IN_VOL] [IN_LH] [IN_RH] [INTERP] [OUT_NAME] [OUT_TYPE]",
@@ -92,7 +92,7 @@
     },
     {
       "description": "To run FreeSurfer a license file must exist and be pointed to. The license can be acquired by filling out this form: https://surfer.nmr.mgh.harvard.edu/registration.html.",
-      "id": "fs_license_file",
+      "id": "freesurfer_license",
       "name": "Freesurfer license",
       "optional": false,
       "type": "File",
