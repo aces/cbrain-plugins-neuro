@@ -6,7 +6,7 @@
     "command-line": "mkdir -p [OUTPUT_DIR]; run_first_all [METHOD] [BRAIN_EXTRACTED] [SPECIFIED_STRUCTURE] [AFFINE] [THREE_STAGE] [VERBOSE] [INPUT_FILE] -o [OUTPUT_DIR]/[PREFIX]",
     "container-image": {
         "image": "mcin/docker-fsl:latest", 
-        "index": "index.docker.io", 
+        "index": "docker://", 
         "type": "docker"
     },
     "inputs": [

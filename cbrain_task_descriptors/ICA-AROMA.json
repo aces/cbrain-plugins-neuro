@@ -149,7 +149,7 @@
         }
     ], 
     "container-image": {
-        "index": "index.docker.io", 
+        "index": "docker://", 
         "image": "mcin/ica-aroma:latest", 
         "type": "docker"
     }, 

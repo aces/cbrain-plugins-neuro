@@ -121,7 +121,7 @@
         }
     ], 
     "container-image": {
-        "index": "index.docker.io", 
+        "index": "docker://", 
         "image": "mcin/docker-fsl:latest", 
         "type": "docker"
     }, 
