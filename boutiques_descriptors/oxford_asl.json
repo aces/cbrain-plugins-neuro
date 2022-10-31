@@ -3,7 +3,7 @@
     "name": "Oxford_asl_single_subject",
     "author": "Oxford Centre for Functional MRI of the Brain (FMRIB)",
     "description": "Oxford_asl for BIDS subject",
-    "command-line": "bids_ox_asl [BIDS_DIR] [NAME_OUTDIR] [SPATIAL_FLAG] [WP_FLAG] [MC_FLAG] [ARTOFF_FLAG] [FIXBOLUS_FLAG] [IAF] [IBF] [TIS] [CASL_FLAG] [BOLUS] [BAT] [T1] [T1B] [SLICEDT] [SLICEBAND] [RPT] [MNI_REG_FLAG] [TR_CALIB] [PV_CORR]",
+    "command-line": "bids_ox_asl [BIDS_DIR] [NAME_OUTDIR] [SPATIAL_FLAG] [WP_FLAG] [MC_FLAG] [ARTOFF_FLAG] [FIXBOLUS_FLAG] [IAF] [IBF] [TIS] [CASL_FLAG] [BOLUS] [BAT] [T1] [T1B] [SLICEDT] [SLICEBAND] [RPT] [TR_CALIB] [PV_CORR]",
     "schema-version": "0.5",
     "container-image": {
         "image": "mcin/fsl:6.0.5",
@@ -31,39 +31,24 @@
             "id": "spatial",
             "name": "Spatial processing",
             "description": "Use spatial regularisation. This option is highly recommended.",
-            "optional": false,
-            "default-value": "on",
-            "value-choices": [
-                "on",
-                "off"
-            ],
-            "type": "String",
+            "optional": true,
+            "type": "Flag",
             "value-key": "[SPATIAL_FLAG]",
             "command-line-flag": "--spatial"
         },
         {
             "id": "white_paper",
             "name": "White paper mode",
-            "optional": false,
-            "default-value": 0,
-            "value-choices": [
-                0,
-                1
-            ],
-            "type": "Number",
+            "optional": true,
+            "type": "Flag",
             "value-key": "[WP_FLAG]",
             "command-line-flag": "--wp"
         },
         {
             "id": "motion_correction",
             "name": " Motion correction",
-            "optional": false,
-            "default-value": 0,
-            "value-choices": [
-                0,
-                1
-            ],
-            "type": "Number",
+            "optional": true,
+            "type": "Flag",
             "value-key": "[MC_FLAG]",
             "command-line-flag": "--mc"
         },
@@ -71,13 +56,8 @@
             "id": "artoff",
             "name": " Arterial suppression",
             "description": "Arterial suppression (vascular crushing) was used.",
-            "optional": false,
-            "default-value": 0,
-            "value-choices": [
-                0,
-                1
-            ],
-            "type": "Number",
+            "optional": true,
+            "type": "Flag",
             "value-key": "[ARTOFF_FLAG]",
             "command-line-flag": "--artoff"
         },
@@ -85,13 +65,8 @@
             "id": "fixbolus",
             "name": "Fix bolus duration",
             "description": "Turn off automatic estimation of bolus duration as it is fixed, e.g. by QUIPSSII or CASL.",
-            "optional": false,
-            "default-value": 0,
-            "value-choices": [
-                0,
-                1
-            ],
-            "type": "Number",
+            "optional": true,
+            "type": "Flag",
             "value-key": "[FIXBOLUS_FLAG]",
             "command-line-flag": "--fixbolus"
         },
@@ -107,7 +82,8 @@
             ],
             "type": "String",
             "value-key": "[IAF]",
-            "command-line-flag": "--iaf"
+            "command-line-flag": "--iaf",
+            "command-line-flag-separator": "="
         },
         {
             "id": "ibf",
@@ -119,7 +95,8 @@
             ],
             "type": "String",
             "value-key": "[IBF]",
-            "command-line-flag": "--ibf"
+            "command-line-flag": "--ibf",
+            "command-line-flag-separator": "="
         },
         {
             "id": "tis",
@@ -128,19 +105,15 @@
             "optional": false,
             "type": "String",
             "value-key": "[TIS]",
-            "command-line-flag": "--tis"
+            "command-line-flag": "--tis",
+            "command-line-flag-separator": "="
         },
         {
             "id": "casl",
             "name": "CASL",
             "description": "ASL acquisition is pseudo cASL (pcASL) rather than pASL.",
-            "optional": false,
-            "default-value": 0,
-            "value-choices": [
-                0,
-                1
-            ],
-            "type": "Number",
+            "optional": true,
+            "type": "Flag",
             "value-key": "[CASL_FLAG]",
             "command-line-flag": "--casl"
         },
@@ -152,7 +125,8 @@
             "default-value": 1,
             "type": "Number",
             "value-key": "[BOLUS]",
-            "command-line-flag": "--bolus"
+            "command-line-flag": "--bolus",
+            "command-line-flag-separator": "="
         },
         {
             "id": "bat",
@@ -161,7 +135,8 @@
             "optional": false,
             "type": "Number",
             "value-key": "[BAT]",
-            "command-line-flag": "--bat"
+            "command-line-flag": "--bat",
+            "command-line-flag-separator": "="
         },
         {
             "id": "t1",
@@ -170,7 +145,8 @@
             "optional": true,
             "type": "Number",
             "value-key": "[T1]",
-            "command-line-flag": "--t1"
+            "command-line-flag": "--t1",
+            "command-line-flag-separator": "="
         },
         {
             "id": "t1b",
@@ -179,7 +155,8 @@
             "default-value": 1.65,
             "type": "Number",
             "value-key": "[T1B]",
-            "command-line-flag": "--t1b"
+            "command-line-flag": "--t1b",
+            "command-line-flag-separator": "="
         },
         {
             "id": "slicedt",
@@ -189,7 +166,8 @@
             "default-value": 0,
             "type": "Number",
             "value-key": "[SLICEDT]",
-            "command-line-flag": "--slicedt"
+            "command-line-flag": "--slicedt",
+            "command-line-flag-separator": "="
         },
         {
             "id": "sliceband",
@@ -199,7 +177,8 @@
             "default-value": 0,
             "type": "Number",
             "value-key": "[SLICEBAND]",
-            "command-line-flag": "--sliceband"
+            "command-line-flag": "--sliceband",
+            "command-line-flag-separator": "="
         },
         {
             "id": "rpts",
@@ -209,20 +188,8 @@
             "default-value": 0,
             "type": "Number",
             "value-key": "[RPT]",
-            "command-line-flag": "--rpts"
-        },
-        {
-            "id": "mni_reg_flag",
-            "name": "Registration to MNI space",
-            "optional": true,
-            "default-value": 0,
-            "value-choices": [
-                0,
-                1
-            ],
-            "type": "Number",
-            "value-key": "[MNI_REG_FLAG]",
-            "command-line-flag": "--mni_reg"
+            "command-line-flag": "--rpts",
+            "command-line-flag-separator": "="
         },
         {
             "id": "tr",
@@ -232,18 +199,14 @@
             "default-value": 3.2,
             "type": "Number",
             "value-key": "[TR_CALIB]",
-            "command-line-flag": "--tr"
+            "command-line-flag": "--tr",
+            "command-line-flag-separator": "="
         },
         {
             "id": "pvcorr",
             "name": "Volume correction",
             "optional": true,
-            "default-value": 0,
-            "value-choices": [
-                0,
-                1
-            ],
-            "type": "Number",
+            "type": "Flag",
             "value-key": "[PV_CORR]",
             "command-line-flag": "--pvcorr"
         }
@@ -326,7 +289,9 @@
         "cbrain:readonly-input-files": true,
         "cbrain:integrator_modules": {
             "BoutiquesFileTypeVerifier": {
-                "bids_dir": [ "BidsSubject" ]
+                "bids_dir": [
+                    "BidsSubject"
+                ]
             },
             "BoutiquesFileNameMatcher": {
                 "bids_dir": "^sub-[a-zA-Z0-9_]+$"
