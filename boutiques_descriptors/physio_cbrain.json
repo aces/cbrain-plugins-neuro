@@ -1,0 +1,1042 @@
+{
+    "tool-version": "8.1.0",
+    "name": "TAPAS PhysIO",
+    "description": "Tapas Physio: Physiological noise correction for fMRI",
+    "author": "Lars Kasper, Zurich University and ETH Zurich",
+    "descriptor-url": "https://github.com/dariusvalevicius/PhysIO_CBRAIN/blob/master/cbrain_task_descriptors/tapasphysio.json",
+    "command-line": "mkdir -p [OUTDIR]; physio_cbrain [USE_CASE] [FMRI_IN] [OUTDIR] [CORRECT] [log_files.align_scan] [log_files.cardiac] [log_files.cardiac_respiration] [log_files.relative_start_acquisition] [log_files.respiration] [log_files.scan_timing] [log_files.vendor] [log_files.sampling_interval] [model.censor_unreliable_recording_intervals] [model.hrv.delays] [model.hrv.include] [model.movement.censoring_method] [model.movement.censoring_threshold] [model.movement.file_realignment_parameters] [model.movement.include] [model.movement.order] [model.noise_rois.force_coregister] [model.noise_rois.include] [model.noise_rois.n_components] [model.noise_rois.n_voxel_crop] [model.noise_rois.thresholds] [model.noise_rois.fmri_files] [model.noise_rois.roi_files] [model.orthogonalise] [model.other.include] [model.other.input_multiple_regressors] [model.output_multiple_regressors] [model.output_physio] [model.retroicor.include] [model.retroicor.order.c] [model.retroicor.order.cr] [model.retroicor.order.r] [model.rvt.delays] [model.rvt.include] [preproc.cardiac.filter.passband] [preproc.cardiac.filter.type] [preproc.cardiac.initial_cpulse_select.file] [preproc.cardiac.initial_cpulse_select.max_heart_rate_bpm] [preproc.cardiac.initial_cpulse_select.method] [preproc.cardiac.initial_cpulse_select.min] [preproc.cardiac.modality] [preproc.cardiac.posthoc_cpulse_select.lower_thresh] [preproc.cardiac.posthoc_cpulse_select.method] [preproc.cardiac.posthoc_cpulse_select.file] [preproc.cardiac.posthoc_cpulse_select.percentile] [preproc.cardiac.posthoc_cpulse_select.upper_thresh] [preproc.cardiac.filter.include] [preproc.cardiac.filter.stopband] [scan_timing.sqpar.Ndummies] [scan_timing.sqpar.Nscans] [scan_timing.sqpar.Nslices] [scan_timing.sqpar.onset_slice] [scan_timing.sqpar.TR] [scan_timing.sqpar.NslicesPerBeat] [scan_timing.sqpar.time_slice_to_slice] [scan_timing.sqpar.Nprep] [scan_timing.sync.grad_direction] [scan_timing.sync.method] [scan_timing.sync.slice] [scan_timing.sync.zero] [scan_timing.sync.vol] [scan_timing.sync.vol_spacing] [verbose.fig_output_file] [verbose.level]",
+    "container-image": {
+        "image": "dvalev/physio_cbrain:latest",
+        "index": "docker://",
+        "type": "singularity"
+    },
+    "inputs": [
+        {
+            "description": "Options for input formats.\nbids_directory: Input the top level folder for a BIDS subject OR dataset. All contained fMRI runs will be processed.\nmanual_input: Loose files as input. Must specify fMRI file and physlog files.\nWARNING: BIDS folder and single run folder options are currently experimental and may fail, especially with vendors other than BIDS and Philips. Only vendors which produce a single logfile for both resp+cardiac are supported at the moment.",
+            "value-key": "[USE_CASE]",
+            "optional": false,
+            "list": false,
+            "value-choices": [
+                "bids_directory",
+                "manual_input"
+            ],
+            "value-disables": {
+                "bids_directory": [
+                    "log_files__cardiac",
+                    "log_files__respiration",
+                    "log_files__cardiac_respiration"
+                ],
+                "manual_input": []
+            },
+            "type": "String",
+            "id": "use_case",
+            "name": "Use Case"
+        },
+        {
+            "description": "Main input fMRI file or file collection.\nFor Manual Input, select fMRI file.\nFor BIDS or single run folder, select file collection.",
+            "value-key": "[FMRI_IN]",
+            "optional": false,
+            "list": false,
+            "type": "File",
+            "id": "fmri_in",
+            "name": "fMRI Input"
+        },
+        {
+            "description": "This will be added to the beginning of the output folder name.\nOutput will be of the form [output prefix]_[fmri input]",
+            "value-key": "[OUT]",
+            "optional": false,
+            "list": false,
+            "type": "String",
+            "id": "out",
+            "name": "Output folder prefix"
+        },
+        {
+            "description": "Produce corrected copies of fMRI images.",
+            "default-value": "no",
+            "value-key": "[CORRECT]",
+            "optional": false,
+            "list": false,
+            "value-choices": [
+                "no",
+                "yes"
+            ],
+            "type": "String",
+            "id": "correct",
+            "name": "Correct Image"
+        },
+        {
+            "id": "log_files__vendor",
+            "name": "Logfile Vendor",
+            "value-key": "[log_files.vendor]",
+            "default-value": "Philips",
+            "type": "String",
+            "description": "Vendor name depending on your MRI scanner/Physiological recording system.",
+            "value-choices": [
+                "BIDS",
+                "Biopac_Txt",
+                "Biopac_Mat",
+                "BrainProducts",
+                "Custom",
+                "GE",
+                "Philips",
+                "Siemens",
+                "Siemens_Tics",
+                "Siemens_HCP"
+            ],
+            "optional": false,
+            "command-line-flag": "log_files.vendor"
+        },
+        {
+            "id": "log_files__cardiac",
+            "name": "Cardiac Logfile",
+            "value-key": "[log_files.cardiac]",
+            "type": "File",
+            "description": "Logfile with cardiac, i.e. ECG/PPU (pulse oximetry) data.\nSelect 0 files if only respiratory data is available.\nFor Philips and BIDS, same as respiratory logfile.",
+            "optional": true,
+            "command-line-flag": "log_files.cardiac"
+        },
+        {
+            "id": "log_files__respiration",
+            "name": "Respiration Logfile",
+            "value-key": "[log_files.respiration]",
+            "type": "File",
+            "description": "Logfile with respiratory, i.e. breathing belt amplitude data.",
+            "optional": true,
+            "command-line-flag": "log_files.respiration"
+        },
+        {
+            "id": "log_files__cardiac_respiration",
+            "name": "Cardiac and Respiratory Logfile",
+            "value-key": "[log_files.cardiac_respiration]",
+            "type": "File",
+            "description": "Logfile with both cardiac and respiratory data. For use with vendors where one file is given for both modalities (E.G. Philips, BIDS).",
+            "optional": true,
+            "command-line-flag": "log_files.cardiac_respiration"
+        },
+        {
+            "id": "log_files__relative_start_acquisition",
+            "name": "Relative Start Acquisition",
+            "value-key": "[log_files.relative_start_acquisition]",
+            "default-value": 0,
+            "type": "Number",
+            "description": "Time (in seconds) when the 1st scan (or, if existing, dummy) started, relative to the start of the logfile recording:\n[] (empty) to read from explicit acquisition timing info\n0 if simultaneous start\n10, if 1st scan starts 10 seconds AFTER physiological recording\n-20, if first scan started 20 seconds BEFORE phys recording",
+            "optional": true,
+            "command-line-flag": "log_files.relative_start_acquisition"
+        },
+        {
+            "id": "log_files__align_scan",
+            "name": "Align Scan",
+            "value-key": "[log_files.align_scan]",
+            "default-value": "last",
+            "type": "String",
+            "description": "Determines which scan shall be aligned to which part of the logfile.\nTypically, aligning the last scan to the end of the logfile is beneficial, since the start of the logfile and scans might be shifted due to pre-scans.",
+            "value-choices": [
+                "last",
+                "first"
+            ],
+            "optional": true,
+            "command-line-flag": "log_files.align_scan"
+        },
+        {
+            "id": "log_files__scan_timing",
+            "name": "Scan Timing",
+            "value-key": "[log_files.scan_timing]",
+            "type": "String",
+            "description": "Additional file for relative timing information between logfiles and MRI scans.",
+            "optional": true,
+            "command-line-flag": "log_files.scan_timing"
+        },
+        {
+            "id": "log_files__sampling_interval",
+            "name": "Sampling Interval",
+            "value-key": "[log_files.sampling_interval]",
+            "type": "Number",
+            "description": "Sampling interval of phys log files (in seconds).",
+            "optional": true,
+            "command-line-flag": "log_files.sampling_interval"
+        },
+        {
+            "id": "scan_timing__sqpar__Nslices",
+            "name": "Number of Slices",
+            "value-key": "[scan_timing.sqpar.Nslices]",
+            "type": "Number",
+            "description": "Number of slices in one volume.",
+            "integer": true,
+            "optional": true,
+            "command-line-flag": "scan_timing.sqpar.Nslices"
+        },
+        {
+            "id": "scan_timing__sqpar__NslicesPerBeat",
+            "name": "Number of Slices Per Beat",
+            "value-key": "[scan_timing.sqpar.NslicesPerBeat]",
+            "type": "Number",
+            "description": "Only for triggered (gated) sequences:\nNumber of slices acquired per heartbeat",
+            "integer": true,
+            "optional": true,
+            "command-line-flag": "scan_timing.sqpar.NslicesPerBeat"
+        },
+        {
+            "id": "scan_timing__sqpar__TR",
+            "name": "TR",
+            "value-key": "[scan_timing.sqpar.TR]",
+            "type": "Number",
+            "description": "Repetition time (in seconds) between consecutive image volumes.",
+            "optional": true,
+            "command-line-flag": "scan_timing.sqpar.TR"
+        },
+        {
+            "id": "scan_timing__sqpar__Ndummies",
+            "name": "Number of Dummies",
+            "value-key": "[scan_timing.sqpar.Ndummies]",
+            "type": "Number",
+            "description": "Number of dummies that were acquired (but will not show up in design matrix).",
+            "integer": true,
+            "optional": true,
+            "command-line-flag": "scan_timing.sqpar.Ndummies"
+        },
+        {
+            "id": "scan_timing__sqpar__Nscans",
+            "name": "Number of scans",
+            "value-key": "[scan_timing.sqpar.Nscans]",
+            "type": "Number",
+            "description": "Number of scans (volumes) in design matrix.",
+            "optional": true,
+            "command-line-flag": "scan_timing.sqpar.Nscans"
+        },
+        {
+            "id": "scan_timing__sqpar__onset_slice",
+            "name": "Onset Slice",
+            "value-key": "[scan_timing.sqpar.onset_slice]",
+            "type": "Number",
+            "description": "Slice to which regressors are temporally aligned.\nTypically the slice where your most important activation is expected.",
+            "integer": true,
+            "optional": true,
+            "command-line-flag": "scan_timing.sqpar.onset_slice"
+        },
+        {
+            "id": "scan_timing__sqpar__time_slice_to_slice",
+            "name": "Time Slice-to-Slice",
+            "value-key": "[scan_timing.sqpar.time_slice_to_slice]",
+            "type": "Number",
+            "description": "Duration between acquisition of two different slices.\nIf empty, set to default value (TR/Nslices).",
+            "optional": true,
+            "command-line-flag": "scan_timing.sqpar.time_slice_to_slice"
+        },
+        {
+            "id": "scan_timing__sqpar__Nprep",
+            "name": "Number of Preparation Pulses",
+            "value-key": "[scan_timing.sqpar.Nprep]",
+            "type": "Number",
+            "description": "Count of preparation pulses BEFORE 1st dummy scan.\nOnly important if Align Scan = 'first', since then preparation pulses and dummy triggers are counted and discarded as first scan onset.",
+            "optional": true,
+            "command-line-flag": "scan_timing.sqpar.Nprep"
+        },
+        {
+            "id": "scan_timing__sync__method",
+            "name": "Sync Method",
+            "value-key": "[scan_timing.sync.method]",
+            "default-value": "nominal",
+            "type": "String",
+            "description": "Determines scan timing from nominal scan parameters or logged gradient time courses.",
+            "value-choices": [
+                "nominal",
+                "gradient_log",
+                "gradient_log_auto",
+                "scan_timing_log"
+            ],
+            "value-disables": {
+                "nominal": [
+                    "scan_timing__sync__grad_direction",
+                    "scan_timing__sync__zero",
+                    "scan_timing__sync__slice",
+                    "scan_timing__sync__vol",
+                    "scan_timing__sync__vol_spacing"
+                ],
+                "gradient_log": [],
+                "gradient_log_auto": [
+                    "scan_timing__sync__grad_direction",
+                    "scan_timing__sync__zero",
+                    "scan_timing__sync__slice",
+                    "scan_timing__sync__vol",
+                    "scan_timing__sync__vol_spacing"
+                ],
+                "scan_timing_log": [
+                    "scan_timing__sync__grad_direction",
+                    "scan_timing__sync__zero",
+                    "scan_timing__sync__slice",
+                    "scan_timing__sync__vol",
+                    "scan_timing__sync__vol_spacing"
+                ]
+            },
+            "optional": true,
+            "command-line-flag": "scan_timing.sync.method"
+        },
+        {
+            "id": "scan_timing__sync__grad_direction",
+            "name": "Gradient Direction",
+            "value-key": "[scan_timing.sync.grad_direction]",
+            "type": "String",
+            "description": "Must choose x,y, or z.",
+            "value-choices": [
+                "x",
+                "y",
+                "z"
+            ],
+            "optional": true,
+            "command-line-flag": "scan_timing.sync.grad_direction"
+        },
+        {
+            "id": "scan_timing__sync__zero",
+            "name": "Gradient Zero",
+            "value-key": "[scan_timing.sync.zero]",
+            "type": "Number",
+            "description": "Gradient amplitude threshold below which values will be set to zero.",
+            "optional": true,
+            "command-line-flag": "scan_timing.sync.zero"
+        },
+        {
+            "id": "scan_timing__sync__slice",
+            "name": "Gradient Slice",
+            "value-key": "[scan_timing.sync.slice]",
+            "type": "Number",
+            "description": "Gradient amplitude threshold for start of new slice.",
+            "optional": true,
+            "command-line-flag": "scan_timing.sync.slice"
+        },
+        {
+            "id": "scan_timing__sync__vol",
+            "name": "Gradient Volume",
+            "value-key": "[scan_timing.sync.vol]",
+            "type": "Number",
+            "description": "Gradient amplitude threshold for start of new volume.\nOptional parameter - can be used if volume start indicated by higher gradient amplitude.\nMutually exclusive with use of vol_spacing parameter.",
+            "optional": true,
+            "command-line-flag": "scan_timing.sync.slice"
+        },
+        {
+            "id": "scan_timing__sync__vol_spacing",
+            "name": "Gradient Volume Spacing",
+            "value-key": "[scan_timing.sync.vol_spacing]",
+            "type": "Number",
+            "description": "Gradient amplitude threshold for start of new volume.\nOptional parameter - can be used if volume start indicated by higher gradient amplitude.\nMutually exclusive with use of vol_spacing parameter.",
+            "optional": true,
+            "command-line-flag": "scan_timing.sync.slice"
+        },
+        {
+            "id": "preproc__cardiac__modality",
+            "name": "Cardiac Modality",
+            "value-key": "[preproc.cardiac.modality]",
+            "default-value": "ECG",
+            "type": "String",
+            "description": "Shall ECG or PPU data be read from logfiles?",
+            "value-choices": [
+                "ECG",
+                "ECG_raw",
+                "OXY",
+                "PPU_WiFi"
+            ],
+            "optional": true,
+            "command-line-flag": "preproc.cardiac.modality"
+        },
+        {
+            "id": "preproc__cardiac__filter__include",
+            "name": "Filter Raw Cardiac Time Series",
+            "value-key": "[preproc.cardiac.filter.include]",
+            "default-value": "no",
+            "type": "String",
+            "description": "Filter properties for bandpass-filtering of cardiac signal before peak detection, phase extraction, and other physiological traces.",
+            "value-choices": [
+                "no",
+                "yes"
+            ],
+            "value-disables": {
+                "no": [
+                    "preproc__cardiac__filter__type",
+                    "preproc__cardiac__filter__passband",
+                    "preproc__cardiac__filter__stopband"
+                ],
+                "yes": []
+            },
+            "optional": true,
+            "command-line-flag": "preproc.cardiac.filter.include"
+        },
+        {
+            "id": "preproc__cardiac__filter__type",
+            "name": "Filter Type",
+            "value-key": "[preproc.cardiac.filter.type]",
+            "default-value": "butter",
+            "type": "String",
+            "description": "Which infinite impulse response filter shall be used?\n'Chebychev Type II (cheby2)': Chebychev Type II filter, use for steep transition from start to stop band\n'Butterworth (butter)': Butterworth filter, standard filter with maximally flat passband (Infinite impulse response), but stronger ripples in transition band",
+            "value-choices": [
+                "butter",
+                "cheby2"
+            ],
+            "optional": true,
+            "command-line-flag": "preproc.cardiac.filter.type"
+        },
+        {
+            "id": "preproc__cardiac__filter__passband",
+            "name": "Filter Passband",
+            "value-key": "[preproc.cardiac.filter.passband]",
+            "default-value": [
+                0.3,
+                9
+            ],
+            "type": "Number",
+            "description": "[f_min, f_max] frequency interval in Hz of all frequency that should pass the passband filter.\nIf empty, no filtering is performed.]",
+            "optional": true,
+            "list": true,
+            "list-separator": ",",
+            "command-line-flag": "preproc.cardiac.filter.passband"
+        },
+        {
+            "id": "preproc__cardiac__filter__stopband",
+            "name": "Filter Stopband",
+            "value-key": "[preproc.cardiac.filter.stopband]",
+            "type": "Number",
+            "description": "[f_min, f_max] frequency interval in Hz of all frequencies, such that frequencies outside this band should definitely NOT pass the filter.\nNOTE: only relevant for 'cheby2' filter type.\nIf empty, and passband is empty, no fitlering is performed.\nIf empty, but passband exists, stopband interval is 10% increased passband interval.",
+            "optional": true,
+            "list": true,
+            "list-separator": ",",
+            "command-line-flag": "preproc.cardiac.filter.stopband"
+        },
+        {
+            "id": "preproc__cardiac__initial_cpulse_select__method",
+            "name": "Cardiac Pulse Selection Method",
+            "value-key": "[preproc.cardiac.initial_cpulse_select.method]",
+            "default-value": "auto_matched",
+            "type": "String",
+            "description": "The initial cardiac pulse selection structure: Determines how the majority of cardiac pulses is detected in a first pass.",
+            "value-choices": [
+                "auto_matched",
+                "load_from_logfile",
+                "manual",
+                "load"
+            ],
+            "value-disables": {
+                "auto_matched": [],
+                "load_from_logfile": [
+                    "preproc__cardiac__initial_cpulse_select__min",
+                    "preproc__cardiac__initial_cpulse_select__file",
+                    "preproc__cardiac__initial_cpulse_select__max_heart_rate_bpm"
+                ],
+                "manual": [
+                    "preproc__cardiac__initial_cpulse_select__max_heart_rate_bpm"
+                ],
+                "load": [
+                    "preproc__cardiac__initial_cpulse_select__max_heart_rate_bpm"
+                ]
+            },
+            "optional": true,
+            "command-line-flag": "preproc.cardiac.initial_cpulse_select.method"
+        },
+        {
+            "id": "preproc__cardiac__initial_cpulse_select__min",
+            "name": "Cardiac Pulse Selection Minimum",
+            "value-key": "[preproc.cardiac.initial_cpulse_select.min]",
+            "default-value": 0.4,
+            "type": "Number",
+            "description": "Minimum threshold for peak height in z-scored cardiac waveform to find pulse events.\nNOTE: For ECG, might need increase (e.g., 2.0), because of local maximum of T wave after QRS complex.",
+            "optional": true,
+            "command-line-flag": "preproc.cardiac.initial_cpulse_select.min"
+        },
+        {
+            "id": "preproc__cardiac__initial_cpulse_select__file",
+            "name": "Cardiac Pulse Selection File",
+            "value-key": "[preproc.cardiac.initial_cpulse_select.file]",
+            "default-value": "initial_cpulse_kRpeakfile.mat",
+            "type": "String",
+            "description": "File containing reference ECG-peak (variable kRpeak),\nUsed for method 'manual' or 'load'.\nIf method == 'manual', this file is saved after picking the QRS-wave such that results are reproducible.",
+            "optional": true,
+            "command-line-flag": "preproc.cardiac.initial_cpulse_select.file"
+        },
+        {
+            "id": "preproc__cardiac__initial_cpulse_select__max_heart_rate_bpm",
+            "name": "Maximum Heart Rate (BPM)",
+            "value-key": "[preproc.cardiac.initial_cpulse_select.max_heart_rate_bpm]",
+            "default-value": 90,
+            "type": "Number",
+            "description": "Maximum expected heart rate in beats per minute.\nThis only needs to be a rough guess and should be changed for specific populations.",
+            "optional": true,
+            "command-line-flag": "preproc.cardiac.initial_cpulse_select.max_heart_rate_bpm"
+        },
+        {
+            "id": "preproc__cardiac__posthoc_cpulse_select__method",
+            "name": "Post-Hoc Selection of Cardiac Pulses",
+            "value-key": "[preproc.cardiac.posthoc_cpulse_select.method]",
+            "default-value": "off",
+            "type": "String",
+            "description": "The post-hoc cardiac pulse selection structure: if only few (<20) cardiac pulses are missing in a session due to bad signal quality, a manual selection after visual inspection is possible using the following parameters. The results are saved for reproducibility.",
+            "value-choices": [
+                "off",
+                "manual",
+                "load"
+            ],
+            "value-disables": {
+                "off": [
+                    "preproc__cardiac__posthoc_cpulse_select__file",
+                    "preproc__cardiac__posthoc_cpulse_select__percentile",
+                    "preproc__cardiac__posthoc_cpulse_select__upper_thresh",
+                    "preproc__cardiac__posthoc_cpulse_select__lower_thresh"
+                ],
+                "manual": [],
+                "load": [
+                    "preproc__cardiac__posthoc_cpulse_select__file"
+                ]
+            },
+            "optional": true,
+            "command-line-flag": "preproc.cardiac.posthoc_cpulse_select.method"
+        },
+        {
+            "id": "preproc__cardiac__posthoc_cpulse_select__file",
+            "name": "Post-Hoc Selection File",
+            "value-key": "[preproc.cardiac.posthoc_cpulse_select.file]",
+            "type": "String",
+            "description": "Filename where cardiac pulses are saved after manual picking.",
+            "optional": true,
+            "command-line-flag": "preproc.cardiac.posthoc_cpulse_select.file"
+        },
+        {
+            "id": "preproc__cardiac__posthoc_cpulse_select__percentile",
+            "name": "Post-Hoc Selection Percentile",
+            "value-key": "[preproc.cardiac.posthoc_cpulse_select.percentile]",
+            "default-value": 80,
+            "type": "Number",
+            "description": "Percentile of beat-2-beat interval histogram that constitutes the average heart beat duration in the session.",
+            "optional": true,
+            "command-line-flag": "preproc.cardiac.posthoc_cpulse_select.percentile"
+        },
+        {
+            "id": "preproc__cardiac__posthoc_cpulse_select__upper_thresh",
+            "name": "Post-Hoc Selection Upper Threshold",
+            "value-key": "[preproc.cardiac.posthoc_cpulse_select.upper_thresh]",
+            "default-value": 60,
+            "type": "Number",
+            "description": "Minimum exceedance (in %) from average heartbeat duration to be classified as missing heartbeat.",
+            "optional": true,
+            "command-line-flag": "preproc.cardiac.posthoc_cpulse_select.upper_thresh"
+        },
+        {
+            "id": "preproc__cardiac__posthoc_cpulse_select__lower_thresh",
+            "name": "Post-Hoc Selection Lower Threshold",
+            "value-key": "[preproc.cardiac.posthoc_cpulse_select.lower_thresh]",
+            "default-value": 60,
+            "type": "Number",
+            "description": "Minimum reduction (in %) from average heartbeat duration to be classified an abundant heartbeat.",
+            "optional": true,
+            "command-line-flag": "preproc.cardiac.posthoc_cpulse_select.lower_thresh"
+        },
+        {
+            "id": "model__output_multiple_regressors",
+            "name": "Output File for Multiple Regressors",
+            "value-key": "[model.output_multiple_regressors]",
+            "default-value": "multiple_regressors.txt",
+            "type": "String",
+            "description": "Output file for physiological regressors.\nChoose file name with extension:\n.txt for ASCII files with 1 regressor per column\n.mat for MATLAB variable file",
+            "optional": true,
+            "command-line-flag": "model.output_multiple_regressors"
+        },
+        {
+            "id": "model__output_physio",
+            "name": "Output Physio Structure",
+            "value-key": "[model.output_physio]",
+            "default-value": "physio.mat",
+            "type": "String",
+            "description": "Output file for physio-structure with extracted physiological time series, detected peak and created regressors.\nChoose mat-file name; structure will be saved as variable physio in there.",
+            "optional": true,
+            "command-line-flag": "model.output_physio"
+        },
+        {
+            "id": "model__orthogonalise",
+            "name": "Orthogonalise",
+            "value-key": "[model.orthogonalise]",
+            "default-value": "none",
+            "type": "String",
+            "description": "Orthogonalise physiological regressors with respect to each other.\nNOTE: This is only recommended for triggered/gated acquisition sequences.",
+            "value-choices": [
+                "none",
+                "cardiac",
+                "resp",
+                "mult",
+                "all",
+                "RETROICOR",
+                "HRV",
+                "RVT",
+                "movement",
+                "noise_rois"
+            ],
+            "optional": true,
+            "command-line-flag": "model.orthogonalise"
+        },
+        {
+            "id": "model__censor_unreliable_recording_intervals",
+            "name": "Censor Unreliable Recording Intervals",
+            "value-key": "[model.censor_unreliable_recording_intervals]",
+            "default-value": "no",
+            "type": "String",
+            "description": "If parts of the physiological recording intervals are unreliable (e.g., constant due to belt detachment) the corresponding parts of recording-dependent RETROICOR regressors are set to 0 in the final multiple regressors file.",
+            "value-choices": [
+                "yes",
+                "no"
+            ],
+            "optional": true,
+            "command-line-flag": "model.censor_unreliable_recording_intervals"
+        },
+        {
+            "id": "model__retroicor__include",
+            "name": "Include RETROICOR",
+            "value-key": "[model.retroicor.include]",
+            "default-value": "yes",
+            "type": "String",
+            "description": "Include RETROICOR Model, as described in Glover et al., MRM 2000.",
+            "value-choices": [
+                "yes",
+                "no"
+            ],
+            "value-disables": {
+                "no": [
+                    "model__retroicor__order__c",
+                    "model__retroicor__order__r",
+                    "model__retroicor__order__cr"
+                ],
+                "yes": []
+            },
+            "optional": true,
+            "command-line-flag": "model.retroicor.include"
+        },
+        {
+            "id": "model__retroicor__order__c",
+            "name": "RETROICOR Cardiac Order",
+            "value-key": "[model.retroicor.order.c]",
+            "default-value": 3,
+            "type": "Number",
+            "description": "Order of Fourier expansion for cardiac phase.\nEquals 1/2 number of cardiac regressors, since sine and cosine terms are computed.",
+            "integer": true,
+            "optional": true,
+            "command-line-flag": "model.retroicor.order.c"
+        },
+        {
+            "id": "model__retroicor__order__r",
+            "name": "RETROICOR Respiratory Order",
+            "value-key": "[model.retroicor.order.r]",
+            "default-value": 4,
+            "type": "Number",
+            "description": "Order of Fourier expansion for respiratory phase.\nEquals 1/2 number of respiratory regressors, since sine and cosine terms are computed.",
+            "integer": true,
+            "optional": true,
+            "command-line-flag": "model.retroicor.order.r"
+        },
+        {
+            "id": "model__retroicor__order__cr",
+            "name": "RETROICOR Cardiac X Respiratory Order",
+            "value-key": "[model.retroicor.order.cr]",
+            "default-value": 1,
+            "type": "Number",
+            "description": "Order of Fourier expansion for interaction of cardiac and respiratory phase.\nEquals 1/4 number of interaction regressors, since since and cosine terms are computed and multiplied.",
+            "integer": true,
+            "optional": true,
+            "command-line-flag": "model.retroicor.order.cr"
+        },
+        {
+            "id": "model__rvt__include",
+            "name": "Include Respiratory Volume per Time (RVT)",
+            "value-key": "[model.rvt.include]",
+            "default-value": "no",
+            "type": "String",
+            "description": "Respiratory Volume per Time (RVT) Model, as described in Birn et al. NeuroImage 40, 644-654.",
+            "value-choices": [
+                "yes",
+                "no"
+            ],
+            "value-disables": {
+                "no": [
+                    "model__rvt__delays"
+                ],
+                "yes": []
+            },
+            "optional": true,
+            "command-line-flag": "model.rvt.include"
+        },
+        {
+            "id": "model__rvt__delays",
+            "name": "RVT Delays",
+            "value-key": "[model.rvt.delays]",
+            "default-value": 0,
+            "type": "Number",
+            "description": "Delays (in seconds) by which respiratory response function is shifted with respect to RVT regressor before convolution.",
+            "optional": true,
+            "command-line-flag": "model.rvt.delays"
+        },
+        {
+            "id": "model__hrv__include",
+            "name": "Include Heart Rate Variability (HRV)",
+            "value-key": "[model.hrv.include]",
+            "default-value": "no",
+            "type": "String",
+            "description": "Heart Rate Variability (HRV) Model, as described in Chang et al., NeuroImage 44, 857-869.",
+            "value-choices": [
+                "yes",
+                "no"
+            ],
+            "value-disables": {
+                "no": [
+                    "model__hrv__delays"
+                ],
+                "yes": []
+            },
+            "optional": true,
+            "command-line-flag": "model.hrv.include"
+        },
+        {
+            "id": "model__hrv__delays",
+            "name": "HRV Delays",
+            "value-key": "[model.hrv.delays]",
+            "default-value": 0,
+            "type": "Number",
+            "description": "Delays (in seconds) by which respiratory response function is shifted with respect to HRV regressor before convolution.",
+            "optional": true,
+            "command-line-flag": "model.hrv.delays"
+        },
+        {
+            "id": "model__noise_rois__include",
+            "name": "Include Noise ROIs",
+            "value-key": "[model.noise_rois.include]",
+            "default-value": "no",
+            "type": "String",
+            "description": "Noise ROIs model (Principal components of anatomical regions), similar to aCompCor, Hehzadi et al. 2007.",
+            "value-choices": [
+                "yes",
+                "no"
+            ],
+            "value-disables": {
+                "no": [
+                    "model__noise_rois__fmri_files",
+                    "model__noise_rois__roi_files",
+                    "model__noise_rois__force_coregister",
+                    "model__noise_rois__thresholds",
+                    "model__noise_rois__n_voxel_crop",
+                    "model__noise_rois__n_components"
+                ],
+                "yes": []
+            },
+            "optional": true,
+            "command-line-flag": "model.noise_rois.include"
+        },
+        {
+            "id": "model__noise_rois__fmri_files",
+            "name": "fMRI Time Series File(s)",
+            "value-key": "[model.noise_rois.fmri_files]",
+            "type": "String",
+            "description": "Preprocessed fmri nifti/analyze files, from which time series shall be extracted.",
+            "optional": true,
+            "command-line-flag": "model.noise_rois.fmri_files"
+        },
+        {
+            "id": "model__noise_rois__roi_files",
+            "name": "Noise ROI Image File(s)",
+            "value-key": "[model.noise_rois.roi_files]",
+            "type": "String",
+            "description": "Masks/tissues probability maps characterizing where noise resides.\nThese volumes must be in the same space as the functional colume where the time series will be extracted.",
+            "optional": true,
+            "command-line-flag": "model.noise_rois.roi_files"
+        },
+        {
+            "id": "model__noise_rois__force_coregister",
+            "name": "Force Coregister: Estimate & Reslice of the noise ROIs",
+            "value-key": "[model.noise_rois.force_coregister]",
+            "default-value": "yes",
+            "type": "String",
+            "description": "Noise ROIs volumes must have the same geometry as the functional time series.\nUt neabs sane affine transformation (space) and same matrix (voxel size).",
+            "value-choices": [
+                "yes",
+                "no"
+            ],
+            "optional": true,
+            "command-line-flag": "model.noise_rois.force_coregister"
+        },
+        {
+            "id": "model__noise_rois__thresholds",
+            "name": "ROI thresholds",
+            "value-key": "[model.noise_rois.thresholds]",
+            "default-value": 0.9,
+            "type": "Number",
+            "description": "Single threshold or vector [1, nRois] of thresholds to be applied to mask files to decide which voxels to include (e.g. a probability like 0.99, if roi files are tissue probability maps)",
+            "optional": true,
+            "command-line-flag": "model.noise_rois.thresholds"
+        },
+        {
+            "id": "model__noise_rois__n_voxel_crop",
+            "name": "Number of ROI pixels to be cropped",
+            "value-key": "[model.noise_rois.n_voxel_crop]",
+            "default-value": 0,
+            "type": "Number",
+            "description": "Single number or vector [1, nRois] of number of voxels to crop per ROI.",
+            "integer": true,
+            "optional": true,
+            "command-line-flag": "model.noise_rois.n_voxel_crop"
+        },
+        {
+            "id": "model__noise_rois__n_components",
+            "name": "Number of principal components",
+            "value-key": "[model.noise_rois.n_components]",
+            "default-value": 1,
+            "type": "Number",
+            "description": "Single number or vector [1, nRois] of numbers.\nInteger >- 1: Number of principal components to be extracted from all voxel time series within each ROI\nFloat in [0,1[: Choose as many components as needed to explain this relative shae of the variance.",
+            "integer": true,
+            "optional": true,
+            "command-line-flag": "model.noise_rois.n_components"
+        },
+        {
+            "id": "model__movement__include",
+            "name": "Include Movement Model",
+            "value-key": "[model.movement.include]",
+            "default-value": "no",
+            "type": "String",
+            "description": "Motion Assessment and Regression Models\nMotion 6/12/24 regressors from realignment as described in Friston et al., 1996\nMotion Censoring ('spike' regressors for motion-corrupted volumes)\nMotion scrubbing (linear interpolation of censored volumes by nearest neighbours)",
+            "value-choices": [
+                "yes",
+                "no"
+            ],
+            "value-disables": {
+                "no": [
+                    "model__movement__file_realignment_parameters",
+                    "model__movement__order",
+                    "model__movement__censoring_method",
+                    "model__movement__censoring_threshold"
+                ],
+                "yes": []
+            },
+            "optional": true,
+            "command-line-flag": "model.movement.include"
+        },
+        {
+            "id": "model__movement__file_realignment_parameters",
+            "name": "Movement Realignment Parameter File",
+            "value-key": "[model.movement.file_realignment_parameters]",
+            "type": "String",
+            "optional": true,
+            "command-line-flag": "model.movement.file_realignment_parameters"
+        },
+        {
+            "id": "model__movement__order",
+            "name": "Movement Order",
+            "value-key": "[model.movement.order]",
+            "default-value": 6,
+            "type": "Number",
+            "description": "Order of movement regressors 6/12/24, including derivatives and squared parameters/derivatives.",
+            "integer": true,
+            "value-choices": [
+                6,
+                12,
+                24
+            ],
+            "optional": true,
+            "command-line-flag": "model.movement.order"
+        },
+        {
+            "id": "model__movement__censoring_method",
+            "name": "Movement Censoring Method for Thresholding",
+            "value-key": "[model.movement.censoring_method]",
+            "default-value": "FD",
+            "type": "String",
+            "description": "Censoring method used for thresholding",
+            "value-choices": [
+                "none",
+                "MAXVAL",
+                "FD",
+                "DVARS"
+            ],
+            "optional": true,
+            "command-line-flag": "model.movement.censoring_method"
+        },
+        {
+            "id": "model__movement__censoring_threshold",
+            "name": "Movement Censoring Outlier Threshold",
+            "value-key": "[model.movement.censoring_threshold]",
+            "default-value": 0.5,
+            "type": "Number",
+            "description": "Threshold, above which a stick ('spike') regressors is created for corresponding outlier volume exceeding threshold.",
+            "optional": true,
+            "command-line-flag": "model.movement.censoring_threshold"
+        },
+        {
+            "id": "model__other__include",
+            "name": "Include Other Multiple Regressors",
+            "value-key": "[model.other.include]",
+            "default-value": "no",
+            "type": "String",
+            "description": "Other multiple regressor file(s).",
+            "value-choices": [
+                "yes",
+                "no"
+            ],
+            "value-disables": {
+                "no": [
+                    "model__other__input_multiple_regressors"
+                ],
+                "yes": []
+            },
+            "optional": true,
+            "command-line-flag": "model.other.include"
+        },
+        {
+            "id": "model__other__input_multiple_regressors",
+            "name": "Input Multiple Regressors Files",
+            "value-key": "[model.other.input_multiple_regressors]",
+            "type": "String",
+            "optional": true,
+            "command-line-flag": "model.other.input_multiple_regressors"
+        },
+        {
+            "id": "verbose__level",
+            "name": "Verbose Level",
+            "value-key": "[verbose.level]",
+            "default-value": 2,
+            "type": "Number",
+            "description": "Determines how many figures shall be generated to follow the workflow of the toolbox and whether the graphical output shall be saved.\n0 = No graphical output\n1 = Main plots\n2 = Debugging plots\n3 = All plots",
+            "integer": true,
+            "optional": true,
+            "command-line-flag": "verbose.level"
+        },
+        {
+            "id": "verbose__fig_output_file",
+            "name": "Figure Output File Name",
+            "value-key": "[verbose.fig_output_file]",
+            "default-value": "PhysIO_output.jpg",
+            "type": "String",
+            "description": "File name where figures are saved to.\nSupported figure formats (via filename suffix): jpg, png, fig, ps",
+            "optional": true,
+            "command-line-flag": "verbose.fig_output_file"
+        }
+    ],
+    "schema-version": "0.5",
+    "groups": [
+        {
+            "description": "Specify log files where peripheral data was stored, and their properties.",
+            "id": "log_files_group",
+            "members": [
+                "log_files__vendor",
+                "log_files__cardiac",
+                "log_files__respiration",
+                "log_files__cardiac_respiration",
+                "log_files__scan_timing",
+                "log_files__sampling_interval",
+                "log_files__relative_start_acquisition",
+                "log_files__align_scan"
+            ],
+            "name": "Log File Parameters"
+        },
+        {
+            "description": "Parameters for scan timing and synchronization.",
+            "id": "scan_timing_group",
+            "members": [
+                "scan_timing__sqpar__Nslices",
+                "scan_timing__sqpar__NslicesPerBeat",
+                "scan_timing__sqpar__TR",
+                "scan_timing__sqpar__Ndummies",
+                "scan_timing__sqpar__Nscans",
+                "scan_timing__sqpar__onset_slice",
+                "scan_timing__sqpar__time_slice_to_slice",
+                "scan_timing__sqpar__Nprep",
+                "scan_timing__sync__method",
+                "scan_timing__sync__grad_direction",
+                "scan_timing__sync__zero",
+                "scan_timing__sync__vol",
+                "scan_timing__sync__vol_spacing",
+                "scan_timing__sync__slice"
+            ],
+            "name": "Scan Timing Parameters"
+        },
+        {
+            "description": "Thresholding parameters for de-noising and timing",
+            "id": "preproc_group",
+            "members": [
+                "preproc__cardiac__modality",
+                "preproc__cardiac__filter__include",
+                "preproc__cardiac__filter__type",
+                "preproc__cardiac__filter__passband",
+                "preproc__cardiac__filter__stopband",
+                "preproc__cardiac__initial_cpulse_select__method",
+                "preproc__cardiac__initial_cpulse_select__min",
+                "preproc__cardiac__initial_cpulse_select__file",
+                "preproc__cardiac__initial_cpulse_select__max_heart_rate_bpm",
+                "preproc__cardiac__posthoc_cpulse_select__method",
+                "preproc__cardiac__posthoc_cpulse_select__file",
+                "preproc__cardiac__posthoc_cpulse_select__percentile",
+                "preproc__cardiac__posthoc_cpulse_select__upper_thresh",
+                "preproc__cardiac__posthoc_cpulse_select__lower_thresh"
+            ],
+            "name": "Preprocessing Paramaters"
+        },
+        {
+            "description": "Physiological model to be estimated and included in GLM as multiple_regressors.txt.",
+            "id": "model_group",
+            "members": [
+                "model__output_multiple_regressors",
+                "model__output_physio",
+                "model__orthogonalise",
+                "model__censor_unreliable_recording_intervals",
+                "model__retroicor__include",
+                "model__retroicor__order__c",
+                "model__retroicor__order__r",
+                "model__retroicor__order__cr",
+                "model__rvt__include",
+                "model__rvt__delays",
+                "model__hrv__include",
+                "model__hrv__delays",
+                "model__noise_rois__include",
+                "model__noise_rois__fmri_files",
+                "model__noise_rois__roi_files",
+                "model__noise_rois__force_coregister",
+                "model__noise_rois__thresholds",
+                "model__noise_rois__n_voxel_crop",
+                "model__noise_rois__n_components",
+                "model__movement__include",
+                "model__movement__file_realignment_parameters",
+                "model__movement__order",
+                "model__movement__censoring_method",
+                "model__movement__censoring_threshold",
+                "model__other__include",
+                "model__other__input_multiple_regressors"
+            ],
+            "name": "Model Parameters"
+        },
+        {
+            "description": "Figure generation options",
+            "id": "verbose_group",
+            "members": [
+                "verbose__level",
+                "verbose__fig_output_file"
+            ],
+            "name": "Verbose Parameters"
+        }
+    ],
+    "output-files": [
+        {
+            "description": "A folder containing the output files and a copy of configs.",
+            "list": false,
+            "id": "output",
+            "value-key": "[OUTDIR]",
+            "optional": true,
+            "path-template": "[OUT]_[FMRI_IN]",
+            "path-template-stripped-extensions": [
+                ".nii.gz",
+                ".nii"
+            ],
+            "name": "Output folder"
+        }
+    ],
+    "tags": {
+        "domain": [
+            "neuroinformatics",
+            "fMRI",
+            "neuroimaging"
+        ]
+    },
+    "suggested-resources": {
+        "walltime-estimate": 3660
+    },
+    "custom": {
+        "cbrain:author": "Darius Valevicius <darius.valevicius@mail.mcgill.ca>",
+        "cbrain:readonly-input-files": true
+    }
+}
