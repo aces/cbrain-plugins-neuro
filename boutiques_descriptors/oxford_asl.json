@@ -3,7 +3,7 @@
     "name": "Oxford_asl_single_subject",
     "author": "Oxford Centre for Functional MRI of the Brain (FMRIB)",
     "description": "Oxford_asl for BIDS subject",
-    "command-line": "bids_ox_asl [BIDS_DIR] [NAME_OUTDIR] [SPATIAL_FLAG] [WP_FLAG] [MC_FLAG] [ARTOFF_FLAG] [FIXBOLUS_FLAG] [IAF] [IBF] [TIS] [CASL_FLAG] [BOLUS] [BAT] [T1] [T1B] [SLICEDT] [SLICEBAND] [RPT] [TR_CALIB] [PV_CORR]",
+    "command-line": "bids_ox_asl [BIDS_DIR] [NAME_OUTDIR] [SPATIAL_FLAG] [WP_FLAG] [MC_FLAG] [ARTOFF_FLAG] [FIXBOLUS_FLAG] [IAF] [IBF] [TIS] [CASL_FLAG] [BOLUS] [BAT] [T1] [T1B] [SLICEDT] [SLICEBAND] [RPT] [TR_CALIB] [CMETHOD] [PV_CORR]",
     "schema-version": "0.5",
     "container-image": {
         "image": "mcin/fsl:6.0.5",
@@ -203,6 +203,20 @@
             "command-line-flag-separator": "="
         },
         {
+            "id": "cmethod",
+            "name": "Calibration method",
+            "description": "Specifies whether the calibration is done via a single M0 value calculated from the CSF in the ventricles (single) or using a voxelwise approach where M0 is calcuated in every voxel (voxel).\nThe voxelwise method is the simplest and follows the procedure in the ‘White Paper’, adding a correction for partial volume effects around the edge of the brain. This is is used whenever a structural image is not supplied. The single method, using CSF for calibration, automatically generates a ventricle mask in ASL space from the segmentation of the structural image. You should inspect this mask to ensure it has been sucessful (in the calib subdirectory of the results). This procedure can sometimes fail, in which case you can supply your own mask using the --csf option. More advanced calibration can be performed using asl_calib.",
+            "optional": true,
+            "value-choices": [
+                "single",
+                "voxel"
+            ],
+            "type": "String",
+            "value-key": "[CMETHOD]",
+            "command-line-flag": "--cmethod",
+            "command-line-flag-separator": "="
+        },
+        {
             "id": "pvcorr",
             "name": "Volume correction",
             "optional": true,
@@ -242,7 +256,8 @@
             "id": "calibration",
             "name": "Calibration",
             "members": [
-                "tr"
+                "tr",
+                "cmethod"
             ]
         },
         {
