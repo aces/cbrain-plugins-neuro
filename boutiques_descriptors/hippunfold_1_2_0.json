@@ -1,6 +1,6 @@
 {
   "name":           "hippunfold",
-  "tool-version":   "1.1.0",
+  "tool-version":   "1.2.0",
   "container-image": {
     "image": "khanlab/hippunfold:v1.2.0",
     "index": "docker://",
@@ -8,7 +8,7 @@
   },
   "schema-version": "0.5",
   "author":         "Khan Computational Imaging Lab ",
-  "description":    "BIDS App for Hippunfold (automated hippocampal unfolding and subfield segmentation)",
+  "description":    "BIDS App for Hippunfold. Please cite: Automated hippocampal unfolding for morphometry and subfield segmentation with HippUnfold.  Jordan DeKraker, Roy AM Haast, Mohamed D Yousif, Bradley Karat, Jonathan C Lau, Stefan Köhler, Ali R Khan. eLife (2022).  https://doi.org/10.7554/eLife.77945",
   "command-line": "hippunfold [SUBJECT_DIR] [OUTPUT_DIR] participant [MODALITY] [DERIVATIVES] [SKIP_PREPROC] [SKIP_COREG] [SKIP_INJECT_TEMPLATE_LABELS] [INJECT_TEMPLATE_SMOOTHING_FACTOR] [RIGID_REG_TEMPLATE] [NO_REG_TEMPLATE] [TEMPLATE] [ATLAS] [T1_REG_TEMPLATE] [GENERATE_MYELIN_MAP] [NNUNET_ENABLE_TTA] [OUTPUT_SPACES] [OUTPUT_DENSITY] [HEMI] [LAMINAR_COORDS_METHOD] [KEEP_WORK] [FORCE_NNUNET_MODEL] -c all --nolock",
   "inputs": [
       {
