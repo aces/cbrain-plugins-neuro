@@ -1,0 +1,318 @@
+{
+  "name":           "hippunfold",
+  "tool-version":   "1.1.0",
+  "container-image": {
+    "image": "khanlab/hippunfold:v1.2.0",
+    "index": "docker://",
+    "type": "singularity"
+  },
+  "schema-version": "0.5",
+  "author":         "Khan Computational Imaging Lab ",
+  "description":    "BIDS App for Hippunfold (automated hippocampal unfolding and subfield segmentation)",
+  "command-line": "hippunfold [SUBJECT_DIR] [OUTPUT_DIR] participant [MODALITY] [DERIVATIVES] [SKIP_PREPROC] [SKIP_COREG] [SKIP_INJECT_TEMPLATE_LABELS] [INJECT_TEMPLATE_SMOOTHING_FACTOR] [RIGID_REG_TEMPLATE] [NO_REG_TEMPLATE] [TEMPLATE] [ATLAS] [T1_REG_TEMPLATE] [GENERATE_MYELIN_MAP] [NNUNET_ENABLE_TTA] [OUTPUT_SPACES] [OUTPUT_DENSITY] [HEMI] [LAMINAR_COORDS_METHOD] [KEEP_WORK] [FORCE_NNUNET_MODEL] -c all --nolock",
+  "inputs": [
+      {
+        "description": "subject folder for BIDS (folders name should be sub-XXXXX).",
+        "id": "subject_dir",
+        "name": "subject_dir",
+        "optional": false,
+        "type": "File",
+        "value-key": "[SUBJECT_DIR]"
+      },
+      {
+        "description": "Type of image to run hippunfold on, prefixed\nwith seg will import an existing hippocampal tissue\nsegmentation from that space, instead of running\nneural network (default: ['T2w'])",
+        "id": "modality",
+        "name": "modality",
+        "optional": false,
+        "type": "String",
+        "value-choices": [
+          "T1w",
+          "T2w",
+          "hippb500",
+          "dwi",
+          "segT1w",
+          "segT2w",
+          "cropseg"
+        ],
+        "default-value": ["T2w"],
+        "value-key": "[MODALITY]",
+        "command-line-flag": "--modality"
+      },
+      {
+        "description": "Path to the derivatives folder (e.g. for finding manual segs) (default: False)",
+        "id": "derivatives",
+        "name": "derivatives",
+        "optional": true,
+        "type": "File",
+        "value-key": "[DERIVATIVES]",
+        "command-line-flag": "--derivatives"
+      },
+      {
+        "description": "Set this flag if your inputs (e.g. T2w, dwi) are already pre-processed (default: False)",
+        "id": "skip_preproc",
+        "name": "skip_preproc",
+        "optional": true,
+        "type": "Flag",
+        "value-key": "[SKIP_PREPROC]",
+        "command-line-flag": "--skip_preproc"
+      },
+      {
+        "description": "Set this flag if your inputs (e.g. T2w, dwi) are already registered to T1w space (default: False)",
+        "id": "skip_coreg",
+        "name": "skip_coreg",
+        "optional": true,
+        "type": "Flag",
+        "value-key": "[SKIP_COREG]",
+        "command-line-flag": "--skip_coreg"
+      },
+      {
+        "description": "Set this flag to skip post-processing template injection into CNN segmentation (default: False)",
+        "id": "skip_inject_template_labels",
+        "name": "skip_inject_template_labels",
+        "optional": true,
+        "type": "Flag",
+        "value-key": "[SKIP_INJECT_TEMPLATE_LABELS]",
+        "command-line-flag": "--skip_inject_template_labels"
+      },
+      {
+        "description": "Scales the default smoothing sigma for gradient and warp in template shape injection. Using a value higher than 1 will use result in a smoother warp, and greater capacity to patch larger holes in segmentations. Try setting to 2 if nnunet segmentations have large holes. Note: the better solution is to re-train network on the data you are using (default: 1.0)",
+        "id": "inject_template_smoothing_factor",
+        "name": "inject_template_smoothing_factor",
+        "optional": true,
+        "type": "Number",
+        "value-key": "[INJECT_TEMPLATE_SMOOTHING_FACTOR]",
+        "command-line-flag": "--inject-template-smoothing-factor"
+      },
+      {
+        "description": "Use rigid instead of affine for registration to\ntemplate. Try this if your images are reduced FOV\n(default: False)",
+        "id": "rigid_reg_template",
+        "name": "rigid_reg_template",
+        "optional": true,
+        "type": "Flag",
+        "value-key": "[RIGID_REG_TEMPLATE]",
+        "command-line-flag": "--rigid_reg_template"
+      },
+      {
+        "description": "Use if input data is already in space-CITI168\n(default: False)",
+        "id": "no_reg_template",
+        "name": "no_reg_template",
+        "optional": true,
+        "type": "Flag",
+        "value-key": "[NO_REG_TEMPLATE]",
+        "command-line-flag": "--no_reg_template"
+      },
+      {
+        "description": "Set the template to use for registration to coronal oblique. (default: CITI168)",
+        "id": "template",
+        "name": "template",
+        "optional": true,
+        "type": "String",
+        "value-choices": [
+          "CITI168",
+          "dHCP"
+        ],
+        "value-key": "[TEMPLATE]",
+        "default-value": "CITI168",
+        "command-line-flag": "--template"
+      },
+      {
+        "description": "Select the atlas (unfolded space) to use for subfield labels. (default: bigbrain)",
+        "id": "atlas",
+        "name": "atlas",
+        "optional": true,
+        "list": true,
+        "type": "String",
+        "value-choices": [
+          "bigbrain",
+          "magdeburg",
+          "freesurfer"
+        ],
+        "value-key": "[ATLAS]",
+        "default-value": "bigbrain",
+        "command-line-flag": "--atlas"
+      },
+      {
+        "description": "Use T1w to register to template space, instead of the segmentation modality. Note: this was the default behavior prior to v1.0.0. (default: False)",
+        "id": "t1_reg_template",
+        "name": "t1_reg_template",
+        "optional": true,
+        "type": "Flag",
+        "value-key": "[T1_REG_TEMPLATE]",
+        "command-line-flag": "--t1_reg_template"
+      },
+      {
+        "description": "Enable test-time augmentation for nnU-net inference, slows down inference by 8x, but potentially increases accuracy",
+        "id": "nnunet_enable_tta",
+        "name": "nnunet_enable_tta",
+        "optional": true,
+        "type": "Flag",
+        "value-key": "[NNUNET_ENABLE_TTA]",
+        "command-line-flag": "--nnunet_enable_tta"
+      },
+      {
+        "description": "Sets the output space for results",
+        "id": "output_spaces",
+        "name": "output_spaces",
+        "optional": true,
+        "type": "String",
+        "value-key": "[OUTPUT_SPACES]",
+        "command-line-flag": "--output_spaces",
+        "value-choices": [
+          "native",
+          "T1w"
+        ],
+        "default-value": "native"
+      },
+      {
+        "description": "Generate myelin map using T1w divided by T2w, and map to surface with ribbon approach. Requires both T1w and T2w images to be present.",
+        "id": "generate_myelin_map",
+        "name": "generate_myelin_map",
+        "optional": true,
+        "type": "Flag",
+        "value-key": "[GENERATE_MYELIN_MAP]",
+        "command-line-flag": "--generate_myelin_map"
+      },
+      {
+        "description": "Sets the output vertex density for results. Options\ncorrespond to approximate vertex spacings of 0.5mm,\n1.0mm, and 2.0mm, respectively, with the 32k vertices\noption having unequal vertex spacing. (default: ['7k','2k'])",
+        "id": "output_density",
+        "name": "output_density",
+        "optional": true,
+        "type": "String",
+        "value-key": "[OUTPUT_DENSITY]",
+        "command-line-flag": "--output_density",
+        "list": true,
+        "value-choices": [
+          "0p5mm",
+          "1mm",
+          "2mm",
+          "unfoldiso"
+        ],
+        "default-value": [
+          "0p5mm"
+        ]
+      },
+      {
+        "description": "Hemisphere(s) to process (default: ['L', 'R'])",
+        "id": "hemi",
+        "name": "hemi",
+        "optional": true,
+        "type": "String",
+        "list": true,
+        "value-key": "[HEMI]",
+        "command-line-flag": "--hemi",
+        "value-choices": [
+          "L",
+          "R"
+        ],
+        "default-value": [
+          "L",
+          "R"
+        ]
+      },
+      {
+        "description": "Method to use for laminar coordinates. Equivolume uses\nequivolumetric layering from Waehnert et al 2014\n(Nighres implementation). (default: ['equivolume'])",
+        "id": "laminar_coords_method",
+        "name": "laminar_coords_method",
+        "optional": true,
+        "type": "String",
+        "value-key": "[LAMINAR_COORDS_METHOD]",
+        "command-line-flag": "--laminar_coords_method",
+        "value-choices": [
+          "laplace",
+          "equivolume"
+        ],
+        "default-value": "equivolume"
+      },
+      {
+        "description": "Keep work folder intact instead of archiving it for each subject (default: False)",
+        "id": "keep_work",
+        "name": "keep_work",
+        "optional": true,
+        "type": "Flag",
+        "value-key": "[KEEP_WORK]",
+        "command-line-flag": "--keep_work"
+      },
+      {
+        "description": "Force nnunet model to use (expert option). (default: False)",
+        "id": "force_nnunet_model",
+        "name": "force_nnunet_model",
+        "optional": true,
+        "type": "String",
+        "value-key": "[FORCE_NNUNET_MODEL]",
+        "command-line-flag": "--force-nnunet-model",
+        "value-choices": [
+          "T1w",
+          "T2w",
+          "T1T2w",
+          "b1000",
+          "trimodal",
+          "hippb500",
+          "neonateT1w"
+        ]
+      }
+  ],
+  "output-files": [
+      {
+          "name":          "Output dir",
+          "id":            "output_dir",
+          "description":   "The output of the command",
+          "optional":      false,
+          "list":          false,
+          "value-key": "[OUTPUT_DIR]",
+          "path-template": "[SUBJECT_DIR]_res"
+      }
+  ],
+  "groups": [
+      {
+          "id": "snakebids",
+          "name": "snakebids",
+          "members": [
+              "modality",
+              "derivatives",
+              "skip_preproc",
+              "skip_coreg",
+              "skip_inject_template_labels",
+              "inject_template_smoothing_factor",
+              "rigid_reg_template",
+              "no_reg_template",
+              "template",
+              "atlas",
+              "t1_reg_template",
+              "generate_myelin_map",
+              "nnunet_enable_tta",
+              "output_spaces",
+              "output_density",
+              "hemi",
+              "laminar_coords_method",
+              "keep_work",
+              "force_nnunet_model"
+          ]
+      }
+  ],
+  "tags": {
+      "domain": [
+          "boutiques"
+      ]
+  },
+  "suggested-resources": {
+      "cpu-cores":         1,
+      "ram":               8,
+      "walltime-estimate": 7200
+  },
+  "custom": {
+      "cbrain:readonly-input-files": true,
+      "cbrain:author": "Natacha Beck <natacha.beck@mcgill.ca>, Pierre Rioux <pierre.rioux@mcgill.ca>",
+      "cbrain:integrator_modules": {
+        "BoutiquesFileTypeVerifier": {
+            "subject_dir": [ "BidsSubject" ]
+        },
+        "BoutiquesFileNameMatcher": {
+            "subject_dir": "^sub-[a-zA-Z0-9_]+$"
+        },
+        "BoutiquesOutputFileTypeSetter": {
+            "output_dir": "HippunfoldOutput"
+        },
+        "BoutiquesBidsSingleSubjectMaker": "subject_dir"
+    }
+  }
+}
