@@ -23,7 +23,38 @@
 require 'fileutils'
 
 
-# XXXX Description of the module
+# This module work only in conjonction with the
+# "BoutiquesBidsSingleSubjectMaker" module.
+#
+# The input Subject directory will not be used directly
+# if some files need to be removed.
+#
+# Instead a copy witout the files specified by input defined
+# in the BoutiquesBidsCleaner custom module
+#
+# For example in input:
+#   {
+#     "description": "Basename or fullpath of files to keep in * folder, if empty all files will be kept.",
+#     "id": "*_to_keep",
+#     "name": "Anat files to keep",
+#     "optional": true,
+#     "type": "String",
+#     "list": true,
+#     "value-key": "[ANAT_TO_KEEP]"
+#   }
+#
+# "*" is referring to a specific folder:
+#   - "anat_to_keep" refer to the anat folder.
+#   - "func_to_keep" refer to the func folder.
+#   - "all_to_keep" is special and refer to all the folder.
+#
+# Then in '"cbrain:integrator_modules":
+#
+#   "BoutiquesBidsCleaner": [ "*_to_keep" ],
+#
+# Note: If no file as to be removed from the original subject.
+# The module will avoid to do a extra copy of the subject and
+# will use the original one.
 module BoutiquesBidsCleaner
 
   # Note: to access the revision info of the module,
@@ -35,9 +66,48 @@ module BoutiquesBidsCleaner
   # # Bourreau (Cluster) Side Modifications
   # ############################################
 
-  # TODO
+  # Inputs specified in BoutiquesBidsCleaner are moved
+  # in the "cbrain_bids_extensions" group section.
+  def descriptor_for_form #:nodoc:
+    descriptor = super.dup
+
+    # Nothing to do if not used in conjonction with
+    # 'BoutiquesBidsSingleSubjectMaker' module
+    return descriptor if !descriptor.custom_module_info('BoutiquesBidsSingleSubjectMaker')
+
+    # Add new group with that input
+    groups       = descriptor.groups || []
+    cb_mod_group = groups.detect { |group| group.id == 'cbrain_bids_extensions' }
+    if cb_mod_group.blank?
+      cb_mod_group = BoutiquesSupport::Group.new(
+        "name"        => 'CBRAIN BIDS Extensions',
+        "id"          => 'cbrain_bids_extensions',
+        "description" => 'Special options for BIDS data files',
+        "members"     => [],
+      )
+      groups.unshift cb_mod_group
+    end
+
+    input_ids_bc = descriptor.custom_module_info('BoutiquesBidsCleaner')
+
+    input_ids_bc.each do |input_id|
+      cb_mod_group.members <<= input_id
+    end
+
+    descriptor.groups = groups
+    descriptor
+  end
+
   # This method overrides the one in BoutiquesClusterTask.
-  def setup
+  # If files is specified in input specified in "BoutiquesBidsSingleSubjectMaker".
+  #
+  # Only copy and clean the Subject directory if needed.
+  # If only files specified in input are present in folder
+  # no need to copy and remove files.
+  #
+  # If cleaning need to be done the subject will be copied,
+  # then the extra files will be removed.
+  def setup #:nodoc:
     return false unless super
 
     basename    = Revision_info.basename
@@ -54,6 +124,9 @@ module BoutiquesBidsCleaner
     # should only be perform if BoutiquesBidsCleaner is not empty
     input_ids_bc = descriptor.custom_module_info('BoutiquesBidsCleaner')
     return true if !input_ids_bc || input_ids_bc.size == 0
+
+    self.addlog("Cleaning BIDS dataset")
+    self.addlog("#{basename} rev. #{commit}")
 
     # Extract filenames
     filenames_wo_ext_by_folder = Hash.new { |h, k| h[k] = [] }
@@ -87,7 +160,11 @@ module BoutiquesBidsCleaner
     true
   end
 
-  # XXXXX
+  # Override the value of input specified in "BoutiquesBidsCleaner"
+  # by an array with a single input_id key.
+  # These inputs will not be used anyway in the command line.
+  # It will be append at the beggining of the command line in
+  # a "true" statement in order to have "bosh exec simulate" passing.
   def finalize_bosh_invoke_struct(invoke_struct) #:nodoc:
     descriptor   = self.descriptor_for_setup
     input_ids_bc = descriptor.custom_module_info('BoutiquesBidsCleaner')
@@ -100,8 +177,10 @@ module BoutiquesBidsCleaner
   end
 
 
-  # XXXXX
-  def descriptor_for_cluster_commands
+  # Remove token corresponding to input specified in 'BoutiquesBidsCleaner"
+  # Then add a "true" statement before the command line with the token
+  # to pass "bosh" validation.
+  def descriptor_for_cluster_commands #:nodoc:
     descriptor   = super.dup
     input_ids_bc = descriptor.custom_module_info('BoutiquesBidsCleaner')
     command      = descriptor.command_line
@@ -110,7 +189,7 @@ module BoutiquesBidsCleaner
       input = descriptor.input_by_id(input_id)
 
       # The two strings we need
-      token      = input.value_key # e.g. '[BIDSDATASET]'
+      token      = input.value_key # e.g. '[ANAT_TO_KEEP]'
 
       # Make the substitution
       command = command.sub(token, " ") # we replace only the first one
@@ -120,7 +199,7 @@ module BoutiquesBidsCleaner
       # beginning of the command with at least one use of that value-key. It will look
       # like e.g.
 
-      #   "true [BIDSDATASET] ; real command here"
+      #   "true [ANAT_TO_KEEP] ; real command here"
 
       # In bash, the 'true' statement doesn't do anything and ignores all arguments.
       if ! command.include? token
@@ -131,53 +210,6 @@ module BoutiquesBidsCleaner
     descriptor.command_line = command
     descriptor
   end
-
-  # # This method takes a descriptor and adds a new
-  # # File input, in a group at the bottom of all the other
-  # # input groups. This input recives, optionally, the
-  # # content of a participants.tsv file .
-  # def descriptor_with_bids_cleaner(descriptor)
-  #   descriptor = descriptor.dup
-
-  #   # Add new input for dataset_description.json
-  #   new_input_dd = BoutiquesSupport::Input.new(
-  #     "name"          => "BIDS 'dataset_description.json' file",
-  #     "id"            => "dataset_description_json",
-  #     "description"   => "If set, provides a separate dataset_description.json file. If not set, a plain JSON file will be generated with dummy data.",
-  #     "type"          => "File",
-  #     "optional"      => true,
-  #   )
-  #   descriptor.inputs <<= new_input_dd
-
-  #   # Add new input for participants.tsv
-  #   new_input_part = BoutiquesSupport::Input.new(
-  #     "name"          => "BIDS dataset 'participants.tsv' file",
-  #     "id"            => "cbrain_participants_tsv",
-  #     "description"   => "If set, provides a separate participants.tsv file. Must contain at least the subject being processed. If not set, a plain participants.tsv file will be generated with only the subject ID in it.",
-  #     "type"          => "File",
-  #     "optional"      => true,
-  #   )
-  #   descriptor.inputs <<= new_input_part
-
-  #   # Add new group with that input
-  #   groups       = descriptor.groups || []
-  #   cb_mod_group = groups.detect { |group| group.id == 'cbrain_bids_extensions' }
-  #   if cb_mod_group.blank?
-  #     cb_mod_group = BoutiquesSupport::Group.new(
-  #       "name"        => 'CBRAIN BIDS Extensions',
-  #       "id"          => 'cbrain_bids_extensions',
-  #       "description" => 'Special options for BIDS data files',
-  #       "members"     => [],
-  #     )
-  #     groups.unshift cb_mod_group
-  #   end
-  #   cb_mod_group.members <<= new_input_dd.id
-  #   cb_mod_group.members <<= new_input_part.id
-
-  #   descriptor.groups = groups
-  #   descriptor
-  # end
-
 
   private
 
@@ -219,14 +251,17 @@ module BoutiquesBidsCleaner
     end
   end
 
-  def remove_extra_files(subject_name,files_to_exclude_by_folder)
+  def remove_extra_files(subject_name,files_to_exclude_by_folder) #:nodoc:
+    self.addlog("Remove files from #{subject_name}:\n")
+    removed_files = ""
     files_to_exclude_by_folder.each_pair do |folder,filenames|
       folder = "#{subject_name}/#{folder}"
       filenames.each do |filename|
-        self.addlog("Remove #{filename} from #{subject_name}")
         FileUtils.remove_entry(filename) rescue true
+        removed_files += "- #{filename}\n"
       end
     end
+    self.addlog("\n#{removed_files}")
   end
 
 end
