@@ -213,6 +213,13 @@ module BoutiquesBidsCleaner
 
   private
 
+  # Return a hash each key correspond to a folder
+  # value is array that contain basenames of files
+  # to remove if the file is present in a folder
+  # corresponding to the key.
+  #
+  # If the key is "all" the file will be remove in
+  # all the folder.
   def files_to_exclude_by_folder(subject_name, filenames_wo_ext_by_folder) #:nodoc:
     files_in_subject = Dir.glob("#{Dir.pwd}/#{subject_name}/**/*")
 
@@ -239,6 +246,9 @@ module BoutiquesBidsCleaner
     return files_to_exclude_by_folder
   end
 
+  # Simply copy the the original subject.
+  # This allow to not touch the cache when
+  # the extra files will be deleted.
   def backup_and_copy_subject(subject_name) #:nodoc:
     begin
       bk_name = "#{subject_name}_#{self.id}"
@@ -251,6 +261,8 @@ module BoutiquesBidsCleaner
     end
   end
 
+  # This method removed the extra files from the
+  # copied subject.
   def remove_extra_files(subject_name,files_to_exclude_by_folder) #:nodoc:
     self.addlog("Remove files from #{subject_name}:\n")
     removed_files = ""
