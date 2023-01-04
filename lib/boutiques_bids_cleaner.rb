@@ -220,19 +220,35 @@ module BoutiquesBidsCleaner
   #
   # If the key is "all" the file will be remove in
   # all the folder.
+
+
+      # # Special case if folder name == all
+      # if folder_name == "all"
+      #   folder_name = File.split(dirname)[-1]
+      #   if folder_name == '.'
+      #     self.addlog("TODO --> print #{file_fullpath_wo_ext} ignored.")
+      #     next
+      #   end
+      # end
+
+
+
+
   def files_to_exclude_by_folder(subject_name, filenames_wo_ext_by_folder) #:nodoc:
     files_in_subject = Dir.glob("#{Dir.pwd}/#{subject_name}/**/*")
 
     folders_name = filenames_wo_ext_by_folder.keys
 
     files_to_exclude_by_folder = Hash.new { |h, k| h[k] = [] }
+    # Iterate over the full subject directory
     files_in_subject.each do |file_fullpath|
-      folder_name = Pathname.new(File.dirname(file_fullpath)).basename.to_s
+      dirname, basename = File.split(file_fullpath)
+      # Extract parent_folder name if
+      # for 'subj-123/ses-01/anat/*_T1.json' folder_name is 'anat'
+      folder_name = Pathname.new(dirname).basename.to_s
       next if !folders_name.include?(folder_name) && !folders_name.include?("all")
 
-      file_basename = Pathname.new(file_fullpath) rescue nil
-      file_basename = file_basename && file_basename.basename.to_s
-      file_fullpath_wo_ext = file_basename.split('.')[0]
+      file_fullpath_wo_ext = basename.split('.')[0]
 
       next if filenames_wo_ext_by_folder[folder_name].include?(file_fullpath_wo_ext)
       files_to_exclude_by_folder[folder_name] << file_fullpath
