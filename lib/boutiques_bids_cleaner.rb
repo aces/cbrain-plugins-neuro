@@ -134,13 +134,11 @@ module BoutiquesBidsCleaner
       filenames = invoke_params[input_id] || []
       next if filenames.empty?
       in_folder = input_id.gsub(/_to_keep$/, '')
-      filenames_wo_ext_by_folder[in_folder] = filenames.map do |filename|
-        pathname        = Pathname.new(filename) rescue nil
-        next nil if !pathname
-        basename        = pathname.basename.to_s
-        basename_wo_ext = basename.split('.')[0]
-        basename_wo_ext
-      end.compact.uniq
+      if in_folder != "all"
+        filenames_wo_ext_by_folder[in_folder] = extract_filenames_wo_ext_by_folder(filenames)
+      else
+        filenames_wo_ext_by_folder            = extract_filenames_wo_ext_by_folder_all(filenames, filenames_wo_ext_by_folder)
+      end
     end
 
     # The logic to clean the BIDS subject
@@ -213,6 +211,47 @@ module BoutiquesBidsCleaner
 
   private
 
+  # Used when it is not the "all_to_keep" option
+  # in this case we used as the folder name the * part of *_to_keep
+  # as in_folder name.
+  def extract_filenames_wo_ext_by_folder(filenames) #:nodoc:
+    filenames.map do |filename|
+      pathname        = Pathname.new(filename) rescue nil
+      next nil if !pathname
+      basename        = pathname.basename.to_s
+      basename_wo_ext = basename.split('.')[0]
+      basename_wo_ext
+    end.compact.uniq
+  end
+
+  # Used when it is the "all_to_keep" option
+  # in this case we used the parent directory in the filepath
+  # to define the in_folder name.
+  # If no in_folder found the file will be ingnore.
+  #
+  # This is done to avoid user to specify every single files
+  # they want to keep in the whole subject folder.
+  # The deletion of extra files at the end will only be done
+  # in sub_folder for which we found an in_folder.
+  # This way if no files was specified to_keep in dwi sub_folder,
+  # then this sub folder will be untouch.
+  def extract_filenames_wo_ext_by_folder_all(filenames, filenames_wo_ext_by_folder) #:nodoc:
+    filenames.each do |filename|
+      dirname, basename = File.split(filename)
+      in_folder = File.split(dirname)[-1]
+      if in_folder == "."
+        self.addlog("Ignore file #{basename} no parent folder was found.")
+        next
+      end
+      basename_wo_ext = basename.split('.')[0]
+      if filenames_wo_ext_by_folder[in_folder] && !filenames_wo_ext_by_folder[in_folder].include?(basename_wo_ext)
+        filenames_wo_ext_by_folder[in_folder] << basename_wo_ext
+      end
+    end
+
+    return filenames_wo_ext_by_folder
+  end
+
   # Return a hash each key correspond to a folder
   # value is array that contain basenames of files
   # to remove if the file is present in a folder
@@ -220,20 +259,6 @@ module BoutiquesBidsCleaner
   #
   # If the key is "all" the file will be remove in
   # all the folder.
-
-
-      # # Special case if folder name == all
-      # if folder_name == "all"
-      #   folder_name = File.split(dirname)[-1]
-      #   if folder_name == '.'
-      #     self.addlog("TODO --> print #{file_fullpath_wo_ext} ignored.")
-      #     next
-      #   end
-      # end
-
-
-
-
   def files_to_exclude_by_folder(subject_name, filenames_wo_ext_by_folder) #:nodoc:
     files_in_subject = Dir.glob("#{Dir.pwd}/#{subject_name}/**/*")
 
