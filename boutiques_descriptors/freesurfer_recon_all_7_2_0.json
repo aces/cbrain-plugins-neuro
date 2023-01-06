@@ -1,12 +1,12 @@
 {
     "name":           "FreeSurferReconAll",
-    "description":    "Performs all, or any part of, the FreeSurfer cortical reconstruction process",
+    "description":    "Performs all, or any part of, the FreeSurfer cortical reconstruction process. Includes the optional brainstem module.",
     "tool-version":   "v7.2.0",
     "url":            "https://surfer.nmr.mgh.harvard.edu/fswiki/recon-all",
     "descriptor-url": "https://github.com/aces/cbrain-plugins-neuro/blob/master/boutiques_descriptors/freesurfer_recon_all_7_1_1.json",
     "author":         "Laboratory for Computational Neuroimaging ",
     "schema-version": "0.5",
-    "command-line":   "export SUBJECTS_DIR=`pwd`\nexport FS_LICENSE=`pwd`/[LICENSE_FILE]\nif test ! -d [OUTDIRNAME] ; then\n  recon-all -subjid [OUTDIRNAME] [INPUT] [DIRECTIVES] [QCACHE] [MPRAGE] [3T] [CW256] [NOTAL-CHECK] [BRAINSTEM-STRUCTURES] [NO-WSGCAATLAS] [NO-SKULLSTRIP]\nelse\n  recon-all -subjid [OUTDIRNAME]         [DIRECTIVES] [QCACHE] [MPRAGE] [3T] [CW256] [NOTAL-CHECK] [BRAINSTEM-STRUCTURES] [NO-WSGCAATLAS] [NO-SKULLSTRIP]\nfi",
+    "command-line":   "export SUBJECTS_DIR=`pwd`\nexport FS_LICENSE=`pwd`/[LICENSE_FILE]\nif test ! -d [OUTDIRNAME] ; then\n  recon-all -subjid [OUTDIRNAME] [INPUT] [DIRECTIVES] [QCACHE] [MPRAGE] [3T] [CW256] [NOTAL-CHECK] [NO-WSGCAATLAS] [NO-SKULLSTRIP]\nelse\n  recon-all -subjid [OUTDIRNAME] [DIRECTIVES] [QCACHE] [MPRAGE] [3T] [CW256] [NOTAL-CHECK] [NO-WSGCAATLAS] [NO-SKULLSTRIP]\nfi\nfsstatus=$?\ntest $fsstatus -eq 0 -a X[BRAINSTEM] = XsegmentBS.sh && segmentBS.sh [OUTDIRNAME]\ntest $fsstatus -eq 0 -a X[HIP_AMY] = XsegmentHA_T1.sh && segmentHA_T1.sh [OUTDIRNAME]\nbash -c \"exit $fsstatus\"\n",
     "container-image": {
         "index": "docker://",
         "image": "freesurfer/freesurfer:7.2.0",
@@ -103,15 +103,6 @@
             "optional":          true
         },
         {
-            "id":                "brainstem_structures_flag",
-            "name":              "Brainstem Structures",
-            "type":              "Flag",
-            "description":       "Segmentation of brainstem structures",
-            "command-line-flag": "-brainstem-structures",
-            "value-key":         "[BRAINSTEM-STRUCTURES]",
-            "optional":          true
-        },
-        {
             "id":                "no_wsgcaatlas_flag",
             "name":              "No wsgcaatlas",
             "type":              "Flag",
@@ -127,6 +118,24 @@
             "description":       "Exclude skull strip step",
             "command-line-flag": "-noskullstrip",
             "value-key":         "[NO-SKULLSTRIP]",
+            "optional":          true
+        },
+        {
+            "id":                "brainstem_structures_flag",
+            "name":              "Brainstem structures",
+            "type":              "Flag",
+            "description":       "Segmentation of brainstem structures",
+            "command-line-flag": "segmentBS.sh",
+            "value-key":         "[BRAINSTEM]",
+            "optional":          true
+        },
+        {
+            "id":                "hippocampus_amygdala_flag",
+            "name":              "Hippocampus and amygdala structures",
+            "type":              "Flag",
+            "description":       "Segmentation of hippocampus and amygdala",
+            "command-line-flag": "segmentHA_T1.sh",
+            "value-key":         "[HIP_AMY]",
             "optional":          true
         }
     ],
@@ -153,17 +162,25 @@
         },
         {
             "id": "sci_params",
-            "name": "Scientific parameters",
-            "description": "Options and parameters",
+            "name": "Recon-All parameters",
+            "description": "Options and parameters for recon-all",
             "members": [
                 "qcache_flag",
                 "mprage_flag",
                 "3T_flag",
                 "cw256_flag",
                 "notal_flag",
+                "noskullstrip_flag",
+                "no_wsgcaatlas_flag"
+            ]
+        },
+        {
+            "id": "segmentation_params",
+            "name": "Segmentation modules",
+            "description": "Segmentation modules performed after recon-all",
+            "members": [
                 "brainstem_structures_flag",
-                "no_wsgcaatlas_flag",
-                "noskullstrip_flag"
+                "hippocampus_amygdala_flag"
             ]
         }
     ],
