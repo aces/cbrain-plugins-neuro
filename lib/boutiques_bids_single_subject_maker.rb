@@ -135,6 +135,8 @@ module BoutiquesBidsSingleSubjectMaker
 
     # Extract the descriptor, module config, and input name
     descriptor   = self.descriptor_for_setup
+    self.addlog("---In setup BSM---")
+    self.addlog(descriptor)
     inputid      = descriptor.custom_module_info('BoutiquesBidsSingleSubjectMaker')
     userfile_id  = invoke_params[inputid]
     userfile     = Userfile.find(userfile_id)
