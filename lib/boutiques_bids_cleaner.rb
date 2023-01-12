@@ -2,7 +2,7 @@
 #
 # CBRAIN Project
 #
-# Copyright (C) 2008-2022
+# Copyright (C) 2008-2023
 # The Royal Institution for the Advancement of Learning
 # McGill University
 #
@@ -20,41 +20,78 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-require 'fileutils'
-
-
 # This module work only in conjonction with the
 # "BoutiquesBidsSingleSubjectMaker" module.
 #
-# The input Subject directory will not be used directly
-# if some files need to be removed.
+# In case of some files need to be removed from the
+# original data a copy will be done and a partial
+# copy of the subject will be used to create the SingleSubject
 #
-# Instead a copy witout the files specified by input defined
-# in the BoutiquesBidsCleaner custom module
+# Here is of to define the usage of the module in the Boutiques
+# descriptor:
 #
-# For example in input:
+# Define the input field:
 #   {
-#     "description": "Basename or fullpath of files to keep in * folder, if empty all files will be kept.",
-#     "id": "*_to_keep",
-#     "name": "Anat files to keep",
+#     "description": "Partial path that should include the folder name and at list the file name with or without extension (e.g: 'anat/T1')"",
+#     "id": "files_to_keep",
+#     "name": "List of files",
 #     "optional": true,
 #     "type": "String",
 #     "list": true,
-#     "value-key": "[ANAT_TO_KEEP]"
+#     "value-key": "[FILES_TO_KEEP]"
 #   }
-#
-# "*" is referring to a specific folder:
-#   - "anat_to_keep" refer to the anat folder.
-#   - "func_to_keep" refer to the func folder.
-#   - "all_to_keep" is special and refer to all the folder.
 #
 # Then in '"cbrain:integrator_modules":
 #
-#   "BoutiquesBidsCleaner": [ "*_to_keep" ],
+#   "BoutiquesBidsCleaner": [ "files_to_keep" ],
 #
-# Note: If no file as to be removed from the original subject.
-# The module will avoid to do a extra copy of the subject and
+# Note:
+#  - If no file as to be removed from the original subject.
+# The module will avoid to do an extra copy of the subject and
 # will use the original one.
+# - If no file are specified for some folder e.g: func, no filtering
+# will be performed on the func folder.
+# - The filtering will take care of keeping the associate file together.
+# If 'anat/sub-123456_ses-V01_acq-anat_run-1_TB1TFL.nii.gz' the
+# associated *.json file will be kept too.
+#
+# For the following subject:
+#
+# sub-123456
+# └── ses-V01
+#     ├── anat
+#     │   ├── sub-123456_ses-V01_acq-anat_run-1_TB1TFL.json
+#     │   ├── sub-123456_ses-V01_acq-anat_run-1_TB1TFL.nii.gz
+#     │   └── sub-123456_ses-V01_acq-svs_run-1_localizer.json
+#     ├── dwi
+#     │   ├── sub-123456_ses-V01_dir-AP_run-1_sbref.json
+#     │   └── sub-123456_ses-V01_dir-AP_run-1_sbref.nii.gz
+#     ├── fmap
+#     │   ├── sub-123456_ses-V01_dir-AP_run-1_epi.json
+#     │   └── sub-123456_ses-V01_dir-AP_run-1_epi.nii.gz
+#     └── func
+#         ├── sub-123456_ses-V01_task-rest_dir-PA_run-1_bold.json
+#         └── sub-123456_ses-V01_task-rest_dir-PA_run-1_bold.nii.gz
+#
+# the string 'anat/sub-123456_ses-V01_acq-anat_run-1_TB1TFL.nii.gz' is
+# specified, the result will be the following:
+#
+# sub-123456
+# └── ses-V01
+#     ├── anat
+#     │   ├── sub-123456_ses-V01_acq-anat_run-1_TB1TFL.json
+#     │   └── sub-123456_ses-V01_acq-anat_run-1_TB1TFL.nii.gz
+#     ├── dwi
+#     │   ├── sub-123456_ses-V01_dir-AP_run-1_sbref.json
+#     │   └── sub-123456_ses-V01_dir-AP_run-1_sbref.nii.gz
+#     ├── fmap
+#     │   ├── sub-123456_ses-V01_dir-AP_run-1_epi.json
+#     │   └── sub-123456_ses-V01_dir-AP_run-1_epi.nii.gz
+#     └── func
+#         ├── sub-123456_ses-V01_task-rest_dir-PA_run-1_bold.json
+#         └── sub-123456_ses-V01_task-rest_dir-PA_run-1_bold.nii.gz
+#
+#
 module BoutiquesBidsCleaner
 
   # Note: to access the revision info of the module,
@@ -62,17 +99,13 @@ module BoutiquesBidsCleaner
   # object method revision_info() won't work.
   Revision_info=CbrainFileRevision[__FILE__] #:nodoc:
 
-  # ############################################
-  # # Bourreau (Cluster) Side Modifications
-  # ############################################
-
   # Inputs specified in BoutiquesBidsCleaner are moved
   # in the "cbrain_bids_extensions" group section.
   def descriptor_for_form #:nodoc:
     descriptor = super.dup
 
     # Nothing to do if not used in conjonction with
-    # 'BoutiquesBidsSingleSubjectMaker' module
+    # 'BoutiquesBidsSingleSubjectMaker' module.
     return descriptor if !descriptor.custom_module_info('BoutiquesBidsSingleSubjectMaker')
 
     # Add new group with that input
@@ -100,6 +133,7 @@ module BoutiquesBidsCleaner
 
   # This method overrides the one in BoutiquesClusterTask.
   # If files is specified in input specified in "BoutiquesBidsSingleSubjectMaker".
+  # and in "BoutiquesBidsCleaner".
   #
   # Only copy and clean the Subject directory if needed.
   # If only files specified in input are present in folder
@@ -110,49 +144,35 @@ module BoutiquesBidsCleaner
   def setup #:nodoc:
     return false unless super
 
-    basename    = Revision_info.basename
-    commit      = Revision_info.short_commit
-
     descriptor  = self.descriptor_for_setup
 
-    # The logic to clean the BIDS subject
-    # should only be perform on a BIDS subject
-    input_id_ssm = descriptor.custom_module_info('BoutiquesBidsSingleSubjectMaker')
-    return true if !input_id_ssm
-
-    # The logic to clean the BIDS subject
-    # should only be perform if BoutiquesBidsCleaner is not empty
-    input_ids_bc = descriptor.custom_module_info('BoutiquesBidsCleaner')
-    return true if !input_ids_bc || input_ids_bc.size == 0
+    basename    = Revision_info.basename
+    commit      = Revision_info.short_commit
 
     self.addlog("Cleaning BIDS dataset")
     self.addlog("#{basename} rev. #{commit}")
 
-    # Extract filenames
-    filenames_wo_ext_by_folder = Hash.new { |h, k| h[k] = [] }
-    input_ids_bc.each do |input_id|
-      filenames = invoke_params[input_id] || []
-      next if filenames.empty?
-      in_folder = input_id.gsub(/_to_keep$/, '')
-      if in_folder != "all"
-        filenames_wo_ext_by_folder[in_folder] = extract_filenames_wo_ext_by_folder(filenames)
-      else
-        filenames_wo_ext_by_folder            = extract_filenames_wo_ext_by_folder_all(filenames, filenames_wo_ext_by_folder)
-      end
-    end
+    input_id_ssm = descriptor.custom_module_info('BoutiquesBidsSingleSubjectMaker')
+    input_ids_bc = descriptor.custom_module_info('BoutiquesBidsCleaner')
 
-    # The logic to clean the BIDS subject
-    # should only be perform if some files are specified
+    # Extract filenames without extension to keep
+    filenames_wo_ext_by_folder = extract_filenames_wo_ext_by_folder(input_ids_bc)
+
+    # Call the logic to clean the BIDS subject only if some files are specified
     return true if filenames_wo_ext_by_folder.empty?
 
     userfile_id        = invoke_params[input_id_ssm]
     userfile           = Userfile.find(userfile_id)
     subject_name       = userfile.name # 'sub-1234'
 
+    # Reverse the logic to get the files to exclude
     files_to_exclude_by_folder = files_to_exclude_by_folder(subject_name, filenames_wo_ext_by_folder)
 
+    # Backup the original subject and do a copy to work on
     backup_and_copy_subject(subject_name)
 
+    # Remove extra files in the copied subject.
+    # The partial copy will be used by the SingleSubjectMaker.
     remove_extra_files(subject_name, files_to_exclude_by_folder)
 
     true
@@ -160,6 +180,7 @@ module BoutiquesBidsCleaner
 
   # Override the value of input specified in "BoutiquesBidsCleaner"
   # by an array with a single input_id key.
+  #
   # These inputs will not be used anyway in the command line.
   # It will be append at the beggining of the command line in
   # a "true" statement in order to have "bosh exec simulate" passing.
@@ -177,7 +198,7 @@ module BoutiquesBidsCleaner
 
   # Remove token corresponding to input specified in 'BoutiquesBidsCleaner"
   # Then add a "true" statement before the command line with the token
-  # to pass "bosh" validation.
+  # to pass "bosh exec simulate" validation.
   def descriptor_for_cluster_commands #:nodoc:
     descriptor   = super.dup
     input_ids_bc = descriptor.custom_module_info('BoutiquesBidsCleaner')
@@ -187,7 +208,7 @@ module BoutiquesBidsCleaner
       input = descriptor.input_by_id(input_id)
 
       # The two strings we need
-      token      = input.value_key # e.g. '[ANAT_TO_KEEP]'
+      token      = input.value_key
 
       # Make the substitution
       command = command.sub(token, " ") # we replace only the first one
@@ -197,7 +218,7 @@ module BoutiquesBidsCleaner
       # beginning of the command with at least one use of that value-key. It will look
       # like e.g.
 
-      #   "true [ANAT_TO_KEEP] ; real command here"
+      #   "true [TOKEN] ; real command here"
 
       # In bash, the 'true' statement doesn't do anything and ignores all arguments.
       if ! command.include? token
@@ -211,19 +232,6 @@ module BoutiquesBidsCleaner
 
   private
 
-  # Used when it is not the "all_to_keep" option
-  # in this case we used as the folder name the * part of *_to_keep
-  # as in_folder name.
-  def extract_filenames_wo_ext_by_folder(filenames) #:nodoc:
-    filenames.map do |filename|
-      pathname        = Pathname.new(filename) rescue nil
-      next nil if !pathname
-      basename        = pathname.basename.to_s
-      basename_wo_ext = basename.split('.')[0]
-      basename_wo_ext
-    end.compact.uniq
-  end
-
   # Used when it is the "all_to_keep" option
   # in this case we used the parent directory in the filepath
   # to define the in_folder name.
@@ -235,41 +243,46 @@ module BoutiquesBidsCleaner
   # in sub_folder for which we found an in_folder.
   # This way if no files was specified to_keep in dwi sub_folder,
   # then this sub folder will be untouch.
-  def extract_filenames_wo_ext_by_folder_all(filenames, filenames_wo_ext_by_folder) #:nodoc:
-    filenames.each do |filename|
-      dirname, basename = File.split(filename)
-      in_folder = File.split(dirname)[-1]
-      if in_folder == "."
-        self.addlog("Ignore file #{basename} no parent folder was found.")
-        next
-      end
-      basename_wo_ext = basename.split('.')[0]
-      if filenames_wo_ext_by_folder[in_folder] && !filenames_wo_ext_by_folder[in_folder].include?(basename_wo_ext)
-        filenames_wo_ext_by_folder[in_folder] << basename_wo_ext
+  def extract_filenames_wo_ext_by_folder(input_ids_bc) #:nodoc:
+    filenames_wo_ext_by_folder = Hash.new { |h, k| h[k] = [] }
+
+    input_ids_bc.each do |input_id|
+      filenames = invoke_params[input_id] || []
+      next if filenames.empty?
+
+      filenames.each do |filename|
+        dirname, basename = File.split(filename)
+        in_folder = File.split(dirname)[-1]
+        if in_folder == "."
+          self.addlog("Ignore file #{basename} no parent folder was found.")
+          next
+        end
+        basename_wo_ext = basename.split('.')[0]
+        if filenames_wo_ext_by_folder[in_folder] && !filenames_wo_ext_by_folder[in_folder].include?(basename_wo_ext)
+          filenames_wo_ext_by_folder[in_folder] << basename_wo_ext
+        end
       end
     end
 
     return filenames_wo_ext_by_folder
   end
 
-  # Return a hash each key correspond to a folder
-  # value is array that contain basenames of files
-  # to remove if the file is present in a folder
-  # corresponding to the key.
-  #
-  # If the key is "all" the file will be remove in
-  # all the folder.
+  # Return a hash each key correspond to a folder,
+  # value are arrays that contain basenames of files
+  # to remove if files are present in a folder
+  # specified by the key.
   def files_to_exclude_by_folder(subject_name, filenames_wo_ext_by_folder) #:nodoc:
-    files_in_subject = Dir.glob("#{Dir.pwd}/#{subject_name}/**/*")
+    files_in_subject = Dir.glob("#{subject_name}/**/*")
 
     folders_name = filenames_wo_ext_by_folder.keys
 
     files_to_exclude_by_folder = Hash.new { |h, k| h[k] = [] }
     # Iterate over the full subject directory
+
     files_in_subject.each do |file_fullpath|
       dirname, basename = File.split(file_fullpath)
       # Extract parent_folder name if
-      # for 'subj-123/ses-01/anat/*_T1.json' folder_name is 'anat'
+      # for 'sub-123/ses-01/anat/*_T1.json' folder_name is 'anat'
       folder_name = Pathname.new(dirname).basename.to_s
       next if !folders_name.include?(folder_name) && !folders_name.include?("all")
 
@@ -287,23 +300,17 @@ module BoutiquesBidsCleaner
     return files_to_exclude_by_folder
   end
 
-  # Simply copy the the original subject.
-  # This allow to not touch the cache when
+  # Copy the the original subject.
+  # Allow to not touch the cache when
   # the extra files will be deleted.
   def backup_and_copy_subject(subject_name) #:nodoc:
-    begin
       bk_name = "#{subject_name}_#{self.id}"
       File.rename(subject_name, bk_name) if !File.exist?(bk_name)
-      FileUtils.cp_r(bk_name, subject_name)
-    rescue Error => error
-      self.addlog("Unable to copy the original subject")
-      self.addlog(error)
-      return false
-    end
+      FileUtils.cp_r(bk_name, subject_name) # Attention when 2 times setup solved by rsync `rsync -a -H --delete --chmod see dp_code bk_name/ subject_name`
+      system("rsync","-arH --delete","#{bk_name}/", subject_name)
   end
 
-  # This method removed the extra files from the
-  # copied subject.
+  # This method removed the extra files from the copied subject.
   def remove_extra_files(subject_name,files_to_exclude_by_folder) #:nodoc:
     self.addlog("Remove files from #{subject_name}:\n")
     removed_files = ""
