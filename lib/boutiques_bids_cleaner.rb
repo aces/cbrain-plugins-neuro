@@ -121,11 +121,7 @@ module BoutiquesBidsCleaner
       groups.unshift cb_mod_group
     end
 
-    input_ids_bc = descriptor.custom_module_info('BoutiquesBidsCleaner')
-
-    input_ids_bc.each do |input_id|
-      cb_mod_group.members <<= input_id
-    end
+    cb_mod_group.members <<= descriptor.custom_module_info('BoutiquesBidsCleaner')
 
     descriptor.groups = groups
     descriptor
@@ -153,10 +149,10 @@ module BoutiquesBidsCleaner
     self.addlog("#{basename} rev. #{commit}")
 
     input_id_ssm = descriptor.custom_module_info('BoutiquesBidsSingleSubjectMaker')
-    input_ids_bc = descriptor.custom_module_info('BoutiquesBidsCleaner')
+    input_id_bc  = descriptor.custom_module_info('BoutiquesBidsCleaner')
 
     # Extract filenames without extension to keep
-    filenames_wo_ext_by_folder = extract_filenames_wo_ext_by_folder(input_ids_bc)
+    filenames_wo_ext_by_folder = extract_filenames_wo_ext_by_folder()
 
     # Call the logic to clean the BIDS subject only if some files are specified
     return true if filenames_wo_ext_by_folder.empty?
@@ -185,13 +181,12 @@ module BoutiquesBidsCleaner
   # It will be append at the beggining of the command line in
   # a "true" statement in order to have "bosh exec simulate" passing.
   def finalize_bosh_invoke_struct(invoke_struct) #:nodoc:
-    descriptor   = self.descriptor_for_setup
-    input_ids_bc = descriptor.custom_module_info('BoutiquesBidsCleaner')
+    descriptor = self.descriptor_for_setup
+    input_id   = descriptor.custom_module_info('BoutiquesBidsCleaner')
 
-    invoke       = super.dup
-    input_ids_bc.each do |input_id|
-      invoke[input_id] = [ input_id ]
-    end
+    invoke           = super.dup
+    invoke[input_id] = [ input_id ]
+
     invoke
   end
 
@@ -200,30 +195,28 @@ module BoutiquesBidsCleaner
   # Then add a "true" statement before the command line with the token
   # to pass "bosh exec simulate" validation.
   def descriptor_for_cluster_commands #:nodoc:
-    descriptor   = super.dup
-    input_ids_bc = descriptor.custom_module_info('BoutiquesBidsCleaner')
-    command      = descriptor.command_line
+    descriptor = super.dup
+    input_id   = descriptor.custom_module_info('BoutiquesBidsCleaner')
+    command    = descriptor.command_line
 
-    input_ids_bc.each do |input_id|
-      input = descriptor.input_by_id(input_id)
+    input      = descriptor.input_by_id(input_id)
 
-      # The two strings we need
-      token      = input.value_key
+    # The two strings we need
+    token      = input.value_key
 
-      # Make the substitution
-      command = command.sub(token, " ") # we replace only the first one
+    # Make the substitution
+    command    = command.sub(token, " ") # we replace only the first one
 
-      # In order to prevent bosh from complaining if the value-key is no longer found
-      # anywhere in the command-line, we re-instert a dummy no-op bash statement at the
-      # beginning of the command with at least one use of that value-key. It will look
-      # like e.g.
+    # In order to prevent bosh from complaining if the value-key is no longer found
+    # anywhere in the command-line, we re-instert a dummy no-op bash statement at the
+    # beginning of the command with at least one use of that value-key. It will look
+    # like e.g.
 
-      #   "true [TOKEN] ; real command here"
+    #   "true [TOKEN] ; real command here"
 
-      # In bash, the 'true' statement doesn't do anything and ignores all arguments.
-      if ! command.include? token
-        command = "true #{token} ; #{command}"
-      end
+    # In bash, the 'true' statement doesn't do anything and ignores all arguments.
+    if ! command.include? token
+      command = "true #{token} ; #{command}"
     end
 
     descriptor.command_line = command
@@ -243,24 +236,25 @@ module BoutiquesBidsCleaner
   # in sub_folder for which we found an in_folder.
   # This way if no files was specified to_keep in dwi sub_folder,
   # then this sub folder will be untouch.
-  def extract_filenames_wo_ext_by_folder(input_ids_bc) #:nodoc:
+  def extract_filenames_wo_ext_by_folder #:nodoc:
+    descriptor  = self.descriptor_for_setup
+    input_id  = descriptor.custom_module_info('BoutiquesBidsCleaner')
+
+    filenames = invoke_params[input_id] || []
+
     filenames_wo_ext_by_folder = Hash.new { |h, k| h[k] = [] }
+    return filenames_wo_ext_by_folder if filenames.empty?
 
-    input_ids_bc.each do |input_id|
-      filenames = invoke_params[input_id] || []
-      next if filenames.empty?
-
-      filenames.each do |filename|
-        dirname, basename = File.split(filename)
-        in_folder = File.split(dirname)[-1]
-        if in_folder == "."
-          self.addlog("Ignore file #{basename} no parent folder was found.")
-          next
-        end
-        basename_wo_ext = basename.split('.')[0]
-        if filenames_wo_ext_by_folder[in_folder] && !filenames_wo_ext_by_folder[in_folder].include?(basename_wo_ext)
-          filenames_wo_ext_by_folder[in_folder] << basename_wo_ext
-        end
+    filenames.each do |filename|
+      dirname, basename = File.split(filename)
+      in_folder = File.split(dirname)[-1]
+      if in_folder == "."
+        self.addlog("Ignore file #{basename} no parent folder was found.")
+        next
+      end
+      basename_wo_ext = basename.split('.')[0]
+      if filenames_wo_ext_by_folder[in_folder] && !filenames_wo_ext_by_folder[in_folder].include?(basename_wo_ext)
+        filenames_wo_ext_by_folder[in_folder] << basename_wo_ext
       end
     end
 
