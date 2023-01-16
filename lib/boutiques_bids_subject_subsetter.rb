@@ -27,7 +27,7 @@
 # Here is how to define the usage of the module in the Boutiques
 # descriptor in the "cbrain:integrator_modules" section:
 #
-#   "BoutiquesBidsSubjectSubsetter": 'bids_input',
+#   "BoutiquesBidsSubjectSubsetter": { "subject_dir": "input_id_for_bids_subject_subsetter" },
 #
 # Note:
 #  - If no files as to be removed from the original subject.
@@ -82,42 +82,43 @@ module BoutiquesBidsSubjectSubsetter
   # object method revision_info() won't work.
   Revision_info=CbrainFileRevision[__FILE__] #:nodoc:
 
-  InputIdForBidsSubjectSubsetter = "input_id_for_bids_subject_subsetter"
-
-
   # This method takes a descriptor and adds a new
   # fake input.
   # Inputs specified in BoutiquesBidsSubjectSubsetter are moved
   # in the "cbrain_bids_extensions" group section.
   def descriptor_with_special_input(descriptor)
-    descriptor = descriptor.dup
+    descriptor       = descriptor.dup
+    map_ids_for_bbss = descriptor.custom_module_info('BoutiquesBidsSubjectSubsetter')
+    groups           = descriptor.groups || []
 
-    # Add new input
-    new_input = BoutiquesSupport::Input.new(
-      "name"          => "Partial path for BIDS sub setter",
-      "id"            => "#{InputIdForBidsSubjectSubsetter}",
-      "description"   => "List of files to keep within the BIDS subject. The filtering will take care of keeping the associate file together.\n If 'anat/sub-123456_ses-V01_acq-anat_run-1_TB1TFL.nii.gz' the associated *.json file will be kept too.\n If files are not specified for some subfolder no filtering will be perfomed.\n That should include the folder name and at list the file name with or without extension (e.g: 'anat/T1')",
-      "type"          => "String",
-      "optional"      => true,
-      "list"          => true
-    )
+    map_ids_for_bbss.each do |dir_input_id, keep_input_id|
+      dir_input_name = descriptor.input_by_id(dir_input_id).name
 
-    descriptor.inputs <<= new_input
-
-    # Add new group with that input
-    groups       = descriptor.groups || []
-    cb_mod_group = groups.detect { |group| group.id == 'cbrain_bids_extensions' }
-    if cb_mod_group.blank?
-      cb_mod_group = BoutiquesSupport::Group.new(
-        "name"        => 'CBRAIN BIDS Extensions',
-        "id"          => 'cbrain_bids_extensions',
-        "description" => 'Special options for BIDS data files',
-        "members"     => [],
+      new_input = BoutiquesSupport::Input.new(
+        "name"          => "Partial path for BIDS sub setter",
+        "id"            => "#{keep_input_id}",
+        "description"   => "List of files to keep within the BIDS subject define by '#{dir_input_name}'. The filtering will take care of keeping the associate file together.\n If 'anat/sub-123456_ses-V01_acq-anat_run-1_TB1TFL.nii.gz' the associated *.json file will be kept too.\n If files are not specified for some subfolder no filtering will be perfomed.\n That should include the folder name and at list the file name with or without extension (e.g: 'anat/T1')",
+        "type"          => "String",
+        "optional"      => true,
+        "list"          => true
       )
-      groups.unshift cb_mod_group
-    end
 
-    cb_mod_group.members <<= new_input.id
+      descriptor.inputs <<= new_input
+
+      # Add new group with that input
+      cb_mod_group = groups.detect { |group| group.id == 'cbrain_bids_extensions' }
+      if cb_mod_group.blank?
+        cb_mod_group = BoutiquesSupport::Group.new(
+          "name"        => 'CBRAIN BIDS Extensions',
+          "id"          => 'cbrain_bids_extensions',
+          "description" => 'Special options for BIDS data files',
+          "members"     => [],
+        )
+        groups.unshift cb_mod_group
+      end
+
+      cb_mod_group.members <<= new_input.id
+    end
 
     descriptor.groups = groups
     descriptor
@@ -135,41 +136,39 @@ module BoutiquesBidsSubjectSubsetter
     descriptor_with_special_input(super)
   end
 
-  def descriptor_for_cluster_commands #:nodoc:
-    descriptor_with_special_input(super)
-  end
-
   def descriptor_for_final_task_list #:nodoc:
     descriptor_with_special_input(super)
   end
 
-    # This method overrides the one in BoutiquesClusterTask.
-    #
-    # Only copy and clean the Subject directory if needed.
-    # If only files specified in input are present in folder
-    # no need to copy and remove files.
-    #
-    # If cleaning need to be done the subject will be copied,
-    # then the extra files will be removed.
-    def setup #:nodoc:
-      return false unless super
+  # This method overrides the one in BoutiquesClusterTask.
+  #
+  # Only copy and clean the Subject directory if needed.
+  # If only files specified in input are present in folder
+  # no need to copy and remove files.
+  #
+  # If cleaning need to be done the subject will be copied,
+  # then the extra files will be removed.
+  def setup #:nodoc:
+    return false unless super
 
-      descriptor  = self.descriptor_for_setup
+    descriptor  = self.descriptor_for_setup
 
-      basename    = Revision_info.basename
-      commit      = Revision_info.short_commit
+    basename    = Revision_info.basename
+    commit      = Revision_info.short_commit
 
-      self.addlog("Cleaning BIDS dataset")
-      self.addlog("#{basename} rev. #{commit}")
+    self.addlog("Cleaning BIDS dataset")
+    self.addlog("#{basename} rev. #{commit}")
 
+    map_ids_for_bbss = descriptor.custom_module_info('BoutiquesBidsSubjectSubsetter')
+
+    map_ids_for_bbss.each do |dir_input_id, keep_input_id|
       # Extract filenames without extension to keep
-      filenames_wo_ext_by_folder = extract_filenames_wo_ext_by_folder()
+      filenames_wo_ext_by_folder = extract_filenames_wo_ext_by_folder(keep_input_id)
 
       # Call the logic to clean the BIDS subject only if some files are specified
       return true if filenames_wo_ext_by_folder.empty?
 
-      input_id     = descriptor.custom_module_info('BoutiquesBidsSubjectSubsetter')
-      userfile_id  = invoke_params[input_id]
+      userfile_id  = invoke_params[dir_input_id]
       userfile     = Userfile.find(userfile_id)
       subject_name = userfile.name # 'sub-1234'
 
@@ -182,98 +181,113 @@ module BoutiquesBidsSubjectSubsetter
       # Remove extra files in the copied subject.
       # The partial copy will be used by the SingleSubjectMaker.
       remove_extra_files(subject_name, files_to_exclude_by_folder)
-
-      true
     end
 
-    private
+    true
+  end
 
-    # The parent directory in the partial filepath
-    # is used to define the folder name.
-    # If no folder is found the file will be ingnored.
-    #
-    # This is done to avoid user to specify every single files
-    # they want to keep in the whole subject folder.
-    # For example if no files was specified in 'dwi' folder,
-    # then this folder will be untouch.
-    def extract_filenames_wo_ext_by_folder #:nodoc:
-      descriptor = self.descriptor_for_setup
 
-      filenames  = invoke_params["#{InputIdForBidsSubjectSubsetter}"] || []
+  # Overrides the same method in BoutiquesClusterTask, as used
+  # during cluster_commands()
+  def finalize_bosh_invoke_struct(invoke_struct) #:nodoc:
+    map_ids_for_bbss_values = self.descriptor_for_cluster_commands
+                                  .custom_module_info('BoutiquesBidsSubjectSubsetter')
+                                  .values
 
-      filenames_wo_ext_by_folder = Hash.new { |h, k| h[k] = [] }
-      return filenames_wo_ext_by_folder if filenames.empty?
+    super
+      .reject do |k,v|
+        map_ids_for_bbss_values.include?(k.to_s)
+      end # returns a dup()
+  end
 
+  private
+
+  # The parent directory in the partial filepath
+  # is used to define the folder name.
+  # If no folder is found the file will be ingnored.
+  #
+  # This is done to avoid user to specify every single files
+  # they want to keep in the whole subject folder.
+  # For example if no files was specified in 'dwi' folder,
+  # then this folder will be untouch.
+  def extract_filenames_wo_ext_by_folder(keep_input_id) #:nodoc:
+    descriptor = self.descriptor_for_setup
+
+    filenames  = invoke_params["#{keep_input_id}"] || []
+
+    filenames_wo_ext_by_folder = Hash.new { |h, k| h[k] = [] }
+    return filenames_wo_ext_by_folder if filenames.empty?
+
+    filenames.each do |filename|
+      dirname, basename = File.split(filename)
+      in_folder = File.split(dirname)[-1]
+      if in_folder == "."
+        self.addlog("Ignore file #{basename} no parent folder was found.")
+        next
+      end
+      basename_wo_ext = basename.split('.')[0]
+      if filenames_wo_ext_by_folder[in_folder] && !filenames_wo_ext_by_folder[in_folder].include?(basename_wo_ext)
+        filenames_wo_ext_by_folder[in_folder] << basename_wo_ext
+      end
+    end
+
+    return filenames_wo_ext_by_folder
+  end
+
+  # Return a hash each key correspond to a folder,
+  # value are arrays that contain basenames of files
+  # to remove if files are present in a folder
+  # specified by the key.
+  def files_to_exclude_by_folder(subject_name, filenames_wo_ext_by_folder) #:nodoc:
+    files_in_subject = Dir.glob("#{subject_name}/**/*")
+
+    folders_name = filenames_wo_ext_by_folder.keys
+
+    files_to_exclude_by_folder = Hash.new { |h, k| h[k] = [] }
+    # Iterate over the full subject directory
+
+    files_in_subject.each do |file_fullpath|
+      dirname, basename = File.split(file_fullpath)
+      # Extract parent_folder name if
+      # for 'sub-123/ses-01/anat/*_T1.json' folder_name is 'anat'
+      folder_name = Pathname.new(dirname).basename.to_s
+      next if !folders_name.include?(folder_name)
+
+      file_fullpath_wo_ext = basename.split('.')[0]
+
+      next if filenames_wo_ext_by_folder[folder_name].include?(file_fullpath_wo_ext)
+      files_to_exclude_by_folder[folder_name] << file_fullpath
+    end
+
+    files_to_exclude_by_folder.each_pair do |folder, filenames|
+      self.addlog("File to exclude from the original subject in '#{folder}' folder exclude the following files:")
+      self.addlog("\n- #{filenames.join("\n- ")}")
+    end
+
+    return files_to_exclude_by_folder
+  end
+
+  # Copy the original subject, allow to not touch the cache when
+  # the extra files will be deleted.
+  def backup_and_copy_subject(subject_name) #:nodoc:
+      bk_name = "#{subject_name}_#{self.id}"
+      File.rename(subject_name, bk_name) if !File.exist?(bk_name)
+      FileUtils.cp_r(bk_name, subject_name) # Attention when 2 times setup solved by rsync `rsync -a -H --delete --chmod see dp_code bk_name/ subject_name`
+      system("rsync","-arH --delete","#{bk_name}/", subject_name)
+  end
+
+  # This method removed the extra files from the copied subject.
+  def remove_extra_files(subject_name,files_to_exclude_by_folder) #:nodoc:
+    self.addlog("Remove files from #{subject_name}:\n")
+    removed_files = ""
+    files_to_exclude_by_folder.each_pair do |folder,filenames|
+      folder = "#{subject_name}/#{folder}"
       filenames.each do |filename|
-        dirname, basename = File.split(filename)
-        in_folder = File.split(dirname)[-1]
-        if in_folder == "."
-          self.addlog("Ignore file #{basename} no parent folder was found.")
-          next
-        end
-        basename_wo_ext = basename.split('.')[0]
-        if filenames_wo_ext_by_folder[in_folder] && !filenames_wo_ext_by_folder[in_folder].include?(basename_wo_ext)
-          filenames_wo_ext_by_folder[in_folder] << basename_wo_ext
-        end
+        FileUtils.remove_entry(filename) rescue true
+        removed_files += "- #{filename}\n"
       end
-
-      return filenames_wo_ext_by_folder
     end
-
-    # Return a hash each key correspond to a folder,
-    # value are arrays that contain basenames of files
-    # to remove if files are present in a folder
-    # specified by the key.
-    def files_to_exclude_by_folder(subject_name, filenames_wo_ext_by_folder) #:nodoc:
-      files_in_subject = Dir.glob("#{subject_name}/**/*")
-
-      folders_name = filenames_wo_ext_by_folder.keys
-
-      files_to_exclude_by_folder = Hash.new { |h, k| h[k] = [] }
-      # Iterate over the full subject directory
-
-      files_in_subject.each do |file_fullpath|
-        dirname, basename = File.split(file_fullpath)
-        # Extract parent_folder name if
-        # for 'sub-123/ses-01/anat/*_T1.json' folder_name is 'anat'
-        folder_name = Pathname.new(dirname).basename.to_s
-        next if !folders_name.include?(folder_name)
-
-        file_fullpath_wo_ext = basename.split('.')[0]
-
-        next if filenames_wo_ext_by_folder[folder_name].include?(file_fullpath_wo_ext)
-        files_to_exclude_by_folder[folder_name] << file_fullpath
-      end
-
-      files_to_exclude_by_folder.each_pair do |folder, filenames|
-        self.addlog("File to exclude from the original subject in '#{folder}' folder exclude the following files:")
-        self.addlog("\n- #{filenames.join("\n- ")}")
-      end
-
-      return files_to_exclude_by_folder
-    end
-
-    # Copy the original subject, allow to not touch the cache when
-    # the extra files will be deleted.
-    def backup_and_copy_subject(subject_name) #:nodoc:
-        bk_name = "#{subject_name}_#{self.id}"
-        File.rename(subject_name, bk_name) if !File.exist?(bk_name)
-        FileUtils.cp_r(bk_name, subject_name) # Attention when 2 times setup solved by rsync `rsync -a -H --delete --chmod see dp_code bk_name/ subject_name`
-        system("rsync","-arH --delete","#{bk_name}/", subject_name)
-    end
-
-    # This method removed the extra files from the copied subject.
-    def remove_extra_files(subject_name,files_to_exclude_by_folder) #:nodoc:
-      self.addlog("Remove files from #{subject_name}:\n")
-      removed_files = ""
-      files_to_exclude_by_folder.each_pair do |folder,filenames|
-        folder = "#{subject_name}/#{folder}"
-        filenames.each do |filename|
-          FileUtils.remove_entry(filename) rescue true
-          removed_files += "- #{filename}\n"
-        end
-      end
-      self.addlog("\n#{removed_files}")
-    end
+    self.addlog("\n#{removed_files}")
+  end
 
 end
