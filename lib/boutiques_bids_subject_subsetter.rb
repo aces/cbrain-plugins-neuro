@@ -42,7 +42,7 @@
 # For the following subject:
 #
 #   sub-123456
-#    - ses-V01
+#     - ses-V01
 #       - anat
 #         - sub-123456_ses-V01_acq-anat_run-1_TB1TFL.json
 #         - sub-123456_ses-V01_acq-anat_run-1_TB1TFL.nii.gz
@@ -55,7 +55,7 @@
 # specified, the result will be the following:
 #
 #   sub-123456
-#    - ses-V01
+#     - ses-V01
 #       - anat
 #         - sub-123456_ses-V01_acq-anat_run-1_TB1TFL.json
 #         - sub-123456_ses-V01_acq-anat_run-1_TB1TFL.nii.gz
@@ -259,8 +259,8 @@ module BoutiquesBidsSubjectSubsetter
   def backup_and_copy_subject(subject_name) #:nodoc:
       subject_name = subject_name.bash_escape
       bk_name      = "#{subject_name}_#{self.id}"
-      File.rename(subject_name, bk_name) if !File.exist?(bk_name)
-      rsyncout = bash_this("rsync -a -l --no-g --chmod=u=rwX,g=rX,Dg+s,o=r --delete #{bk_name}/ #{subject_name} 2>&1")
+      File.rename(subject_name.bash_escape, bk_name.bash_escape) if !File.exist?(bk_name)
+      rsyncout = bash_this("rsync -a -l --no-g --chmod=u=rwX,g=rX,Dg+s,o=r --delete #{bk_name.bash_escape}/ #{subject_name.bash_escape} 2>&1")
       self.addlog "Failed to rsync '#{bk_name}' to '#{subject_name}';\nrsync reported: #{rsyncout}" unless rsyncout.blank?
   end
 
