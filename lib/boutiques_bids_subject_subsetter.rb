@@ -257,7 +257,6 @@ module BoutiquesBidsSubjectSubsetter
   # Copy the original subject, allow to not touch the cache when
   # the extra files will be deleted.
   def backup_and_copy_subject(subject_name) #:nodoc:
-      subject_name = subject_name
       bk_name      = "#{subject_name}_#{self.id}"
       File.rename(subject_name, bk_name) if !File.exist?(bk_name)
       rsyncout = bash_this("rsync -a -l --no-g --chmod=u=rwX,g=rX,Dg+s,o=r --delete #{bk_name.bash_escape}/ #{subject_name.bash_escape} 2>&1")
