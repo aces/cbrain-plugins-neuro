@@ -97,7 +97,7 @@ module BoutiquesBidsSubjectSubsetter
       new_input = BoutiquesSupport::Input.new(
         "name"          => "Partial path for BIDS sub setter",
         "id"            => "#{keep_input_id}",
-        "description"   => "List of files to keep within the BIDS subject define by '#{dir_input_name}'. The filtering will take care of keeping the associate file together.\n If 'anat/sub-123456_ses-V01_acq-anat_run-1_TB1TFL.nii.gz' the associated *.json file will be kept too.\n If files are not specified for some subfolder no filtering will be perfomed.\n That should include the folder name and at list the file name with or without extension (e.g: 'anat/T1')",
+        "description"   => "List of files to keep within the BIDS subject defined by '#{dir_input_name}'. The filtering will take care of keeping the associated file together.\n If 'anat/sub-123456_ses-V01_acq-anat_run-1_TB1TFL.nii.gz' the associated *.json file will be kept too.\n If files are not specified for some subfolder no filtering will be perfomed.\n That should include the folder name and at least the file name with or without extension (e.g: 'anat/T1')",
         "type"          => "String",
         "optional"      => true,
         "list"          => true
@@ -117,7 +117,7 @@ module BoutiquesBidsSubjectSubsetter
         groups.unshift cb_mod_group
       end
 
-      cb_mod_group.members <<= new_input.id
+      cb_mod_group.members << new_input.id
     end
 
     descriptor.groups = groups
@@ -185,7 +185,6 @@ module BoutiquesBidsSubjectSubsetter
 
     true
   end
-
 
   # Overrides the same method in BoutiquesClusterTask, as used
   # during cluster_commands()
@@ -272,8 +271,8 @@ module BoutiquesBidsSubjectSubsetter
   def backup_and_copy_subject(subject_name) #:nodoc:
       bk_name = "#{subject_name}_#{self.id}"
       File.rename(subject_name, bk_name) if !File.exist?(bk_name)
-      FileUtils.cp_r(bk_name, subject_name) # Attention when 2 times setup solved by rsync `rsync -a -H --delete --chmod see dp_code bk_name/ subject_name`
-      system("rsync","-arH --delete","#{bk_name}/", subject_name)
+      rsyncout = bash_this("rsync -a -l --no-g --chmod=u=rwX,g=rX,Dg+s,o=r --delete #{bk_name}/ #{subject_name} 2>&1")
+      self.addlog "Failed to rsync '#{bk_name}' to '#{subject_name}';\nrsync reported: #{rsyncout}" unless rsyncout.blank?
   end
 
   # This method removed the extra files from the copied subject.
@@ -288,6 +287,17 @@ module BoutiquesBidsSubjectSubsetter
       end
     end
     self.addlog("\n#{removed_files}")
+  end
+
+  # This utility method runs a bash +command+ , captures the output
+  # and returns it. The user of this method is expected to have already
+  # properly escaped any special characters in the arguments to the
+  # command.
+  def bash_this(command) #:nodoc:
+    fh = IO.popen(command,"r")
+    output = fh.read
+    fh.close
+    output
   end
 
 end
