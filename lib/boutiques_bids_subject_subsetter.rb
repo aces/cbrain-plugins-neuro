@@ -42,38 +42,26 @@
 # For the following subject:
 #
 # sub-123456
-# └── ses-V01
-#     ├── anat
-#     │   ├── sub-123456_ses-V01_acq-anat_run-1_TB1TFL.json
-#     │   ├── sub-123456_ses-V01_acq-anat_run-1_TB1TFL.nii.gz
-#     │   └── sub-123456_ses-V01_acq-svs_run-1_localizer.json
-#     ├── dwi
-#     │   ├── sub-123456_ses-V01_dir-AP_run-1_sbref.json
-#     │   └── sub-123456_ses-V01_dir-AP_run-1_sbref.nii.gz
-#     ├── fmap
-#     │   ├── sub-123456_ses-V01_dir-AP_run-1_epi.json
-#     │   └── sub-123456_ses-V01_dir-AP_run-1_epi.nii.gz
-#     └── func
-#         ├── sub-123456_ses-V01_task-rest_dir-PA_run-1_bold.json
-#         └── sub-123456_ses-V01_task-rest_dir-PA_run-1_bold.nii.gz
+# - ses-V01
+#     - anat
+#       - sub-123456_ses-V01_acq-anat_run-1_TB1TFL.json
+#       - sub-123456_ses-V01_acq-anat_run-1_TB1TFL.nii.gz
+#       - sub-123456_ses-V01_acq-svs_run-1_localizer.json
+#     - func
+#       - sub-123456_ses-V01_task-rest_dir-PA_run-1_bold.json
+#       - sub-123456_ses-V01_task-rest_dir-PA_run-1_bold.nii.gz
 #
 # the string 'anat/sub-123456_ses-V01_acq-anat_run-1_TB1TFL.nii.gz' is
 # specified, the result will be the following:
 #
 # sub-123456
-# └── ses-V01
-#     ├── anat
-#     │   ├── sub-123456_ses-V01_acq-anat_run-1_TB1TFL.json
-#     │   └── sub-123456_ses-V01_acq-anat_run-1_TB1TFL.nii.gz
-#     ├── dwi
-#     │   ├── sub-123456_ses-V01_dir-AP_run-1_sbref.json
-#     │   └── sub-123456_ses-V01_dir-AP_run-1_sbref.nii.gz
-#     ├── fmap
-#     │   ├── sub-123456_ses-V01_dir-AP_run-1_epi.json
-#     │   └── sub-123456_ses-V01_dir-AP_run-1_epi.nii.gz
-#     └── func
-#         ├── sub-123456_ses-V01_task-rest_dir-PA_run-1_bold.json
-#         └── sub-123456_ses-V01_task-rest_dir-PA_run-1_bold.nii.gz
+#  - ses-V01
+#     - anat
+#       - sub-123456_ses-V01_acq-anat_run-1_TB1TFL.json
+#       - sub-123456_ses-V01_acq-anat_run-1_TB1TFL.nii.gz
+#     - func
+#       - sub-123456_ses-V01_task-rest_dir-PA_run-1_bold.json
+#       - sub-123456_ses-V01_task-rest_dir-PA_run-1_bold.nii.gz
 #
 module BoutiquesBidsSubjectSubsetter
 
@@ -103,7 +91,7 @@ module BoutiquesBidsSubjectSubsetter
         "list"          => true
       )
 
-      descriptor.inputs <<= new_input
+      descriptor.inputs << new_input
 
       # Add new group with that input
       cb_mod_group = groups.detect { |group| group.id == 'cbrain_bids_extensions' }
@@ -269,7 +257,8 @@ module BoutiquesBidsSubjectSubsetter
   # Copy the original subject, allow to not touch the cache when
   # the extra files will be deleted.
   def backup_and_copy_subject(subject_name) #:nodoc:
-      bk_name = "#{subject_name}_#{self.id}"
+      subject_name = subject_name.bash_escape
+      bk_name      = "#{subject_name}_#{self.id}"
       File.rename(subject_name, bk_name) if !File.exist?(bk_name)
       rsyncout = bash_this("rsync -a -l --no-g --chmod=u=rwX,g=rX,Dg+s,o=r --delete #{bk_name}/ #{subject_name} 2>&1")
       self.addlog "Failed to rsync '#{bk_name}' to '#{subject_name}';\nrsync reported: #{rsyncout}" unless rsyncout.blank?
