@@ -30,7 +30,7 @@
 #   "BoutiquesBidsSubjectSubsetter": { "subject_dir": "input_id_for_bids_subject_subsetter" },
 #
 # Note:
-#  - If no files as to be removed from the original subject.
+# - If no files as to be removed from the original subject.
 # The module will avoid to do an extra copy of the subject and
 # will use the original one.
 # - If no files are specified for some folder (e.g: func), no filtering
@@ -41,27 +41,27 @@
 #
 # For the following subject:
 #
-# sub-123456
-# - ses-V01
-#     - anat
-#       - sub-123456_ses-V01_acq-anat_run-1_TB1TFL.json
-#       - sub-123456_ses-V01_acq-anat_run-1_TB1TFL.nii.gz
-#       - sub-123456_ses-V01_acq-svs_run-1_localizer.json
-#     - func
-#       - sub-123456_ses-V01_task-rest_dir-PA_run-1_bold.json
-#       - sub-123456_ses-V01_task-rest_dir-PA_run-1_bold.nii.gz
+#   sub-123456
+#    - ses-V01
+#       - anat
+#         - sub-123456_ses-V01_acq-anat_run-1_TB1TFL.json
+#         - sub-123456_ses-V01_acq-anat_run-1_TB1TFL.nii.gz
+#         - sub-123456_ses-V01_acq-svs_run-1_localizer.json
+#       - func
+#         - sub-123456_ses-V01_task-rest_dir-PA_run-1_bold.json
+#         - sub-123456_ses-V01_task-rest_dir-PA_run-1_bold.nii.gz
 #
 # the string 'anat/sub-123456_ses-V01_acq-anat_run-1_TB1TFL.nii.gz' is
 # specified, the result will be the following:
 #
-# sub-123456
-#  - ses-V01
-#     - anat
-#       - sub-123456_ses-V01_acq-anat_run-1_TB1TFL.json
-#       - sub-123456_ses-V01_acq-anat_run-1_TB1TFL.nii.gz
-#     - func
-#       - sub-123456_ses-V01_task-rest_dir-PA_run-1_bold.json
-#       - sub-123456_ses-V01_task-rest_dir-PA_run-1_bold.nii.gz
+#   sub-123456
+#    - ses-V01
+#       - anat
+#         - sub-123456_ses-V01_acq-anat_run-1_TB1TFL.json
+#         - sub-123456_ses-V01_acq-anat_run-1_TB1TFL.nii.gz
+#       - func
+#         - sub-123456_ses-V01_task-rest_dir-PA_run-1_bold.json
+#         - sub-123456_ses-V01_task-rest_dir-PA_run-1_bold.nii.gz
 #
 module BoutiquesBidsSubjectSubsetter
 
