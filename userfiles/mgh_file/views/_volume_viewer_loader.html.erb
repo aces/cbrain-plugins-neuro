@@ -14,6 +14,13 @@
 // similar function that differ only in how the javascript code
 // loads the volume data.
 
+document.addEventListener('failedToLoad', (event) => {
+  window.alert(event.detail.message);
+  loading_div.hide();
+  loading_div.parent()[0].innerText = event.detail.message;
+});
+
+
 viewer.loadVolumes({
   volumes: [
     {
