@@ -64,7 +64,8 @@
 <div id="brainbrowser-volume-<%= bb_identifier %>"></div>
 
 <div id="global-controls-<%= bb_identifier %>" class="volume-viewer-controls">
-  <div id="loading-<%= bb_identifier %>" style="display: none"><img src="/images/brainbrowser-loader.gif" /></div>
+  <div id="loading-<%= bb_identifier %>" style="display: none">
+  <%= image_tag MincFile.public_path('images/brainbrowser-loader.gif') %>
   <div id="overlay-selection" >
     <% if viewable_by_volume_viewer.present? && viewable_by_volume_viewer.size > 1 %>
       Volume to overlay:
