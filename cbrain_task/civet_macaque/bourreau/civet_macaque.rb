@@ -130,7 +130,7 @@ class CbrainTask::CivetMacaque < ClusterTask
       end
 
       if mp_id.present?
-        return false if !make_available_singlefile(mp_id, input_symlink_base, "mp_2")
+        return false if !make_available_singlefile(mp_id, input_symlink_base, "mp2")
       end
 
       if csf_id.present?
