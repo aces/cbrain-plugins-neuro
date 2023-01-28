@@ -16,12 +16,13 @@
             "value-key": "[BIDS_DIR]"
         },
         {
-            "description": "the name of the output for the outcomes of preprocessing and visual reports",
-            "id": "output_dir_name",
-            "name": "output_dir_name",
-            "optional": false,
-            "type": "String",
-            "value-key": "[OUTPUT_DIR]"
+            "description":   "The name of the output for the outcomes of preprocessing and visual reports",
+            "id":            "output_dir_name",
+            "name":          "output_dir_name",
+            "optional":      false,
+            "type":          "String",
+            "default-value": "{full_noex}-{task_id}",
+            "value-key":     "[OUTPUT_DIR]"
         },
         {
             "command-line-flag": "--fs-license-file",
@@ -350,11 +351,11 @@
         }
     ],
     "output-files" : [{
-        "id" : "output_dir",
-        "name" : "Output Directory",
-        "description" : "This is the directory where the overall outputs are to be stored.",
-        "path-template" : "[OUTPUT_DIR]",
-        "optional" : false
+        "id": "output_dir",
+        "name": "Output Directory",
+        "description": "This is the directory where the overall outputs are to be stored.",
+        "path-template": "[OUTPUT_DIR]",
+        "optional": false
     }],
     "suggested-resources": {
         "cpu-cores":4,
@@ -373,7 +374,7 @@
     "container-image": {
         "type": "singularity",
         "index": "docker://",
-        "image": "nipreps/fmriprep:21.0.0"
+        "image": "nipreps/fmriprep:22.0.2"
 
     },
     "custom": {
@@ -397,7 +398,10 @@
             ],
             "BoutiquesBidsSingleSubjectMaker": "bids_dir",
             "BoutiquesInputCacheCleaner": [ "bids_dir" ],
-            "BoutiquesOutputCacheCleaner": [ "output_dir" ]
+            "BoutiquesOutputCacheCleaner": [ "output_dir" ],
+            "BoutiquesOutputFilenameRenamer": {
+                "output_dir": [ "bids_dir", "output_dir_name" ]
+            }
         }
     }
 }
