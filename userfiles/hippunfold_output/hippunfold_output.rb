@@ -26,7 +26,7 @@ class HippunfoldOutput < FileCollection
   Revision_info=CbrainFileRevision[__FILE__] #:nodoc:
 
   def self.pretty_type #:nodoc:
-    "Hyppunfold Output"
+    "Hippunfold Output"
   end
 
 end
