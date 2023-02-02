@@ -397,7 +397,10 @@
             ],
             "BoutiquesBidsSingleSubjectMaker": "bids_dir",
             "BoutiquesInputCacheCleaner": [ "bids_dir" ],
-            "BoutiquesOutputCacheCleaner": [ "output_dir" ]
+            "BoutiquesOutputCacheCleaner": [ "output_dir" ],
+            "BoutiquesOutputFilenameRenamer": {
+              "output_dir": [ "bids_dir", "output_dir_name" ]
+            }
         }
     }
 }
