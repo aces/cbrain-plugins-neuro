@@ -56,7 +56,7 @@
     volumes_info_for_viewer[file.name] = volume
   end
 
-  viewable_by_volume_viewer = volumes_info_for_viewer.keys
+  viewable_by_volume_viewer = volumes_info_for_viewer.keys.reject{ |name| name == @userfile.name}
 %>
 
 <% json = lambda { |x| JSON[x].html_safe } %>
@@ -66,19 +66,20 @@
 <div id="global-controls-<%= bb_identifier %>" class="volume-viewer-controls">
   <div id="loading-<%= bb_identifier %>" style="display: none">
   <%= image_tag MincFile.public_path('images/brainbrowser-loader.gif') %>
-  <div id="overlay-selection" >
-    <% if viewable_by_volume_viewer.present? && viewable_by_volume_viewer.size > 1 %>
-      Volume to overlay:
-      <select id="overlay_selection">
-        <%= options_for_select viewable_by_volume_viewer %>
-      </select>
-      <br>
-      <span class="warning">This is an experimental feature, it is based on the ability of BrainBrowser volume viewer to overlay 2 volumes</span>
-    <% end %>
-  </div>
   <br>
   <button id="brainbrowser_volume_screenshot-<%= bb_identifier %>">Screenshot</button>
 </div>
+
+<% if viewable_by_volume_viewer.present? %>
+  <div id="overlay-selection" >
+      Volume to overlay:
+      <select id="overlay_selection">
+        <%= options_for_select ([ "" ] + viewable_by_volume_viewer) %>
+      </select>
+      <br>
+      <span class="warning">This is an experimental feature, it is based on the ability of BrainBrowser volume viewer to overlay 2 volumes</span>
+  </div>
+<% end %>
 
 
 <%-
