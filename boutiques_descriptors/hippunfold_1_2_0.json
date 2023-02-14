@@ -313,6 +313,10 @@
         "BoutiquesOutputFileTypeSetter": {
             "output_dir": "HippunfoldOutput"
         },
+        "BoutiquesOutputCacheCleaner": [ "output_dir" ],
+        "BoutiquesPostProcessingCleaner": [
+            "[SUBJECT_DIR]_res"
+        ],
         "BoutiquesBidsSingleSubjectMaker": "subject_dir"
     }
   }
