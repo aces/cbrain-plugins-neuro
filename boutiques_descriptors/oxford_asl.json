@@ -312,7 +312,7 @@
                 "bids_dir": "^sub-[a-zA-Z0-9_]+$"
             },
             "BoutiquesOutputFileTypeSetter": {
-                "output_dir": "OxfordAslOutput"
+                "oxford_output": "OxfordAslOutput"
             },
             "BoutiquesBidsSingleSubjectMaker": "bids_dir"
         }
