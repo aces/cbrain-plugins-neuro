@@ -57,7 +57,7 @@
             "id": "use_plugin",
             "name": "use_plugin",
             "optional": true,
-            "type": "String",
+            "type": "File",
             "value-key": "[USE_PLUGIN]"
         },
         {
