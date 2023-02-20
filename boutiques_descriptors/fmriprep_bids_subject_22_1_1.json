@@ -3,7 +3,7 @@
   "tool-version": "22.1.1",
   "author":       "Poldrack lab",
   "url":          "https://fmriprep.readthedocs.io",
-  "command-line": "fmriprep [BIDS_DIR] [OUTPUT_DIR] participant --skip_bids_validation [TASK_ID] --nthreads 2 --omp-nthreads 2 --mem_mb 12288 [LOW_MEM] [BIDS_FILTER_FILE] [ANAT_ONLY] [BOILERPLATE] [VERBOSE_COUNT] [IGNORE] [LONGITUDINAL] [BOLD2T1W_DOF] [USE_BBR] [MEDIAL_SURFACE_NAN] [USE_AROMA] [AROMA_MELODIC_DIMENSIONALITY] [SKULL_STRIP_TEMPLATE] [SKULL_STRIP_FIXED_SEED] [FMAP_BSPLINE] [FMAP_NO_DEMEAN] [USE_SYN_SDC] [FORCE_SYN] [FS_LICENSE] [HIRES] [CIFTI_OUTPUT] [RUN_RECONALL] [RESOURCE_MONITOR] [REPORTS_ONLY] [RUN_UUID] [WRITE_GRAPH] [STOP_ON_FIRST_CRASH] [NOTRACK] [SLOPPY]",
+  "command-line": "fmriprep [BIDS_DIR] [OUTPUT_DIR] participant --skip_bids_validation [TASK_ID] --nthreads 2 --omp-nthreads 2 --mem_mb 12288 [LOW_MEM] [BIDS_FILTER_FILE] [ANAT_ONLY] [OUTPUT_SPACES] [BOILERPLATE] [VERBOSE_COUNT] [IGNORE] [LONGITUDINAL] [BOLD2T1W_DOF] [USE_BBR] [MEDIAL_SURFACE_NAN] [USE_AROMA] [AROMA_MELODIC_DIMENSIONALITY] [SKULL_STRIP_TEMPLATE] [SKULL_STRIP_FIXED_SEED] [FMAP_BSPLINE] [FMAP_NO_DEMEAN] [USE_SYN_SDC] [FORCE_SYN] [FS_LICENSE] [HIRES] [CIFTI_OUTPUT] [RUN_RECONALL] [RESOURCE_MONITOR] [REPORTS_ONLY] [RUN_UUID] [WRITE_GRAPH] [STOP_ON_FIRST_CRASH] [NOTRACK] [SLOPPY]",
   "description":  "fMRIprep is a functional magneticresonance image pre-processing pipeline that is designed to provide an easily accessible, state-of-the-art interface that is robust to differences in scan acquisition protocols and that requires minimal user input, while providing easily interpretable and comprehensive error and output reporting (https://fmriprep.readthedocs.io). NOTE: This descriptor is designed to integrate specifically with a CBRAIN installation. It takes as input a single subject according to the BIDs specification",
   "schema-version": "0.5",
   "container-image": {
@@ -15,15 +15,15 @@
     {
       "description": "BIDS dataset input file",
       "id":          "bids_dir",
-      "name":        "bids_dir",
+      "name":        "BIDS dataset",
       "optional":    false,
       "type":        "File",
       "value-key":   "[BIDS_DIR]"
     },
     {
-      "description":   "The name of the output for the outcomes of preprocessing and visual reports",
+      "description":   "The name of the output",
       "id":            "output_dir_name",
-      "name":          "output_dir_name",
+      "name":          "Name of output",
       "type":          "String",
       "optional":      false,
       "default-value": "{full_noex}-{task_id}",
@@ -32,25 +32,49 @@
     {
       "description":       "The FreeSurfer license key file",
       "id":                "fs_license_file",
-      "name":              "fs_license_file",
+      "name":              "FreeSurfer license",
       "type":              "File",
       "optional":          false,
       "command-line-flag": "--fs-license-file",
       "value-key":         "[FS_LICENSE]"
     },
     {
-      "description":       "select a specific task to be processed",
+      "description":       "List of output spaces",
+      "id":                "output_spaces",
+      "name":              "Output Spaces",
+      "type":              "String",
+      "optional":          true,
+      "command-line-flag": "--output-spaces",
+      "value-key":         "[OUTPUT_SPACES]",
+      "list":              true,
+      "list-separator":    " ",
+      "value-choices": [
+        "T1w",
+        "anat",
+        "template",
+        "fsnative",
+        "fsaverage",
+        "fsaverage5",
+        "fsaverage6",
+        "MNI152NLin6Asym",
+        "MNI152NLin2009cAsym",
+        "MNI152NLin2009cAsym:res-1",
+        "MNI152NLin2009cAsym:res-2"
+      ]
+    },
+    {
+      "description":       "Select a specific task to be processed",
       "id":                "task_id",
-      "name":              "task_id",
+      "name":              "Task ID",
       "type":              "String",
       "optional":          true,
       "command-line-flag": "-t",
       "value-key":         "[TASK_ID]"
     },
     {
-      "description":       "attempt to reduce memory usage (will increase disk usage in working directory)",
+      "description":       "Attempt to reduce memory usage (will increase disk usage in working directory)",
       "id":                "low_mem",
-      "name":              "low_mem",
+      "name":              "Low memory mode",
       "type":              "Flag",
       "optional":          true,
       "command-line-flag": "--low-mem",
@@ -66,36 +90,40 @@
       "value-key":         "[BIDS_FILTER_FILE]"
     },
     {
-      "description":       "run anatomical workflows only",
+      "description":       "Run anatomical workflows only",
       "id":                "anat_only",
-      "name":              "anat_only",
+      "name":              "Anatomical processing only",
       "type":              "Flag",
       "optional":          true,
       "command-line-flag": "--anat-only",
       "value-key":         "[ANAT_ONLY]"
     },
     {
-      "description":       "generate boilerplate only",
+      "description":       "Generate boilerplate only",
       "id":                "boilerplate",
-      "name":              "boilerplate",
+      "name":              "Generate boilerplate only",
       "type":              "Flag",
       "optional":          true,
       "command-line-flag": "--boilerplate",
       "value-key":         "[BOILERPLATE]"
     },
     {
-      "description":       "increases log verbosity for each occurence, debug level is -vvv",
+      "description":       "Increases log verbosity for each occurence, debug level is -vvv",
       "id":                "verbose_count",
-      "name":              "verbose_count",
+      "name":              "Verbose output",
       "type":              "String",
       "optional":          true,
-      "command-line-flag": "-v",
-      "value-key":         "[VERBOSE_COUNT]"
+      "value-key":         "[VERBOSE_COUNT]",
+      "value-choices": [
+        "-v",
+        "-vv",
+        "-vvv"
+      ]
     },
     {
-      "description":       "ignore selected aspects of the input dataset to disable corresponding parts of the workflow (a space delimited list)",
+      "description":       "Ignore selected aspects of the input dataset to disable corresponding parts of the workflow",
       "id":                "ignore",
-      "name":              "ignore",
+      "name":              "Ignore some input data",
       "type":              "String",
       "optional":          true,
       "command-line-flag": "--ignore",
@@ -108,9 +136,9 @@
       ]
     },
     {
-      "description":       "treat dataset as longitudinal - may increase runtime",
+      "description":       "Treat dataset as longitudinal - may increase runtime",
       "id":                "longitudinal",
-      "name":              "longitudinal",
+      "name":              "Process dataset as longitudinal",
       "type":              "Flag",
       "optional":          true,
       "command-line-flag": "--longitudinal",
@@ -119,7 +147,7 @@
     {
       "description":       "Degrees of freedom when registering BOLD to T1w images. 6 degrees (rotation and translation) are used by default.",
       "id":                "bold2t1w_dof",
-      "name":              "bold2t1w_dof",
+      "name":              "BOLD to T1w registration degrees of freedom",
       "type":              "Number",
       "optional":          true,
       "command-line-flag": "--bold2t1w-dof",
@@ -134,7 +162,7 @@
     {
       "description":       "Always use boundary-based registration (no goodness-of-fit checks)",
       "id":                "use_bbr",
-      "name":              "use_bbr",
+      "name":              "Force boundary-based registration",
       "type":              "Flag",
       "optional":          true,
       "command-line-flag": "--force-bbr",
@@ -143,16 +171,16 @@
     {
       "description":       "Replace medial wall values with NaNs on functional GIFTI files. Only performed for GIFTI files mapped to a freesurfer subject (fsaverage or fsnative).",
       "id":                "medial_surface_nan",
-      "name":              "medial_surface_nan",
+      "name":              "Medial surface NaN",
       "type":              "Flag",
       "optional":          true,
       "command-line-flag": "--medial-surface-nan",
       "value-key":         "[MEDIAL_SURFACE_NAN]"
     },
     {
-      "description":       "add ICA_AROMA to your preprocessing stream",
+      "description":       "Add ICA_AROMA to your preprocessing stream",
       "id":                "use_aroma",
-      "name":              "use_aroma",
+      "name":              "Use ICA_AROMA",
       "type":              "Flag",
       "optional":          true,
       "command-line-flag": "--use-aroma",
@@ -161,7 +189,7 @@
     {
       "description":       "Exact or maximum number of MELODIC components to estimate (positive = exact, negative = maximum)",
       "id":                "aroma_melodic_dimensionality",
-      "name":              "aroma_melodic_dimensionality",
+      "name":              "AROMA MELODIC dimensionality",
       "type":              "Number",
       "optional":          true,
       "command-line-flag": "--aroma-melodic-dimensionality",
@@ -169,9 +197,9 @@
       "default-value":     -200
     },
     {
-      "description":       "select ANTs skull-stripping template (default: OASIS30ANTs))",
+      "description":       "Select ANTs skull-stripping template (default: OASIS30ANTs))",
       "id":                "skull_strip_template",
-      "name":              "skull_strip_template",
+      "name":              "ANTs skull strip template",
       "type":              "String",
       "optional":          true,
       "command-line-flag": "--skull-strip-template",
@@ -182,27 +210,27 @@
       "default-value":     "OASIS30ANTs"
     },
     {
-      "description":       "do not use a random seed for skull-stripping - will ensure run-to-run replicability when used with --omp-nthreads 1",
+      "description":       "Do not use a random seed for skull-stripping - will ensure run-to-run replicability when used with --omp-nthreads 1",
       "id":                "skull_strip_fixed_seed",
-      "name":              "skull_strip_fixed_seed",
+      "name":              "Fixed skull strip seed",
       "type":              "Flag",
       "optional":          true,
       "command-line-flag": "--skull-strip-fixed-seed",
       "value-key":         "[SKULL_STRIP_FIXED_SEED]"
     },
     {
-      "description":       "fit a B-Spline field using least-squares (experimental)",
+      "description":       "Fit a B-Spline field using least-squares (experimental)",
       "id":                "fmap_bspline",
-      "name":              "fmap_bspline",
+      "name":              "Least Squares B-Spline field",
       "type":              "Flag",
       "optional":          true,
       "command-line-flag": "--fmap-bspline",
       "value-key":         "[FMAP_BSPLINE]"
     },
     {
-      "description":       "do not remove median (within mask) from fieldmap",
+      "description":       "Do not remove median (within mask) from fieldmap",
       "id":                "fmap_no_demean",
-      "name":              "fmap_no_demean",
+      "name":              "Fieldmap keeps median",
       "type":              "Flag",
       "optional":          true,
       "command-line-flag": "--fmap-no-demean",
@@ -211,7 +239,7 @@
     {
       "description":       "EXPERIMENTAL: Use fieldmap-free distortion correction",
       "id":                "use_syn_sdc",
-      "name":              "use_syn_sdc",
+      "name":              "Use SyN distortion correction",
       "type":              "Flag",
       "optional":          true,
       "command-line-flag": "--use-syn-sdc",
@@ -220,25 +248,25 @@
     {
       "description":       "EXPERIMENTAL/TEMPORARY: Use SyN correction in addition to fieldmap correction, if available",
       "id":                "force_syn",
-      "name":              "force_syn",
+      "name":              "Force SyN correction",
       "type":              "Flag",
       "optional":          true,
       "command-line-flag": "--force-syn",
       "value-key":         "[FORCE_SYN]"
     },
     {
-      "description":       "disable sub-millimeter (hires) reconstruction",
+      "description":       "Disable sub-millimeter (hires) reconstruction",
       "id":                "hires",
-      "name":              "hires",
+      "name":              "Disable hires reconstruction",
       "type":              "Flag",
       "optional":          true,
       "command-line-flag": "--no-submm-recon",
       "value-key":         "[HIRES]"
     },
     {
-      "description":       "output BOLD files as CIFTI dtseries",
+      "description":       "Output BOLD files as CIFTI dtseries",
       "id":                "cifti_output",
-      "name":              "cifti_output",
+      "name":              "CIFTI output",
       "type":              "String",
       "optional":          true,
       "command-line-flag": "--cifti-output",
@@ -249,27 +277,27 @@
       ]
     },
     {
-      "description":       "disable FreeSurfer surface preprocessing. Note : `--no-freesurfer` is deprecated and will be removed in 1.2. Use `--fs-no-reconall` instead.",
+      "description":       "Disable FreeSurfer surface preprocessing.",
       "id":                "run_reconall",
-      "name":              "run_reconall",
+      "name":              "Disable FreeSurfer ReconAll",
       "type":              "Flag",
       "optional":          true,
       "command-line-flag": "--fs-no-reconall",
       "value-key":         "[RUN_RECONALL]"
     },
     {
-      "description":       "enable Nipype's resource monitoring to keep track of memory and CPU usage",
+      "description":       "Enable Nipype's resource monitoring to keep track of memory and CPU usage",
       "id":                "resource_monitor",
-      "name":              "resource_monitor",
+      "name":              "NiPype resource monitoring",
       "type":              "Flag",
       "optional":          true,
       "command-line-flag": "--resource-monitor",
       "value-key":         "[RESOURCE_MONITOR]"
     },
     {
-      "description":       "only generate reports, don't run workflows. This will only rerun report aggregation, not reportlet generation for specific nodes.",
+      "description":       "Only generate reports, don't run workflows. This will only rerun report aggregation, not reportlet generation for specific nodes.",
       "id":                "reports_only",
-      "name":              "reports_only",
+      "name":              "Reports only",
       "type":              "Flag",
       "optional":          true,
       "command-line-flag": "--reports-only",
@@ -278,7 +306,7 @@
     {
       "description":       "Specify UUID of previous run, to include error logs in report. No effect without --reports-only.",
       "id":                "run_uuid",
-      "name":              "run_uuid",
+      "name":              "Previous run UUID",
       "type":              "String",
       "optional":          true,
       "command-line-flag": "--run-uuid",
@@ -287,7 +315,7 @@
     {
       "description":       "Write workflow graph.",
       "id":                "write_graph",
-      "name":              "write_graph",
+      "name":              "Write workflow graph",
       "type":              "Flag",
       "optional":          true,
       "command-line-flag": "--write-graph",
@@ -296,7 +324,7 @@
     {
       "description":       "Force stopping on first crash, even if a work directory was specified.",
       "id":                "stop_on_first_crash",
-      "name":              "stop_on_first_crash",
+      "name":              "Stop on first crash",
       "type":              "Flag",
       "optional":          true,
       "command-line-flag": "--stop-on-first-crash",
@@ -305,7 +333,7 @@
     {
       "description":       "Opt-out of sending tracking information of this run to the FMRIPREP developers. This information helps to improve FMRIPREP and provides an indicator of real world usage crucial for obtaining funding.",
       "id":                "notrack",
-      "name":              "notrack",
+      "name":              "Do not track",
       "type":              "Flag",
       "optional":          true,
       "command-line-flag": "--notrack",
@@ -314,7 +342,7 @@
     {
       "description":       "Use low-quality tools for speed - TESTING ONLY",
       "id":                "sloppy",
-      "name":              "sloppy",
+      "name":              "Sloppy processing",
       "type":              "Flag",
       "optional":          true,
       "command-line-flag": "--sloppy",
@@ -327,7 +355,8 @@
       "description": "Parameters used to define memory requirements and multithreading",
       "id":          "memory_and_parallelism",
       "members": [
-        "low_mem"
+        "low_mem",
+        "sloppy"
       ]
     },
     {
@@ -335,14 +364,14 @@
       "description": "Diagnostic parameters for debugging fMRIprep",
       "id":          "debugging",
       "members": [
+        "task_id",
         "verbose_count",
         "resource_monitor",
         "reports_only",
         "run_uuid",
         "stop_on_first_crash",
         "notrack",
-        "write_graph",
-        "sloppy"
+        "write_graph"
       ]
     },
     {
