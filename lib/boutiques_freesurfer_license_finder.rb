@@ -71,6 +71,7 @@ module BoutiquesFreesurferLicenseFinder
     # Pre-assign it
     invoke_params[inputid] = lic.id.to_s # normally in the params, IDs are strings
     params[:interface_userfile_ids] ||= []
+    params[:interface_userfile_ids].map!(&:to_s)
     params[:interface_userfile_ids]  |= [ lic.id.to_s ] # as if the user selected it
 
     super # call all the normal code
