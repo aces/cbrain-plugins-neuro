@@ -3,10 +3,10 @@
     "name": "Melodic",
     "author": "Oxford Centre for Functional MRI of the Brain (FMRIB)",
     "description": "Melodic Part of FSL (ID: 6.0.5:9e026117)",
-    "command-line": "Melodic [INPUT_FILE] [OUTPUT_ALL_FLAG] [MASK] [DIMENSION_REDUCTION_NUM] [ICA_APPROACH_FLAG] [MELODIC_REPORT_FLAG] [CIFTI_FLAG] [VARIANCE_NORMALISATION_FLAG] [VERBOSE_FLAG] [NOMASK_FLAG] [UPDATE_MASK_FLAG] [NOBET_FLAG] [BRAIN_NONBRAIN_THRESHOLD] [DIM_ESTIMATION_METHOD] [SEPARATE_VARIANCE_NORMALISATION_FLAG] [MIGP_DATA_REDUCTION] [NUMBER_INTERNAL_EIGENMAPS] [RANDOMISE_MIGP_ORDER] [INTERNAL_FACTOR_MEM_THRESHOLD] [NUMBER_ICS] [NONLINEARITY] [COVAR_WEIGHTS][MIN_ERROR] [MIN_ERROR_RANK] [MAX_ITERATION] [MAX_RESTARTS] [THRESHOLD_MIXTURE] [MIXTURE_MODEL_FLAG] [ICS_FILE] [MIXTURE_FILE] [MATRIX_FILE_REPORT] [REMOVED_ICS] [BG_IMAGE] [TR] [LOG_POWER_FLAG] [DESIGN_MATRIX_TIME] [CONTRAST_MATRIX_TIME] [DESIGN_MATRIX_SUBJECT] [CONTRAST_MATRIX_SUBJECT] [OUT_UNMIXING_FLAG] [OUT_THRESHOLD_MAP_FLAG] [OUT_PCA_FLAG] [OUT_WHITENING_FLAG] [OUT_ICS_FLAG] [OUT_MEAN_FLAG] [DEBUG_MSG_FLAG] [OUTPUT_DIR] [KEEP_MEAN_FLAG]",
+    "command-line": "if [ [MASK] ]; then export MASKFILE=[MASK]; else echo '\nGenerating mask from input file...\n' && bet [INPUT_FILE] mask.nii.gz && export MASKFILE='mask.nii.gz'; fi; echo '\nRunning Melodic...\n'; melodic -i [INPUT_FILE] -o [OUTPUT_DIR] -m $MASKFILE [OUTPUT_ALL_FLAG] [DIMENSION_REDUCTION_NUM] [ICA_APPROACH_FLAG] [MELODIC_REPORT_FLAG] [CIFTI_FLAG] [VARIANCE_NORMALISATION_FLAG] [VERBOSE_FLAG] [NOMASK_FLAG] [UPDATE_MASK_FLAG] [NOBET_FLAG] [BRAIN_NONBRAIN_THRESHOLD] [DIM_ESTIMATION_METHOD] [SEPARATE_VARIANCE_NORMALISATION_FLAG] [MIGP_DATA_REDUCTION] [NUMBER_INTERNAL_EIGENMAPS] [RANDOMISE_MIGP_ORDER] [INTERNAL_FACTOR_MEM_THRESHOLD] [NUMBER_ICS] [NONLINEARITY] [COVAR_WEIGHTS][MIN_ERROR] [MIN_ERROR_RANK] [MAX_ITERATION] [MAX_RESTARTS] [THRESHOLD_MIXTURE] [MIXTURE_MODEL_FLAG] [ICS_FILE] [MIXTURE_FILE] [MATRIX_FILE_REPORT] [REMOVED_ICS] [BG_IMAGE] [TR] [LOG_POWER_FLAG] [DESIGN_MATRIX_TIME] [CONTRAST_MATRIX_TIME] [DESIGN_MATRIX_SUBJECT] [CONTRAST_MATRIX_SUBJECT] [OUT_UNMIXING_FLAG] [OUT_THRESHOLD_MAP_FLAG] [OUT_PCA_FLAG] [OUT_WHITENING_FLAG] [OUT_ICS_FLAG] [OUT_MEAN_FLAG] [DEBUG_MSG_FLAG][KEEP_MEAN_FLAG]",
     "schema-version": "0.5",
     "container-image": {
-        "image": "mcin/docker-fsl:latest",
+        "image": "mcin/fsl:6.0.5",
         "index": "docker://",
         "type": "singularity"
     },
@@ -20,6 +20,23 @@
             "value-key": "[INPUT_FILE]"
         },
         {
+            "description": "Output folder name",
+            "id": "output_dir_name",
+            "name": "Output",
+            "optional": true,
+            "default-value": "melodic_output",
+            "type": "String",
+            "value-key": "[OUTPUT_DIR_NAME]"
+        },
+        {
+            "description": "Brain mask (e.g. img_bet.nii.gz)",
+            "id": "maskfile",
+            "name": "Mask file",
+            "optional": true,
+            "type": "File",
+            "value-key": "[MASK]"
+        },
+        {
             "command-line-flag": "--Oall",
             "description": "Output everything",
             "id": "out_all_flag",
@@ -27,14 +44,6 @@
             "optional": true,
             "type": "Flag",
             "value-key": "[OUTPUT_ALL_FLAG]"
-        },
-        {
-            "description": "Output brain mask (e.g. img_bet.nii.gz)",
-            "id": "maskfile",
-            "name": "Mask file",
-            "optional": false,
-            "type": "String",
-            "value-key": "[MASK]"
         },
         {
             "command-line-flag": "-d",
@@ -475,13 +484,39 @@
     ],
     "output-files": [
         {
-            "description": "output directory name",
+            "description": "output directory",
             "id": "outfile",
-            "name": "Output directory name",
-            "command-line-flag": "-o",
+            "name": "Output directory",
             "value-key": "[OUTPUT_DIR]",
-            "path-template": "[INPUT_FILE]",
+            "path-template": "[OUTPUT_DIR_NAME]",
             "optional": true
         }
-    ]
+    ],
+    "tags": {
+        "domain": [
+            "neuroinformatics",
+            "neuroimaging"
+        ]
+    },
+    "suggested-resources": {
+        "walltime-estimate": 3660
+    },
+    "custom": {
+        "cbrain:author": [
+            "Natacha Beck <nbeck@mcin.ca>",
+            "Safa Sanami <s.sanami70@gmail.com>",
+            "Darius Valevicius <darius.valevicius@mail.mcgill.ca>"
+        ],
+        "cbrain:readonly-input-files": true,
+        "cbrain:integrator_modules": {
+            "BoutiquesFileTypeVerifier": {
+                "infile": [
+                    "NiftiFile"
+                ]
+            },
+            "BoutiquesOutputFileTypeSetter": {
+                "output_dir": "MelodicOutput"
+            }
+        }
+    }
 }
