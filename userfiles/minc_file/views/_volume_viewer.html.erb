@@ -26,7 +26,7 @@
 <%= javascript_include_tag MincFile.public_path("javascripts/brainbrowser.volume-viewer.min.js").to_s %>
 
 <% bb_identifier = @userfile.id %>
-<% bb_identifier = bb_identifier.to_s + @target if @target.present? %>
+<% bb_identifier = bb_identifier.to_s + "_" + @target if @target.present? %>
 
 <%
   list_fake_files         = Userfile.find(@userfile.id).list_fake_files rescue [@userfile]
@@ -49,7 +49,7 @@
 
     volume = file.to_BrainBrowser_volume(url) if url
     next if !volume
-    volume[:template] = { element_id:          "volume-ui-template",
+    volume[:template] = { element_id:          "volume-ui-template-#{file.id}",
                           viewer_insert_class: "volume-viewer-display"
                         }
 
@@ -71,13 +71,13 @@
 </div>
 
 <% if viewable_by_volume_viewer.present? %>
-  <div id="overlay-selection" >
-      Volume to overlay:
-      <select id="overlay_selection">
-        <%= options_for_select ([ "" ] + viewable_by_volume_viewer) %>
-      </select>
-      <br>
-      <span class="warning">This is an experimental feature, it is based on the ability of BrainBrowser volume viewer to overlay 2 volumes</span>
+  <div id="overlay-controls-<%= bb_identifier %>">
+    Volume to overlay:
+    <select id="overlay-selection-<%= bb_identifier %>">
+      <%= options_for_select ([ "" ] + viewable_by_volume_viewer) %>
+    </select>
+    <br>
+    <span class="warning">This is an experimental feature, it is based on the ability of BrainBrowser volume viewer to overlay 2 volumes</span>
   </div>
 <% end %>
 
@@ -88,7 +88,7 @@
 ######################
 -%>
 
-<script id="volume-ui-template" type="x-volume-ui-template">
+<script id="volume-ui-template-<%= @userfile.id %>" type="x-volume-ui-template">
   <div id="brainbrowser-wrapper-<%= bb_identifier %>-{{VOLID}}">
     <div id="volume-viewer-<%= bb_identifier %>-{{VOLID}}">
 
@@ -554,7 +554,7 @@
       });
 
       $(document).ready(function(){
-        $("#overlay_selection").chosen().change(function(e){
+        $("#overlay-selection-<%= bb_identifier %>").chosen().change(function(e){
           var volume_name = e.target.value;
           var volumes_info_for_viewer =  <%= json.( volumes_info_for_viewer ) %>;
           var volume_0 = volumes_info_for_viewer["<%= @userfile.name %>"];
@@ -572,10 +572,10 @@
             },
             complete: function() {
               loading_div.hide();
-              $("#overlay-selection").hide();
+              $("#overlay-selection-<%= bb_identifier %>").hide();
               $("#brainbrowser-wrapper").slideDown({duration: 600});
 
-              var volume_viewer_1 = $("#volume-viewer-" + <%= bb_identifier %> + "-1");
+              var volume_viewer_1 = $("#volume-viewer-<%= bb_identifier %>-1");
 
               if (volume_viewer_1 !== undefined ) {
                 if (volume_viewer_1 && volume_viewer_1[0].children[0] && volume_viewer_1[0].children[0].children[0]) {

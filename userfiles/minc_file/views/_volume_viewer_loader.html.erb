@@ -27,7 +27,7 @@ viewer.loadVolumes({
       header_url:   false,
       raw_data_url: "<%= content_userfile_path(@userfile, :content_loader => :minc_content, :file_name => @userfile.name, :viewer_userfile_class => :MincFile) %>",
       template: {
-        element_id: "volume-ui-template",
+        element_id: "volume-ui-template-<%= @userfile.id %>",
         viewer_insert_class: "volume-viewer-display"
       }
     }
