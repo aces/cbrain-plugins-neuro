@@ -29,6 +29,19 @@
 <% bb_identifier = bb_identifier.to_s + "_" + @target if @target.present? %>
 
 <%
+  # Defined element_id for the volume viewer
+  if    @userfile.is_a?(MincFile)
+    volume_ui_template_id = "volume-ui-template-minc"
+  elsif @userfile.is_a?(NiftiFile)
+    volume_ui_template_id = "volume-ui-template-nifti"
+  elsif @userfile.is_a?(MghFile)
+    volume_ui_template_id = "volume-ui-template-mgh"
+  elsif @userfile.is_a?(FileCollection)
+    volume_ui_template_id = "volume-ui-template-filecollection"
+  end
+%>
+
+<%
   list_fake_files         = Userfile.find(@userfile.id).list_fake_files rescue [@userfile]
   volumes_info_for_viewer = {}
 
@@ -49,7 +62,7 @@
 
     volume = file.to_BrainBrowser_volume(url) if url
     next if !volume
-    volume[:template] = { element_id:          "volume-ui-template-#{file.id}",
+    volume[:template] = { element_id:          volume_ui_template_id,
                           viewer_insert_class: "volume-viewer-display"
                         }
 
@@ -88,7 +101,7 @@
 ######################
 -%>
 
-<script id="volume-ui-template-<%= @userfile.id %>" type="x-volume-ui-template">
+<script id="<%= volume_ui_template_id %>" type="x-volume-ui-template">
   <div id="brainbrowser-wrapper-<%= bb_identifier %>-{{VOLID}}">
     <div id="volume-viewer-<%= bb_identifier %>-{{VOLID}}">
 
