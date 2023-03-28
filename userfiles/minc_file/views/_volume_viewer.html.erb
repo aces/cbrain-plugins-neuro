@@ -25,20 +25,10 @@
 <%= stylesheet_link_tag    MincFile.public_path("stylesheets/volume_viewer.css").to_s, :media => "all" %>
 <%= javascript_include_tag MincFile.public_path("javascripts/brainbrowser.volume-viewer.min.js").to_s %>
 
-<% bb_identifier = @userfile.id %>
-<% bb_identifier = bb_identifier.to_s + "_" + @target if @target.present? %>
-
 <%
-  # Defined element_id for the volume viewer
-  if    @userfile.is_a?(MincFile)
-    volume_ui_template_id = "volume-ui-template-minc"
-  elsif @userfile.is_a?(NiftiFile)
-    volume_ui_template_id = "volume-ui-template-nifti"
-  elsif @userfile.is_a?(MghFile)
-    volume_ui_template_id = "volume-ui-template-mgh"
-  elsif @userfile.is_a?(FileCollection)
-    volume_ui_template_id = "volume-ui-template-filecollection"
-  end
+bb_identifier = @userfile.id
+bb_identifier = bb_identifier.to_s + "_" + @target if @target.present?
+volume_ui_template_id = "volume-ui-template-#{@userfile.type}"
 %>
 
 <%
