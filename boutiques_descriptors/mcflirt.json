@@ -1,0 +1,402 @@
+{
+    "name": "MCFLIRT",
+    "description": "Motion correction tool provided by FSL (FMRIB Software Library) for correcting motion artifacts in functional MRI (fMRI) and other brain imaging data.",
+    "author": "Oxford Centre for Functional MRI of the Brain (FMRIB)",
+    "tool-version": "6.0.5",
+    "command-line": "mcflirt [INFILE] [COST_FUNCTION] [BINS] [DOF] [REF_VOL] [REF_FILE] [SCALING] [SMOOTHING] [ROTATION] [VERBOSE] [STAGES] [FOV] [2D_FLAG] [SINC_FINAL_FLAG] [SPLINE_FINAL_FLAG] [NN_FINAL_FLAG] [INITIAL_TRANSFORM_FILE] [SEARCH_GRADIENT_FLAG] [SEARCH_GRADIENT_FLAG] [MEAN_VOL_FLAG] [STATS_FLAG] [MATRICES_FLAG] [PLOTS_FLAG] [REPORTS_FLAG]",
+    "schema-version": "0.5",
+    "container-image": {
+        "image": "mcin/fsl:6.0.5",
+        "index": "docker://",
+        "type": "singularity"
+    },
+    "inputs": [
+        {
+            "id": "infile",
+            "name": "Input File",
+            "description": "Input image.",
+            "type": "File",
+            "command-line-flag": "-in",
+            "value-key": "[INFILE]",
+            "list": false,
+            "optional": false
+        },
+        {
+            "id": "cost_function",
+            "name": "Cost Function",
+            "description": "Available cost functions to calculate motion parameters.",
+            "type": "String",
+            "command-line-flag": "-cost",
+            "value-key": "[COST_FUNCTION]",
+            "value-choices": [
+                "mutualinfo",
+                "woods",
+                "corratio",
+                "normcorr",
+                "normmi",
+                "leastsquares"
+            ],
+            "default-value": "normcorr",
+            "list": false,
+            "optional": true
+        },
+        {
+            "id": "bins",
+            "name": "Number of bins",
+            "description": "Number of histogram bins.",
+            "type": "Number",
+            "command-line-flag": "-bins",
+            "value-key": "[BINS]",
+            "default-value": 256,
+            "list": false,
+            "optional": true
+        },
+        {
+            "id": "dof",
+            "name": "DoF",
+            "description": "Number of transform degree of freedoms (DoF).",
+            "type": "Number",
+            "command-line-flag": "-dof",
+            "value-key": "[DOF]",
+            "default-value": 6,
+            "list": false,
+            "optional": true
+        },
+        {
+            "id": "ref_vol",
+            "name": "Number of the Reference Volume",
+            "description": "Number of reference volume - registers to (n+1)th volume in series - default is no_vol/2.",
+            "type": "Number",
+            "command-line-flag": "-refvol",
+            "value-key": "[REF_VOL]",
+            "list": false,
+            "optional": true
+        },
+        {
+            "id": "ref_file",
+            "name": "Reference File",
+            "description": "Use a separate 3D image file as the target for registration (overrides refvol option).",
+            "type": "File",
+            "command-line-flag": "-r",
+            "value-key": "[REF_FILE]",
+            "list": false,
+            "optional": true
+        },
+        {
+            "id": "scaling",
+            "name": "Scaling",
+            "description": "Scaling value.",
+            "type": "Number",
+            "command-line-flag": "-scaling",
+            "value-key": "[SCALING]",
+            "default-value": 6,
+            "list": false,
+            "optional": true
+        },
+        {
+            "id": "smoothing",
+            "name": "Smoothing Value",
+            "description": "Control smoothing in cost functions.",
+            "type": "Number",
+            "command-line-flag": "-smooth",
+            "value-key": "[SMOOTHING]",
+            "default-value": 1,
+            "list": false,
+            "optional": true
+        },
+        {
+            "id": "rotation",
+            "description": "Specify scaling factor for rotation optimization tolerances.",
+            "name": "Rotation scaling factor",
+            "type": "Number",
+            "command-line-flag": "-rotation",
+            "value-key": "[ROTATION]",
+            "list": false,
+            "optional": true
+        },
+        {
+            "id": "verbose",
+            "description": "Verbose.",
+            "name": "Verbose",
+            "type": "Number",
+            "command-line-flag": "-verbose",
+            "value-key": "[VERBOSE]",
+            "default-value": 0,
+            "minimum": 0,
+            "list": false,
+            "optional": true
+        },
+        {
+            "id": "stages",
+            "description": "Number of search levels. Specify 4 for final sinc interpolation.",
+            "name": "Stages",
+            "type": "Number",
+            "command-line-flag": "-stages",
+            "value-key": "[STAGES]",
+            "default-value": 3,
+            "list": false,
+            "optional": true
+        },
+        {
+            "id": "fov",
+            "description": "Specify size of field of view when padding 2d volume.",
+            "name": "Field of View for padding",
+            "type": "Number",
+            "command-line-flag": "-fov",
+            "value-key": "[FOV]",
+            "default-value": 20,
+            "list": false,
+            "optional": true
+        },
+        {
+            "id": "2d_flag",
+            "description": "Enables force padding of volume.",
+            "name": "2D Flag",
+            "type": "Flag",
+            "command-line-flag": "-2d",
+            "value-key": "[2D_FLAG]",
+            "optional": true
+        },
+        {
+            "id": "sinc_final_flag",
+            "description": "Applies final transformations using sinc interpolation.",
+            "name": "Sinc Final Flag",
+            "type": "Flag",
+            "command-line-flag": "-sinc_final",
+            "value-key": "[SINC_FINAL_FLAG]",
+            "optional": true
+        },
+        {
+            "id": "spline_final_flag",
+            "description": "Applies final transformations using spline interpolation.",
+            "name": "Spline Final Flag",
+            "type": "Flag",
+            "command-line-flag": "-spline_final",
+            "value-key": "[SPLINE_FINAL_FLAG]",
+            "optional": true
+        },
+        {
+            "id": "nn_final_flag",
+            "description": "Applies final transformations using Nearest Neighbour interpolation.",
+            "name": "NN Final Flag",
+            "type": "Flag",
+            "command-line-flag": "-nn_final",
+            "value-key": "[NN_FINAL_FLAG]",
+            "optional": true
+        },
+        {
+            "id": "initial_transform_file",
+            "description": "Initial transform matrix to apply to all volumes of the data.",
+            "name": "Initial Transformation",
+            "type": "File",
+            "command-line-flag": "-init",
+            "value-key": "[INITIAL_TRANSFORM_FILE]",
+            "list": false,
+            "optional": true
+        },
+        {
+            "id": "search_gradient_flag",
+            "description": "Run search on gradient images.",
+            "name": "Search Gradient Flag",
+            "type": "Flag",
+            "command-line-flag": "-gdt",
+            "value-key": "[SEARCH_GRADIENT_FLAG]",
+            "optional": true
+        },
+        {
+            "id": "mean_vol_flag",
+            "description": "Register timeseries to mean volume (overrides refvol and reffile options).",
+            "name": "Mean Volume Flag",
+            "type": "Flag",
+            "command-line-flag": "-meanvol",
+            "value-key": "[MEAN_VOL_FLAG]",
+            "optional": true
+        },
+        {
+            "id": "stats_flag",
+            "description": "Produce variance and std. dev. images.",
+            "name": "Stats Flag",
+            "type": "Flag",
+            "command-line-flag": "-stats",
+            "value-key": "[STATS_FLAG]",
+            "optional": true
+        },
+        {
+            "id": "matrices_flag",
+            "description": "Save transformation matrices in subdirectory outfilename.mat.",
+            "name": "Matrices Flag",
+            "type": "Flag",
+            "command-line-flag": "-mats",
+            "value-key": "[MATRICES_FLAG]",
+            "optional": true
+        },
+        {
+            "id": "plots_flag",
+            "description": "Save transformation parameters in file outputfilename.par.",
+            "name": "Plots Flag",
+            "type": "Flag",
+            "command-line-flag": "-plots",
+            "value-key": "[PLOTS_FLAG]",
+            "optional": true
+        },
+        {
+            "id": "reports_flag",
+            "description": "Report progress to screen.",
+            "name": "Report Flag",
+            "type": "Flag",
+            "command-line-flag": "-report",
+            "value-key": "[REPORTS_FLAG]",
+            "optional": true
+        }
+    ],
+    "output-files": [
+        {
+            "id": "out_file_outfile",
+            "description": "Motion-corrected timeseries.",
+            "name": "Out file",
+            "path-template-stripped-extensions": [
+                ".nii.gz",
+                ".nii"
+            ],
+            "path-template": "[INFILE]_mcf.nii.gz",
+            "optional": false
+        },
+        {
+            "id": "out_grefvol_file",
+            "description": "Save grefvol output file (-gdt option).",
+            "name": "Gradiant file",
+            "path-template-stripped-extensions": [
+                ".nii.gz",
+                ".nii"
+            ],
+            "path-template": "grefvol_[INFILE]_mcf.nii.gz",
+            "optional": true
+        },
+        {
+            "id": "out_meanreg_file",
+            "description": "Save mean_reg output file (-meanvol option).",
+            "name": "Meanreg file",
+            "path-template-stripped-extensions": [
+                ".nii.gz",
+                ".nii"
+            ],
+            "path-template": "[INFILE]_mcf_mean_reg.nii.gz",
+            "optional": true
+        },
+        {
+            "id": "out_meanvol_file",
+            "description": "Save mean_vol output file (-stats option).",
+            "name": "Meanvol file",
+            "path-template-stripped-extensions": [
+                ".nii.gz",
+                ".nii"
+            ],
+            "path-template": "[INFILE]_mcf_meanvol.nii.gz",
+            "optional": true
+        },
+        {
+            "id": "out_sigma_file",
+            "description": "Save sigma output file (-stats option).",
+            "name": "Sigma file",
+            "path-template-stripped-extensions": [
+                ".nii.gz",
+                ".nii"
+            ],
+            "path-template": "[INFILE]_mcf_sigma.nii.gz",
+            "optional": true
+        },
+        {
+            "id": "out_variance_file",
+            "description": "Save variance output file (-stats option).",
+            "name": "Variance file",
+            "path-template-stripped-extensions": [
+                ".nii.gz",
+                ".nii"
+            ],
+            "path-template": "[INFILE]_mcf_variance.nii.gz",
+            "optional": true
+        },
+        {
+            "id": "out_mats_directory",
+            "name": "Matrices directory",
+            "description": "Save transformation matricies in subdirectory (-mats option).",
+            "path-template-stripped-extensions": [
+                ".nii.gz",
+                ".nii"
+            ],
+            "path-template": "[INFILE]_mcf.mat",
+            "optional": true
+        },
+        {
+            "id": "out_par_file",
+            "description": "Text-file with motion parameters (-plots option).",
+            "name": "Par file",
+            "path-template-stripped-extensions": [
+                ".nii.gz",
+                ".nii"
+            ],
+            "path-template": "[INFILE]_mcf.par",
+            "optional": true
+        }
+    ],
+    "groups": [
+        {
+            "id": "advanced_options",
+            "name": "Advanced options",
+            "members": [
+                "cost_function",
+                "bins",
+                "dof",
+                "ref_vol",
+                "scaling",
+                "smoothing",
+                "rotation",
+                "stages",
+                "fov",
+                "2d_flag",
+                "sinc_final_flag",
+                "spline_final_flag",
+                "nn_final_flag"
+            ]
+        },
+        {
+            "id": "input_options",
+            "name": "Input options",
+            "members":[
+                "ref_file",
+                "initial_transform_file"
+            ]
+        },
+        {
+            "id": "output_options",
+            "name": "Output options",
+            "members":[
+                "search_gradient_flag",
+                "mean_vol_flag",
+                "stats_flag",
+                "matrices_flag",
+                "plots_flag"
+            ]
+        },
+        {
+            "id": "debug_options",
+            "name": "Debug options",
+            "members":[
+                "verbose",
+                "reports_flag"
+            ]
+        }
+    ],
+    "custom": {
+        "BoutiquesOutputFileTypeSetter": {
+            "out_file_outfile":   "NiftiFile",
+            "out_grefvol_file":   "NiftiFile",
+            "out_meanreg_file":   "NiftiFile",
+            "out_meanvol_file":   "NiftiFile",
+            "out_sigma_file":     "NiftiFile",
+            "out_variance_file":  "NiftiFile",
+            "out_mats_directory": "FileCollection",
+            "out_par_file":       "TextFile"
+        }
+    }
+}
