@@ -5,7 +5,7 @@
     "author":         "C.Y. Lepage et al.",
     "description":    "This tool runs the CIVET Processing Pipeline on an existing CIVET output",
     "descriptor-url": "https://github.com/aces/cbrain-plugins-neuro/blob/master/cbrain_task_descriptors/civet_rerun.json",
-    "command-line": "C=[CIVET_OUTPUT]; P=$C/CBRAIN.params.yml; test -e $P || echo \"Not a CBRAIN-generated CivetOutput\"; test -e $P || exit 2; prefix=$(echo $(cat $P | grep prefix: | cut -d: -f2)); dsid=$(echo $(cat $P | grep dsid: | cut -d: -f2)); if ! test -e \"$C/native/${prefix}_${dsid}_t1.mnc\" ; then echo \"Can't find native T1 file\"; exit 2; fi; mkdir -p minc_in civ_out; ln -s -f \"../$C/native/${prefix}_${dsid}_t1.mnc\" minc_in; test -e \"civ_out/${dsid}\" || ln -s -f \"../$C\" \"civ_out/${dsid}\"; CIVET_Processing_Pipeline -sourcedir minc_in -targetdir civ_out -spawn [MODEL] [TEMPLATE] [LSQ] [INTERP] [N3DIST] [PVE-ADVANCED] [PVE-CLASSIC] [SURFREGMODEL] [COMBINESURF] [THICKNESSMETHODS] [THICKNESSKERNELS] [RESAMPLESURF] [SURFATLAS] [RESAMPLE-AREAS] [RESAMPLE-VOLUMES] -prefix $prefix -run $dsid",
+    "command-line": "C=[CIVET_OUTPUT]; P=$C/CBRAIN.params.yml; test -e $P || echo \"Not a CBRAIN-generated CivetOutput\"; test -e $P || exit 2; prefix=$(echo $(cat $P | grep prefix: | cut -d: -f2)); dsid=$(echo $(cat $P | grep dsid: | cut -d: -f2)); if ! test -e \"$C/native/${prefix}_${dsid}_t1.mnc\" ; then echo \"Can't find native T1 file\"; exit 2; fi; mkdir -p minc_in civ_out; ln -s -f \"../$C/native/${prefix}_${dsid}_t1.mnc\" minc_in; test -e \"civ_out/${dsid}\" || ln -s -f \"../$C\" \"civ_out/${dsid}\"; for surfatlas in [SURFATLAS] ; do CIVET_Processing_Pipeline -sourcedir minc_in -targetdir civ_out -spawn [MODEL] [TEMPLATE] [LSQ] [INTERP] [N3DIST] [PVE-ADVANCED] [PVE-CLASSIC] [SURFREGMODEL] [COMBINESURF] [THICKNESSMETHODS] [THICKNESSKERNELS] [RESAMPLESURF] -surface-atlas $surfatlas [RESAMPLE-AREAS] [RESAMPLE-VOLUMES] -prefix $prefix -run $dsid ; done",
     "inputs": [
         {
             "name":              "Existing CIVET output",
@@ -167,13 +167,14 @@
             "description":       "Atlas for surface parcellation",
             "type":              "String",
             "optional":          false,
-            "command-line-flag": "-surface-atlas",
             "value-choices": [
                 "lobes",
                 "AAL",
                 "DKT"
             ],
             "default-value":     "lobes",
+            "list":              true,
+            "list-separator":    " ",
             "requires-inputs":   [ "resample_surface" ],
             "value-key":         "[SURFATLAS]"
         },
