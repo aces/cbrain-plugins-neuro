@@ -1,0 +1,111 @@
+{
+    "tool-version": "1.8.1", 
+    "name": "BraTSPipeline", 
+    "command-line": "/opt/captk/1.8.1/usr/bin/BraTSPipeline [T1C] [T1] [T2] [Fl] -o [OD] [SK] [BT] [PI]; ls -la [OD]; tar -czvf [RESULTS] [OD]", 
+    "author": "Sorina Pop", 
+    "container-image": {
+        "image": "docker.io/cbica/captk:2021.03.29", 
+        "type": "docker"
+    }, 
+    "inputs": [
+        {
+            "command-line-flag": "-t1c", 
+            "description": "Input structural T1-weighted post-contrast image", 
+            "value-key": "[T1C]", 
+            "type": "File", 
+            "list": false, 
+            "optional": false, 
+            "id": "t1ceImage", 
+            "name": "t1ceImage"
+        }, 
+        {
+            "command-line-flag": "-t1", 
+            "description": "Input structural T1-weighted pre-contrast image", 
+            "value-key": "[T1]", 
+            "type": "File", 
+            "list": false, 
+            "optional": false, 
+            "id": "t1Image", 
+            "name": "t1Image"
+        }, 
+        {
+            "command-line-flag": "-t2", 
+            "description": "Input structural T2-weighted contrast image", 
+            "value-key": "[T2]", 
+            "type": "File", 
+            "list": false, 
+            "optional": false, 
+            "id": "t2Image", 
+            "name": "t2Image"
+        }, 
+        {
+            "command-line-flag": "-fl", 
+            "description": "Input structural FLAIR contrast image", 
+            "value-key": "[Fl]", 
+            "type": "File", 
+            "list": false, 
+            "optional": false, 
+            "id": "flImage", 
+            "name": "flImage"
+        }, 
+        {
+            "description": "Application output directory for final output", 
+            "value-key": "[OD]", 
+            "type": "String", 
+            "list": false, 
+            "optional": false, 
+            "id": "appliOutputDir", 
+            "name": "appliOutputDir"
+        }, 
+        {
+            "command-line-flag": "-s", 
+            "description": "Flag whether to skull strip or not. Defaults to 1. This uses DeepMedic: https://cbica.github.io/CaPTk/seg_DL.html", 
+            "default-value": 1, 
+            "value-key": "[SK]", 
+            "type": "Number", 
+            "value-choices": [
+                0, 
+                1
+            ], 
+            "optional": false, 
+            "id": "skullStrip", 
+            "name": "skullStrip"
+        }, 
+        {
+            "command-line-flag": "-b", 
+            "description": "Flag whether to segment brain tumors or not. Defaults to 1. This uses DeepMedic: https://cbica.github.io/CaPTk/seg_DL.html", 
+            "default-value": 1, 
+            "value-key": "[BT]", 
+            "type": "Number", 
+            "value-choices": [
+                0, 
+                1
+            ], 
+            "optional": false, 
+            "id": "brainTumor", 
+            "name": "brainTumor"
+        }, 
+        {
+            "command-line-flag": "-p", 
+            "description": "Patient ID to pre-pend to final output file names. If empty, final output is of the form ${modality}_to_SRI.nii.gz", 
+            "value-key": "[PI]", 
+            "type": "String", 
+            "list": false, 
+            "optional": true, 
+            "id": "patientID", 
+            "name": "patientID"
+        }
+    ], 
+    "schema-version": "0.5", 
+    "output-files": [
+        {
+            "description": "Output archive", 
+            "value-key": "[RESULTS]", 
+            "id": "output_archive", 
+            "optional": false, 
+            "path-template": "[OD].tar.gz", 
+            "name": "Output archive"
+        }
+    ], 
+    "description": "Contact: software@cbica.upenn.edu. Copyright  (c) 2022 University of Pennsylvania. All rights reserved. See https://www.med.upenn.edu/cbica/software-agreement.html"
+}
