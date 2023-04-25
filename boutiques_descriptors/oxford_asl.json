@@ -1,6 +1,6 @@
 {
     "tool-version": "6.0.5",
-    "name": "Oxford_asl_single_subject",
+    "name": "Oxford_ASL-BIDS_Subject",
     "author": "Oxford Centre for Functional MRI of the Brain (FMRIB)",
     "description": "Oxford_asl for BIDS subject",
     "command-line": "bids_ox_asl [BIDS_DIR] [NAME_OUTDIR] [SPATIAL_FLAG] [WP_FLAG] [MC_FLAG] [ARTOFF_FLAG] [FIXBOLUS_FLAG] [IAF] [IBF] [TIS] [CASL_FLAG] [BOLUS] [BAT] [T1] [T1B] [SLICEDT] [SLICEBAND] [RPT] [TR_CALIB] [CMETHOD] [PV_CORR]",
