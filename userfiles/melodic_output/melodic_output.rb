@@ -20,7 +20,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-# A FileCollection to model the output of a oxford_asl
+# A FileCollection to model the output of a MELODIC task
 class MelodicOutput < FileCollection
 
   Revision_info=CbrainFileRevision[__FILE__] #:nodoc:
