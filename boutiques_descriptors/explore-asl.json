@@ -48,7 +48,7 @@
                 "1"
             ],
             "default-value": "1",
-            "type": "Number",
+            "type": "String",
             "value-key": "[ImportModules_DEFACE]",
             "command-line-flag": "--im_deface"
         },
@@ -74,7 +74,7 @@
 
                 ]
             },
-            "type": "Number",
+            "type": "String",
             "value-key": "[ProcessModules_STRUCTURAL]",
             "command-line-flag": "--pm_structural"
         },
@@ -106,7 +106,7 @@
 
                 ]
             },
-            "type": "Number",
+            "type": "String",
             "value-key": "[ProcessModules_ASL]",
             "command-line-flag": "--pm_asl"
         },
