@@ -21,12 +21,12 @@
 #
 
 # A FileCollection to model the output of a PhysIO task
-class PhysIOOutput < FileCollection
+class TapasPhysioOutput < FileCollection
 
   Revision_info=CbrainFileRevision[__FILE__] #:nodoc:
 
   def self.pretty_type #:nodoc:
-    "PhysIO Output"
+    "TAPAS PhysIO Output"
   end
 
 end

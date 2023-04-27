@@ -1041,7 +1041,7 @@
         "cbrain:readonly-input-files": true,
         "cbrain:integrator_modules": {
             "BoutiquesOutputFileTypeSetter": {
-                "output_folder": "PhysIOOutput"
+                "output_folder": "TapasPhysioOutput"
             }
         }
     }
