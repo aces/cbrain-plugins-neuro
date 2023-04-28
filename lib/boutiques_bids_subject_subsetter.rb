@@ -137,31 +137,42 @@ module BoutiquesBidsSubjectSubsetter
   # If cleaning need to be done the subject will be copied,
   # then the extra files will be removed.
   def setup #:nodoc:
-    return false unless super
-
-    descriptor  = self.descriptor_for_setup
-
     basename    = Revision_info.basename
     commit      = Revision_info.short_commit
 
     self.addlog("Cleaning BIDS dataset")
     self.addlog("#{basename} rev. #{commit}")
 
+    descriptor       = self.descriptor_for_setup
     map_ids_for_bbss = descriptor.custom_module_info('BoutiquesBidsSubjectSubsetter')
 
+    # Restart handling; we need to restore the state of the workdir
+    # if we had previously renamed some inputs.
+    map_ids_for_bbss.each do |dir_input_id, _|
+      userfile_id  = invoke_params[dir_input_id]
+      userfile     = Userfile.find(userfile_id)
+      subject_name = userfile.name # 'sub-1234'
+
+      undo_backup_and_copy_subject(subject_name) # will do nothing if we are not restarting
+    end
+
+    # Standard setup code: sync the files etc etc.
+    return false unless super
+
+    # Main copying and removing
     map_ids_for_bbss.each do |dir_input_id, keep_input_id|
       # Extract filenames without extension to keep
       filenames_wo_ext_by_folder = extract_filenames_wo_ext_by_folder(keep_input_id)
 
       # Call the logic to clean the BIDS subject only if some files are specified
-      return true if filenames_wo_ext_by_folder.empty?
+      next if filenames_wo_ext_by_folder.empty?
 
       userfile_id  = invoke_params[dir_input_id]
       userfile     = Userfile.find(userfile_id)
       subject_name = userfile.name # 'sub-1234'
 
       # Reverse the logic to get the files to exclude
-      files_to_exclude_by_folder = files_to_exclude_by_folder(subject_name, filenames_wo_ext_by_folder)
+      files_to_exclude_by_folder = find_files_to_exclude_by_folder(subject_name, filenames_wo_ext_by_folder)
 
       # Backup the original subject and do a copy to work on
       backup_and_copy_subject(subject_name)
@@ -182,7 +193,7 @@ module BoutiquesBidsSubjectSubsetter
                                   .values
 
     super
-      .reject do |k,v|
+      .reject do |k,_|
         map_ids_for_bbss_values.include?(k.to_s)
       end # returns a dup()
   end
@@ -198,41 +209,37 @@ module BoutiquesBidsSubjectSubsetter
   # For example if no files was specified in 'dwi' folder,
   # then this folder will be untouch.
   def extract_filenames_wo_ext_by_folder(keep_input_id) #:nodoc:
-    descriptor = self.descriptor_for_setup
+    filenames  = invoke_params[keep_input_id] || []
 
-    filenames  = invoke_params["#{keep_input_id}"] || []
-
-    filenames_wo_ext_by_folder = Hash.new { |h, k| h[k] = [] }
+    filenames_wo_ext_by_folder = Hash.new([])
     return filenames_wo_ext_by_folder if filenames.empty?
 
-    filenames.each do |filename|
-      dirname, basename = File.split(filename)
+    filenames.each do |filename|  # "a/b/c/x.y.z"
+      dirname, basename = File.split(filename) # "a/b/c", "x.y.z"
       in_folder = File.split(dirname)[-1]
-      if in_folder == "."
+      if in_folder == "." # when dirname was a single component "c" or "./c"
         self.addlog("Ignore file #{basename} no parent folder was found.")
         next
       end
       basename_wo_ext = basename.split('.')[0]
-      if filenames_wo_ext_by_folder[in_folder] && !filenames_wo_ext_by_folder[in_folder].include?(basename_wo_ext)
-        filenames_wo_ext_by_folder[in_folder] << basename_wo_ext
-      end
+      filenames_wo_ext_by_folder[in_folder] |= [ basename_wo_ext ]
     end
 
     return filenames_wo_ext_by_folder
   end
 
-  # Return a hash each key correspond to a folder,
+  # Return a hash, each key correspond to a folder,
   # value are arrays that contain basenames of files
   # to remove if files are present in a folder
   # specified by the key.
-  def files_to_exclude_by_folder(subject_name, filenames_wo_ext_by_folder) #:nodoc:
+  def find_files_to_exclude_by_folder(subject_name, filenames_wo_ext_by_folder) #:nodoc:
     files_in_subject = Dir.glob("#{subject_name}/**/*")
 
     folders_name = filenames_wo_ext_by_folder.keys
 
-    files_to_exclude_by_folder = Hash.new { |h, k| h[k] = [] }
-    # Iterate over the full subject directory
+    files_to_exclude_by_folder = Hash.new([])
 
+    # Iterate over the full subject directory
     files_in_subject.each do |file_fullpath|
       dirname, basename = File.split(file_fullpath)
       # Extract parent_folder name if
@@ -240,14 +247,11 @@ module BoutiquesBidsSubjectSubsetter
       folder_name = Pathname.new(dirname).basename.to_s
       next if !folders_name.include?(folder_name)
 
-      file_fullpath_wo_ext = basename.split('.')[0]
-
-      next if filenames_wo_ext_by_folder[folder_name].include?(file_fullpath_wo_ext)
-      files_to_exclude_by_folder[folder_name] << file_fullpath
+      files_to_exclude_by_folder[folder_name] |= [ file_fullpath ]
     end
 
     files_to_exclude_by_folder.each_pair do |folder, filenames|
-      self.addlog("File to exclude from the original subject in '#{folder}' folder exclude the following files:")
+      self.addlog("Files to exclude from '#{subject_name} inside '#{folder}':")
       self.addlog("\n- #{filenames.join("\n- ")}")
     end
 
@@ -257,24 +261,39 @@ module BoutiquesBidsSubjectSubsetter
   # Copy the original subject, allow to not touch the cache when
   # the extra files will be deleted.
   def backup_and_copy_subject(subject_name) #:nodoc:
-      bk_name      = "#{subject_name}_#{self.id}"
-      File.rename(subject_name, bk_name) if !File.exist?(bk_name)
-      rsyncout = bash_this("rsync -a -l --no-g --chmod=u=rwX,g=rX,Dg+s,o=r --delete #{bk_name.bash_escape}/ #{subject_name.bash_escape} 2>&1")
-      self.addlog "Failed to rsync '#{bk_name}' to '#{subject_name}';\nrsync reported: #{rsyncout}" unless rsyncout.blank?
+    bk_name = "ORIG-#{subject_name}_#{self.id}"
+    File.rename(subject_name, bk_name) if !File.exist?(bk_name)
+    rsyncout = bash_this("rsync -a -l --no-g --chmod=u=rwX,g=rX,Dg+s,o=r --delete #{bk_name.bash_escape}/ #{subject_name.bash_escape} 2>&1")
+    cb_error "Failed to rsync '#{bk_name}' to '#{subject_name}'\nrsync reported: #{rsyncout}" unless rsyncout.blank?
+  end
+
+  # During a restart, ourq setup method must UNDO the copy steps
+  # so that the normal setup can be retried.
+  def undo_backup_and_copy_subject(subject_name) #:nodoc:
+    bk_name = "ORIG-#{subject_name}_#{self.id}" # must match convention in other method
+    if File.symlink?(bk_name) && (File.directory?(subject_name) && ! File.symlink(subject_name))
+      self.addlog("Warning: restart condition detected, undoing local copy of '#{subject_name}'")
+      FileUtils.remove_entry(subject_name, true) # remove the old copy
+      File.rename(bk_name,subject_name)
+    end
   end
 
   # This method removed the extra files from the copied subject.
   def remove_extra_files(subject_name,files_to_exclude_by_folder) #:nodoc:
-    self.addlog("Remove files from #{subject_name}:\n")
     removed_files = ""
     files_to_exclude_by_folder.each_pair do |folder,filenames|
       folder = "#{subject_name}/#{folder}"
       filenames.each do |filename|
-        FileUtils.remove_entry(filename) rescue true
-        removed_files += "- #{filename}\n"
+        next unless File.file?(filename)
+        removed = File.unlink(filename) rescue nil
+        removed_files += "- #{filename}\n" if removed
       end
     end
-    self.addlog("\n#{removed_files}")
+    if removed_files.blank?
+      self.addlog("Warning: no files removed based on filter specifications")
+    else
+      self.addlog("Remove files from #{subject_name}:\n#{removed_files}")
+    end
   end
 
   # This utility method runs a bash +command+ , captures the output
