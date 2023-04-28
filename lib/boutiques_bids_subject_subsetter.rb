@@ -247,8 +247,6 @@ module BoutiquesBidsSubjectSubsetter
       folder_name = Pathname.new(dirname).basename.to_s
       next if !folders_name.include?(folder_name)
 
-      file_fullpath_wo_ext = basename.split('.')[0]
-
       files_to_exclude_by_folder[folder_name] |= [ file_fullpath ]
     end
 
