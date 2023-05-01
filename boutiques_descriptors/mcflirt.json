@@ -388,7 +388,10 @@
         }
     ],
     "custom": {
-        "BoutiquesOutputFileTypeSetter": {
+        "cbrain:readonly-input-files": true,
+        "cbrain:author": "Natacha Beck <nbeck@mcin.ca>",
+        "cbrain:integrator_modules": {
+          "BoutiquesOutputFileTypeSetter": {
             "out_file_outfile":   "NiftiFile",
             "out_grefvol_file":   "NiftiFile",
             "out_meanreg_file":   "NiftiFile",
@@ -397,6 +400,7 @@
             "out_variance_file":  "NiftiFile",
             "out_mats_directory": "FileCollection",
             "out_par_file":       "TextFile"
+          }
         }
-    }
+      }
 }
