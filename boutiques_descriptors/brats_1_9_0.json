@@ -1,13 +1,14 @@
 {
   "name": "BraTSPipeline",
-  "tool-version": "190",
+  "tool-version": "1.9.0",
   "author": "CBICA Team <https://www.med.upenn.edu/cbica/>",
   "description": "This application performs the BraTS challenge preprocessing pipeline. BraTS Toolkit is a holistic approach to brain tumor segmentation. Copyright  (c) 2022 University of Pennsylvania. All rights reserved. See https://www.med.upenn.edu/cbica/software-agreement.html",
   "command-line": "/work/CaPTk/bin/BraTSPipeline [T1C] [T1] [T2] [Fl] -o [OD] [SK] [BT] [PI]; ls -la [OD]; tar -czvf [RESULTS] [OD]",
   "schema-version": "0.5",
   "container-image": {
-    "image": "docker.io/cbica/captk:190rc",
-    "type": "docker"
+    "image": "cbica/captk:190rc",
+    "index": "docker://",
+    "type": "singularity"
   },
   "inputs": [
     {
