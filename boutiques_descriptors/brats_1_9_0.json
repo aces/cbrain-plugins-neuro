@@ -3,7 +3,7 @@
   "tool-version": "1.9.0",
   "author": "CBICA Team <https://www.med.upenn.edu/cbica/>",
   "description": "This application performs the BraTS challenge preprocessing pipeline. BraTS Toolkit is a holistic approach to brain tumor segmentation. Copyright  (c) 2022 University of Pennsylvania. All rights reserved. See https://www.med.upenn.edu/cbica/software-agreement.html",
-  "command-line": "/work/CaPTk/bin/BraTSPipeline [T1C] [T1] [T2] [Fl] -o [OD] [SK] [BT] [PI]; ls -la [OD]; tar -czvf [RESULTS] [OD]",
+  "command-line": "/work/CaPTk/bin/BraTSPipeline [T1C] [T1] [T2] [Fl] [SK] [BT] [PI] [OD]",
   "schema-version": "0.5",
   "container-image": {
     "image": "cbica/captk:190rc",
@@ -52,15 +52,6 @@
       "value-key": "[Fl]"
     },
     {
-      "id": "appliOutputDir",
-      "name": "appliOutputDir",
-      "description": "Application output directory for final output",
-      "type": "String",
-      "optional": false,
-      "list": false,
-      "value-key": "[OD]"
-    },
-    {
       "id": "skullStrip",
       "name": "skullStrip",
       "description": "Flag whether to skull strip or not. Defaults to 1. This uses DeepMedic: https://cbica.github.io/CaPTk/seg_DL.html",
@@ -97,16 +88,24 @@
       "list": false,
       "command-line-flag": "-p",
       "value-key": "[PI]"
+    },
+    {
+      "id": "appliOutputDir",
+      "name": "appliOutputDir",
+      "description": "Application output directory for final output",
+      "type": "String",
+      "optional": false,
+      "list": false,
+      "command-line-flag": "-o",
+      "value-key": "[OD]"
     }
   ],
   "output-files": [
     {
-      "id": "output_archive",
-      "name": "Output archive",
-      "description": "Output archive",
-      "optional": false,
-      "value-key": "[RESULTS]",
-      "path-template": "[OD].tar.gz"
+      "id": "output_directory",
+      "name": "Output directory",
+      "description": "Output directory",
+      "path-template": "[OD]"
     }
   ],
   "custom": {
