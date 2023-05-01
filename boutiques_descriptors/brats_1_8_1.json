@@ -1,0 +1,115 @@
+{
+  "name": "BraTSPipeline",
+  "tool-version": "1.8.1",
+  "author": "CBICA Team <https://www.med.upenn.edu/cbica/>",
+  "description": "This application performs the BraTS challenge preprocessing pipeline. BraTS Toolkit is a holistic approach to brain tumor segmentation. Copyright  (c) 2022 University of Pennsylvania. All rights reserved. See https://www.med.upenn.edu/cbica/software-agreement.html",
+  "command-line": "/opt/captk/1.8.1/usr/bin/BraTSPipeline [T1C] [T1] [T2] [Fl] [SK] [BT] [PI] [OD]",
+  "schema-version": "0.5",
+  "container-image": {
+    "image": "cbica/captk:2021.03.29",
+    "index": "docker://",
+    "type": "singularity"
+  },
+  "inputs": [
+    {
+      "id": "t1ceImage",
+      "name": "t1ceImage",
+      "description": "Input structural T1-weighted post-contrast image",
+      "type": "File",
+      "optional": false,
+      "list": false,
+      "command-line-flag": "-t1c",
+      "value-key": "[T1C]"
+    },
+    {
+      "id": "t1Image",
+      "name": "t1Image",
+      "description": "Input structural T1-weighted pre-contrast image",
+      "type": "File",
+      "optional": false,
+      "list": false,
+      "command-line-flag": "-t1",
+      "value-key": "[T1]"
+    },
+    {
+      "id": "t2Image",
+      "name": "t2Image",
+      "description": "Input structural T2-weighted contrast image",
+      "type": "File",
+      "optional": false,
+      "list": false,
+      "command-line-flag": "-t2",
+      "value-key": "[T2]"
+    },
+    {
+      "id": "flImage",
+      "name": "flImage",
+      "description": "Input structural FLAIR contrast image",
+      "type": "File",
+      "optional": false,
+      "list": false,
+      "command-line-flag": "-fl",
+      "value-key": "[Fl]"
+    },
+    {
+      "id": "skullStrip",
+      "name": "skullStrip",
+      "description": "Flag whether to skull strip or not. Defaults to 1. This uses DeepMedic: https://cbica.github.io/CaPTk/seg_DL.html",
+      "type": "Number",
+      "optional": false,
+      "default-value": 1,
+      "command-line-flag": "-s",
+      "value-key": "[SK]",
+      "value-choices": [
+        0,
+        1
+      ]
+    },
+    {
+      "id": "brainTumor",
+      "name": "brainTumor",
+      "description": "Flag whether to segment brain tumors or not. Defaults to 1. This uses DeepMedic: https://cbica.github.io/CaPTk/seg_DL.html",
+      "type": "Number",
+      "optional": false,
+      "default-value": 1,
+      "command-line-flag": "-b",
+      "value-key": "[BT]",
+      "value-choices": [
+        0,
+        1
+      ]
+    },
+    {
+      "id": "patientID",
+      "name": "patientID",
+      "description": "Patient ID to pre-pend to final output file names. If empty, final output is of the form ${modality}_to_SRI.nii.gz",
+      "type": "String",
+      "optional": true,
+      "list": false,
+      "command-line-flag": "-p",
+      "value-key": "[PI]"
+    },
+    {
+      "id": "appliOutputDir",
+      "name": "appliOutputDir",
+      "description": "Application output directory for final output",
+      "type": "String",
+      "optional": false,
+      "list": false,
+      "command-line-flag": "-o",
+      "value-key": "[OD]"
+    }
+  ],
+  "output-files": [
+    {
+      "id": "output_directory",
+      "name": "Output directory",
+      "description": "Output directory",
+      "path-template": "[OD]"
+    }
+  ],
+  "custom": {
+    "cbrain:readonly-input-files": true,
+    "cbrain:author": "Natacha Beck <nbeck@mcin.ca> based on Sorina Pop's work for CaPTk version. 2021.03.29"
+  }
+}
