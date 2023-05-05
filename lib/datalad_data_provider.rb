@@ -145,6 +145,17 @@ class DataladDataProvider < DataProvider
     (super || []) | [ '.git*', '.datalad' ]
   end
 
+  # Returns true if the userfile's content has not
+  # yet been dowloaded from the datalad source.
+  # Does not work with FileCollections, only SingleFiles.
+  # Note: this method will also trigger the creation
+  # of the datalad cache, if necessary.
+  def userfile_requires_get?(userfile)
+    cb_error "Userfile #{userfile.id} not registered with DataladDataProvider #{self.id}" unless
+      userfile.data_provider_id == self.id
+    datalad_repo.filepath_requires_get?(provider_full_path(userfile))
+  end
+
   private
 
   # Name of the automatically-created userfile that

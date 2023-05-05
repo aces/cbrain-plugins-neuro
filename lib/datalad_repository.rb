@@ -143,6 +143,21 @@ class DataladRepository
     self.get!(subpath) && self.uninit!(subpath)
   end
 
+  # Returns true if +subpath+ is a relative path
+  # to a component of the datalad repo that has
+  # not been fetched by "datalad get" yet. Only
+  # works for files, for subirectories the returned
+  # value is always false. Raise an exception if
+  # +subpath+ doesn't exist.
+  def filepath_requires_get?(subpath)
+    fulldest = (install_path + subpath).to_s
+    return false if File.directory?(fulldest)
+    # Normal files show up as symlinks before being downloaded
+    return true  if File.symlink?(fulldest)
+    cb_error "Subpath '#{subpath}' does not exist in datalad repo" if ! File.exists?(fulldest)
+    return false
+  end
+
   ####################################################################
   # Listing files
   ####################################################################
