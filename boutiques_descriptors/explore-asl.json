@@ -3,9 +3,11 @@
     "description": "A pipeline and toolbox for image processing and statistics of arterial spin labeling perfusion MR images.",
     "tool-version": "1.9.0",
     "schema-version": "0.5",
-    "command-line": "xasl_wrapper.py [INPUT_FOLDER] [INPUT_TYPE] [OUTPUT_FOLDER] [SUBJECT_QUANTITY] [DATASET_DESCRIPTION] [SOURCE_STRUCTURE] [STUDY_PAR] [PARAMETER_BEHAVIOUR] [ImportModules_DCM2NII] [ImportModules_NII2BIDS] [ImportModules_DEFACE] [ImportModules_BIDS2LEGACY] [ProcessModules_STRUCTURAL] [ProcessModules_ASL] [ProcessModules_POPULATION] [X__SESSIONS] [X__SESSION__OPTIONS] [X__DATASET__SUBJECTREGEXP] [X__DATASET__EXCLUSION] [X__DATASET__FORCEINCLUSIONLIST] [X__MODULES__ASL__M0_CONVENTIONALPROCESSING] [X__MODULES__ASL__M0_GMSCALEFACTOR] [X__MODULES__ASL__M0POSITIONINASL4D] [X__MODULES__ASL__DUMMYSCANPOSITIONINASL4D] [X__Q__M0] [X__Q__BACKGROUNDSUPPRESSIONNUMBERPULSES] [X__Q__BACKGROUNDSUPPRESSIONPULSETIME] [X__Q__PRESATURATIONTIME] [X__Q__READOUTDIM] [X__Q__VENDOR] [X__Q__SEQUENCE] [X__Q__LABELINGTYPE] [X__Q__INITIAL_PLD] [X__Q__LABELINGDURATION] [X__Q__SLICEREADOUTTIME] [X__Q__BUSEBASILQUANTIFICATION] [X__Q__LAMBDA] [X__Q__T2ART] [X__Q__BLOODT1] [X__Q__TISSUET1] [X__Q__NCOMPARTMENTS] [X__Q__APPLYQUANTIFICATION] [X__Q__SAVECBF4D] [X__MODULES__ASL__MOTIONCORRECTION] [X__MODULES__ASL__SPIKEREMOVALTHRESHOLD] [X__MODULES__ASL__BREGISTRATIONCONTRAST] [X__MODULES__ASL__BAFFINEREGISTRATION] [X__MODULES__ASL__BDCTREGISTRATION] [X__MODULES__ASL__BREGISTERM02ASL] [X__MODULES__ASL__BUSEMNIASDUMMYSTRUCTURAL] [X__MODULES__ASL__BPVCNATIVESPACE] [X__MODULES__ASL__PVCNATIVESPACEKERNEL] [X__MODULES__ASL__BPVCGAUSSIANMM] [X__MODULES__ASL__BMAKENIFTI4DICOM] [X__MODULES__BRUNLONGREG] [X__MODULES__BRUNDARTEL] [X__MODULES__STRUCTURAL__BSEGMENTSPM12] [X__MODULES__STRUCTURAL__BHAMMERSCAT12] [X__MODULES__STRUCTURAL__BFIXRESOLUTION] [X__SETTINGS__QUALITY] [X__SETTINGS__DELETETEMP] [X__SETTINGS__SKIPIFNOFLAIR] [X__SETTINGS__SKIPIFNOASL] [X__SETTINGS__SKIPIFNOM0] [X__SETTINGS__STOPAFTERERRORS] [X__SETTINGS__BLESIONFILLING] [X__SETTINGS__BAUTOACPC] [X__S__BMASKING] [X__S__ATLASES]",
+    "author": "H. Mutsaerts et al.",
+    "url": "https://exploreasl.github.io/Documentation/1.9.0/",
+    "command-line": "run_xasl.py --mode BIDS [INPUT_FOLDER] [OUTPUT_FOLDER] [ImportModules_DEFACE] [ProcessModules_STRUCTURAL] [ProcessModules_ASL] [X__SESSIONS] [X__SESSION__OPTIONS] [X__DATASET__SUBJECTREGEXP] [X__DATASET__EXCLUSION] [X__DATASET__FORCEINCLUSIONLIST] [X__MODULES__ASL__M0_CONVENTIONALPROCESSING] [X__MODULES__ASL__M0_GMSCALEFACTOR] [X__MODULES__ASL__M0POSITIONINASL4D] [X__MODULES__ASL__DUMMYSCANPOSITIONINASL4D] [X__Q__M0] [X__Q__BACKGROUNDSUPPRESSIONNUMBERPULSES] [X__Q__BACKGROUNDSUPPRESSIONPULSETIME] [X__Q__PRESATURATIONTIME] [X__Q__READOUTDIM] [X__Q__VENDOR] [X__Q__SEQUENCE] [X__Q__LABELINGTYPE] [X__Q__INITIAL_PLD] [X__Q__LABELINGDURATION] [X__Q__SLICEREADOUTTIME] [X__Q__LAMBDA] [X__Q__T2ART] [X__Q__BLOODT1] [X__Q__TISSUET1] [X__Q__NCOMPARTMENTS] [X__Q__APPLYQUANTIFICATION] [X__Q__SAVECBF4D] [X__MODULES__ASL__MOTIONCORRECTION] [X__MODULES__ASL__SPIKEREMOVALTHRESHOLD] [X__MODULES__ASL__BREGISTRATIONCONTRAST] [X__MODULES__ASL__BAFFINEREGISTRATION] [X__MODULES__ASL__BDCTREGISTRATION] [X__MODULES__ASL__BREGISTERM02ASL] [X__MODULES__ASL__BUSEMNIASDUMMYSTRUCTURAL] [X__MODULES__ASL__BPVCNATIVESPACE] [X__MODULES__ASL__PVCNATIVESPACEKERNEL] [X__MODULES__ASL__BPVCGAUSSIANMM] [X__MODULES__ASL__BMAKENIFTI4DICOM] [X__MODULES__BRUNLONGREG] [X__MODULES__BRUNDARTEL] [X__MODULES__STRUCTURAL__BSEGMENTSPM12] [X__MODULES__STRUCTURAL__BHAMMERSCAT12] [X__MODULES__STRUCTURAL__BFIXRESOLUTION] [X__SETTINGS__QUALITY] [X__SETTINGS__DELETETEMP] [X__SETTINGS__SKIPIFNOFLAIR] [X__SETTINGS__SKIPIFNOASL] [X__SETTINGS__SKIPIFNOM0] [X__SETTINGS__STOPAFTERERRORS] [X__SETTINGS__BLESIONFILLING] [X__SETTINGS__BAUTOACPC] [X__S__BMASKING] [X__S__ATLASES]",
     "container-image": {
-        "image": "dvalev/xasl_cbrain:1.1.2",
+        "image": "dvalev/xasl_cbrain:1.2.1",
         "index": "docker://",
         "type": "singularity"
     },
@@ -13,7 +15,7 @@
         {
             "id": "input_folder",
             "name": "Input Folder",
-            "description": "Data folder to be processed. Can be single-subject or multi-subject, in DICOM or BIDS (NIfTI) format.\nNOTE: For the Structural and ASL process modules, a CBCSV can be used to process multiple subjects. For the Population module, all subjects must be included in one file collection.",
+            "description": "BIDS Dataset to be processed.",
             "optional": false,
             "type": "File",
             "value-key": "[INPUT_FOLDER]",
@@ -29,156 +31,41 @@
             "value-key": "[OUTPUT_SUFFIX]"
         },
         {
-            "id": "input_type",
-            "name": "Input Type",
-            "description": "The format of the input dataset.\nNOTE: For DICOM input, folder structure must adhere to a convention set by ExploreASL and an additional configuration file, sourceStructure.json, must be provided. See their [documentation](https://exploreasl.github.io/Documentation/1.9.0/Tutorials-Import/) for details.",
-            "optional": false,
-            "type": "String",
-            "value-choices": [
-                "DICOM",
-                "BIDS"
-            ],
-            "value-disables": {
-                "DICOM": [
-                    "dataset_description"
-                ],
-                "BIDS": [
-                    "import_modules_dcm2nii",
-                    "import_modules_nii2bids"
-                ]
-            },
-            "value-key": "[INPUT_TYPE]",
-            "command-line-flag": "--input_type"
-        },
-        {
-            "id": "subject_quantity",
-            "name": "Subject Quantity",
-            "description": "Whether the input dataset contains one subject or multiple subjects' data.\nNOTE: If using a CBCSV to run multiple subjects in parallel, select 'Single_Subject'.",
-            "optional": false,
-            "type": "String",
-            "value-choices": [
-                "Single_Subject",
-                "Multiple_Subjects"
-            ],
-            "value-disables": {
-                "Single_Subject": [
-                    "process_modules_population"
-                ],
-                "Multiple_Subjects": []
-            },
-            "value-key": "[SUBJECT_QUANTITY]",
-            "command-line-flag": "--subject_quantity"
-        },
-        {
-            "id": "dataset_description",
-            "name": "Dataset Description JSON",
-            "description": "A dataset_description.json file MUST be provided if not present in the input folder.",
-            "optional": true,
-            "type": "File",
-            "value-key": "[DATASET_DESCRIPTION]",
-            "command-line-flag": "--dataset_description"
-        },
-        {
-            "id": "source_structure",
-            "name": "Source Structure JSON",
-            "description": "Config file defining structure of DICOM directory. Only required for DICOM. See ExploreASL documentation for details.\nNOTE: This field is not required if sourceStructure.json is included in the input folder (at root level).",
-            "optional": true,
-            "type": "File",
-            "value-key": "[SOURCE_STRUCTURE]",
-            "command-line-flag": "--source_structure"
-        },
-        {
-            "id": "study_par",
-            "name": "Study Parameter JSON",
-            "description": "Config file containing study description fields. Recommended for DICOM input. See ExploreASL documentation for details.",
-            "optional": true,
-            "type": "File",
-            "value-key": "[STUDY_PAR]",
-            "command-line-flag": "--study_par"
-        },
-        {
-            "id": "parameter_behaviour",
-            "name": "Parameter Behaviour",
-            "description": "If there is already a dataPar.json present in the input directory, do you wish to keep the original, overwrite, merge with priority to the original, or merge with priority to the new parameters?",
-            "optional": true,
-            "type": "String",
-            "value-choices": [
-                "Defer",
-                "Overwrite",
-                "Merge_to_original",
-                "Merge_to_new"
-            ],
-            "default-value": "Merge_to_new",
-            "value-key": "[PARAMETER_BEHAVIOUR]",
-            "command-line-flag": "--parameter_behaviour"
-        },
-        {
-            "id": "import_modules_dcm2nii",
-            "name": "DCM2NII Conversion",
-            "description": "Use the DICOM to NIfTI import module",
-            "optional": true,
-            "default-value": 0,
-            "value-choices": [
-                0,
-                1
-            ],
-            "type": "Number",
-            "value-key": "[ImportModules_DCM2NII]",
-            "command-line-flag": "--im_dcm2nii"
-        },
-        {
-            "id": "import_modules_nii2bids",
-            "name": "NII2BIDS Conversion",
-            "description": "Use the NIfTI to BIDS import module",
-            "optional": true,
-            "default-value": 0,
-            "value-choices": [
-                0,
-                1
-            ],
-            "type": "Number",
-            "value-key": "[ImportModules_NII2BIDS]",
-            "command-line-flag": "--im_nii2bids"
-        },
-        {
             "id": "import_modules_deface",
             "name": "Defacing",
             "description": "Use the defacing import module",
-            "optional": true,
-            "default-value": 0,
             "value-choices": [
-                0,
-                1
+                "0",
+                "1"
             ],
-            "type": "Number",
+            "default-value": "1",
+            "type": "String",
             "value-key": "[ImportModules_DEFACE]",
             "command-line-flag": "--im_deface"
-        },
-        {
-            "id": "import_modules_bids2legacy",
-            "name": "BIDS2LEGACY Conversion",
-            "description": "Use the BIDS to xASL Legacy import module",
-            "optional": true,
-            "default-value": 0,
-            "value-choices": [
-                0,
-                1
-            ],
-            "type": "Number",
-            "value-key": "[ImportModules_BIDS2LEGACY]",
-            "command-line-flag": "--im_bids2legacy"
         },
         {
             "id": "process_modules_structural",
             "name": "Structural Process Module",
             "description": "Use the structural process module",
             "optional": true,
-            "default-value": 0,
             "value-choices": [
-                0,
-                1
+                "0",
+                "1"
             ],
-            "type": "Number",
+            "default-value": "1",
+            "value-disables": {
+                "0": [
+                    "x__modules__bRunLongReg",
+                    "x__modules__bRunDARTEL",
+                    "x__modules__structural__bSegmentSPM12",
+                    "x__modules__structural__bHammersCAT12",
+                    "x__modules__structural__bFixResolution"
+                ],
+                "1": [
+
+                ]
+            },
+            "type": "String",
             "value-key": "[ProcessModules_STRUCTURAL]",
             "command-line-flag": "--pm_structural"
         },
@@ -187,28 +74,32 @@
             "name": "ASL Process Module",
             "description": "Use the ASL process module",
             "optional": true,
-            "default-value": 0,
             "value-choices": [
-                0,
-                1
+                "0",
+                "1"
             ],
-            "type": "Number",
+            "default-value": "1",
+            "value-disables": {
+                "0": [
+                    "x__modules__asl__motionCorrection",
+                    "x__modules__asl__SpikeRemovalThreshold",
+                    "x__modules__asl__bRegistrationContrast",
+                    "x__modules__asl__bAffineRegistration",
+                    "x__modules__asl__bDCTRegistration",
+                    "x__modules__asl__bRegisterM02ASL",
+                    "x__modules__asl__bUseMNIasDummyStructural",
+                    "x__modules__asl__bPVCNativeSpace",
+                    "x__modules__asl__PVCNativeSpaceKernel",
+                    "x__modules__asl__bPVCGaussianMM",
+                    "x__modules__asl__bMakeNIfTI4DICOM"
+                ],
+                "1": [
+
+                ]
+            },
+            "type": "String",
             "value-key": "[ProcessModules_ASL]",
             "command-line-flag": "--pm_asl"
-        },
-        {
-            "id": "process_modules_population",
-            "name": "Population Process Module",
-            "description": "Use the population process module\nNOTE: Input folder must be a collection containing all subject data.",
-            "optional": true,
-            "default-value": 0,
-            "value-choices": [
-                0,
-                1
-            ],
-            "type": "Number",
-            "value-key": "[ProcessModules_POPULATION]",
-            "command-line-flag": "--pm_population"
         },
         {
             "id": "x__SESSIONS",
@@ -216,6 +107,8 @@
             "description": "Use this to define sessions.\nExample ('.json' file): [\"ASL_1\",\"ASL_2\"]\nDEFAULT = {'ASL_1'}",
             "optional": true,
             "type": "String",
+            "list": true,
+            "list-separator": ",",
             "value-key": "[X__SESSIONS]",
             "command-line-flag": "--x__SESSIONS"
         },
@@ -225,14 +118,17 @@
             "description": "This is how the sessions will be called, example: {'baseline' 'drug'}.\nFor FEAST, this should be {'crushed' 'non-crushed'}.",
             "optional": true,
             "type": "String",
+            "list": true,
+            "list-separator": ",",
             "value-key": "[X__SESSION__OPTIONS]",
             "command-line-flag": "--x__session__options"
         },
         {
             "id": "x__dataset__subjectRegexp",
             "name": "Subject Regexp",
-            "description": "String with regular expression for ExploreASL to find subjects by foldername, \nexample: ^\\d{3}$ for three digits",
+            "description": "String with regular expression for ExploreASL to find subjects by foldername, \nDefault: sub-.*$",
             "optional": false,
+            "default-value": "sub-.*$",
             "type": "String",
             "value-key": "[X__DATASET__SUBJECTREGEXP]",
             "command-line-flag": "--x__dataset__subjectRegexp"
@@ -243,6 +139,8 @@
             "description": "Cell with list of subjects to exclude, \nexample: {'005' '018'}\nDEFAULT = empty",
             "optional": true,
             "type": "String",
+            "list": true,
+            "list-separator": ",",
             "value-key": "[X__DATASET__EXCLUSION]",
             "command-line-flag": "--x__dataset__exclusion"
         },
@@ -252,6 +150,8 @@
             "description": "Use this field if you want to use a selection of subjects rather than taking all available subjects from directories\nExample: load(fullfile(x.D.ROOT,'LongitudinalList.mat')).\nDEFAULT = use all subjects",
             "optional": true,
             "type": "String",
+            "list": true,
+            "list-separator": ",",
             "value-key": "[X__DATASET__FORCEINCLUSIONLIST]",
             "command-line-flag": "--x__dataset__ForceInclusionList"
         },
@@ -260,11 +160,8 @@
             "name": "M0 Conventional Processing",
             "description": "Boolean - use the conventional M0 processing (per consensus paper), \noptions: 1 = standard processing, \n0 = new image processing (improved masking & smoothing).\nDEFAULT = 0",
             "optional": true,
-            "value-choices": [
-                0,
-                1
-            ],
-            "type": "Number",
+            "default-value": false,
+            "type": "Flag",
             "value-key": "[X__MODULES__ASL__M0_CONVENTIONALPROCESSING]",
             "command-line-flag": "--x__modules__asl__M0_conventionalProcessing"
         },
@@ -273,11 +170,8 @@
             "name": "M0 GM Scale Factor",
             "description": "Add additional scale factor to multiply the M0 image by \nThis can be useful when you have background suppression but no control/M0 image without background suppression. \nIf you then know the M0 scalefactor for the GM, you can use the control image as M0 and use this parameter to scale back what was suppressed by background suppression. \nNote that there is no option for separate tissue scaling (e.g. WM & GM), because ExploreASL pragmatically smooths the M0 a lot, assuming that head motion and registration between M0 & ASL4D will differ between patients and controls.\nDEFAULT = 1",
             "optional": true,
-            "value-choices": [
-                0,
-                1
-            ],
-            "type": "Number",
+            "default-value": true,
+            "type": "Flag",
             "value-key": "[X__MODULES__ASL__M0_GMSCALEFACTOR]",
             "command-line-flag": "--x__modules__asl__M0_GMScaleFactor"
         },
@@ -286,7 +180,9 @@
             "name": "M0 Position in ASL4D",
             "description": "A vector of integers that indicates the position of M0 in TimeSeries, if it is integrated by the Vendor in the DICOM export. \nWill move this from ASL4D.nii to M0.nii \nNote that the x.modules.asl.M0PositionInASL4D parameter is independent from the x.Q.M0 parameter choice. \nExample for Philips 3D GRASE = '[1 2]' (first control-label pair). \nExample for Siemens 3D GRASE = 1 first image. \nExample for GE 3D spiral = 2 where first image is PWI & last = M0. \nEmpty vector should be given (= [] or = null (in JSON)) if no action is to be taken and nothing is removed.\nDEFAULT = [] (no M0 in timeseries)",
             "optional": true,
-            "type": "String",
+            "type": "Number",
+            "list": true,
+            "list-separator": ",",
             "value-key": "[X__MODULES__ASL__M0POSITIONINASL4D]",
             "command-line-flag": "--x__modules__asl__M0PositionInASL4D"
         },
@@ -295,7 +191,9 @@
             "name": "Dummy Scan Position in ASL4D",
             "description": "A vector of integers that indicates the position of Dummy scans in TimeSeries if they are integrated by the Vendor in the DICOM export. \nThis allows to remove the dummy scans or noise scans that are part of the Timeseries. \nA new ASL4D.nii is saved with dummy scans removed and the original is backed-up. \nWorks in a similar way as M0PositionInASL4D, both can be entered at the same time and both indicate the original position in the Timeseries independend of each other. \nExample for Siemens 2D EPI = [79 80] Skip the control-label pair used for noise measurements. \nExample for certain Siemens 3D GRASE = 2 Skip the first dummy control image. \nEmpty vector should be given (= [] or = null (in JSON)) if no action is to be taken and nothing is removed.\nDEFAULT = [] (no M0 in timeseries)",
             "optional": true,
-            "type": "String",
+            "type": "Number",
+            "list": true,
+            "list-separator": ",",
             "value-key": "[X__MODULES__ASL__DUMMYSCANPOSITIONINASL4D]",
             "command-line-flag": "--x__modules__asl__DummyScanPositionInASL4D"
         },
@@ -424,19 +322,6 @@
             "command-line-flag": "--x__Q__SliceReadoutTime"
         },
         {
-            "id": "x__Q__bUseBasilQuantification",
-            "name": "Use Basil Quantification",
-            "description": "True for using BASIL quantification in addition to ExploreASL's quantification.",
-            "optional": true,
-            "value-choices": [
-                0,
-                1
-            ],
-            "type": "Number",
-            "value-key": "[X__Q__BUSEBASILQUANTIFICATION]",
-            "command-line-flag": "--x__Q__bUseBasilQuantification"
-        },
-        {
             "id": "x__Q__Lambda",
             "name": "Lambda",
             "description": "Brain/blood water coefficient (mL 1H/ mL blood). \nExample: 0.32 (for GSP phantom).\nDEFAULT = 0.9",
@@ -490,7 +375,9 @@
             "name": "Apply Quantification",
             "description": "A vector of 1x5 logical values specifying which types on quantified images should be calculated and saved. \nFields: 1) Apply ScaleSlopes ASL4D (xASL_wrp_Quantify, future at dcm2niiX stage), \n2) Apply ScaleSlopes M0 (xASL_quant_M0, future at dcm2niiX stage), \n3) Convert PWI a.u. to label (xASL_wrp_Quantify, future at xASL_wrp_Reslice?), \n4) Quantify M0 a.u. (xASL_quant_M0, corrects for incomplete T1 relaxation), \n5) Perform division by M0. Examples: ASL4D is an already quantified CBF image, disable all quantification '[0 0 0 0 0]'. \nTo compare label but not CBF (e.g. label in vessels or sinus vs tissue): [1 1 1 1 0]'. \nNote that the output always goes to CBF.nii.\nDEFAULT = '[1 1 1 1 1]' = all enabled",
             "optional": true,
-            "type": "String",
+            "type": "Number",
+            "list": true,
+            "list-separator": ",",
             "value-key": "[X__Q__APPLYQUANTIFICATION]",
             "command-line-flag": "--x__Q__ApplyQuantification"
         },
@@ -499,11 +386,8 @@
             "name": "Save CBF4D",
             "description": "Boolean, true to also save 4D CBF timeseries, if ASL4D had timeseries.\nDEFAULT=false",
             "optional": true,
-            "value-choices": [
-                0,
-                1
-            ],
-            "type": "Number",
+            "default-value": false,
+            "type": "Flag",
             "value-key": "[X__Q__SAVECBF4D]",
             "command-line-flag": "--x__Q__SaveCBF4D"
         },
@@ -512,11 +396,8 @@
             "name": "Motion Correction",
             "description": "Boolean to perform motion correction in case of timeseries. \nOptions: 1 = on, 0 = off.\nDEFAULT = 1",
             "optional": true,
-            "value-choices": [
-                0,
-                1
-            ],
-            "type": "Number",
+            "default-value": true,
+            "type": "Flag",
             "value-key": "[X__MODULES__ASL__MOTIONCORRECTION]",
             "command-line-flag": "--x__modules__asl__motionCorrection"
         },
@@ -577,11 +458,8 @@
             "name": "Register M0 to ASL",
             "description": "Boolean specifying whether M0 is registered to mean_control image (or T1w if no control image exists). \nIt can be useful to disable M0 registration if the ASL registration is done based on the M0, and little motion is expected between the M0 and ASL acquisition. \nIf no separate M0 image is available, this parameter will have no effect. \nThis option is disabled automatically for 3D spiral: \n0 = M0 registration disabled, \n1 = M0 registration enabled (DEFAULT).\nDEFAULT = 0",
             "optional": true,
-            "value-choices": [
-                0,
-                1
-            ],
-            "type": "Number",
+            "default-value": false,
+            "type": "Flag",
             "value-key": "[X__MODULES__ASL__BREGISTERM02ASL]",
             "command-line-flag": "--x__modules__asl__bRegisterM02ASL"
         },
@@ -590,11 +468,8 @@
             "name": "Use MNI as Dummy Structural",
             "description": "When structural (e.g. T1w) data is missing, copy population-average MNI templates as dummy structural templates. \nWith this option, the ASL module copies the structural templates to fool the pipeline, resulting in ASL registration to these templates. \nWhile the rigid-body parameters might still be found somewhat correctly, with this option it is advised to enable affine registration for ASL as well, since ASL and these dummy structural images will differ geometrically. \nWhen disabled, an error will be issued instead when the structural image are missing. \n1 = enabled, \n0 = disabled.\nDEFAULT = 0",
             "optional": true,
-            "value-choices": [
-                0,
-                1
-            ],
-            "type": "Number",
+            "default-value": false,
+            "type": "Flag",
             "value-key": "[X__MODULES__ASL__BUSEMNIASDUMMYSTRUCTURAL]",
             "command-line-flag": "--x__modules__asl__bUseMNIasDummyStructural"
         },
@@ -603,11 +478,8 @@
             "name": "PVC Native Space",
             "description": "Performs partial volume correction (PVC) in ASL native space using the GM and WM maps obtained from previously segmented T1-weighted images. \nSkipped with warning when those maps do not exist and are not resampled to the ASL space. \nPVC can take several minutes for larger scans (e.g. 128x128x30), so it is deactivated by default. \n1 = enabled, \n0 = disabled.\nDEFAULT = 0",
             "optional": true,
-            "value-choices": [
-                0,
-                1
-            ],
-            "type": "Number",
+            "default-value": false,
+            "type": "Flag",
             "value-key": "[X__MODULES__ASL__BPVCNATIVESPACE]",
             "command-line-flag": "--x__modules__asl__bPVCNativeSpace"
         },
@@ -616,7 +488,9 @@
             "name": "PVC Native Space Kernel",
             "description": "Kernel size for the ASL native space PVC. \nThis is ignored when x.modules.asl.bPVCNativeSpace is set to 0. \nEqual weighting of all voxels within the kernel is assumed. \n3D kernel can be used, but any of the dimension can be also set to 1. \nOnly odd number of voxels can be used in each dimension (e.g. [3 7 5] not [2 3 1]).\nDEFAULT = [5 5 1] for bPVCGaussianMM==0, [10 10 4] for bPVCGaussianMM==1",
             "optional": true,
-            "type": "String",
+            "type": "Number",
+            "list": true,
+            "list-separator": ",",
             "value-key": "[X__MODULES__ASL__PVCNATIVESPACEKERNEL]",
             "command-line-flag": "--x__modules__asl__PVCNativeSpaceKernel"
         },
@@ -625,11 +499,8 @@
             "name": "PVC Gaussian MM",
             "description": "If set to 1, PV-correction with a Gaussian weighting is used instead of the equal weights of all voxels in the kernel ('flat' kernel) as per Asllani's original method. \nIgnored when x.modules.asl.bPVCNativeSpace is set to 0. \nUnlike with the flat kernel when the size is defined in voxels, here the FWHM of the Gaussian in mm is defined in each dimension. \nThe advantage is twofold - continuous values can be added and a single value can be entered which is valid for datasets with different voxel-sizes without having a kernel of different effective size.\n1 = enabled, use Gaussian kernel with FWHM in mm given in PVCNativeSpaceKernel, \n0 = disabled, use 'flat' kernel with voxels given in PVCNativeSpaceKernel.\nDEFAULT = 0",
             "optional": true,
-            "value-choices": [
-                0,
-                1
-            ],
-            "type": "Number",
+            "default-value": false,
+            "type": "Flag",
             "value-key": "[X__MODULES__ASL__BPVCGAUSSIANMM]",
             "command-line-flag": "--x__modules__asl__bPVCGaussianMM"
         },
@@ -638,11 +509,8 @@
             "name": "Make NIfTI for DICOM",
             "description": "Boolean to output CBF native space maps resampled and/or registered to the original T1w/ASL, and contrast adapted and in 12 bit range allowing to convert the NIfTI to a DICOM file, e.g. for implementation in PACS or other DICOM archives. \nIf set to true, an additional CBF image will be created with modifications that allow it to be easily implemented back into a DICOM for e.g. PACS: 1. Remove peak & valley signal, remove NaNs, rescale to 12 bit integers, apply original orientation (2 copies saved, with original ASL and T1w orientation).",
             "optional": true,
-            "value-choices": [
-                0,
-                1
-            ],
-            "type": "Number",
+            "default-value": false,
+            "type": "Flag",
             "value-key": "[X__MODULES__ASL__BMAKENIFTI4DICOM]",
             "command-line-flag": "--x__modules__asl__bMakeNIfTI4DICOM"
         },
@@ -651,11 +519,8 @@
             "name": "Run Longitudinal Registration",
             "description": "Run longitudinal registration.\nDEFAULT = 0",
             "optional": true,
-            "value-choices": [
-                0,
-                1
-            ],
-            "type": "Number",
+            "default-value": false,
+            "type": "Flag",
             "value-key": "[X__MODULES__BRUNLONGREG]",
             "command-line-flag": "--x__modules__bRunLongReg"
         },
@@ -664,11 +529,8 @@
             "name": "Run DARTEL",
             "description": "Run between-subject registration/create templates.\nDEFAULT = 0",
             "optional": true,
-            "value-choices": [
-                0,
-                1
-            ],
-            "type": "Number",
+            "default-value": false,
+            "type": "Flag",
             "value-key": "[X__MODULES__BRUNDARTEL]",
             "command-line-flag": "--x__modules__bRunDARTEL"
         },
@@ -677,11 +539,8 @@
             "name": "Segment SPM12",
             "description": "Boolean to specify if SPM12 segmentation is run instead of CAT12. \nOptions: 1 = run SPM12, 0 = run CAT12.\nDEFAULT = 0",
             "optional": true,
-            "value-choices": [
-                0,
-                1
-            ],
-            "type": "Number",
+            "default-value": false,
+            "type": "Flag",
             "value-key": "[X__MODULES__STRUCTURAL__BSEGMENTSPM12]",
             "command-line-flag": "--x__modules__structural__bSegmentSPM12"
         },
@@ -690,11 +549,8 @@
             "name": "Hammers CAT12",
             "description": "Boolean specifying if CAT12 should provide Hammers volumetric ROI results.\nDEFAULT = 0",
             "optional": true,
-            "value-choices": [
-                0,
-                1
-            ],
-            "type": "Number",
+            "default-value": false,
+            "type": "Flag",
             "value-key": "[X__MODULES__STRUCTURAL__BHAMMERSCAT12]",
             "command-line-flag": "--x__modules__structural__bHammersCAT12"
         },
@@ -703,11 +559,8 @@
             "name": "Fix Resolution",
             "description": "Resample to a resolution that CAT12 accepts.\nDEFAULT = 0",
             "optional": true,
-            "value-choices": [
-                0,
-                1
-            ],
-            "type": "Number",
+            "default-value": false,
+            "type": "Flag",
             "value-key": "[X__MODULES__STRUCTURAL__BFIXRESOLUTION]",
             "command-line-flag": "--x__modules__structural__bFixResolution"
         },
@@ -716,11 +569,8 @@
             "name": "Quality",
             "description": "Boolean specifying on which quality the pipeline should be run, \noptions: 1 = normal quality, \n0 = lower quality, fewer iterations and lower resolution of processing for a fast try-out.\nDEFAULT = 1",
             "optional": true,
-            "value-choices": [
-                0,
-                1
-            ],
-            "type": "Number",
+            "default-value": true,
+            "type": "Flag",
             "value-key": "[X__SETTINGS__QUALITY]",
             "command-line-flag": "--x__settings__Quality"
         },
@@ -729,11 +579,8 @@
             "name": "Delete Temp",
             "description": "Boolean for removing the temporary files. \nOptions: 0 = keeping all files, \n1 = delete temporary files created by the pipeline.\nDEFAULT = 1",
             "optional": true,
-            "value-choices": [
-                0,
-                1
-            ],
-            "type": "Number",
+            "default-value": true,
+            "type": "Flag",
             "value-key": "[X__SETTINGS__DELETETEMP]",
             "command-line-flag": "--x__settings__DELETETEMP"
         },
@@ -742,11 +589,8 @@
             "name": "Skip if no Flair",
             "description": "Boolean to skip processing of subjects that do not have a FLAIR image. \nThese parameters can be useful when some data is still complete, but one would like to start image processing already. \nOptions: 1 = skip processing of a subject that does not have a FLAIR image \n0 = do not skip anything.\nDEFAULT = 0",
             "optional": true,
-            "value-choices": [
-                0,
-                1
-            ],
-            "type": "Number",
+            "default-value": false,
+            "type": "Flag",
             "value-key": "[X__SETTINGS__SKIPIFNOFLAIR]",
             "command-line-flag": "--x__settings__SkipIfNoFlair"
         },
@@ -755,11 +599,8 @@
             "name": "Skip if no ASL",
             "description": "Boolean to skip processing of subjects that do not have a ASL image. \nOptions: 1 = skip processing of a subject that does not have a ASL image, \n0 = do not skip anything.\nDefault = 0",
             "optional": true,
-            "value-choices": [
-                0,
-                1
-            ],
-            "type": "Number",
+            "default-value": false,
+            "type": "Flag",
             "value-key": "[X__SETTINGS__SKIPIFNOASL]",
             "command-line-flag": "--x__settings__SkipIfNoASL"
         },
@@ -768,11 +609,8 @@
             "name": "Skip if no M0",
             "description": "Boolean to skip processing of subjects that do not have a M0 image. \nOptions: 1 = skip processing of a subject that does not have a M0 image, \n0 = do not skip anything.\nDEFAULT = 0",
             "optional": true,
-            "value-choices": [
-                0,
-                1
-            ],
-            "type": "Number",
+            "default-value": false,
+            "type": "Flag",
             "value-key": "[X__SETTINGS__SKIPIFNOM0]",
             "command-line-flag": "--x__settings__SkipIfNoM0"
         },
@@ -790,11 +628,8 @@
             "name": "Lesion Filling",
             "description": "Boolean for lesion filling in structural module (submodule 5).\nDEFAULT = true",
             "optional": true,
-            "value-choices": [
-                0,
-                1
-            ],
-            "type": "Number",
+            "default-value": true,
+            "type": "Flag",
             "value-key": "[X__SETTINGS__BLESIONFILLING]",
             "command-line-flag": "--x__settings__bLesionFilling"
         },
@@ -803,11 +638,8 @@
             "name": "Auto ACPC",
             "description": "Boolean whether center of mass alignment should be performed before SPM registration.\nDEFAULT = true",
             "optional": true,
-            "value-choices": [
-                0,
-                1
-            ],
-            "type": "Number",
+            "default-value": true,
+            "type": "Flag",
             "value-key": "[X__SETTINGS__BAUTOACPC]",
             "command-line-flag": "--x__settings__bAutoACPC"
         },
@@ -816,16 +648,37 @@
             "name": "Masking",
             "description": "Vector specifying if we should mask a ROI with a subject-specific mask (1 = yes, 0 = no): \n[1 0 0 0] = susceptibility mask (either population-or subject-wise), \n[0 1 0 0] = vascular mask (only subject-wise), \n[0 0 1 0] = subject-specific tissue-masking (e.g. pGM>0.5), \n[0 0 0 1] = WholeBrain masking (used as memory compression) \n[0 0 0 0] = no masking at all, \n[1 1 1 1] = apply all masks, \nCan also be used as boolean, where 1 = [1 1 1 1], 0 = [0 0 0 0]. \nCan be useful for e.g. loading lesion masks outside the GM.\nDEFAULT = 1",
             "optional": true,
-            "type": "String",
+            "type": "Number",
+            "list": true,
+            "list-separator": ",",
             "value-key": "[X__S__BMASKING]",
             "command-line-flag": "--x__S__bMasking"
         },
         {
             "id": "x__S__Atlases",
             "name": "Atlases",
-            "description": "Vector specifying the atlases which should be used within the population module. \nDefault definition within the Population Module: x.S.Atlases = {'TotalGM','DeepWM'}. \nAvailable atlases (please check the atlas NIfTI and accompanying files for more information): \nFree atlases: TotalGM: Mask of the entire GM './External/SPMmodified/MapsAdded/TotalGM.nii', \nTotalWM: Mask of the entire WM './External/SPMmodified/MapsAdded/TotalWM.nii', \nDeepWM: Mask of the deep WM './External/SPMmodified/MapsAdded/DeepWM.nii', \nWholeBrain: Mask of the entire brain './External/SPMmodified/MapsAdded/WholeBrain.nii', \nMNI_Structural: MNI cortical atlas './External/Atlases/MapsAdded/MNI_Structural.nii', \nTatu_ACA_MCA_PCA: Original vascular territories by Tatu et al. './External/SPMmodified/MapsAdded/VascularTerritories/CortVascTerritoriesTatu.nii.nii', \nTatu_ICA_PCA: Tatu - only ICA and PCA './External/SPMmodified/MapsAdded/VascularTerritories/TatuICA_PCA.nii', \nTatu_ICA_L_ICA_R_PCA: './External/SPMmodified/MapsAdded/VascularTerritories/LabelingTerritories.nii', \nTatu_ACA_MCA_PCA_Prox_Med_Dist: Tatu separated to distal/medial/proximal of ACA/MCA/PCA './External/SPMmodified/MapsAdded/VascularTerritories/ATTbasedFlowTerritories.nii.nii', \nMindboggle_OASIS_DKT31_CMA: Mindboggle-101 cortical atlas './External/Atlases/Mindboggle_OASIS_DKT31_CMA.nii.gz'. Free for non-commercial use only: HOcort_CONN: Harvard-Oxford cortical atlas './External/Atlases/HOcort_CONN.nii.gz', HOsub_CONN: Harvard-Oxford subcortical atlas './External/Atlases/HOsub_CONN.nii.gz', Hammers: Alexander Hammers's brain atlas './External/Atlases/Hammers.nii.gz', \nHammersCAT12: Hammers atlas adapted to DARTEL template of IXI550 space './External/Atlases/HammersCAT12.nii', \nThalamus: Harvad-Oxford thalamus atlas './External/Atlases/Thalamus.nii.gz'.\nDEFAULT={'TotalGM','DeepWM'}",
+            "description": "Vector specifying the atlases which should be used within the population module. \nDefault definition within the Population Module: x.S.Atlases = {'TotalGM','DeepWM'}. \nAvailable atlases (please check the atlas NIfTI and accompanying files for more information): \nFree atlases: TotalGM: Mask of the entire GM, \nTotalWM: Mask of the entire WM, \nDeepWM: Mask of the deep WM, \nWholeBrain: Mask of the entire brain, \nMNI_Structural: MNI cortical atlas, \nTatu_ACA_MCA_PCA: Original vascular territories by Tatu et al., \nTatu_ICA_PCA: Tatu - only ICA and PCA, \nTatu_ICA_L_ICA_R_PCA:, \nTatu_ACA_MCA_PCA_Prox_Med_Dist: Tatu separated to distal/medial/proximal of ACA/MCA/PCA, \nMindboggle_OASIS_DKT31_CMA: Mindboggle-101 cortical atlas. Free for non-commercial use only: HOcort_CONN: Harvard-Oxford cortical atlas, HOsub_CONN: Harvard-Oxford subcortical atlas, Hammers: Alexander Hammers's brain atlas, \nHammersCAT12: Hammers atlas adapted to DARTEL template of IXI550 space, \nThalamus: Harvad-Oxford thalamus atlas.\nDEFAULT={'TotalGM','DeepWM'}",
             "optional": true,
             "type": "String",
+            "list": true,
+            "list-separator": ",",
+            "value-choices": [
+                "TotalGM",
+                "TotalWM",
+                "DeepWM",
+                "WholeBrain",
+                "MNI_Structural",
+                "Tatu_ACA_MCA_PCA",
+                "Tatu_ICA_PCA",
+                "Tatu_ICA_L_ICA_R_PCA",
+                "Tatu_ACA_MCA_PCA_Prox_Med_Dist",
+                "Mindboggle_OASIS_DKT31_CMA",
+                "H0cort_CONN",
+                "H0sub_CONN",
+                "Hammers",
+                "HammersCAT12",
+                "Thalamus"
+            ],
             "value-key": "[X__S__ATLASES]",
             "command-line-flag": "--x__S__Atlases"
         }
@@ -846,10 +699,7 @@
             "name": "Import Modules",
             "description": "Module includes for importing. Set to '1' to run the module on this dataset.",
             "members": [
-                "import_modules_dcm2nii",
-                "import_modules_nii2bids",
-                "import_modules_deface",
-                "import_modules_bids2legacy"
+                "import_modules_deface"
             ]
         },
         {
@@ -858,9 +708,7 @@
             "description": "Module includes for processing. Set to '1' to run the module on this dataset.",
             "members": [
                 "process_modules_structural",
-                "process_modules_asl",
-                "process_modules_population"
-            ]
+                "process_modules_asl"            ]
         },
         {
             "id": "study_parameters",
@@ -914,7 +762,6 @@
             "name": "Quantification Parameters",
             "description": "Please use these fields to modify the quantification model parameters for the entire study. Note that normally, the default values are used for each field-strength and these values do not have to be provided.",
             "members": [
-                "x__Q__bUseBasilQuantification",
                 "x__Q__Lambda",
                 "x__Q__T2art",
                 "x__Q__BloodT1",
@@ -997,6 +844,18 @@
     ],
     "custom": {
         "cbrain:author": "Darius Valevicius <darius.valevicius@mail.mcgill.ca>",
-        "cbrain:readonly-input-files": true
+        "cbrain:readonly-input-files": true,
+        "cbrain:integrator_modules": {
+            "BoutiquesFileTypeVerifier": {
+                "input_folder": [ "BidsSubject" ]
+            },
+            "BoutiquesFileNameMatcher": {
+                "input_folder": "^sub-[a-zA-Z0-9_]+$"
+            },
+            "BoutiquesOutputFileTypeSetter": {
+                "output_folder": "ExploreASLOutput"
+            },
+            "BoutiquesBidsSingleSubjectMaker": "input_folder"
+        }
     }
 }
