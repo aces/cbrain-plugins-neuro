@@ -3,7 +3,7 @@
     "description": "Motion correction tool provided by FSL (FMRIB Software Library) for correcting motion artifacts in functional MRI (fMRI) and other brain imaging data.",
     "author": "Oxford Centre for Functional MRI of the Brain (FMRIB)",
     "tool-version": "6.0.5",
-    "command-line": "mcflirt [INFILE] [COST_FUNCTION] [BINS] [DOF] [REF_VOL] [REF_FILE] [SCALING] [SMOOTHING] [ROTATION] [VERBOSE] [STAGES] [FOV] [2D_FLAG] [SINC_FINAL_FLAG] [SPLINE_FINAL_FLAG] [NN_FINAL_FLAG] [INITIAL_TRANSFORM_FILE] [SEARCH_GRADIENT_FLAG] [SEARCH_GRADIENT_FLAG] [MEAN_VOL_FLAG] [STATS_FLAG] [MATRICES_FLAG] [PLOTS_FLAG] [REPORTS_FLAG]",
+    "command-line": "mcflirt [INFILE] [COST_FUNCTION] [BINS] [DOF] [REF_VOL] [REF_FILE] [SCALING] [SMOOTHING] [ROTATION] [VERBOSE] [STAGES] [FOV] [2D_FLAG] [SINC_FINAL_FLAG] [SPLINE_FINAL_FLAG] [NN_FINAL_FLAG] [INITIAL_TRANSFORM_FILE] [SEARCH_GRADIENT_FLAG] [MEAN_VOL_FLAG] [STATS_FLAG] [MATRICES_FLAG] [PLOTS_FLAG] [REPORTS_FLAG]",
     "schema-version": "0.5",
     "container-image": {
         "image": "mcin/fsl:6.0.5",
