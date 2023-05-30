@@ -19,14 +19,6 @@
             "name": "Input file"
         },
         {
-            "description": "Output name",
-            "value-key": "[MASK]",
-            "type": "String",
-            "optional": false,
-            "id": "maskfile",
-            "name": "Mask file"
-        },
-        {
             "command-line-flag": "-f",
             "description": "Fractional intensity threshold (0->1); smaller values give larger brain outline estimates",
             "value-key": "[FRACTIONAL_INTENSITY]",
@@ -255,11 +247,13 @@
     ],
     "output-files": [
         {
-            "path-template": "[MASK].nii.gz",
-            "description": "Main default output of BET",
-            "optional": true,
             "id": "outfile",
-            "name": "Output file"
+            "name": "Output file",
+            "description": "Main default output of BET",
+            "value-key": "[MASK]",
+            "path-template": "[INPUT_FILE]_bet.nii.gz",
+            "list": false,
+            "path-template-stripped-extensions": [".nii.gz", ".nii"]
         },
         {
             "path-template": "[MASK]_mask.nii.gz",
