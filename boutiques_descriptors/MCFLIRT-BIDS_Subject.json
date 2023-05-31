@@ -261,7 +261,9 @@
     "tags": {
         "domain": [
             "neuroinformatics",
-            "neuroimaging"
+            "neuroimaging",
+            "FSL",
+            "functional"
         ]
     },
     "groups": [
