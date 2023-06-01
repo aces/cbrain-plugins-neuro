@@ -534,14 +534,12 @@ job's output doesn't crush another job's output!</strong>.
     }
   };
 
-  var options_by_model_keys = Object.keys(options_by_model);
-
   var ori_headheight       = '<%= @task.params[:headheight] %>';
   var ori_thickness_kernel = '<%= @task.params[:thickness_kernel] %>';
   var ori_template         = '<%= @task.params[:template] %>';
   var ori_atlas            = '<%= @task.params[:atlas] %>';
 
-  var is_original_value  = ori_headheight === '' && ori_thickness_kernel === '' && ori_template === '' && ori_atlas === '';
+  var are_original_values  = ori_headheight === '' && ori_thickness_kernel === '' && ori_template === '' && ori_atlas === '';
 
   $(document).ready(function() {
     var disable_options = (active_values        = [],
@@ -628,7 +626,7 @@ job's output doesn't crush another job's output!</strong>.
       var surfreg_model_name   = "cbrain_task[params][surfreg_model]";
       var surfreg_model_select = $('select[name="' + surfreg_model_name + '"]')
 
-      if (is_original_value) {
+      if (are_original_values) {
         update_according_to_surfreg(surfreg_model_select)
       }
       update_according_to_surfreg(surfreg_model_select)
@@ -671,7 +669,7 @@ job's output doesn't crush another job's output!</strong>.
     var model_name   = "cbrain_task[params][model]";
     var model_select = $('select[name="' + model_name + '"]')
 
-    if (is_original_value) {
+    if (are_original_values) {
       update_according_to_model(model_select);
     }
     model_select.on('change', update_according_to_model);
@@ -680,7 +678,7 @@ job's output doesn't crush another job's output!</strong>.
     var surfreg_model_name   = "cbrain_task[params][surfreg_model]";
     var surfreg_model_select = $('select[name="' + surfreg_model_name + '"]')
 
-    if (is_original_value) {
+    if (are_original_values) {
       update_according_to_surfreg(surfreg_model_select)
     }
     surfreg_model_select.on('change', update_according_to_surfreg);
