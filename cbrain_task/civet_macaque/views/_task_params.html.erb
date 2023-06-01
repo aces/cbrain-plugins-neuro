@@ -534,10 +534,10 @@ job's output doesn't crush another job's output!</strong>.
     }
   };
 
-  var ori_headheight       = '<%= @task.params[:headheight] %>';
-  var ori_thickness_kernel = '<%= @task.params[:thickness_kernel] %>';
-  var ori_template         = '<%= @task.params[:template] %>';
-  var ori_atlas            = '<%= @task.params[:atlas] %>';
+  var ori_headheight       = '<%= @task.params[:headheight].html_safe       %>';
+  var ori_thickness_kernel = '<%= @task.params[:thickness_kernel].html_safe %>';
+  var ori_template         = '<%= @task.params[:template].html_safe         %>';
+  var ori_atlas            = '<%= @task.params[:atlas].html_safe            %>';
 
   var are_original_values  = ori_headheight === '' && ori_thickness_kernel === '' && ori_template === '' && ori_atlas === '';
 
