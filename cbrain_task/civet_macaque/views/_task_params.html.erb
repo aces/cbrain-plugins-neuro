@@ -511,28 +511,37 @@ job's output doesn't crush another job's output!</strong>.
 <script type="text/javascript">
 
   var options_by_model =
-    {
-      icbm152MCsym : {
-        headheight       : 175,
-        template         : [ '0.50', '1.0' ],
-        atlas            : [ 'lobes', 'Gyri', 'DKT', 'AAL' ],
-        thickness_kernel : 20
-      },
-      NMTmacaque   : {
-        headheight       : 50,
-        template         : [ '0.25', '0.50' ],
-        atlas            : [ 'lobes', 'D99', 'CHARM1', 'CHARM2', 'CHARM3', 'CHARM4', 'CHARM5', 'CHARM6' ],
-        thickness_kernel : 12,
-        surfreg_model    : [ 'NMTmacaque' ]
-      },
-      NCBRchimp   : {
-        headheight       : 110,
-        template         : [ '0.40', '0.80' ],
-        atlas            : [ 'lobes', "JUNA" ],
-        thickness_kernel : 16,
-        surfreg_model    : [ 'NCBRchimp' ]
-      }
-    };
+  {
+    icbm152MCsym : {
+      headheight       : 175,
+      template         : [ '0.50', '1.0' ],
+      atlas            : [ 'lobes', 'Gyri', 'DKT', 'AAL' ],
+      thickness_kernel : 20
+    },
+    NMTmacaque   : {
+      headheight       : 50,
+      template         : [ '0.25', '0.50' ],
+      atlas            : [ 'lobes', 'D99', 'CHARM1', 'CHARM2', 'CHARM3', 'CHARM4', 'CHARM5', 'CHARM6' ],
+      thickness_kernel : 12,
+      surfreg_model    : [ 'NMTmacaque' ]
+    },
+    NCBRchimp   : {
+      headheight       : 110,
+      template         : [ '0.40', '0.80' ],
+      atlas            : [ 'lobes', "JUNA" ],
+      thickness_kernel : 16,
+      surfreg_model    : [ 'NCBRchimp' ]
+    }
+  };
+
+  var options_by_model_keys = Object.keys(options_by_model);
+
+  var ori_headheight       = '<%= @task.params[:headheight] %>';
+  var ori_thickness_kernel = '<%= @task.params[:thickness_kernel] %>';
+  var ori_template         = '<%= @task.params[:template] %>';
+  var ori_atlas            = '<%= @task.params[:atlas] %>';
+
+  var is_original_value  = ori_headheight === '' && ori_thickness_kernel === '' && ori_template === '' && ori_atlas === '';
 
   $(document).ready(function() {
     var disable_options = (active_values        = [],
@@ -619,6 +628,9 @@ job's output doesn't crush another job's output!</strong>.
       var surfreg_model_name   = "cbrain_task[params][surfreg_model]";
       var surfreg_model_select = $('select[name="' + surfreg_model_name + '"]')
 
+      if (is_original_value) {
+        update_according_to_surfreg(surfreg_model_select)
+      }
       update_according_to_surfreg(surfreg_model_select)
       surfreg_model_select.on('change', update_according_to_surfreg);
     }
@@ -659,14 +671,18 @@ job's output doesn't crush another job's output!</strong>.
     var model_name   = "cbrain_task[params][model]";
     var model_select = $('select[name="' + model_name + '"]')
 
-    update_according_to_model(model_select);
+    if (is_original_value) {
+      update_according_to_model(model_select);
+    }
     model_select.on('change', update_according_to_model);
 
     // Handle exclusion between surfreg_model and atlas
     var surfreg_model_name   = "cbrain_task[params][surfreg_model]";
     var surfreg_model_select = $('select[name="' + surfreg_model_name + '"]')
 
-    update_according_to_surfreg(surfreg_model_select)
+    if (is_original_value) {
+      update_according_to_surfreg(surfreg_model_select)
+    }
     surfreg_model_select.on('change', update_according_to_surfreg);
   });
 </script>
