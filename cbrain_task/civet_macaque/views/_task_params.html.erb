@@ -35,9 +35,25 @@
   default_template = ["0.25","0.50", "0.40", "0.80"]
   default_lsq      = ["0", "6", "9", "12"]
   default_atlas    = ["lobes", "D99", "CHARM1", "CHARM2", "CHARM3", "CHARM4", "CHARM5", "CHARM6", "JUNA"]
+
+  atlas_by_model   = {
+    "icbm152MCsym" => ["lobes", "Gyri", "DKT", "AAL"],
+    "NMTmacaque"   => ["lobes", "D99", "CHARM1", "CHARM2", "CHARM3", "CHARM4", "CHARM5", "CHARM6" ],
+    "NCBRchimp"    => ["lobes", "JUNA" ]
+  }
+
+  # All valid atlas for all models
+  all_atlas = atlas_by_model.values.flatten.uniq
+
+  template_by_model = {
+    "icbm152MCsym" => ["0.50", "1.0" ],
+    "NMTmacaque"   => ["0.25", "0.50"],
+    "NCBRchimp"    => ["0.40", "0.80"]
+  }
+
+  # All valid atlas for all models
+  all_template = template_by_model.values.flatten.uniq
 %>
-
-
 
 <!-- #################################################################### -->
 
@@ -514,30 +530,30 @@ job's output doesn't crush another job's output!</strong>.
   {
     icbm152MCsym : {
       headheight       : 175,
-      template         : [ '0.50', '1.0' ],
-      atlas            : [ 'lobes', 'Gyri', 'DKT', 'AAL' ],
+      template         : <%= raw(template_by_model['icbm152MCsym'].to_json) %>,
+      atlas            : <%= raw(atlas_by_model['icbm152MCsym'].to_json) %>,
       thickness_kernel : 20
     },
     NMTmacaque   : {
       headheight       : 50,
-      template         : [ '0.25', '0.50' ],
-      atlas            : [ 'lobes', 'D99', 'CHARM1', 'CHARM2', 'CHARM3', 'CHARM4', 'CHARM5', 'CHARM6' ],
+      template         : <%= raw(template_by_model['NMTmacaque'].to_json) %>,
+      atlas            : <%= raw(atlas_by_model['NMTmacaque'].to_json) %>,
       thickness_kernel : 12,
       surfreg_model    : [ 'NMTmacaque' ]
     },
     NCBRchimp   : {
       headheight       : 110,
-      template         : [ '0.40', '0.80' ],
-      atlas            : [ 'lobes', "JUNA" ],
+      template         : <%= raw(template_by_model['NCBRchimp'].to_json) %>,
+      atlas            : <%= raw(atlas_by_model['NCBRchimp'].to_json) %>,
       thickness_kernel : 16,
       surfreg_model    : [ 'NCBRchimp' ]
     }
   };
 
-  var ori_headheight       = '<%= @task.params[:headheight].html_safe       %>';
-  var ori_thickness_kernel = '<%= @task.params[:thickness_kernel].html_safe %>';
-  var ori_template         = '<%= @task.params[:template].html_safe         %>';
-  var ori_atlas            = '<%= @task.params[:atlas].html_safe            %>';
+  var ori_headheight       = '<%= @task.params[:headheight].is_an_integer?       ? @task.params[:headheight]       : '' %>';
+  var ori_thickness_kernel = '<%= @task.params[:thickness_kernel].is_an_integer? ? @task.params[:thickness_kernel] : '' %>';
+  var ori_template         = '<%= all_template.include?(@task.params[:template]) ? @task.params[:template]         : '' %>';
+  var ori_atlas            = '<%= all_atlas.include?(@task.params[:atlas])       ? @task.params[:atlas]            : '' %>';
 
   var are_original_values  = ori_headheight === '' && ori_thickness_kernel === '' && ori_template === '' && ori_atlas === '';
 
