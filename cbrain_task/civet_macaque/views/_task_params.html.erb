@@ -35,9 +35,25 @@
   default_template = ["0.25","0.50", "0.40", "0.80"]
   default_lsq      = ["0", "6", "9", "12"]
   default_atlas    = ["lobes", "D99", "CHARM1", "CHARM2", "CHARM3", "CHARM4", "CHARM5", "CHARM6", "JUNA"]
+
+  atlas_by_model   = {
+    "icbm152MCsym" => ["lobes", "Gyri", "DKT", "AAL"],
+    "NMTmacaque"   => ["lobes", "D99", "CHARM1", "CHARM2", "CHARM3", "CHARM4", "CHARM5", "CHARM6" ],
+    "NCBRchimp"    => ["lobes", "JUNA" ]
+  }
+
+  # All valid atlas for all models
+  all_atlas = atlas_by_model.values.flatten.uniq
+
+  template_by_model = {
+    "icbm152MCsym" => ["0.50", "1.0" ],
+    "NMTmacaque"   => ["0.25", "0.50"],
+    "NCBRchimp"    => ["0.40", "0.80"]
+  }
+
+  # All valid atlas for all models
+  all_template = template_by_model.values.flatten.uniq
 %>
-
-
 
 <!-- #################################################################### -->
 
@@ -511,28 +527,35 @@ job's output doesn't crush another job's output!</strong>.
 <script type="text/javascript">
 
   var options_by_model =
-    {
-      icbm152MCsym : {
-        headheight       : 175,
-        template         : [ '0.50', '1.0' ],
-        atlas            : [ 'lobes', 'Gyri', 'DKT', 'AAL' ],
-        thickness_kernel : 20
-      },
-      NMTmacaque   : {
-        headheight       : 50,
-        template         : [ '0.25', '0.50' ],
-        atlas            : [ 'lobes', 'D99', 'CHARM1', 'CHARM2', 'CHARM3', 'CHARM4', 'CHARM5', 'CHARM6' ],
-        thickness_kernel : 12,
-        surfreg_model    : [ 'NMTmacaque' ]
-      },
-      NCBRchimp   : {
-        headheight       : 110,
-        template         : [ '0.40', '0.80' ],
-        atlas            : [ 'lobes', "JUNA" ],
-        thickness_kernel : 16,
-        surfreg_model    : [ 'NCBRchimp' ]
-      }
-    };
+  {
+    icbm152MCsym : {
+      headheight       : 175,
+      template         : <%= template_by_model['icbm152MCsym'].to_json.html_safe %>,
+      atlas            : <%= atlas_by_model['icbm152MCsym'].to_json.html_safe %>,
+      thickness_kernel : 20
+    },
+    NMTmacaque   : {
+      headheight       : 50,
+      template         : <%= template_by_model['NMTmacaque'].to_json.html_safe %>,
+      atlas            : <%= atlas_by_model['NMTmacaque'].to_json.html_safe %>,
+      thickness_kernel : 12,
+      surfreg_model    : [ 'NMTmacaque' ]
+    },
+    NCBRchimp   : {
+      headheight       : 110,
+      template         : <%= template_by_model['NCBRchimp'].to_json.html_safe %>,
+      atlas            : <%= atlas_by_model['NCBRchimp'].to_json.html_safe %>,
+      thickness_kernel : 16,
+      surfreg_model    : [ 'NCBRchimp' ]
+    }
+  };
+
+  var ori_headheight       = <%= (@task.params[:headheight].presence       || "").to_json.html_safe %>;
+  var ori_template         = <%= (@task.params[:template].presence         || "").to_json.html_safe %>;
+  var ori_atlas            = <%= (@task.params[:atlas].presence            || "").to_json.html_safe %>;
+  var ori_thickness_kernel = <%= (@task.params[:thickness_kernel].presence || "").to_json.html_safe %>;
+
+  var are_original_values  = ori_headheight === '' && ori_thickness_kernel === '' && ori_template === '' && ori_atlas === '';
 
   $(document).ready(function() {
     var disable_options = (active_values        = [],
@@ -540,7 +563,7 @@ job's output doesn't crush another job's output!</strong>.
                           ) => {
 
       if (deactivated_selector === undefined ) {
-        return
+        return;
       }
 
       var deactivated_current_value = deactivated_selector[0].value;
@@ -549,7 +572,7 @@ job's output doesn't crush another job's output!</strong>.
       // Set the value to something available
       if (!active_values.includes(deactivated_current_value)){
         var first_value_available = active_values[0] || undefined;
-        var index = Array.prototype.slice.call( deactivated_options ).findIndex(o => o.value === first_value_available)
+        var index = Array.prototype.slice.call( deactivated_options ).findIndex(o => o.value === first_value_available);
         deactivated_options.selectedIndex = index;
       }
 
@@ -562,7 +585,7 @@ job's output doesn't crush another job's output!</strong>.
           $(option).attr("disabled",true);
         }
       }
-      deactivated_selector.trigger("chosen:updated")
+      deactivated_selector.trigger("chosen:updated");
     }
 
     var extract_current_value = (selector) => {
@@ -590,7 +613,7 @@ job's output doesn't crush another job's output!</strong>.
         var template_name        = "cbrain_task[params][template]";
         var deactivated_selector = $('select[name="' + template_name + '"]');
         if (deactivated_selector !== undefined) {
-          disable_options(template_values, deactivated_selector)
+          disable_options(template_values, deactivated_selector);
         }
       }
 
@@ -601,25 +624,28 @@ job's output doesn't crush another job's output!</strong>.
       if (headheight_input !== undefined) {
         var headheight_value = model_option['headheight'];
         if (headheight_value !== undefined) {
-          headheight_input.value = headheight_value
+          headheight_input.value = headheight_value;
         }
       }
 
       // Update surfreg_model
-      var surfreg_model_values = model_option['surfreg_model']
+      var surfreg_model_values = model_option['surfreg_model'];
       if (surfreg_model_values !== undefined) {
         var surfreg_model_name        = "cbrain_task[params][surfreg_model]";
         var deactivated_selector = $('select[name="' + surfreg_model_name + '"]');
         if (deactivated_selector !== undefined) {
-          disable_options(surfreg_model_values, deactivated_selector)
+          disable_options(surfreg_model_values, deactivated_selector);
         }
       }
 
       // Handle exclusion between surfreg_model and atlas (since to surfreg_model update)
       var surfreg_model_name   = "cbrain_task[params][surfreg_model]";
-      var surfreg_model_select = $('select[name="' + surfreg_model_name + '"]')
+      var surfreg_model_select = $('select[name="' + surfreg_model_name + '"]');
 
-      update_according_to_surfreg(surfreg_model_select)
+      if (are_original_values) {
+        update_according_to_surfreg(surfreg_model_select);
+      }
+      update_according_to_surfreg(surfreg_model_select);
       surfreg_model_select.on('change', update_according_to_surfreg);
     }
 
@@ -633,12 +659,12 @@ job's output doesn't crush another job's output!</strong>.
       }
 
       // Update atlas
-      var atlas_values = model_option['atlas']
+      var atlas_values = model_option['atlas'];
       if (atlas_values !== undefined) {
         var atlas_name        = "cbrain_task[params][atlas]";
         var deactivated_selector = $('select[name="' + atlas_name + '"]');
         if (deactivated_selector !== undefined) {
-          disable_options(atlas_values, deactivated_selector)
+          disable_options(atlas_values, deactivated_selector);
         }
       }
 
@@ -647,9 +673,9 @@ job's output doesn't crush another job's output!</strong>.
       var thickness_kernel_input = $(thickness_kernel_name)[0];
 
       if (thickness_kernel_input !== undefined) {
-        var thickness_kernel_value = model_option['thickness_kernel']
+        var thickness_kernel_value = model_option['thickness_kernel'];
         if (thickness_kernel_value !== undefined) {
-          thickness_kernel_input.value = thickness_kernel_value
+          thickness_kernel_input.value = thickness_kernel_value;
         }
       }
 
@@ -657,16 +683,20 @@ job's output doesn't crush another job's output!</strong>.
 
     // Handle exclusion between model and template
     var model_name   = "cbrain_task[params][model]";
-    var model_select = $('select[name="' + model_name + '"]')
+    var model_select = $('select[name="' + model_name + '"]');
 
-    update_according_to_model(model_select);
+    if (are_original_values) {
+      update_according_to_model(model_select);
+    }
     model_select.on('change', update_according_to_model);
 
     // Handle exclusion between surfreg_model and atlas
     var surfreg_model_name   = "cbrain_task[params][surfreg_model]";
-    var surfreg_model_select = $('select[name="' + surfreg_model_name + '"]')
+    var surfreg_model_select = $('select[name="' + surfreg_model_name + '"]');
 
-    update_according_to_surfreg(surfreg_model_select)
+    if (are_original_values) {
+      update_according_to_surfreg(surfreg_model_select);
+    }
     surfreg_model_select.on('change', update_according_to_surfreg);
   });
 </script>
