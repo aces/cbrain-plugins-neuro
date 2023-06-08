@@ -339,6 +339,14 @@
             "optional": true
         }
     ],
+    "tags": {
+        "domain": [
+            "neuroinformatics",
+            "neuroimaging",
+            "FSL",
+            "functional"
+        ]
+    },
     "groups": [
         {
             "id": "advanced_options",
