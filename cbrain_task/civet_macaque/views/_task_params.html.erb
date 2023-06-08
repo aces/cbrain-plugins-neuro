@@ -530,30 +530,30 @@ job's output doesn't crush another job's output!</strong>.
   {
     icbm152MCsym : {
       headheight       : 175,
-      template         : <%= raw(template_by_model['icbm152MCsym'].to_json) %>,
-      atlas            : <%= raw(atlas_by_model['icbm152MCsym'].to_json) %>,
+      template         : <%= template_by_model['icbm152MCsym'].to_json.html_safe %>,
+      atlas            : <%= atlas_by_model['icbm152MCsym'].to_json.html_safe %>,
       thickness_kernel : 20
     },
     NMTmacaque   : {
       headheight       : 50,
-      template         : <%= raw(template_by_model['NMTmacaque'].to_json) %>,
-      atlas            : <%= raw(atlas_by_model['NMTmacaque'].to_json) %>,
+      template         : <%= template_by_model['NMTmacaque'].to_json.html_safe %>,
+      atlas            : <%= atlas_by_model['NMTmacaque'].to_json.html_safe %>,
       thickness_kernel : 12,
       surfreg_model    : [ 'NMTmacaque' ]
     },
     NCBRchimp   : {
       headheight       : 110,
-      template         : <%= raw(template_by_model['NCBRchimp'].to_json) %>,
-      atlas            : <%= raw(atlas_by_model['NCBRchimp'].to_json) %>,
+      template         : <%= template_by_model['NCBRchimp'].to_json.html_safe %>,
+      atlas            : <%= atlas_by_model['NCBRchimp'].to_json.html_safe %>,
       thickness_kernel : 16,
       surfreg_model    : [ 'NCBRchimp' ]
     }
   };
 
-  var ori_headheight       = '<%= @task.params[:headheight].is_an_integer?       ? @task.params[:headheight]       : '' %>';
-  var ori_thickness_kernel = '<%= @task.params[:thickness_kernel].is_an_integer? ? @task.params[:thickness_kernel] : '' %>';
-  var ori_template         = '<%= all_template.include?(@task.params[:template]) ? @task.params[:template]         : '' %>';
-  var ori_atlas            = '<%= all_atlas.include?(@task.params[:atlas])       ? @task.params[:atlas]            : '' %>';
+  var ori_headheight       = <%= (@task.params[:headheight].presence       || "").to_json.html_safe %>;
+  var ori_template         = <%= (@task.params[:template].presence         || "").to_json.html_safe %>;
+  var ori_atlas            = <%= (@task.params[:atlas].presence            || "").to_json.html_safe %>;
+  var ori_thickness_kernel = <%= (@task.params[:thickness_kernel].presence || "").to_json.html_safe %>;
 
   var are_original_values  = ori_headheight === '' && ori_thickness_kernel === '' && ori_template === '' && ori_atlas === '';
 
