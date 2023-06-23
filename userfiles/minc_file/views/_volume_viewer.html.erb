@@ -28,7 +28,7 @@
 <%
 bb_identifier = @userfile.id
 bb_identifier = bb_identifier.to_s + "_" + @target if @target.present?
-volume_ui_template_id = "volume-ui-template-#{@userfile.type}"
+volume_ui_template_id = "volume-ui-template-#{@userfile.id}"
 %>
 
 <%
