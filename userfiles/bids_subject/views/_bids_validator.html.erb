@@ -1,0 +1,60 @@
+
+<%-
+#
+# CBRAIN Project
+#
+# Copyright (C) 2008-2023
+# The Royal Institution for the Advancement of Learning
+# McGill University
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+-%>
+
+<% bidsdataset = @userfile.find_scratch_bids_dataset_for_validation %>
+<% status      = bidsdataset&.local_sync_status&.status %>
+
+<% if ! bidsdataset && params[:run_validator] == 'go' %>
+    <%
+      CBRAIN.spawn_with_active_records(:admin, "Scratch BidsDataset #{@userfile.id}") do
+        @userfile.create_scratch_bids_dataset_for_validation
+      end
+      bidsdataset = "in progress" # just to trigger message in view below
+    %>
+<% end %>
+
+<% if ! bidsdataset %>
+
+    This panel will run the tool <strong>bids-validator</strong> on a transient BIDS Dataset constructed
+    with only this BIDS Subject in it. A set of made-up files will be populated at the root
+    of the dataset (for the files <em>dataset_description.json</em>, <em>participants.tsv</em> and <em>README</em>).
+    <p>
+    Clicking the validator button below will start this operation in background. Depending on how large your BIDS Subject is, it can take a few seconds or several minutes before the preparations are complete. You'll be provided with a refresh button while this happens.
+    <p>
+    <%= link_to "Start BIDS Validator", userfile_path(@userfile, :run_validator => 'go'), :class => 'button' %>
+
+<% elsif status != 'InSync' %>
+
+   The preparations to run the BIDS validator are happening in background. Wait a few seconds or minutes then click the refresh button below.
+   <p>
+   <%= link_to "Refresh page", userfile_path(@userfile, :run_validator => 'check'), :class => 'button' %>
+
+<% else %>
+
+  <% validtext = @userfile.run_bids_validator %>
+  <h3>BIDS Validator Report:</h3>
+  <pre><%= h(validtext) %></pre>
+
+<% end %>
+
