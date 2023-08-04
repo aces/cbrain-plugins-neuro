@@ -1,0 +1,713 @@
+{
+  "name":           "micapipe",
+  "tool-version":   "0.2.2",
+  "container-image": {
+    "image": "micalab/micapipe:v0.2.2",
+    "index": "docker://",
+    "type": "singularity"
+  },
+  "schema-version": "0.5",
+  "author":         "Multimodal Imaging and Connectome Analysis (MICA) Lab ",
+  "url":            "https://github.com/MICA-MNI/micapipe",
+  "description":    "BIDS App for micapipe. Please cite: Cruces RR, Royer J, Herholz P, Lariviere S, Vos de Wael R, Paquola C, Benkarim O, Park BY, Degre-Pelletier J, Nelson MC, DeKraker J, Leppert IR, Tardif C, Poline JB, Concha L, Bernhardt BC. Micapipe: A pipeline for multimodal neuroimaging and connectome analysis. Neuroimage. 2022 Nov;263:119612. doi: 10.1016/j.neuroimage.2022.119612. Epub 2022 Sep 5. PMID: 36070839. doi: 10.1016/j.neuroimage.2022.119612",
+  "command-line": "micapipe [SUBJECT_DIR] [OUTPUT_DIR] [DERIVATIVES] [SUB] [SES] [FS_LICENCE] [PROC_STRUCTURAL] [PROC_SURF] [POST_STRUCTURAL] [PROC_FLAIR] [PROC_FUNC] [PROC_DWI] [SC] [MPC] [GD] [QC] [QC_SUBJ] [CLEANUP] [ATLAS] [FREESURFER] [T1WSTR] [UNI] [MF] [SURF_DIR] [T1] [REGSYNTH] [TRACTS] [KEEP_TCK] [AUTOTRACT] [THREADS] [TMPDIR] [ACQSTR] [DWI_MAIN] [DWI_RPE] [DWI_PROC] [RPE_ALL] [REGAFFINE] [DWIACQ] [BTHR] [NO_BVAL] [WSC] [TCK] [FLAIRSTR] [MPC_ACQ] [MPC_IMG] [MPC_REG] [FUNC_MAIN] [FUNC_PE] [FUNC_RPE] [TOPUP] [SESANAT] [FIX] [NOFIX] [NSR] [GSR] [DROPTR] [NOFC]",
+  "inputs": [
+      {
+        "description": "subject folder for BIDS (folders name should be sub-XXX).",
+        "id": "subject_dir",
+        "name": "BIDS directory",
+        "optional": false,
+        "type": "File",
+        "value-key": "[SUBJECT_DIR]",
+        "command-line-flag": "-bids"
+      },
+      {
+        "description": "Path to the derivatives folder",
+        "id": "derivatives",
+        "name": "Output directory (derivatives)",
+        "optional": false,
+        "type": "File",
+        "value-key": "[DERIVATIVES]",
+        "command-line-flag": "-out"
+      },
+      {
+        "description": "Subject name (could be sub-XXX or only XXX).",
+        "id": "sub",
+        "name": "Subject ID",
+        "optional": true,
+        "type": "String",
+        "value-key": "[SUB]",
+        "command-line-flag": "-sub"
+      },
+      {
+        "description": "Subject session (could be ses-XXX or only XXX).",
+        "id": "ses",
+        "name": "Subject session",
+        "optional": true,
+        "type": "String",
+        "value-key": "[SES]",
+        "command-line-flag": "-ses"
+      },
+      {
+        "name": "Freesurfer licence",
+        "id": "fs_licence",
+        "type": "File",
+        "description": "Provide the full path to the freesurface licence. If you don't have a licence you can get one here: https://surfer.nmr.mgh",
+        "optional": false,
+        "command-line-flag": "-fs_licence",
+        "value-key": "[FS_LICENCE]"
+      },
+      {
+        "description": "Process the structural data",
+        "id": "proc_structural",
+        "name": "Module: structural processing",
+        "optional": true,
+        "type": "Flag",
+        "value-key": "[PROC_STRUCTURAL]",
+        "command-line-flag": "-proc_structural"
+      },
+      {
+        "description": "Cortical surface reconstruction",
+        "id": "proc_surf",
+        "name": "Module: surface processing",
+        "optional": true,
+        "type": "Flag",
+        "value-key": "[PROC_SURF]",
+        "command-line-flag": "-proc_surf"
+      },
+      {
+        "description": "Perform post-processing on the structural and surface data",
+        "id": "post_structural",
+        "name": "Module: post-structural processing",
+        "optional": true,
+        "type": "Flag",
+        "value-key": "[POST_STRUCTURAL]",
+        "command-line-flag": "-post_structural"
+      },
+      {
+        "description": "Process the fluid-attenuated inversion recovery (FLAIR) data.",
+        "id": "proc_flair",
+        "name": "Module: FLAIR processing",
+        "optional": true,
+        "type": "Flag",
+        "value-key": "[PROC_FLAIR]",
+        "command-line-flag": "-proc_flair"
+      },
+      {
+        "description": "Process functional MRI and generates a functional connectome.",
+        "id": "proc_func",
+        "name": "Module: functional fMRI processing",
+        "optional": true,
+        "type": "Flag",
+        "value-key": "[PROC_FUNC]",
+        "command-line-flag": "-proc_func"
+      },
+      {
+        "description": "Process the diffusion-weighted imaging (DWI) data.",
+        "id": "proc_dwi",
+        "name": "Module: DWI processing",
+        "optional": true,
+        "type": "Flag",
+        "value-key": "[PROC_DWI]",
+        "command-line-flag": "-proc_dwi"
+      },
+      {
+        "description": "From the processed DWI data generates the structural connectomes (SC).",
+        "id": "SC",
+        "name": "Module: Structural connectome generation",
+        "optional": true,
+        "type": "Flag",
+        "value-key": "[SC]",
+        "command-line-flag": "-SC"
+      },
+      {
+        "description": "This flag will generate Microstructural profiles and covariance analysis. And map the quantitative MRI to the surfaces",
+        "id": "MPC",
+        "name": "Module: Microstructural profile covariance and surface mapping",
+        "optional": true,
+        "type": "Flag",
+        "value-key": "[MPC]",
+        "command-line-flag": "-MPC"
+      },
+      {
+        "description": "This module will calculate the geodesic distance for per ROI from each atlas and vertwx-wise on fsRL-5k. ",
+        "id": "GD",
+        "name": "Module: Geodesic distance",
+        "optional": true,
+        "type": "Flag",
+        "value-key": "[GD]",
+        "command-line-flag": "-GD"
+      },
+      {
+        "description": "Creates a group level quality control report of all the processed subjects.",
+        "id": "QC",
+        "name": "Quality Control: group",
+        "optional": true,
+        "type": "Flag",
+        "value-key": "[QC]",
+        "command-line-flag": "-QC"
+      },
+      {
+        "description": "Creates a Subject quality control report.",
+        "id": "QC_subj",
+        "name": "Quality Control: subject",
+        "optional": true,
+        "type": "Flag",
+        "value-key": "[QC_SUBJ]",
+        "command-line-flag": "-QC_subj"
+      },
+      {
+        "description": "Performs the cleanup of all the outputs of specific module(s).  ( Modules with multiple acquisitions require -acqStr (e.g. -proc_func, -MPC)",
+        "id": "cleanup",
+        "name": "cleanup",
+        "optional": true,
+        "type": "Flag",
+        "value-key": "[CLEANUP]",
+        "command-line-flag": "-cleanup"
+      },
+      {
+        "description": "Select the atlas for post-structural processing. (default: schaefer-400)",
+        "id": "atlas",
+        "name": "atlas",
+        "optional": true,
+        "list": true,
+        "type": "String",
+        "value-choices": [
+          "aparc-a2009s",
+          "aparc",
+          "economo",
+          "glasser",
+          "schaefer-1000",
+          "schaefer-100",
+          "schaefer-200",
+          "schaefer-300",
+          "schaefer-400",
+          "schaefer-500",
+          "schaefer-600",
+          "schaefer-700",
+          "schaefer-800",
+          "schaefer-900",
+          "vosdewael-100",
+          "vosdewael-200",
+          "vosdewael-300",
+          "vosdewael-400"
+        ],
+        "value-key": "[ATLAS]",
+        "default-value": ["schaefer-400"],
+        "command-line-flag": "-atlas"
+      },
+      {
+        "description": "Optional argument for 'proc_surf' and 'post_structural' modules. Use this option to reconstruct the cortical surface with Freesurfer 7. Default surface reconstruction uses 'FastSurfer'",
+        "id": "freesurfer",
+        "name": "freesurfer",
+        "optional": true,
+        "type": "Flag",
+        "value-key": "[FREESURFER]",
+        "command-line-flag": "-freesurfer"
+      },
+      {
+        "name": "T1w string identifier",
+        "id": "t1wstr",
+        "type": "String",
+        "description": "String to manually identify the main scan(s) for structural processing. separated by a comma, no blank spaces.\nMultiple inputs example = '-T1wStr run-01_T1w,run-02_T1w'\n If it is use with '-uni' the other must be UNI,INV1,INV2",
+        "optional": true,
+        "default-value": "T1w.nii",
+        "command-line-flag": "-T1wStr",
+        "value-key": "[T1WSTR]"
+      },
+      {
+        "name": "Use UNI-T1map (MP2RAGE) as reference",
+        "id": "uni",
+        "type": "Flag",
+        "description": "Special workflow to use the UNI-T1map image as the structural reference (eg. 7T UNI-T1map).",
+        "optional": true,
+        "command-line-flag": "-uni",
+        "value-key": "[UNI]"
+      },
+      {
+        "name": "Multiplying factor for MP2RAGE denoising",
+        "id": "mf",
+        "type": "Number",
+        "description": "Greater value removes more noise (eg. UNI-T1map use with -uni). Default = 3 (7T), recommended value of 45 for 3T MP2RAGE",
+        "integer": true,
+        "optional": true,
+        "default-value": 3,
+        "command-line-flag": "-mf",
+        "value-key": "[MF]"
+      },
+      {
+        "name": "Subject surface directory",
+        "id": "surf_dir",
+        "type": "String",
+        "description": "If freesurfer/FastSurfer has been performed, it will create a symbolic link for compatibility, Provide full path to the subject's directory: e.g. <path_to>/freesurfer/sub-001_ses-01",
+        "optional": true,
+        "command-line-flag": "-surf_dir",
+        "value-key": "[SURF_DIR]"
+      },
+      {
+        "name": "T1 for surface reconstruction",
+        "id": "t1",
+        "type": "File",
+        "description": "Overwrite the t1 input, MUST be 'nii.gz'. Use the full path to a T1w image to be processed. \nBy default micapipe uses t1nativepro to generate the surfaces.",
+        "optional": true,
+        "command-line-flag": "-T1",
+        "value-key": "[T1]"
+      },
+      {
+        "name": "Main DWI(s) to process",
+        "id": "dwi_main",
+        "type": "File",
+        "description": "Full path to DWI with N number of directions and b0. If used, it will overwrite the defaults. \nDefault = <bids>/<subject>/dwi/*_dir-AP_dwi.nii*",
+        "optional": true,
+        "command-line-flag": "-dwi_main",
+        "value-key": "[DWI_MAIN]"
+      },
+      {
+        "name": "Reverse phase encoding (rpe) b0(s)",
+        "id": "dwi_rpe",
+        "type": "File",
+        "description": "DWI b0 image(s) with phase reversal encoding. If used, it will overwrite the defaults. \nDefault = <bids>/<subject>/dwi/<sub>_dir-PA_dwi.nii*",
+        "optional": true,
+        "command-line-flag": "-dwi_rpe",
+        "value-key": "[DWI_RPE]"
+      },
+      {
+        "name": "Preprocessed DWI (mif)",
+        "id": "dwi_processed",
+        "type": "File",
+        "description": "DWI processed, if file is provided the pre-processing of the DWIs will be skipped. \nMUST be a mif (MRtrix image format) with bvecs, bvals, PhaseEncodingDirection and ReadoutTime encoded",
+        "optional": true,
+        "command-line-flag": "-dwi_processed",
+        "value-key": "[DWI_PROC]"
+      },
+      {
+        "name": "Preprocessed DWI (mif)",
+        "id": "weighted_sc",
+        "type": "File",
+        "description": "Weight the SC by a quantitative map in DWI space (e.g. FA, ADC, qT1 or MT). None by default. \n This is a file path",
+        "optional": true,
+        "command-line-flag": "-weighted_SC",
+        "value-key": "[WSC]"
+      },
+      {
+        "name": "Whole brain tractography (tck)",
+        "id": "tck",
+        "type": "File",
+        "description": "Provide a pre-calculated whole brain tractography (tck) in DWI space to generate the connectomes.",
+        "optional": true,
+        "command-line-flag": "-tck",
+        "value-key": "[TCK]"
+      },
+      {
+        "name": "All reverse phase encoding",
+        "id": "rpe_all",
+        "type": "Flag",
+        "description": "If all DWI directions & b-values are acquired twice this option can be used. This option requires that both encoding contains the same number of volumes",
+        "optional": true,
+        "command-line-flag": "-rpe_all",
+        "value-key": "[RPE_ALL]"
+      },
+      {
+        "name": "Affine registration only (NOT recommended)",
+        "id": "regAffine",
+        "type": "Flag",
+        "description": "Specify this option to perform an Affine registration ONLY from dwi to T1nativepro.",
+        "optional": true,
+        "command-line-flag": "-regAffine",
+        "value-key": "[REGAFFINE]"
+      },
+      {
+        "name": "DWI: acquisition string",
+        "id": "dwi_acq",
+        "type": "String",
+        "description": "Provide a string with this this flag to process new DWI acquisition. This will create a new directory here: dwi/acq-<dwi_acq>",
+        "optional": true,
+        "command-line-flag": "-dwi_acq",
+        "value-key": "[DWIACQ]"
+      },
+      {
+        "name": "B0 threshold",
+        "id": "b0thr",
+        "type": "Number",
+        "description": "Specifies the b-value threshold for determining those image volumes that correspond to b=0. Default = 61 . This value will vary from DWI acquisition and from scanner to scanner (3T or 7T)",
+        "integer": true,
+        "optional": true,
+        "default-value": 61,
+        "command-line-flag": "-b0thr",
+        "value-key": "[BTHR]"
+      },
+      {
+        "name": "Disable scaling of diffusion b-values",
+        "id": "no_bvalue_scaling",
+        "type": "Flag",
+        "description": "Disable scaling of diffusion b-values by the square of the corresponding DW gradient norm. Default is scaling. See more on MRtrix3 documentation",
+        "optional": true,
+        "command-line-flag": "-no_bvalue_scaling",
+        "value-key": "[NO_BVAL]"
+      },
+      {
+        "name": "Registration based on modality agnostic segmentations",
+        "id": "regsynth",
+        "type": "Flag",
+        "description": "Specify this option to perform the registration based on synthseg.",
+        "optional": true,
+        "command-line-flag": "-regSynth",
+        "value-key": "[REGSYNTH]"
+      },
+      {
+        "name": "Number of streamlines",
+        "id": "tracts",
+        "type": "String",
+        "description": "Sets the total number of streamlines for the structural connectome, where 'M' stands for millions (default=10M).",
+        "optional": true,
+        "default-value": "10M",
+        "command-line-flag": "-tracts",
+        "value-key": "[TRACTS]"
+      },
+      {
+        "name": "Keep tractography (tck)",
+        "id": "keep_tck",
+        "type": "Flag",
+        "description": "If provided, the tractogram will be copied to the <subject>/dwi directory., By default the tractogramp is erased",
+        "optional": true,
+        "command-line-flag": "-keep_tck",
+        "value-key": "[KEEP_TCK]"
+      },
+      {
+        "name": "Automatic tractogram segmentation",
+        "id": "autotract",
+        "type": "Flag",
+        "description": "This option will segment automatically the main tracts from the whole brain tractogram.",
+        "optional": true,
+        "command-line-flag": "-autoTract",
+        "value-key": "[AUTOTRACT]"
+      },
+      {
+        "name": "Main functional MRI string to process",
+        "id": "func_main",
+        "type": "String",
+        "description": "String to manually identify the main scan for func processing (eg. func/sub-001_<mainScanStr>.nii.gz). \nDefault='task-rest_acq-AP_bold'. \nMultiple strings separate by comma and no blank space for multiecho acquisitions ( e.g. 'echo1,echo2,echo3' )",
+        "optional": true,
+        "command-line-flag": "-mainScanStr",
+        "value-key": "[FUNC_MAIN]"
+      },
+      {
+        "name": "Main phase encoding (pe) fMRI",
+        "id": "func_pe",
+        "type": "File",
+        "description": "Full path to the main phase encoding scan for func processing. \nDefault='task-rest_acq-APse_bold'",
+        "optional": true,
+        "command-line-flag": "-func_pe",
+        "value-key": "[FUNC_PE]"
+      },
+      {
+        "name": "Reverse phase encoding (rpe) fMRI",
+        "id": "func_rpe",
+        "type": "File",
+        "description": "Full path to the reverse phase encoding scan for func processing (If the path is wrong TOPUP won't run!). \nDefault='task-rest_acq-PAse_bold'",
+        "optional": true,
+        "command-line-flag": "-func_rpe",
+        "value-key": "[FUNC_RPE]"
+      },
+      {
+        "name": "TOPUP configuration file (Optional)",
+        "id": "topup",
+        "type": "File",
+        "description": "Path to specified config file for topup. \n( distortion correction; eg. file.cnf )'",
+        "optional": true,
+        "command-line-flag": "-topupConfig",
+        "value-key": "[TOPUP]"
+      },
+      {
+        "name": "ICA-FIX training file (Optional if FIX is used)",
+        "id": "fix",
+        "type": "File",
+        "description": "Path to specified ICA-FIX training file for nuisance signal regression ( file.RData ).\n( default = $MICAPIPE/functions/MICAMTL_training_15HC_15PX.RData )",
+        "optional": true,
+        "command-line-flag": "-icafixTraining",
+        "value-key": "[FIX]"
+      },
+      {
+        "name": "Register to specific session",
+        "id": "sesanat",
+        "type": "String",
+        "description": "If longitudinal data is provided this flag allows to register the func session to the selected anatomical session.\n( default processing is independent )",
+        "optional": true,
+        "command-line-flag": "-sesAnat",
+        "value-key": "[SESANAT]"
+      },
+      {
+        "name": "Skip FIX processing",
+        "id": "nofix",
+        "type": "Flag",
+        "description": "Specify this option to skip ICA-FIX processing.\n( default = FIX is run with specified training file ).",
+        "optional": true,
+        "command-line-flag": "-noFIX",
+        "value-key": "[NOFIX]"
+      },
+      {
+        "name": "Nuisance regression",
+        "id": "nsr",
+        "type": "Flag",
+        "description": "Specify this option to perform white matter and CSF signal regression of timeseries.\n( default = no white matter and CSF signal regression ).",
+        "optional": true,
+        "command-line-flag": "-NSR",
+        "value-key": "[NSR]"
+      },
+      {
+        "name": "Global signal regression",
+        "id": "gsr",
+        "type": "Flag",
+        "description": "Specify this option to perform global, white matter and CSF signal regression of timeseries.\n( default = no global, white matter and CSF signal regression ).",
+        "optional": true,
+        "command-line-flag": "-GSR",
+        "value-key": "[GSR]"
+      },
+      {
+        "name": "Drop first 5 TRs",
+        "id": "droptr",
+        "type": "Flag",
+        "description": "Specify this option to drop the first five TRs.\n( default is FALSE  ).",
+        "optional": true,
+        "command-line-flag": "-dropTR",
+        "value-key": "[DROPTR]"
+      },
+      {
+        "name": "No Functional Connectomes (only surface mapping)",
+        "id": "nofc",
+        "type": "Flag",
+        "description": "Specify this option to skip the Functional Connectome generation (e.g. func-task).\n( default is FALSE  ).",
+        "optional": true,
+        "command-line-flag": "-noFC",
+        "value-key": "[NOFC]"
+      },
+      {
+        "name": "Temporary directory",
+        "id": "tmpdir",
+        "type": "String",
+        "description": "Specify location of temporary directory <path> (Default is /tmp)",
+        "optional": true,
+        "default-value": "/tmp",
+        "command-line-flag": "-tmpDir",
+        "value-key": "[TMPDIR]"
+      },
+      {
+        "name": "FLAIR/T2w string identifier",
+        "id": "flairstr",
+        "type": "String",
+        "description": "String to manually identify the T2/FLAIR scan for processing (eg. anat/sub-001_<flairScanStr>.nii[.gz])\n Default = FLAIR",
+        "optional": true,
+        "default-value": "FLAIR",
+        "command-line-flag": "-flairScanStr",
+        "value-key": "[FLAIRSTR]"
+      },
+      {
+        "name": "qMRI to calculate MPC",
+        "id": "microstructural_img",
+        "type": "File",
+        "description": "Path to scan on which MPC will be performed ( ./img.nii.gz ). \nIf left blank or omitted, defaults to using qT1 identified through BIDS directory structure",
+        "optional": true,
+        "command-line-flag": "-microstructural_img",
+        "value-key": "[MPC_IMG]"
+      },
+      {
+        "name": "qMRI to register to T1nativepro",
+        "id": "microstructural_reg",
+        "type": "File",
+        "description": "Set to 'FALSE' to use microstructural_img for registrations. \n Path to scan which will be register to the surface ( ./img_2reg.nii.gz ). \nIt MUST be on the same space as the main microstructural image!!. \nIf it is EMPTY will try to find a T1map from here: anat/*mp2rage*T1map.nii*",
+        "optional": true,
+        "command-line-flag": "-microstructural_reg",
+        "value-key": "[MPC_REG]"
+      },
+      {
+        "name": "MPC acquisition string",
+        "id": "mpc_acq",
+        "type": "String",
+        "description": "Provide a string with this this flag to process new quantitative map. \n ( this will create a new directory here: anat/surf/micro_profiles/acq-<mpc_acq> ) \n Default = qMRI",
+        "optional": true,
+        "command-line-flag": "-mpc_acq",
+        "value-key": "[MPC_ACQ]"
+      },
+      {
+        "name": "Cleanup: acquisition string",
+        "id": "acqstr",
+        "type": "String",
+        "description": "String to manually identify the acquisition to be erase (MPC, proc_func and proc_dwi)",
+        "optional": true,
+        "command-line-flag": "-acqStr",
+        "value-key": "[ACQSTR]"
+      },
+      {
+        "name": "Number of threads (CPUs)",
+        "id": "threads",
+        "type": "Number",
+        "description": "Number of threads for parallel processing (Default is 10)",
+        "integer": true,
+        "optional": true,
+        "default-value": 10,
+        "command-line-flag": "-threads",
+        "value-key": "[THREADS]"
+      }
+  ],
+  "output-files": [
+      {
+          "name":          "Output dir",
+          "id":            "output_dir",
+          "description":   "The output of the command",
+          "optional":      false,
+          "list":          false,
+          "value-key": "[OUTPUT_DIR]",
+          "path-template": "[SUBJECT_DIR]_res"
+      }
+  ],
+  "groups": [
+    {
+        "id": "proc_structural_options",
+        "name": "Structural Processing",
+        "members": [
+            "proc_structural",
+            "t1wstr",
+            "uni",
+            "mf"
+        ]
+    },
+    {
+        "id": "proc_surf_options",
+        "name": "Surface Processing",
+        "members": [
+            "proc_surf",
+            "surf_dir",
+            "t1"
+        ]
+    },
+    {
+      "id": "post_structural_options",
+      "name": "Post-structural Processing",
+      "members": [
+          "post_structural",
+          "atlas",
+          "freesurfer"
+      ]
+  },
+  {
+    "id": "gd_module",
+    "name": "Geodesic distance",
+    "members": [
+        "GD"
+    ]
+  },
+  {
+    "id": "flair_module",
+    "name": "FLAIR/T2w processing",
+    "members": [
+        "proc_flair",
+        "flairstr",
+        "regsynth"
+    ]
+  },
+  {
+    "id": "mpc_module",
+    "name": "Microstructural Profile Covariance processing",
+    "members": [
+        "MPC",
+        "microstructural_img",
+        "microstructural_reg",
+        "mpc_acq",
+        "regsynth"
+    ]
+  },
+  {
+    "id": "func_module",
+    "name": "fMRI processing",
+    "members": [
+        "proc_func",
+        "func_main",
+        "func_pe",
+        "func_rpe",
+        "topup",
+        "sesanat",
+        "fix",
+        "nofix",
+        "nsr",
+        "gsr",
+        "droptr",
+        "nofc"
+    ]
+  },
+  {
+    "id": "proc_dwi_options",
+    "name": "DWI Processing",
+    "members": [
+        "proc_dwi",
+        "dwi_main",
+        "dwi_rpe",
+        "dwi_processed",
+        "rpe_all",
+        "regAffine",
+        "dwi_acq",
+        "b0thr",
+        "no_bvalue_scaling",
+        "regsynth"
+    ]
+},
+{
+  "id": "sc_options",
+  "name": "Structural Connectome Processing",
+  "members": [
+      "SC",
+      "tracts",
+      "keep_tck",
+      "autotract",
+      "dwi_acq",
+      "weighted_sc",
+      "tck"
+  ]
+},
+{
+  "id": "qc_modules",
+  "name": "Quality control",
+  "members": [
+      "QC",
+      "QC_subj"
+  ]
+},
+{
+  "id": "cleanup_module",
+  "name": "Cleanup",
+  "members": [
+      "cleanup",
+      "acqstr"
+  ]
+}
+],
+  "tags": {
+      "domain": [
+          "boutiques"
+      ]
+  },
+  "suggested-resources": {
+      "cpu-cores":         10,
+      "ram":               8,
+      "walltime-estimate": 7200
+  },
+  "custom": {
+      "cbrain:readonly-input-files": true,
+      "cbrain:author": "Raul R. Cruces <raul.rodriguezcruces@mcgill.ca>",
+      "cbrain:integrator_modules": {
+        "BoutiquesFileTypeVerifier": {
+            "subject_dir": [ "BidsSubject" ]
+        },
+        "BoutiquesFileNameMatcher": {
+            "subject_dir": "^sub-[a-zA-Z0-9_]+$"
+        },
+        "BoutiquesOutputFileTypeSetter": {
+            "output_dir": "micapipeOutput"
+        },
+        "BoutiquesOutputCacheCleaner": [ "output_dir" ],
+        "BoutiquesPostProcessingCleaner": [
+            "[SUBJECT_DIR]_res"
+        ],
+        "BoutiquesBidsSingleSubjectMaker": "subject_dir"
+    }
+  }
+}
