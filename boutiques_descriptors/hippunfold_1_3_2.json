@@ -272,9 +272,9 @@
           "trimodal",
           "hippb500",
           "neonateT1w",
-          "synthseg-v0.1",
-          "synthseg-v0.2",
-          "neonateT1w-v2"
+          "synthseg_v0.1",
+          "synthseg_v0.2",
+          "neonateT1w_v2"
         ]
       }
   ],
