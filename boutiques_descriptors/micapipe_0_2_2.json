@@ -33,7 +33,7 @@
         "description": "Subject name (could be sub-XXX or only XXX).",
         "id": "sub",
         "name": "Subject ID",
-        "optional": true,
+        "optional": false,
         "type": "String",
         "value-key": "[SUB]",
         "command-line-flag": "-sub"
