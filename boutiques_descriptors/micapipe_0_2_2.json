@@ -23,7 +23,7 @@
       },
       {
         "description": "Path to the output directory where derivatives will be stored",
-        "id": "output_dir",
+        "id": "output_dir_name",
         "name": "Output directory (derivatives)",
         "optional": false,
         "type": "String",
@@ -482,16 +482,6 @@
         "value-key": "[NOFC]"
       },
       {
-        "name": "Temporary directory",
-        "id": "tmpdir",
-        "type": "String",
-        "description": "Specify location of temporary directory <path> (Default is /tmp)",
-        "optional": true,
-        "default-value": "/tmp",
-        "command-line-flag": "-tmpDir",
-        "value-key": "[TMPDIR]"
-      },
-      {
         "name": "FLAIR/T2w string identifier",
         "id": "flairstr",
         "type": "String",
@@ -577,98 +567,108 @@
           "atlas",
           "freesurfer"
       ]
-  },
-  {
-    "id": "gd_module",
-    "name": "Geodesic distance",
-    "members": [
-        "GD"
-    ]
-  },
-  {
-    "id": "flair_module",
-    "name": "FLAIR/T2w processing",
-    "members": [
-        "proc_flair",
-        "flairstr",
-        "regsynth"
-    ]
-  },
-  {
-    "id": "mpc_module",
-    "name": "Microstructural Profile Covariance processing",
-    "members": [
-        "MPC",
-        "microstructural_img",
-        "microstructural_reg",
-        "mpc_acq",
-        "regsynth"
-    ]
-  },
-  {
-    "id": "func_module",
-    "name": "fMRI processing",
-    "members": [
-        "proc_func",
-        "func_main",
-        "func_pe",
-        "func_rpe",
-        "topup",
-        "sesanat",
-        "fix",
-        "nofix",
-        "nsr",
-        "gsr",
-        "droptr",
-        "nofc"
-    ]
-  },
-  {
-    "id": "proc_dwi_options",
-    "name": "DWI Processing",
-    "members": [
-        "proc_dwi",
-        "dwi_main",
-        "dwi_rpe",
-        "dwi_processed",
-        "rpe_all",
-        "regAffine",
-        "dwi_acq",
-        "b0thr",
-        "no_bvalue_scaling",
-        "regsynth"
-    ]
-},
-{
-  "id": "sc_options",
-  "name": "Structural Connectome Processing",
-  "members": [
-      "SC",
-      "tracts",
-      "keep_tck",
-      "autotract",
-      "dwi_acq",
-      "weighted_sc",
-      "tck"
-  ]
-},
-{
-  "id": "qc_modules",
-  "name": "Quality control",
-  "members": [
-      "QC",
-      "QC_subj"
-  ]
-},
-{
-  "id": "cleanup_module",
-  "name": "Cleanup",
-  "members": [
-      "cleanup",
-      "acqstr"
-  ]
-}
-],
+    },
+    {
+      "id": "gd_module",
+      "name": "Geodesic distance",
+      "members": [
+          "GD"
+      ]
+    },
+    {
+      "id": "flair_module",
+      "name": "FLAIR/T2w processing",
+      "members": [
+          "proc_flair",
+          "flairstr",
+          "regsynth"
+      ]
+    },
+    {
+      "id": "mpc_module",
+      "name": "Microstructural Profile Covariance processing",
+      "members": [
+          "MPC",
+          "microstructural_img",
+          "microstructural_reg",
+          "mpc_acq",
+          "regsynth"
+      ]
+    },
+    {
+      "id": "func_module",
+      "name": "fMRI processing",
+      "members": [
+          "proc_func",
+          "func_main",
+          "func_pe",
+          "func_rpe",
+          "topup",
+          "sesanat",
+          "fix",
+          "nofix",
+          "nsr",
+          "gsr",
+          "droptr",
+          "nofc"
+      ]
+    },
+    {
+      "id": "proc_dwi_options",
+      "name": "DWI Processing",
+      "members": [
+          "proc_dwi",
+          "dwi_main",
+          "dwi_rpe",
+          "dwi_processed",
+          "rpe_all",
+          "regAffine",
+          "dwi_acq",
+          "b0thr",
+          "no_bvalue_scaling",
+          "regsynth"
+      ]
+    },
+    {
+      "id": "sc_options",
+      "name": "Structural Connectome Processing",
+      "members": [
+          "SC",
+          "tracts",
+          "keep_tck",
+          "autotract",
+          "dwi_acq",
+          "weighted_sc",
+          "tck"
+      ]
+    },
+    {
+      "id": "qc_modules",
+      "name": "Quality control",
+      "members": [
+          "QC",
+          "QC_subj"
+      ]
+    },
+    {
+      "id": "cleanup_module",
+      "name": "Cleanup",
+      "members": [
+          "cleanup",
+          "acqstr"
+      ]
+    }
+  ],
+  "output-files": [
+      {
+          "name":          "Micapipe Output",
+          "id":            "output_dir",
+          "description":   "The output of micapipe",
+          "optional":      false,
+          "list":          false,
+          "path-template": "[OUTPUT_DIR]/[SUBJECT_DIR]_res"
+      }
+  ],
   "tags": {
       "domain": [
           "boutiques"
@@ -683,10 +683,26 @@
       "cbrain:readonly-input-files": true,
       "cbrain:author": "Raul R. Cruces <raul.rodriguezcruces@mcgill.ca>",
       "cbrain:integrator_modules": {
+        "BoutiquesBidsSingleSubjectMaker": "bids_dataset",
+        "BoutiquesFileTypeVerifier": {
+            "bids_dataset": [ "BidsSubject" ],
+            "fs_licence":   [ "FreesurferLicense", "TextFile", "SingleFile" ]
+        },
+        "BoutiquesFreesurferLicenseFinder": "fs_license_file",
+        "BoutiquesFileNameMatcher": {
+            "bids_dataset": "^sub-[a-zA-Z0-9_]+$"
+        },
         "BoutiquesOutputFileTypeSetter": {
             "output_dir": "MicapipeOutput"
         },
-        "BoutiquesOutputCacheCleaner": [ "tmpdir" ]
-    }
+        "BoutiquesPostProcessingCleaner": [
+            "[OUTPUT_DIR]"
+        ],
+        "BoutiquesInputCacheCleaner": [ "bids_dataset" ],
+        "BoutiquesOutputCacheCleaner": [ "output_dir" ],
+        "BoutiquesOutputFilenameRenamer": {
+            "output_dir": [ "bids_dataset", "output_dir_name" ]
+        }
+      }
   }
 }
