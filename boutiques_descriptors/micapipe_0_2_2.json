@@ -27,7 +27,7 @@
         "optional": false,
         "type": "String",
         "value-key": "[OUTPUT_DIR]",
-        "default-value": "derivatives"
+        "default-value": "micapipe_derivatives-{full}-{task_id}"
       },
       {
         "description": "Subject name (could be sub-XXX or only XXX).",
@@ -665,7 +665,7 @@
           "description":   "The output of micapipe",
           "optional":      false,
           "list":          false,
-          "path-template": "[OUTPUT_DIR]/[SUBJECT_DIR]_res"
+          "path-template": "[OUTPUT_DIR]"
       }
   ],
   "tags": {
@@ -694,11 +694,6 @@
         "BoutiquesOutputFileTypeSetter": {
             "output_dir": "MicapipeOutput"
         },
-        "BoutiquesPostProcessingCleaner": [
-            "[OUTPUT_DIR]"
-        ],
-        "BoutiquesInputCacheCleaner": [ "bids_dataset" ],
-        "BoutiquesOutputCacheCleaner": [ "output_dir" ],
         "BoutiquesOutputFilenameRenamer": {
             "output_dir": [ "bids_dataset", "output_dir_name" ]
         }
