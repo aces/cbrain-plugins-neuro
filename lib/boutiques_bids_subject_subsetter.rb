@@ -274,7 +274,7 @@ module BoutiquesBidsSubjectSubsetter
   # so that the normal setup can be retried.
   def undo_backup_and_copy_subject(subject_name) #:nodoc:
     bk_name = "ORIG-#{subject_name}_#{self.id}" # must match convention in other method
-    if File.symlink?(bk_name) && (File.directory?(subject_name) && ! File.symlink(subject_name))
+    if File.symlink?(bk_name) && (File.directory?(subject_name) && ! File.symlink?(subject_name))
       self.addlog("Warning: restart condition detected, undoing local copy of '#{subject_name}'")
       FileUtils.remove_entry(subject_name, true) # remove the old copy
       File.rename(bk_name,subject_name)
