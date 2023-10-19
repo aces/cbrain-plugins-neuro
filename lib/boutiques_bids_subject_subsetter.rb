@@ -76,7 +76,8 @@ module BoutiquesBidsSubjectSubsetter
   # in the "cbrain_bids_extensions" group section.
   def descriptor_with_special_input(descriptor)
     descriptor       = descriptor.dup
-    map_ids_for_bbss = descriptor.custom_module_info('BoutiquesBidsSubjectSubsetter')
+    map_ids_for_bbss = descriptor.custom_module_info('BoutiquesBidsSubjectSubsetter') || {}
+    return descriptor if map_ids_for_bbss.empty?
     groups           = descriptor.groups || []
 
     map_ids_for_bbss.each do |dir_input_id, keep_input_id|
@@ -144,7 +145,7 @@ module BoutiquesBidsSubjectSubsetter
     self.addlog("#{basename} rev. #{commit}")
 
     descriptor       = self.descriptor_for_setup
-    map_ids_for_bbss = descriptor.custom_module_info('BoutiquesBidsSubjectSubsetter')
+    map_ids_for_bbss = descriptor.custom_module_info('BoutiquesBidsSubjectSubsetter') || {}
 
     # Restart handling; we need to restore the state of the workdir
     # if we had previously renamed some inputs.
@@ -188,9 +189,8 @@ module BoutiquesBidsSubjectSubsetter
   # Overrides the same method in BoutiquesClusterTask, as used
   # during cluster_commands()
   def finalize_bosh_invoke_struct(invoke_struct) #:nodoc:
-    map_ids_for_bbss_values = self.descriptor_for_cluster_commands
-                                  .custom_module_info('BoutiquesBidsSubjectSubsetter')
-                                  .values
+    map_ids_for_bbss = self.descriptor_for_cluster_commands.custom_module_info('BoutiquesBidsSubjectSubsetter') || {}
+    map_ids_for_bbss_values = map_ids_for_bbss.values
 
     super
       .reject do |k,_|
