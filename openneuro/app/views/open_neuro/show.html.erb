@@ -1,0 +1,37 @@
+
+<% title "OpenNeuro #{@open_neuro.name} #{@open_neuro.version}" %>
+
+<h3>OpenNeuro <%= @open_neuro.name %> version <%= @open_neuro.version %></h3>
+
+Name:         <%= @open_neuro.name %><br>
+Version:      <%= @open_neuro.version %><br>
+Configured:   <%= @open_neuro.configured? ? "YES" : "NO" %><br>
+Registration: <%= (@open_neuro.configured? && @open_neuro.registration_progress) || "No files registered" %>
+<% updated_at = @open_neuro.registration_progress_update_time %>
+<% if updated_at %>
+  (Last updated at
+      <%= to_localtime(updated_at,:datetime) %>,
+      <%= pretty_elapsed(Time.now - updated_at, :num_components => 3) %> ago
+  )
+<% end %>
+<br>
+
+<% if current_user.present? && ! @open_neuro.configured? %>
+  <p>
+  <%= button_to 'Configure', { :controller => :open_neuro, :action => :create }, :class => "btn-solid primary btn" %>
+<% end %>
+
+<% if true # debug; set to false when in production %>
+<p>
+
+<h4>DEBUG WorkGroup:</h4>
+
+<pre><%= JSON.pretty_generate(@open_neuro.work_group.attributes) %></pre>
+
+<p>
+
+<h4>DEBUG DataProvider:</h4>
+
+<pre><%= JSON.pretty_generate(@open_neuro.data_provider.attributes) %><br></pre>
+
+<% end %>
