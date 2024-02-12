@@ -1,11 +1,11 @@
 
-<% title "OpenNeuro #{@open_neuro.name} #{@open_neuro.version}" %>
+<% title "OpenNeuro Dataset #{@open_neuro.name} version #{@open_neuro.version}" %>
 
-<h3>OpenNeuro <%= @open_neuro.name %> version <%= @open_neuro.version %></h3>
+<h3>OpenNeuro Dataset <%= @open_neuro.name %> version <%= @open_neuro.version %></h3>
 
 Name:         <%= @open_neuro.name %><br>
 Version:      <%= @open_neuro.version %><br>
-Configured:   <%= @open_neuro.configured? ? "YES" : "NO" %><br>
+Configured:   <%= red_if(!@open_neuro.configured?, "YES", "NO") %><br>
 Registration: <%= (@open_neuro.configured? && @open_neuro.registration_progress) || "No files registered" %>
 <% updated_at = @open_neuro.registration_progress_update_time %>
 <% if updated_at %>

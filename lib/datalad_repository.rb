@@ -94,7 +94,7 @@ class DataladRepository
   end
 
   # Given a subpath that has been installed and the data file gotten with get!(),
-  # will run the git-annex 'uninit' command to transform all symbolic links into
+  # will run the git-annex 'unlock' command to transform all symbolic links into
   # their real files. Destructive on the datalad repo, but can still be done several times
   # without harm.
   def uninit!(subpath)
@@ -108,12 +108,12 @@ class DataladRepository
 
     retcode  = run_datalad_commands(git_top,
       "
-        git-annex uninit #{rel_subpath.to_s.bash_escape} >/dev/null 2>&1
+        git-annex unlock #{rel_subpath.to_s.bash_escape} >/dev/null 2>&1
         test $? -gt 1 && exit 41
         true
       "
     )
-    cb_error "Could not run git-annex uninit command."                       if retcode == 41
+    cb_error "Could not run git-annex unlock command."                       if retcode == 41
     cb_error "Error occured when running datalad script: retcode=#{retcode}" if retcode > 0
     true
   end
