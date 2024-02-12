@@ -1,12 +1,16 @@
 
-<% title "OpenNeuro Dataset #{@open_neuro.name} version #{@open_neuro.version}" %>
+<% on_name    = @open_neuro.name %>
+<% on_version = @open_neuro.version %>
 
-<h3>OpenNeuro Dataset <%= @open_neuro.name %> version <%= @open_neuro.version %></h3>
+<% title "OpenNeuro Dataset #{on_name} version #{on_version}" %>
 
-Name:         <%= @open_neuro.name %><br>
-Version:      <%= @open_neuro.version %><br>
-Configured:   <%= red_if(!@open_neuro.configured?, "YES", "NO") %><br>
-Registration: <%= (@open_neuro.configured? && @open_neuro.registration_progress) || "No files registered" %>
+<h1>OpenNeuro Dataset <%= on_name %> version <%= on_version %></h1>
+
+Name:         <%= on_name %><br>
+Version:      <%= on_version %><br>
+OpenNeuro Info: <%= link_to 'OpenNeuro Dataset Page', "https://openneuro.org/datasets/#{on_name}/versions/#{on_version}", :class => 'button', :target => "_blank" %><br>
+Configured In CBRAIN:   <%= red_if(!@open_neuro.configured?, "YES", "NO") %><br>
+CBRAIN File Registration: <%= (@open_neuro.configured? && @open_neuro.registration_progress) || "No files registered" %>
 <% updated_at = @open_neuro.registration_progress_update_time %>
 <% if updated_at %>
   (Last updated at
@@ -15,23 +19,36 @@ Registration: <%= (@open_neuro.configured? && @open_neuro.registration_progress)
   )
 <% end %>
 <br>
+<% if current_user.present? && (@open_neuro.configured? && @open_neuro.registration_progress == 'Completed') %>
+CBRAIN Files: <%= link_to 'Switch to project', { :controller => :groups, :action => :switch, :id => @open_neuro.work_group.id }, :class => "button", :method  => :post %><br>
+<% end %>
 
 <% if current_user.present? && ! @open_neuro.configured? %>
   <p>
   <%= button_to 'Configure', { :controller => :open_neuro, :action => :create }, :class => "btn-solid primary btn" %>
 <% end %>
 
-<% if true # debug; set to false when in production %>
+
+
+
+<% if Rails.env == 'development' %>
+
 <p>
+
+<%= show_hide_toggle "(DEV DEBUG show/hide)", ".openneuro_debug", :class => 'action_link', :slide_effect => true, :slide_duration => 'fast'  %>
+
+<div class="openneuro_debug" style="background-color: #ddd; padding: 1em; display: none;">
 
 <h4>DEBUG WorkGroup:</h4>
 
-<pre><%= JSON.pretty_generate(@open_neuro.work_group.attributes) %></pre>
+<pre><%= JSON.pretty_generate(@open_neuro.work_group.attributes.reject { |k,v| v.nil? } ) %></pre>
 
 <p>
 
 <h4>DEBUG DataProvider:</h4>
 
-<pre><%= JSON.pretty_generate(@open_neuro.data_provider.attributes) %><br></pre>
+<pre><%= JSON.pretty_generate(@open_neuro.data_provider.attributes.reject { |k,v| v.nil? } ) %><br></pre>
+
+</div>
 
 <% end %>
