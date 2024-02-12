@@ -193,6 +193,7 @@ class OpenNeuro
       :user_id                => DATA_PROVIDER_OWNER.id,
       :group_id               => group_id,
       :datalad_repository_url => "#{DATALAD_REPO_URL_PREFIX}/#{name}",
+      :containerized_path     => version,
       :online                 => true,
     )
   end

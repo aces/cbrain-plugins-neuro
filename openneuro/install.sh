@@ -109,7 +109,10 @@ function process_symlink {
     fi
   fi
   if test $mode = "install" ; then
-    echo "Creating symlink: '$target' -> '$value'"
+    echo "Creating symlink:"
+    echo "  '$target'"
+    echo "    ->"
+    echo "  '$value'"
     if ! /bin/ln -s "$value" "$target" ; then
        echo "Error: creating symlink '$target' -> '$value'"
        exit 2
@@ -138,7 +141,8 @@ tmpclean="/tmp/clean_routes.$$"
 
 # Remove old 'load' line
 if grep '^load.*openneuro_routes' "$route_file" >/dev/null ; then
-  echo "Removing existing 'load' line for openneuro routes in '$route_file'"
+  echo "Removing existing 'load' line for openneuro routes in:"
+  echo "  '$route_file'"
   grep -v '^load.*openneuro_routes' < "$route_file" > $tmpclean
   if ! test -f $tmpclean -o ! -s $tmpclean ; then
     echo "Something went wrong in creating the tmp file $tmpclean to hold the cleaned up routes file."
@@ -151,15 +155,17 @@ fi
 # Add the 'load' line. We add also a blank line just before in case
 # the existing route file doesn't have a final new line character.
 if test "$mode" = "install" ; then
-  echo "Installing 'load' line for openneuro routes at the bottom of routes in '$route_file'"
+  echo "Installing 'load' line for openneuro routes at the bottom of:"
+  echo "  '$route_file'"
   cat <<RUBY_LOAD >> "$route_file"
 
 load "#{Rails.root}/cbrain_plugins/$plugins_basename/openneuro/config/openneuro_routes.rb"
 RUBY_LOAD
 fi
 
+echo ""
 if test "$mode" = "install" ; then
-  echo "OpenNeuro support fully configurated"
+  echo "Success! OpenNeuro support fully configurated"
 else
-  echo "OpenNeuro support fully unconfigurated"
+  echo "Success! OpenNeuro support fully UNconfigurated"
 fi

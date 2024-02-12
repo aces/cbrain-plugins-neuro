@@ -48,18 +48,24 @@ class DataladRepository
 
   # Given a url, will install the remote datalad repo under the install_path.
   # Normally only needed to be done once.
-  def install_from_url!(url)
+  # If tagname is provides, a "git checkout" will be performed on that tag
+  # or branch.
+  def install_from_url!(url, tagname=nil)
     parent   = install_path.parent
     basename = install_path.basename.to_s
     retcode = run_datalad_commands(parent,
       "
         datalad install -s #{url} #{basename.bash_escape} >/dev/null 2>&1 || exit 41
         cd #{basename.bash_escape}                                        || exit 42
+        if test -n #{tagname.bash_escape} ; then
+          git checkout #{tagname.bash_escape}             >/dev/null      || exit 43
+        fi
         git pull                                          >/dev/null      || exit 42
       "
     )
     cb_error "Could not run datalad install."                                 if retcode == 41
     cb_error "Could not update datalad dataset."                              if retcode == 42
+    cb_error "Could not checkout version #{tagname} of datalad dataset."      if retcode == 43
     cb_error "Error occured when running datalad script: retcode=#{retcode}"  if retcode > 0
     true
   end
