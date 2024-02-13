@@ -92,6 +92,11 @@ class OpenNeuro
     self.data_provider.meta.md_for_key(:openneuro_registration_progress)&.updated_at
   end
 
+  # Returns true if all files have been registered
+  def all_registered?
+    self.configured? && self.registration_progress == 'Completed'
+  end
+
   # Saves the WorkGroup and DataladDataProvider
   # associated with the OpenNeuro dataset, if
   # not already done. Does nothing if the

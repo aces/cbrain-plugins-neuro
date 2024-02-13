@@ -1,0 +1,53 @@
+
+<h5>About This OpenNeuro Dataset</h5>
+
+<% if @open_neuro.configured? %>
+
+  <p class="medium_paragraphs">
+    This dataset is currently <strong>configured</strong> within the CBRAIN system.
+  </p>
+
+  <% if ! @open_neuro.all_registered? %>
+    <p class="medium_paragraphs">
+      <strong>Not all files</strong> seem to be currently registered. It's possible the
+      file registration process is still ongoing, but if this has started a long time ago,
+      place contact the CBRAIN administrators to double check.
+      You can <%= link_to "Refresh",
+        { :action => :show, :controller => :open_neuro, :name => @open_neuro.name, :version => @open_neuro.version },
+        :class => 'action_link' %>
+      this page to see if progress happens.
+    </p>
+  <% end %>
+
+  <p class="medium_paragraphs">
+    The dataset's files are registered in the public project <%= link_to_group_if_accessible(@open_neuro.work_group) %>.
+  </p>
+  <p class="medium_paragraphs">
+    You can also directly switch to the project files here:
+    <%= link_to 'Switch to project', { :controller => :groups, :action => :switch, :id => @open_neuro.work_group.id }, :class => "button", :method  => :post %>
+  </p>
+
+<% else %>
+
+  <p class="medium_paragraphs">
+    This dataset is currently <strong>unconfigured</strong> within the CBRAIN system.
+  </p>
+
+  <p class="medium_paragraphs">
+    However, by clicking the button below, you can make CBRAIN automatically configure
+    a public project and fetch the files of the dataset.
+  </p>
+
+  <p class="medium_paragraphs">
+    Depending on the size of the datasets, this process can take several minutes, or hours.
+  </p>
+
+  <%= button_to(
+    'Configure The Dataset',
+      { :controller => :open_neuro, :action => :create },
+      :class => "btn-solid primary btn",
+      :data  => { :confirm => "Are you sure you want to configure this OpenNeuro dataset?" }
+    )
+  %>
+
+<% end %>

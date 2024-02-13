@@ -4,31 +4,57 @@
 
 <% title "OpenNeuro Dataset #{on_name} version #{on_version}" %>
 
-<h1>OpenNeuro Dataset <%= on_name %> version <%= on_version %></h1>
+<h1>CBRAIN On-Demand OpenNeuro Dataset Integration</h1>
 
-Name:         <%= on_name %><br>
-Version:      <%= on_version %><br>
-OpenNeuro Info: <%= link_to 'OpenNeuro Dataset Page', "https://openneuro.org/datasets/#{on_name}/versions/#{on_version}", :class => 'button', :target => "_blank" %><br>
-Configured In CBRAIN:   <%= red_if(!@open_neuro.configured?, "YES", "NO") %><br>
-CBRAIN File Registration: <%= (@open_neuro.configured? && @open_neuro.registration_progress) || "No files registered" %>
-<% updated_at = @open_neuro.registration_progress_update_time %>
-<% if updated_at %>
-  (Last updated at
-      <%= to_localtime(updated_at,:datetime) %>,
-      <%= pretty_elapsed(Time.now - updated_at, :num_components => 3) %> ago
-  )
+<%= show_table(@open_neuro, :header => 'OpenNeuro Dataset Information', :edit_condition => false) do |t| %>
+
+  <% t.cell("Dataset Name",        :show_width => 2) { on_name } %>
+
+  <% t.cell("Dataset Version",     :show_width => 2) { on_version } %>
+
+  <% t.cell("Official Documentation", :show_width => 2) do %>
+    <%= link_to 'OpenNeuro Dataset Page', "https://openneuro.org/datasets/ds004906/versions/2.4.0", :target => '_blank', :class => 'button' %>
+    (this will open in a separate tab)
+  <% end %>
+
+  <% t.cell("Status in CBRAIN", :show_width => 2) do %>
+    <%= red_if(!@open_neuro.configured?, "Configured", "Not yet configured", :color1 => 'green') %>
+  <% end %>
+
+  <% if (@open_neuro.configured? && @open_neuro.registration_progress) %>
+    <% t.cell("Files Registration", :show_width => 2) do %>
+      <strong><%= @open_neuro.registration_progress %></strong>
+      <% updated_at = @open_neuro.registration_progress_update_time %>
+      <% if updated_at %>
+        (Last updated at <%= to_localtime(updated_at,:datetime) %>,
+        <%= pretty_elapsed(Time.now - updated_at, :num_components => 2) %> ago)
+      <% end %>
+    <% end %>
+  <% end %>
+
+  <% if @open_neuro.all_registered? %>
+    <% t.cell("File Statistics", :show_width => 2) do %>
+      <%= @open_neuro
+            .work_group
+            .userfiles
+            .group(:type)
+            .count
+            .map { |type,count| "#{count} x #{type}" }
+            .join(", ")
+      %>
+      (Total of <%= @open_neuro.work_group.userfiles.sum(:num_files)%> files)
+    <% end %>
+  <% end %>
+
 <% end %>
-<br>
-<% if current_user.present? && (@open_neuro.configured? && @open_neuro.registration_progress == 'Completed') %>
-CBRAIN Files: <%= link_to 'Switch to project', { :controller => :groups, :action => :switch, :id => @open_neuro.work_group.id }, :class => "button", :method  => :post %><br>
+
+<p>
+
+<% if current_user.blank? %>
+  <%= render :partial => 'about_not_logged_in' %>
+<% else %>
+  <%= render :partial => 'about_logged_in' %>
 <% end %>
-
-<% if current_user.present? && ! @open_neuro.configured? %>
-  <p>
-  <%= button_to 'Configure', { :controller => :open_neuro, :action => :create }, :class => "btn-solid primary btn" %>
-<% end %>
-
-
 
 
 <% if Rails.env == 'development' %>
