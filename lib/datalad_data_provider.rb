@@ -185,7 +185,7 @@ class DataladDataProvider < DataProvider
       :name => default_name_of_userfile_for_datalad_cache()
     ) do |cache_full_path|
       dlr = DataladRepository.new(cache_full_path)
-      dlr.install_from_url!( self.datalad_repository_url )
+      dlr.install_from_url!( self.datalad_repository_url, self.containerized_path.presence )
       dlr.install_r!( self.datalad_relative_path ) if self.datalad_relative_path.present?
     end
     @userfile_for_datalad_cache

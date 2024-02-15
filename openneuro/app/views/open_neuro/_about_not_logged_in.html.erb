@@ -1,0 +1,27 @@
+
+<h5>About This OpenNeuro Dataset</h5>
+
+<% if @open_neuro.configured? %>
+
+  <p class="medium_paragraphs">
+    This dataset is currently <strong>installed</strong> within the CBRAIN system.
+    CBRAIN users can access the dataset's files, select them
+    for processing, and view their contents.
+  </p>
+
+<% else %>
+
+  <p class="medium_paragraphs">
+    This dataset is currently <strong>not installed</strong> within the CBRAIN system.
+    However, CBRAIN users can at any time initiate the installation using the
+    dataset installation self-service function. Once the dataset is installed,
+    CBRAIN users can access the dataset's files, select them
+    for processing, and view their contents.
+  </p>
+
+<% end %>
+
+<p>
+  To log in to CBRAIN or get an account, go to the
+  <%= link_to 'CBRAIN Login Page', login_path(), :class => 'button' %>
+</p>
