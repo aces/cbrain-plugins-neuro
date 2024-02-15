@@ -18,7 +18,7 @@
   <% end %>
 
   <% t.cell("Status in CBRAIN", :show_width => 2) do %>
-    <%= red_if(!@open_neuro.configured?, "Configured", "Not yet configured", :color1 => 'green') %>
+    <%= red_if(!@open_neuro.configured?, "Installed", "Not yet installed", :color1 => 'green') %>
   <% end %>
 
   <% if (@open_neuro.configured? && @open_neuro.registration_progress) %>

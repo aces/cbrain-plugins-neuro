@@ -4,7 +4,7 @@
 <% if @open_neuro.configured? %>
 
   <p class="medium_paragraphs">
-    This dataset is currently <strong>configured</strong> within the CBRAIN system.
+    This dataset is currently <strong>installed</strong> within the CBRAIN system.
     CBRAIN users can access the dataset's files, select them
     for processing, and view their contents.
   </p>
@@ -12,15 +12,11 @@
 <% else %>
 
   <p class="medium_paragraphs">
-    This dataset is currently <strong>unconfigured</strong> within the CBRAIN system.
-    However, CBRAIN users can request the dataset to be
-    installed and configured by clicking a single button.
-    From that point on, CBRAIN users can access the dataset's files, select them
+    This dataset is currently <strong>not installed</strong> within the CBRAIN system.
+    However, CBRAIN users can at any time initiate the installation using the
+    dataset installation self-service function. Once the dataset is installed,
+    CBRAIN users can access the dataset's files, select them
     for processing, and view their contents.
-  </p>
-  <p class="medium_paragraphs">
-    This on-demand dataset installation mechanism will also
-    make the dataset's files available to all other CBRAIN users too.
   </p>
 
 <% end %>
