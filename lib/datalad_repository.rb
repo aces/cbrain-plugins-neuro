@@ -53,6 +53,7 @@ class DataladRepository
   def install_from_url!(url, tagname=nil)
     parent   = install_path.parent
     basename = install_path.basename.to_s
+    tagname  = tagname.presence || "" # need empty string in bash commands
     retcode = run_datalad_commands(parent,
       "
         datalad install -s #{url} #{basename.bash_escape} >/dev/null 2>&1 || exit 41
