@@ -13,7 +13,7 @@
   <% t.cell("Dataset Version",     :show_width => 2) { on_version } %>
 
   <% t.cell("Official Documentation", :show_width => 2) do %>
-    <%= link_to 'OpenNeuro Dataset Page', "https://openneuro.org/datasets/ds004906/versions/2.4.0", :target => '_blank', :class => 'button' %>
+    <%= link_to 'OpenNeuro Dataset Page', "https://openneuro.org/datasets/#{on_name}/versions/#{on_version}", :target => '_blank', :class => 'button' %>
     (this will open in a separate tab)
   <% end %>
 
