@@ -9,7 +9,7 @@
 
   <% if ! @open_neuro.all_registered? %>
     <p class="medium_paragraphs">
-      However, <strong>not all files</strong> currently registered.
+      However, <strong>not all files</strong> are currently registered.
       It is possible the file registration process is still ongoing.
       You can
       <%= link_to "refresh this page",
@@ -60,7 +60,7 @@
   </p>
 
   <%= button_to(
-    'Install The Dataset',
+    'Install The Dataset Now!',
       { :controller => :open_neuro, :action => :create },
       :class => "btn-solid primary btn",
       :data  => { :confirm => "Are you sure you want to install this OpenNeuro dataset?" }

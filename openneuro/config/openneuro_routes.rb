@@ -16,6 +16,9 @@ Rails.application.routes.draw do
   post  '/openneuro/:name/versions/:version',
     :controller => :open_neuro, :action => :create,
     :name => /ds\d\d\d\d\d\d/, :version => /[\w\.]+/  # regex can not be anchored
+  # The post action can only be triggered by logged-in users.
+  get   '/openneuro/select',
+    :controller => :open_neuro, :action => :select
 
 end
 

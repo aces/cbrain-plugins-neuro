@@ -31,12 +31,24 @@ class OpenNeuroController < ApplicationController
     name    = params[:name]
     version = params[:version]
     @open_neuro = OpenNeuro.find(name,version)
+    if ! @open_neuro.valid_name_and_version?
+      message = "The OpenNeuro dataset name '#{name}' with version '#{version}' is not valid."
+      flash.now[:error] = message    if ! current_user
+      flash[:error]     = message    if current_user
+      redirect_to :action => :select if current_user
+    end
   end
 
   def create
     name    = params[:name]
     version = params[:version]
     @open_neuro = OpenNeuro.find(name,version)
+
+    if ! @open_neuro.valid_name_and_version?
+      flash[:error] = "The OpenNeuro dataset name '#{name}' with version '#{version}' is not valid."
+      redirect_to :action => :select
+    end
+
     if ! @open_neuro.configured?
       @open_neuro.autoconfigure!
       @open_neuro.work_group.addlog    "Initial OpenNeuro configuration requested by #{current_user.login}"
@@ -46,6 +58,22 @@ class OpenNeuroController < ApplicationController
       end
     end
     redirect_to :action => :show
+  end
+
+  def select
+    @name    = params[:name].presence
+    @version = params[:version].presence
+
+    return if @name.blank? || @version.blank?
+
+    @open_neuro = OpenNeuro.find(@name,@version)
+    if ! @open_neuro.valid_name_and_version?
+      flash.now[:error] = "The OpenNeuro dataset name '#{@name}' with version '#{@version}' is not valid."
+      render :action => :select
+      return
+    end
+
+    redirect_to :action=> :show, :name => @name, :version => @version
   end
 
 end

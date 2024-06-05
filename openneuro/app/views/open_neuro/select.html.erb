@@ -1,0 +1,47 @@
+
+<% title "OpenNeuro Dataset Finder" %>
+
+<h1>CBRAIN On-Demand OpenNeuro Dataset Integration</h1>
+
+This page allows you to enter the name and version of a known OpenNeuro dataset, and check its availability in CBRAIN.
+
+<p>
+
+We suggest you <%= link_to 'Browse all OpenNeuro datasets', 'https://openneuro.org/', :target => '_blank', :class => 'button' %>
+first to identify a dataset of interest.
+(This page will open in a separate tab)
+
+<p>
+
+Once you click the button below the form, CBRAIN will verify that the name and
+version are valid, and then send you to a CBRAIN page where you can request the installation
+of the dataset (if it's not already installed).
+
+<p>
+
+Note that both values are required.
+
+<p>
+
+<%= form_tag( { :action => :select }, :method => :get ) do %>
+
+<table class="simple">
+<tr>
+  <th>Dataset Name</th>
+  <td>
+    <%= text_field_tag(:name,    @name,    :size => 10, :placeholder => 'ds000000' ) %>
+  </td>
+</tr>
+<tr>
+  <th>Dataset Version</th>
+  <td>
+    <%= text_field_tag(:version, @version, :size => 10, :placeholder => '1.0.0' ) %>
+  </td>
+</tr>
+</table>
+
+<p>
+
+<%= submit_tag("Check OpenNeuro dataset validity", :class => "button") %>
+
+<% end %>

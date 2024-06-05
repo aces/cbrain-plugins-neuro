@@ -56,6 +56,24 @@
   <%= render :partial => 'about_logged_in' %>
 <% end %>
 
+<p>
+
+<h5>Other Related Pages</h5>
+
+(External link): <%= link_to 'Browse all OpenNeuro datasets', 'https://openneuro.org/', :target => '_blank', :class => 'button' %>
+(this will open in a separate tab)
+<% if current_user.present? %>
+<p>
+(CBRAIN link): You can manually <%= link_to 'Select an OpenNeuro dataset', openneuro_select_path, :class => 'button' %> by name and version.
+<% end %>
+
+
+
+<%
+#------------------------------
+# DEBUG CODE IN DEV ENVIRONMENT
+#------------------------------
+%>
 
 <% if Rails.env == 'development' %>
 
@@ -78,3 +96,5 @@
 </div>
 
 <% end %>
+
+

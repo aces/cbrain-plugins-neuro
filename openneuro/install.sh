@@ -165,7 +165,7 @@ fi
 
 echo ""
 if test "$mode" = "install" ; then
-  echo "Success! OpenNeuro support fully configurated"
+  echo "Success! OpenNeuro support fully configured"
 else
-  echo "Success! OpenNeuro support fully UNconfigurated"
+  echo "Success! OpenNeuro support fully *UN*configured"
 fi

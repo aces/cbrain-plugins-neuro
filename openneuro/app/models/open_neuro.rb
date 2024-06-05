@@ -39,6 +39,7 @@ class OpenNeuro
   USERFILES_OWNER     = User.admin
 
   DATALAD_REPO_URL_PREFIX = 'https://github.com/OpenNeuroDatasets'
+  GITHUB_VALIDATION_URL   = 'https://api.github.com/repos/OpenNeuroDatasets/:name/git/ref/tags/:version'
 
   # Creates an OpenNeuro object that represents
   # the dataset internally as a pair, a WorkGroup
@@ -175,6 +176,11 @@ class OpenNeuro
     false
   end
 
+  # Instance method of the class method of the same name
+  def valid_name_and_version?
+    self.class.valid_name_and_version?(self.name,self.version)
+  end
+
   private
 
   # Returns a WorkGroup fetcher or constructor
@@ -217,6 +223,57 @@ class OpenNeuro
   #   "OpenNeuro-ds123456-v1_2_3"
   def self.data_provider_name_builder(name, version)
     "OpenNeuro-#{name}-#{version.gsub('.','_')}"
+  end
+
+  # Validation of a pair [ dataset, version ] performed with:
+  #
+  #   curl -H "Accept: application/vnd.github+json"
+  #        -H "X-GitHub-Api-Version: 2022-11-28"
+  #        "https://api.github.com/repos/OpenNeuroDatasets/ds004906/git/ref/tags/2.4.0"
+  #
+  # The typical response is like this:
+  #
+  #   {
+  #     "ref": "refs/tags/2.4.0",
+  #     "node_id": "REF_kwDOK8fpRq9yZWZzL3RhZ3MvMi40LjA",
+  #     "url": "https://api.github.com/repos/OpenNeuroDatasets/ds004906/git/refs/tags/2.4.0",
+  #     "object": {
+  #       "sha": "1aa6d3a098d16009d39adde6a7abe1c34d4b07d6",
+  #       "type": "commit",
+  #       "url": "https://api.github.com/repos/OpenNeuroDatasets/ds004906/git/commits/1aa6d3a098d16009d39adde6a7abe1c34d4b07d6"
+  #     }
+  #   }
+  #
+  # The method just returns true or false.
+  def self.valid_name_and_version?(name, version)
+    return false unless name    =~ /\Ads\d+\z/
+    return false unless version =~ /\A[a-z0-9][\w\.\-]+\z/
+
+    validation_url = GITHUB_VALIDATION_URL
+      .sub(':name',    name   )
+      .sub(':version', version)
+
+    github_json = IO.popen(
+      [
+        "curl",
+        "-s",
+        "--connect-timeout", "10",
+        "--max-time",        "10",
+        "-H", "Accept: application/vnd.github+json",
+        "-H", "X-GitHub-Api-Version: 2022-11-28",
+        validation_url
+      ], "r"
+    ) { |fh| fh.read }
+
+    return false if github_json.blank?
+
+    response = JSON.parse(github_json) rescue nil
+    return false if response.nil?
+
+    return true if response["ref"].present?
+    false
+  rescue
+    return false
   end
 
 end
