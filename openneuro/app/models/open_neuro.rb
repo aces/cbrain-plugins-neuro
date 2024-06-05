@@ -253,17 +253,19 @@ class OpenNeuro
       .sub(':name',    name   )
       .sub(':version', version)
 
-    github_json = IO.popen(
-      [
-        "curl",
-        "-s",
-        "--connect-timeout", "10",
-        "--max-time",        "10",
-        "-H", "Accept: application/vnd.github+json",
-        "-H", "X-GitHub-Api-Version: 2022-11-28",
-        validation_url
-      ], "r"
-    ) { |fh| fh.read }
+    github_json = Rails.cache.fetch(validation_url, expires_in: 7.days) do
+      IO.popen(
+        [
+          "curl",
+          "-s",
+          "--connect-timeout", "10",
+          "--max-time",        "10",
+          "-H", "Accept: application/vnd.github+json",
+          "-H", "X-GitHub-Api-Version: 2022-11-28",
+          validation_url
+        ], "r"
+      ) { |fh| fh.read }
+    end
 
     return false if github_json.blank?
 
