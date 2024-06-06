@@ -64,6 +64,10 @@ class OpenNeuroController < ApplicationController
     @name    = params[:name].presence
     @version = params[:version].presence
 
+    if @name.present? ^ @version.present? # how often do you use XOR ?
+      flash.now[:error] = 'Please provide both a dataset name and a version.'
+    end
+
     return if @name.blank? || @version.blank?
 
     @open_neuro = OpenNeuro.find(@name,@version)
