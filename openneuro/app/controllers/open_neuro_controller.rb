@@ -53,9 +53,7 @@ class OpenNeuroController < ApplicationController
       @open_neuro.autoconfigure!
       @open_neuro.work_group.addlog    "Initial OpenNeuro configuration requested by #{current_user.login}"
       @open_neuro.data_provider.addlog "Initial OpenNeuro configuration requested by #{current_user.login}"
-      CBRAIN.spawn_with_active_records(:admin, "Autoregister OpenNeuro DP=#{@open_neuro.name} ID=#{@open_neuro.data_provider.id}") do
-        @open_neuro.autoregister!
-      end
+      @open_neuro.autoregister!
     end
     redirect_to :action => :show
   end

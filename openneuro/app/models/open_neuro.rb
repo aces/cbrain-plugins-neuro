@@ -74,30 +74,6 @@ class OpenNeuro
     self.configured
   end
 
-  # Returns a progress string when userfile registertion
-  # is progressing in background.
-  def registration_progress
-    self.data_provider.meta[:openneuro_registration_progress]
-  end
-
-  # Set the progress string when registration is
-  # happening in the background.
-  def registration_progress=(infostring)
-    self.data_provider.meta[:openneuro_registration_progress] = infostring
-  end
-
-  # Returns the timestamp of the last time the
-  # registration progress string was updated.
-  def registration_progress_update_time
-    self.data_provider.id.presence &&
-    self.data_provider.meta.md_for_key(:openneuro_registration_progress)&.updated_at
-  end
-
-  # Returns true if all files have been registered
-  def all_registered?
-    self.configured? && self.registration_progress == 'Completed'
-  end
-
   # Saves the WorkGroup and DataladDataProvider
   # associated with the OpenNeuro dataset, if
   # not already done. Does nothing if the
@@ -117,58 +93,49 @@ class OpenNeuro
     return false unless self.configured?
     return true  if self.registration_progress.present? # already in progress, or finished
 
+    # Save information for tracking progress
     self.registration_progress = "Getting file list"
 
+    # List of everything at the top of the DP
     fis = self.data_provider
               .provider_list_all  # array of FileInfo objects, top level only
               .sort { |a,b| a.name <=> b.name }
 
+    # Save information for tracking progress
     self.registration_progress = "Starting registration of #{fis.size} potential entries"
+    self.raw_file_count = fis.size
 
-    registered = fis.each_with_index.map do |fi,idx|
-      next unless Userfile.is_legal_filename?(fi.name)
-      next unless fi.symbolic_type == :regular || fi.symbolic_type == :directory
-
-      self.registration_progress = "Registering file #{idx+1}/#{fis.size}: #{fi.name}"
-
-      # Try to assign a proper CBRAIN Userfile type
-      suggested_klass = SingleFile     if fi.symbolic_type == :regular
-      suggested_klass = FileCollection if fi.symbolic_type == :directory
-      suggested_klass = suggested_klass.suggested_file_type(fi.name) || suggested_klass
-      suggested_klass = TextFile if suggested_klass == SingleFile && fi.name =~ /README|CHANGE/
-
-      userfile = suggested_klass.new(
-        :name             => fi.name,
-        :size             => (fi.symbolic_type == :regular ? fi.size : nil),
-        :num_files        => (fi.symbolic_type == :regular ? 1       : nil),
-        :user_id          => USERFILES_OWNER.id,
-        :group_id         => self.work_group.id,
-        :data_provider_id => self.data_provider.id,
-        :immutable        => true,
-        :group_writable   => false,
-        :hidden           => false,
-        :archived         => false,
-      )
-
-      next unless userfile.save # ignore errors?
-      userfile.set_size
-      userfile
-
+    # Prepare an array of [ 'type-basename', 'type-basename' ... ]
+    items = fis.map do |fi|
+      fname, ftype = fi.name, fi.symbolic_type
+      next unless Userfile.is_legal_filename?(fname)
+      next unless ftype == :regular || ftype == :directory
+      suggested_klass = SingleFile     if ftype == :regular
+      suggested_klass = FileCollection if ftype == :directory
+      suggested_klass = suggested_klass.suggested_file_type(fname) || suggested_klass
+      suggested_klass = TextFile if suggested_klass == SingleFile && fname =~ /README|CHANGE/
+      "#{suggested_klass}-#{fname}"
     end.compact
 
-    self.registration_progress = "Completed"
+    # More information for tracking progress
+    self.to_register_file_count = items.size
 
-    Message.send_message(DATA_PROVIDER_OWNER,
-      {
-        :type          => :system,
-        :header        => "OpenNeuro dataset populated",
-        :description   => "An OpenNeuro dataset has been populated",
-        :variable_text => "OpenNeuro Dataset Name: #{self.name}\n" +
-                          "Populated: #{registered.size} CBRAIN entries / #{fis.size} entries on DP"
+    # Create the BackgroundActivity object
+    bac = BackgroundActivity::RegisterFile.local_new(
+      User.admin.id, items, nil,
+      { # options hash
+        :src_data_provider_id => self.data_provider.id,
+        :group_id             => self.work_group.id,
+        :as_user_id           => USERFILES_OWNER.id,
+        :immutable            => true,
       }
     )
+    bac.save!
 
-    true
+    # For tracking progress
+    self.registration_bac_id = bac.id
+
+    return true
 
   rescue => ex
     self.registration_progress = "Error during registration process. Admins notified."
@@ -180,6 +147,123 @@ class OpenNeuro
   def valid_name_and_version?
     self.class.valid_name_and_version?(self.name,self.version)
   end
+
+  ############################################################
+  # Meta data persistence helpers; here we store and retrieve
+  # miscellanous values used for tracking the progres of
+  # the registration BAC. All of the key-values are stored in
+  # the metadata of DataProvider associated with the ON dataset.
+  ############################################################
+
+  # Set the progress string when registration is
+  # happening in the background.
+  def registration_progress=(infostring)
+    self.data_provider.meta[:openneuro_registration_progress] = infostring
+  end
+
+  # Returns a progress string when userfile registration
+  # is progressing in background.
+  #
+  # The complicated logic is necessary to support the case of the
+  # asynchronous BAC object disappearing after registration is completed,
+  # or even while it was happening (leaving it partial).
+  def registration_progress
+    # Not started yet
+    return nil         if self.data_provider.meta[:openneuro_registration_progress].blank?
+    # Quickest check; this is permanent once everything is finished.
+    return 'Completed' if self.data_provider.meta[:openneuro_registration_progress] == 'Completed'
+
+    # Check the BAC for 'Completed'.
+    bac = self.registration_bac # eventually it can disappear
+    bac_status = bac&.status&.underscore&.humanize
+    if bac_status == 'Completed'
+      self.data_provider.meta[:openneuro_registration_progress] = 'Completed'
+      self.send_final_message # notify admin
+      return 'Completed'
+    end
+
+    # If the BAC is in progress in any way, report that.
+    if bac_status.present? # BAC exists, but not finished yet
+      donecount = bac.current_item
+      expcount  = self.to_register_file_count || "Unknown"
+      message = "#{bac_status} #{donecount}/#{expcount}"
+      self.data_provider.meta[:openneuro_registration_progress] = message
+      return message
+    end
+
+    # No BAC at all? It could have finished properly.
+    donecount = self.data_provider.userfiles.count
+    expcount  = self.to_register_file_count || "Unknown" # default chosen to not match
+    if donecount.to_s == expcount.to_s
+      self.data_provider.meta[:openneuro_registration_progress] = 'Completed'
+      self.send_final_message
+      return 'Completed'
+    end
+
+    # Woh, something went wrong. The BAC disappeared and we can't find all the files.
+    message = "Crashed at #{donecount}/#{expcount}"
+    self.data_provider.meta[:openneuro_registration_progress] = message
+    return message
+  end
+
+  def send_final_message
+    num_files = self.data_provider.userfiles.count
+    raw_files = self.raw_file_count || "unknown"
+    Message.send_message(DATA_PROVIDER_OWNER,
+      {
+        :type          => :system,
+        :header        => "OpenNeuro dataset populated",
+        :description   => "An OpenNeuro dataset has been populated",
+        :variable_text => "OpenNeuro Dataset Name: #{self.name}\n" +
+                          "Populated: #{num_files} CBRAIN entries / #{raw_files} entries on DP"
+      }
+    )
+    self.to_register_file_count = nil # zap metadata, no longer useful
+    self.raw_file_count         = nil # zap metadata, no longer useful
+    self.registration_bac_id    = nil # zap metadata, no longer useful
+  end
+
+  # Returns the timestamp of the last time the
+  # registration progress string was updated.
+  def registration_progress_update_time
+    bac = self.registration_bac
+    return bac.updated_at if bac
+    self.data_provider.id.presence &&
+    self.data_provider.meta.md_for_key(:openneuro_registration_progress)&.updated_at
+  end
+
+  # Returns true if all files have been registered
+  def all_registered?
+    self.configured? && self.registration_progress == 'Completed'
+  end
+
+  def registration_bac
+    bac_id = self.data_provider.meta[:openneuro_registration_bac_id]
+    BackgroundActivity::RegisterFile.where(:id => bac_id).first
+  end
+
+  def registration_bac_id=(bac_id)
+    self.data_provider.meta[:openneuro_registration_bac_id] = bac_id
+  end
+
+  def raw_file_count
+    self.data_provider.meta[:open_neuro_raw_file_count]
+  end
+
+  def raw_file_count=(val)
+    self.data_provider.meta[:open_neuro_raw_file_count] = val
+  end
+
+  def to_register_file_count
+    self.data_provider.meta[:open_neuro_to_register_file_count]
+  end
+
+  def to_register_file_count=(val)
+    self.data_provider.meta[:open_neuro_to_register_file_count] = val
+  end
+
+
+  ############################################################
 
   private
 
