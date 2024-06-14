@@ -332,26 +332,25 @@ class OpenNeuro
   #
   # The method just returns true or false.
   def self.valid_name_and_version?(name, version)
-    return false unless name    =~ /\Ads\d+\z/
+    return false unless name =~ /\Ads\d+\z/
     return false unless version =~ /\A[a-z0-9][\w\.\-]+\z/
     query = '{snapshot(datasetId:"%s", tag:"%s"){id}}' % [name, version]
 
     response = Typhoeus.post(OPENNEURO_API_URL,
-                             {:body   =>  JSON.pretty_generate({"query" => query})
-                             },
-                             :headers => { :Accept       => 'application/json'    }
+                             :body    => JSON.pretty_generate({ "query" => query }),
+                             :headers => { 'Content-Type' => 'application/json',
+                                           'Accept'       => 'application/json'
+                             }
     )
 
-
     # Parse the response
-    body         = response.response_body
-    json         = JSON.parse(body)
-    return ! json["errors"]
+    body = response.response_body
+    json = JSON.parse(body)
+    return !json["errors"]
   rescue => ex
     Rails.logger.error "OpenNeuro API request failed: #{ex.class} #{ex.message}"
     return nil
   end
-
 
   # Validation of a pair [ dataset, tag ] on github performed with:
   #
