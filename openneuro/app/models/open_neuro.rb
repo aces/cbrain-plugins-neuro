@@ -2,7 +2,7 @@
 #
 # CBRAIN Project
 #
-# Copyright (C) 2008-2023
+# Copyright (C) 2008-2024
 # The Royal Institution for the Advancement of Learning
 # McGill University
 #
@@ -41,7 +41,6 @@ class OpenNeuro
   DATALAD_REPO_URL_PREFIX = 'https://github.com/OpenNeuroDatasets'
   GITHUB_VALIDATION_URL   = 'https://api.github.com/repos/OpenNeuroDatasets/:name/git/ref/tags/:version'
   OPENNEURO_API_URL       = 'https://openneuro.org/crn/graphql'
-
 
   # Creates an OpenNeuro object that represents
   # the dataset internally as a pair, a WorkGroup
