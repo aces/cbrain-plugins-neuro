@@ -310,26 +310,15 @@ class OpenNeuro
     "OpenNeuro-#{name}-#{version.gsub('.','_')}"
   end
 
-  # Validation of a pair [ dataset, version ] performed with:
+  # Validation of a pair [ dataset, version ] with OpenNeuro GraphQL API
+  #   
+  # The result is sometimes different          
+  # "https://api.github.com/repos/OpenNeuroDatasets/
   #
-  #   curl -H "Accept: application/vnd.github+json"
-  #        -H "X-GitHub-Api-Version: 2022-11-28"
-  #        "https://api.github.com/repos/OpenNeuroDatasets/ds004906/git/ref/tags/2.4.0"
-  #
-  # The typical response is like this:
-  #
-  #   {
-  #     "ref": "refs/tags/2.4.0",
-  #     "node_id": "REF_kwDOK8fpRq9yZWZzL3RhZ3MvMi40LjA",
-  #     "url": "https://api.github.com/repos/OpenNeuroDatasets/ds004906/git/refs/tags/2.4.0",
-  #     "object": {
-  #       "sha": "1aa6d3a098d16009d39adde6a7abe1c34d4b07d6",
-  #       "type": "commit",
-  #       "url": "https://api.github.com/repos/OpenNeuroDatasets/ds004906/git/commits/1aa6d3a098d16009d39adde6a7abe1c34d4b07d6"
-  #     }
-  #   }
-  #
-  # The method just returns true or false.
+  # Some datasets or dataset versions, availabe on OpenNeuro portal or with OpenNeuro client are not always
+  # on GitHub
+  #   
+  # At the moment the method just returns true or false.
   def self.valid_name_and_version?(name, version)
     return false unless name =~ /\Ads\d+\z/
     return false unless version =~ /\A[a-z0-9][\w\.\-]+\z/
