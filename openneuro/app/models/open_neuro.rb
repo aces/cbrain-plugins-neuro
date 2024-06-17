@@ -38,9 +38,10 @@ class OpenNeuro
   DATA_PROVIDER_OWNER = User.admin
   USERFILES_OWNER     = User.admin
 
-  DATALAD_REPO_URL_PREFIX = 'https://github.com/OpenNeuroDatasets'
-  GITHUB_VALIDATION_URL   = 'https://api.github.com/repos/OpenNeuroDatasets/:name/git/ref/tags/:version'
-  OPENNEURO_API_URL       = 'https://openneuro.org/crn/graphql'
+  DATALAD_REPO_URL_PREFIX  = 'https://github.com/OpenNeuroDatasets'
+  DATALAD_ALT_URL_PREFIXES =  ['https://github.com/MontrealSergiy', 'https://github.com/aces']
+  GITHUB_VALIDATION_URL    = 'https://api.github.com/repos/OpenNeuroDatasets/:name/git/ref/tags/:version'
+  OPENNEURO_API_URL        = 'https://openneuro.org/crn/graphql'
 
   # Creates an OpenNeuro object that represents
   # the dataset internally as a pair, a WorkGroup
@@ -58,7 +59,7 @@ class OpenNeuro
     groupquery = work_group_builder(name, version)
     group      = groupquery.first
     dpquery    = data_provider_builder(name, version, group&.id) # group.id can be nil
-    dp         = dpquery.first
+    dp         = data_provider_builder(name, version, group&.id, alt_urls = true).first
 
     self.new.tap do |open_neuro|
       open_neuro.name          = name
@@ -283,12 +284,14 @@ class OpenNeuro
 
   # Returns a DataladDataProvider fetcher or constructor
   # representing an OpenNeuro dataset. (ActiveRecord query)
-  def self.data_provider_builder(name, version, group_id)
+  def self.data_provider_builder(name, version, group_id, alt_urls=false)
+    urls = "#{DATALAD_REPO_URL_PREFIX}/#{name}"
+    urls = DATALAD_ALT_URL_PREFIXES.map {|p| "#{p}/#{name}"}.unshift urls if alt_urls
     DataladDataProvider.where(
       :name                   => data_provider_name_builder(name, version),
       :user_id                => DATA_PROVIDER_OWNER.id,
       :group_id               => group_id,
-      :datalad_repository_url => "#{DATALAD_REPO_URL_PREFIX}/#{name}",
+      :datalad_repository_url => urls,
       :containerized_path     => version,
       :online                 => true,
     )
