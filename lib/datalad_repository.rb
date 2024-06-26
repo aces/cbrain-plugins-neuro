@@ -59,7 +59,7 @@ class DataladRepository
         datalad install -s #{url} #{basename.bash_escape} >/dev/null 2>&1 || exit 41
         cd #{basename.bash_escape}                                        || exit 42
         if test -n #{tagname.bash_escape} ; then
-          git checkout #{tagname.bash_escape}             >/dev/null      || exit 43
+          git checkout -b cb_#{tagname.bash_escape} #{tagname.bash_escape} >/dev/null || exit 43
         else
           git pull                                        >/dev/null      || exit 42
         fi
