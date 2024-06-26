@@ -36,7 +36,7 @@
         "optional" : false
     }],
     "custom": {
-        "cbrain:author": "Natacha Beck <natacha.beck@mcgill.ca>",
+        "cbrain:author": "Natacha Beck <nbeck@mcin.ca>",
         "cbrain:readonly-input-files": true
     }
 }

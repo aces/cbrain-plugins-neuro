@@ -378,7 +378,7 @@
     },
     "custom": {
         "cbrain:readonly-input-files": true,
-        "cbrain:author": "Natacha Beck <natacha.beck@mcgill.ca>, Pierre Rioux <pierre.rioux@mcgill.ca>",
+        "cbrain:author": "Natacha Beck <nbeck@mcin.ca>, Pierre Rioux <pierre.rioux@mcgill.ca>",
         "cbrain:integrator_modules": {
             "BoutiquesFileTypeVerifier": {
                 "bids_dir": [ "BidsSubject" ],
