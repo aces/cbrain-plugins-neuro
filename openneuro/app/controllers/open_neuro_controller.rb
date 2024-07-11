@@ -70,7 +70,13 @@ class OpenNeuroController < ApplicationController
 
     @open_neuro = OpenNeuro.find(@name,@version)
     if ! @open_neuro.valid_name_and_version?
-      flash.now[:error] = "The OpenNeuro dataset name '#{@name}' with version '#{@version}' is not valid."
+      contact = RemoteResource.current_resource.support_email.presence ||
+                User.admin.email.presence || "the support staff"
+      flash.now[:error] = "The OpenNeuro dataset name '#{@name}' with version '#{@version}' is not valid.\n" +
+                          "It is also possible that it is a valid dataset, but not yet available through Datalad.\n" +
+                          "CBRAIN uses Datalad to fetch OpenNeuro files.\n" +
+                          "If this a dataset recently added to OpenNeuro, please wait a few days as it may then become available using Datalad.\n" +
+                          "If you urgently require this dataset, please contact #{contact}.\n"
       render :action => :select
       return
     end

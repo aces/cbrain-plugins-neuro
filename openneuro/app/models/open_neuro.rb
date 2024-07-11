@@ -113,7 +113,7 @@ class OpenNeuro
       suggested_klass = SingleFile     if ftype == :regular
       suggested_klass = FileCollection if ftype == :directory
       suggested_klass = suggested_klass.suggested_file_type(fname) || suggested_klass
-      suggested_klass = TextFile if suggested_klass == SingleFile && fname =~ /README|CHANGE/
+      suggested_klass = TextFile if suggested_klass == SingleFile && fname =~ /README|CHANGE/i
       "#{suggested_klass}-#{fname}"
     end.compact
 
@@ -337,7 +337,7 @@ class OpenNeuro
       .sub(':name',    name   )
       .sub(':version', version)
 
-    github_json = Rails.cache.fetch(validation_url, expires_in: 7.days) do
+    github_json = Rails.cache.fetch(validation_url, expires_in: 2.days) do
       IO.popen(
         [
           "curl",
