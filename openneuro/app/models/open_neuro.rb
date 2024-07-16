@@ -149,6 +149,11 @@ class OpenNeuro
     self.class.valid_name_and_version?(self.name,self.version)
   end
 
+  # Instance method of the class method
+  def on_github_mirror?
+    self.class.on_github_mirror?(self.name,self.version)
+  end
+
   ############################################################
   # Meta data persistence helpers; here we store and retrieve
   # miscellanous values used for tracking the progres of
@@ -312,15 +317,16 @@ class OpenNeuro
 
   # Validation of a pair [ dataset, version ] with OpenNeuro GraphQL API
   #   
-  # The result is sometimes different          
+  # The result is sometimes different from
   # "https://api.github.com/repos/OpenNeuroDatasets/
   #
   # Some datasets or dataset versions, availabe on OpenNeuro portal or with OpenNeuro client are not always
   # on GitHub
   #   
   # At the moment the method just returns true or false.
+  # Failures/rate restriction of Github API are not handled
   def self.valid_name_and_version?(name, version)
-    return false unless name =~ /\Ads\d+\z/
+    return false unless name    =~ /\Ads\d+\z/
     return false unless version =~ /\A[a-z0-9][\w\.\-]+\z/
     query = '{snapshot(datasetId:"%s", tag:"%s"){id}}' % [name, version]
 
@@ -360,7 +366,7 @@ class OpenNeuro
   #   }
   #
   # The method just returns true or false.
-  def self.valid_name_and_github_tag?(name, version)
+  def self.on_github_mirror?(name, version)
     return false unless name    =~ /\Ads\d+\z/
     return false unless version =~ /\A[a-z0-9][\w\.\-]+\z/
 

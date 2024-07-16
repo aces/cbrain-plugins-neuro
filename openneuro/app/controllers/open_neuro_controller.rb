@@ -31,8 +31,12 @@ class OpenNeuroController < ApplicationController
     name    = params[:name]
     version = params[:version]
     @open_neuro = OpenNeuro.find(name,version)
-    if ! @open_neuro.valid_name_and_version?
-      message = "The OpenNeuro dataset name '#{name}' with version '#{version}' is not valid."
+    if ! @open_neuro.on_github_mirror?
+      if @open_neuro.valid_name_and_version?
+        message = "The OpenNeuro dataset name '#{name}' with version '#{version}' is not yet on Github. Please try latter or contact us."
+      else
+        message = "The OpenNeuro dataset name '#{name}' with version '#{version}' does not exists."
+      end
       flash.now[:error] = message    if ! current_user
       flash[:error]     = message    if current_user
       redirect_to :action => :select if current_user
