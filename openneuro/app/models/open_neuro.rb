@@ -2,7 +2,7 @@
 #
 # CBRAIN Project
 #
-# Copyright (C) 2008-2023
+# Copyright (C) 2008-2024
 # The Royal Institution for the Advancement of Learning
 # McGill University
 #
@@ -40,6 +40,7 @@ class OpenNeuro
 
   DATALAD_REPO_URL_PREFIX = 'https://github.com/OpenNeuroDatasets'
   GITHUB_VALIDATION_URL   = 'https://api.github.com/repos/OpenNeuroDatasets/:name/git/ref/tags/:version'
+  OPENNEURO_API_URL       = 'https://openneuro.org/crn/graphql'
 
   # Creates an OpenNeuro object that represents
   # the dataset internally as a pair, a WorkGroup
@@ -146,6 +147,11 @@ class OpenNeuro
   # Instance method of the class method of the same name
   def valid_name_and_version?
     self.class.valid_name_and_version?(self.name,self.version)
+  end
+
+  # Instance method of the class method
+  def on_github_mirror?
+    self.class.on_github_mirror?(self.name,self.version)
   end
 
   ############################################################
@@ -309,7 +315,38 @@ class OpenNeuro
     "OpenNeuro-#{name}-#{version.gsub('.','_')}"
   end
 
-  # Validation of a pair [ dataset, version ] performed with:
+  # Validation of a pair [ dataset, version ] with OpenNeuro GraphQL API
+  #   
+  # The result is sometimes different from
+  # "https://api.github.com/repos/OpenNeuroDatasets/
+  #
+  # Some datasets or dataset versions, availabe on OpenNeuro portal or with OpenNeuro client are not always
+  # on GitHub
+  #   
+  # At the moment the method just returns true or false.
+  # Failures/rate restriction of Github API are not handled
+  def self.valid_name_and_version?(name, version)
+    return false unless name    =~ /\Ads\d+\z/
+    return false unless version =~ /\A[a-z0-9][\w\.\-]+\z/
+    query = '{snapshot(datasetId:"%s", tag:"%s"){id}}' % [name, version]
+
+    response = Typhoeus.post(OPENNEURO_API_URL,
+                             :body    => JSON.pretty_generate({ "query" => query }),
+                             :headers => { 'Content-Type' => 'application/json',
+                                           'Accept'       => 'application/json'
+                             }
+    )
+
+    # Parse the response
+    body = response.response_body
+    json = JSON.parse(body)
+    return !json["errors"]
+  rescue => ex
+    Rails.logger.error "OpenNeuro API request failed: #{ex.class} #{ex.message}"
+    return nil
+  end
+
+  # Validation of a pair [ dataset, tag ] on github performed with:
   #
   #   curl -H "Accept: application/vnd.github+json"
   #        -H "X-GitHub-Api-Version: 2022-11-28"
@@ -329,7 +366,7 @@ class OpenNeuro
   #   }
   #
   # The method just returns true or false.
-  def self.valid_name_and_version?(name, version)
+  def self.on_github_mirror?(name, version)
     return false unless name    =~ /\Ads\d+\z/
     return false unless version =~ /\A[a-z0-9][\w\.\-]+\z/
 
