@@ -15,7 +15,7 @@
     {
       "description": "Subject folder for BIDS (folders name should be sub-XXXXX).",
       "id": "subject_dir",
-      "name": "subject_dir",
+      "name": "BIDS Subject Folder",
       "optional": false,
       "type": "File",
       "value-key": "[SUBJECT_DIR]"
@@ -140,7 +140,7 @@
     {
       "description": "Performs the cleanup of all the outputs of specific module(s). ( Modules with multiple acquisitions require -acqStr (e.g. -proc_func, -MPC)",
       "id": "cleanup",
-      "name": "cleanup",
+      "name": "Cleanup option",
       "optional": true,
       "type": "Flag",
       "value-key": "[CLEANUP]",
@@ -149,7 +149,7 @@
     {
       "description": "Select the atlas for post-structural processing. (default: schaefer-400)",
       "id": "atlas",
-      "name": "atlas",
+      "name": "Atlas",
       "optional": true,
       "list": true,
       "type": "String",
@@ -179,7 +179,7 @@
     {
       "description": "Optional argument for 'proc_surf' and 'post_structural' modules. Use this option to reconstruct the cortical surface with Freesurfer 7. Default surface reconstruction uses 'FastSurfer'",
       "id": "freesurfer",
-      "name": "freesurfer",
+      "name": "Freesurfer",
       "optional": true,
       "type": "Flag",
       "value-key": "[FREESURFER]",
