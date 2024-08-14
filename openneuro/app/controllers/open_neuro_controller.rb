@@ -32,7 +32,7 @@ class OpenNeuroController < ApplicationController
     version = params[:version]
     @open_neuro = OpenNeuro.find(name,version)
     if ! @open_neuro.valid_name_and_version?
-      message = "The OpenNeuro dataset name '#{name}' with version '#{version}' is not valid."
+      message = not_valid_message(name, version)
       flash.now[:error] = message    if ! current_user
       flash[:error]     = message    if current_user
       redirect_to :action => :select if current_user
@@ -45,7 +45,7 @@ class OpenNeuroController < ApplicationController
     @open_neuro = OpenNeuro.find(name,version)
 
     if ! @open_neuro.valid_name_and_version?
-      flash[:error] = "The OpenNeuro dataset name '#{name}' with version '#{version}' is not valid."
+      flash[:error] = not_valid_message(name, version)
       redirect_to :action => :select
     end
 
@@ -70,18 +70,25 @@ class OpenNeuroController < ApplicationController
 
     @open_neuro = OpenNeuro.find(@name,@version)
     if ! @open_neuro.valid_name_and_version?
-      contact = RemoteResource.current_resource.support_email.presence ||
-                User.admin.email.presence || "the support staff"
-      flash.now[:error] = "The OpenNeuro dataset name '#{@name}' with version '#{@version}' is not valid.\n" +
-                          "It is also possible that it is a valid dataset, but not yet available through Datalad.\n" +
-                          "CBRAIN uses Datalad to fetch OpenNeuro files.\n" +
-                          "If this a dataset recently added to OpenNeuro, please wait a few days as it may then become available using Datalad.\n" +
-                          "If you urgently require this dataset, please contact #{contact}.\n"
+      flash.now[:error] = not_valid_message(@name, @version)
       render :action => :select
       return
     end
 
     redirect_to :action=> :show, :name => @name, :version => @version
+  end
+
+  private
+
+  def not_valid_message(name, version) #:nodoc:
+    contact = RemoteResource.current_resource.support_email.presence ||
+              User.admin.email.presence || "the support staff"
+    message = "The OpenNeuro dataset name '#{name}' with version '#{version}' is not valid.\n" +
+              "It is also possible that it is a valid dataset, but not yet available through Datalad.\n" +
+              "CBRAIN uses Datalad to fetch OpenNeuro files.\n" +
+              "If this a dataset recently added to OpenNeuro, please wait a few days as it may then become available using Datalad.\n" +
+              "If you urgently require this dataset, please contact #{contact}.\n"
+    message
   end
 
 end
