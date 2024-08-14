@@ -151,7 +151,9 @@ module BoutiquesBidsSingleSubjectMaker
 
     if ! File.exists?(symlink_loc.to_s)
       #File.symlink(symlink_val, symlink_loc)  # create "sub-123" -> "../sub-123" in FakeBidsDir
-      system("rsync","-a",(subject_name + "/"), symlink_loc.to_s) # need physical copy
+      #system("rsync","-a",(subject_name + "/"), symlink_loc.to_s) # need physical copy
+      rsyncout = bash_this("rsync -a -l --no-g --chmod=u=rwX,g=rX,Dg+s,o=r --delete #{subject_name.bash_escape}/ #{symlink_loc.to_s.bash_escape}")
+      cb_error "Failed to rsync '#{subject_name}';\nrsync reported: #{rsyncout}" unless rsyncout.blank?
     end
 
     # Two other needed files in a BIDS dataset:
