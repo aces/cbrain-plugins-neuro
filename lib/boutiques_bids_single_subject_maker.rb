@@ -149,8 +149,9 @@ module BoutiquesBidsSingleSubjectMaker
     symlink_loc = Pathname.new(FakeBidsDirName) + subject_name
     symlink_val = Pathname.new("..")            + subject_name
 
-    if ! File.exists?(symlink_loc)
-      File.symlink(symlink_val, symlink_loc)  # create "sub-123" -> "../sub-123" in FakeBidsDir
+    if ! File.exists?(symlink_loc.to_s)
+      #File.symlink(symlink_val, symlink_loc)  # create "sub-123" -> "../sub-123" in FakeBidsDir
+      File.rename(subject_name.to_s, symlink_loc.to_s) # need physical copy
     end
 
     # Two other needed files in a BIDS dataset:
