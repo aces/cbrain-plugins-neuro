@@ -373,5 +373,12 @@ module BoutiquesBidsSingleSubjectMaker
     descriptor
   end
 
+  def bash_this(command) #:nodoc:
+    fh = IO.popen(command,"r")
+    output = fh.read
+    fh.close
+    output
+  end
+
 end
 
