@@ -147,7 +147,7 @@
     },
     {
       "id": "out_name",
-      "name": "Output type (--out_type)",
+      "name": "Output name prefix (--out_name)",
       "description": "Prefix for output files. Defaults to prefix of input file for -in_vol. Output will be in the form {wd}/{out_name}_{out_space}",
       "type": "String",
       "value-key": "[OUT_NAME]",
