@@ -83,6 +83,11 @@ class DataladDataProvider < DataProvider
     true
   end
 
+  # Returns true: forces this DP type to be read-only.
+  def read_only? #:nodoc:
+    true
+  end
+
   # Not a full path, a relative path in this implementation!
   def provider_full_path(userfile) #:nodoc:
     Pathname.new(self.datalad_relative_path) +
