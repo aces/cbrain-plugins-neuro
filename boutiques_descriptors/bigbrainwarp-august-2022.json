@@ -12,7 +12,7 @@
              "freesurfer_license": [ "FreesurferLicense", "TextFile", "SingleFile" ]
          },
          "BoutiquesInputRegexChecker": {
-           "descriptor_of_input": [ "\\w+", "The descriptor must be a simple identifier of letters and digits" ]
+           "descriptor_of_input": [ "\\w+([\\.-]\\w+)*", "The descriptor must be a simple identifier of letters and digits, with maybe dashes or periods" ]
          },
          "BoutiquesFreesurferLicenseFinder": "freesurfer_license"
      }
