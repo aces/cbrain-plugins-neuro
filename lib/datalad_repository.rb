@@ -20,8 +20,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-require 'fileutils'
-
 # This library handles some elementary operation on a local datalad
 # repository, mosly used when that repo is a cache for a DataladDataProvider.
 #
@@ -56,18 +54,27 @@ class DataladRepository
     tagname  = tagname.presence || "" # need empty string in bash commands
     retcode = run_datalad_commands(parent,
       "
-        datalad install -s #{url} #{basename.bash_escape} >/dev/null 2>&1 || exit 41
-        cd #{basename.bash_escape}                                        || exit 42
-        if test -n #{tagname.bash_escape} ; then
-          git checkout -b cb_#{tagname.bash_escape} #{tagname.bash_escape} >/dev/null || exit 43
+        if ! test -d #{basename.bash_escape} ; then
+          datalad install -s #{url} #{basename.bash_escape} >/dev/null 2>&1 || exit 41
         else
-          git pull                                        >/dev/null      || exit 42
+          cd #{basename.bash_escape}                                        || exit 50
+          datalad update >/dev/null 2>&1                                    || exit 42
+          cd ..
+        fi
+        cd #{basename.bash_escape}                                          || exit 50
+        if test -n #{tagname.bash_escape} ; then
+          if test \"$(git branch --show-current)\" != cb_#{tagname.bash_escape} ; then
+            git checkout -b cb_#{tagname.bash_escape} #{tagname.bash_escape} >/dev/null || exit 43
+          fi
+        else
+          git pull >/dev/null                                               || exit 44
         fi
       "
     )
     cb_error "Could not run datalad install."                                 if retcode == 41
     cb_error "Could not update datalad dataset."                              if retcode == 42
     cb_error "Could not checkout version #{tagname} of datalad dataset."      if retcode == 43
+    cb_error "Could not update git repo of datalad dataset."                  if retcode == 44
     cb_error "Error occured when running datalad script: retcode=#{retcode}"  if retcode > 0
     true
   end
