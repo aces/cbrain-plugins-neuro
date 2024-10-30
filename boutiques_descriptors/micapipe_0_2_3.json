@@ -405,15 +405,6 @@
       "value-choices": ["SIFT2", "COMMIT2", "both"]
     },
     {
-      "name": "Main anatomical scan to process",
-      "id": "t1",
-      "type": "File",
-      "description": "Full path to the main anatomical scan for structural processing. \nDefault='T1w.nii.gz'",
-      "optional": true,
-      "command-line-flag": "-T1",
-      "value-key": "[T1]"
-    },
-    {
       "name": "Main functional MRI string to process",
       "id": "func_main",
       "type": "String",
