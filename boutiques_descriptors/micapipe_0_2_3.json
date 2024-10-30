@@ -389,7 +389,7 @@
       "name": "Automatic tractogram segmentation",
       "id": "autotract",
       "type": "Flag",
-      "description": "If provided, automatic tractogram segmentation will be used. This is an optional procedure",
+      "description": "This option will segment automatically the main tracts from the whole brain tractogram.",
       "optional": true,
       "command-line-flag": "-autoTract",
       "value-key": "[AUTOTRACT]"
