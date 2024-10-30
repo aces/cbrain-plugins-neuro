@@ -10,7 +10,7 @@
   "author": "Multimodal Imaging and Connectome Analysis (MICA) Lab ",
   "url": "https://github.com/MICA-MNI/micapipe",
   "description": "Please cite: Cruces RR, Royer J, Herholz P, Lariviere S, Vos de Wael R, Paquola C, Benkarim O, Park BY, Degre-Pelletier J, Nelson MC, DeKraker J, Leppert IR, Tardif C, Poline JB, Concha L, Bernhardt BC. Micapipe: A pipeline for multimodal neuroimaging and connectome analysis. Neuroimage. 2022 Nov;263:119612. doi: 10.1016/j.neuroimage.2022.119612. Epub 2022 Sep 5. PMID: 36070839. doi: 10.1016/j.neuroimage.2022.119612",
-  "command-line": "SUBJECT_DIR=[SUBJECT_DIR]; SUBJECT=$(basename $SUBJECT_DIR/sub-*); SUBJECT_ID=${SUBJECT#*-};/neurodocker/startup.sh micapipe -bids $SUBJECT_DIR -sub $SUBJECT_ID [OUTPUT_DIR] [SES] [FS_LICENSE] [PROC_STRUCTURAL] [PROC_SURF] [POST_STRUCTURAL] [PROC_FLAIR] [PROC_FUNC] [PROC_DWI] [SC] [MPC_SWM] [MPC] [GD] [QC] [QC_SUBJ] [CLEANUP] [ATLAS] [FREESURFER] [T1WSTR] [UNI] [MF] [SURF_DIR] [T1] [REGSYNTH] [REG_NONLINEAR] [DWI_UPSAMPLE] [TRACTS] [KEEP_TCK] [AUTOTRACT] [ACQSTR] [DWI_MAIN] [DWI_RPE] [DWI_PROC] [RPE_ALL] [REGAFFINE] [DWIACQ] [BTHR] [NO_BVAL] [WSC] [TCK] [FLAIRSTR] [MPC_ACQ] [MPC_IMG] [MPC_REG] [FUNC_MAIN] [FUNC_PE] [FUNC_RPE] [TOPUP] [SESANAT] [FIX] [NOFIX] [NSR] [GSR] [DROPTR] [NOFC]",
+  "command-line": "SUBJECT_DIR=[SUBJECT_DIR]; SUBJECT=$(basename $SUBJECT_DIR/sub-*); SUBJECT_ID=${SUBJECT#*-};/neurodocker/startup.sh micapipe -bids $SUBJECT_DIR -sub $SUBJECT_ID [OUTPUT_DIR] [SES] [FS_LICENSE] [PROC_STRUCTURAL] [PROC_SURF] [POST_STRUCTURAL] [PROC_FLAIR] [PROC_FUNC] [PROC_DWI] [SC] [MPC_SWM] [SWM] [MPC] [GD] [QC] [QC_SUBJ] [CLEANUP] [ATLAS] [FREESURFER] [T1WSTR] [UNI] [MF] [SURF_DIR] [T1] [REGSYNTH] [REG_NONLINEAR] [DWI_UPSAMPLE] [TRACTS] [KEEP_TCK] [AUTOTRACT] [FILTER] [ACQSTR] [DWI_MAIN] [DWI_RPE] [DWI_PROC] [RPE_ALL] [REGAFFINE] [DWIACQ] [BTHR] [NO_BVAL] [WSC] [TCK] [FLAIRSTR] [MPC_ACQ] [MPC_IMG] [MPC_REG] [FUNC_MAIN] [FUNC_PE] [FUNC_RPE] [MAINSCANRUN] [PHASEREVERSALRUN] [TOPUP] [SESANAT] [FIX] [NOFIX] [NSR] [GSR] [DROPTR] [NOFC]",
   "inputs": [
     {
       "description": "Subject folder for BIDS (folders name should be sub-XXXXX).",
@@ -109,6 +109,15 @@
       "type": "Flag",
       "value-key": "[MPC_SWM]",
       "command-line-flag": "-MPC_SWM"
+    },
+    {
+      "description": "This flag will enable Superficial White Matter generation and mapping.",
+      "id": "SWM",
+      "name": "Module: Superficial White Matter Generation",
+      "optional": true,
+      "type": "Flag",
+      "value-key": "[SWM]",
+      "command-line-flag": "-SWM"
     },
     {
       "description": "This flag will generate Microstructural profiles and covariance analysis. And map the quantitative MRI to the surfaces",
@@ -346,7 +355,7 @@
       "type": "Flag",
       "description": "Specify this option to perform the NON-Linear registration (e.g. MRI with strong geometric distortions).",
       "optional": true,
-      "command-line-flag": "--reg_nonlinear",
+      "command-line-flag": "-reg_nonlinear",
       "value-key": "[REG_NONLINEAR]"
     },
     {
@@ -380,10 +389,29 @@
       "name": "Automatic tractogram segmentation",
       "id": "autotract",
       "type": "Flag",
-      "description": "This option will segment automatically the main tracts from the whole brain tractogram.",
+      "description": "If provided, automatic tractogram segmentation will be used. This is an optional procedure",
       "optional": true,
       "command-line-flag": "-autoTract",
       "value-key": "[AUTOTRACT]"
+    },
+    {
+      "name": "Tractogram Filtering Algorithm",
+      "id": "filter",
+      "type": "String",
+      "description": "Algorithm for tractogram filtering (default: 'SIFT2'). Options are 'SIFT2', 'COMMIT2', or 'both'.",
+      "optional": true,
+      "command-line-flag": "-filter",
+      "value-key": "[FILTER]",
+      "value-choices": ["SIFT2", "COMMIT2", "both"]
+    },
+    {
+      "name": "Main anatomical scan to process",
+      "id": "t1",
+      "type": "File",
+      "description": "Full path to the main anatomical scan for structural processing. \nDefault='T1w.nii.gz'",
+      "optional": true,
+      "command-line-flag": "-T1",
+      "value-key": "[T1]"
     },
     {
       "name": "Main functional MRI string to process",
@@ -411,6 +439,24 @@
       "optional": true,
       "command-line-flag": "-func_rpe",
       "value-key": "[FUNC_RPE]"
+    },
+    {
+      "name": "Main resting state scan to process",
+      "id": "mainscanrun",
+      "type": "String",
+      "description": "If multiple resting-state scans exist in the BIDS rawdata, you must specify which scan to process ( e.g. '1' )",
+      "optional": true,
+      "command-line-flag": "-mainScanRun",
+      "value-key": "[MAINSCANRUN]"
+    },
+    {
+      "name": "Main phase encoding to process",
+      "id": "phasereversalrun",
+      "type": "String",
+      "description": "If multiple phase encoding files exist in the BIDS rawdata (main phase), you must specify which one to process ( e.g. '1' )",
+      "optional": true,
+      "command-line-flag": "-phaseReversalRun",
+      "value-key": "[PHASEREVERSALRUN]"
     },
     {
       "name": "TOPUP configuration file (Optional)",
@@ -539,7 +585,7 @@
     {
       "id": "proc_surf_options",
       "name": "Surface Processing",
-      "members": ["proc_surf", "surf_dir", "t1"]
+      "members": ["proc_surf", "surf_dir", "t1", "freesurfer"]
     },
     {
       "id": "post_structural_options",
@@ -554,7 +600,7 @@
     {
       "id": "flair_module",
       "name": "FLAIR/T2w processing",
-      "members": ["proc_flair", "flairstr", "regsynth"]
+      "members": ["proc_flair", "flairstr"]
     },
     {
       "id": "mpc_swm_module",
@@ -588,6 +634,8 @@
         "func_main",
         "func_pe",
         "func_rpe",
+        "mainscanrun",
+        "phasereversalrun",
         "topup",
         "sesanat",
         "fix",
