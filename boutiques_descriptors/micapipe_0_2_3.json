@@ -662,6 +662,7 @@
         "tracts",
         "keep_tck",
         "autotract",
+        "filter",
         "dwi_acq",
         "weighted_sc",
         "tck"
