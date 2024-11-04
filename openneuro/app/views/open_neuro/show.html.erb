@@ -60,8 +60,8 @@
 
 <h5>Other Related Pages</h5>
 
-(External link): <%= link_to 'Browse all OpenNeuro datasets', 'https://openneuro.org/', :target => '_blank', :class => 'button' %>
-(this will open in a separate tab)
+<%= link_to 'Browse all OpenNeuro datasets', 'https://openneuro.org/', :target => '_blank', :class => 'button' %>
+(external link; this will open in a separate tab)<br>
 <% if current_user.present? %>
 <p>
 (CBRAIN link): You can manually <%= link_to 'Select an OpenNeuro dataset', openneuro_select_path, :class => 'button' %> by name and version.
