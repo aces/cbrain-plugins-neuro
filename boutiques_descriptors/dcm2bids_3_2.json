@@ -1,0 +1,147 @@
+{
+  "description": "DICOM to BIDS converter",
+  "command-line": "dcm2bids [DICOM_DIR] [PARTICIPANT] [SESSION] [CONFIG] [OUTPUT_DIR] [AUTO_EXTRACT_ENTITIES] [DO_NOT_REORDER_ENTITIES] [BIDS_VALIDATE] [FORCE_DCM2BIDS] [SKIP_DCM2NIIX] [CLOBBER] [LOG_LEVEL] [VERSION]",
+  "tags":  {
+    "domain": [
+      "nifti",
+      "bids",
+      "neuro-imaging"
+    ]
+  },
+  "tool-version": "3.2.0",
+  "inputs": [
+    {
+      "description": "DICOM directory(ies) or archive(s) (tar, tar.bz2, tar.gz or zip).",
+      "name": "dicom_dir",
+      "command-line-flag": "-d",
+      "optional": false,
+      "list": true,
+      "type": "String",
+      "id": "dicom_dir",
+      "value-key": "[DICOM_DIR]"
+    },
+    {
+      "description": "Participant ID",
+      "name": "participant",
+      "command-line-flag": "-p",
+      "optional": false,
+      "type": "String",
+      "id": "participant",
+      "value-key": "[PARTICIPANT]"
+    },
+    {
+      "description": "Session ID",
+      "name": "session",
+      "command-line-flag": "-s",
+      "optional": true,
+      "type": "String",
+      "id": "session",
+      "value-key": "[SESSION]"
+    },
+    {
+      "description": "JSON configuration file (see manual online https://unfmontreal.github.io/Dcm2Bids/3.2.0/how-to/create-config-file/ ",
+      "name": "config",
+      "command-line-flag": "-c",
+      "optional": false,
+      "type": "String",
+      "id": "config",
+      "value-key": "[CONFIG]"
+    },
+    {
+      "description": "Output BIDS directory. [%(default)s]",
+      "name": "output_dir",
+      "command-line-flag": "-o",
+      "optional": true,
+      "type": "String",
+      "id": "output_dir",
+      "value-key": "[OUTPUT_DIR]"
+    },
+    {
+      "description": "If set, it will automatically try to extract entity information [task, dir, echo] based on the suffix and datatype. ",
+      "name": "auto_extract_entities",
+      "command-line-flag": "--auto_extract_entities",
+      "optional": true,
+      "type": "Flag",
+      "id": "auto_extract_entities",
+      "value-key": "[AUTO_EXTRACT_ENTITIES]"
+    },
+    {
+      "description": "If set, it will not reorder entities according to the relative ordering indicated in the BIDS specification and use the order defined in custom_entities by the user.\nCannot be used with --auto_extract_entities.  [%(default)s]",
+      "name": "do_not_reorder_entities",
+      "command-line-flag": "--do_not_reorder_entities",
+      "optional": true,
+      "type": "Flag",
+      "id": "do_not_reorder_entities",
+      "value-key": "[DO_NOT_REORDER_ENTITIES]"
+    },
+    {
+      "description": "If set, once your conversion is done it will check if your output folder is BIDS valid. [%(default)s]\nbids-validator needs to be installed check: https://github.com/bids-standard/bids-validator#quickstart",
+      "name": "bids_validate",
+      "command-line-flag": "--bids_validate",
+      "optional": true,
+      "type": "Flag",
+      "id": "bids_validate",
+      "value-key": "[BIDS_VALIDATE]"
+    },
+    {
+      "description": "Overwrite previous temporary dcm2bids output if it exists.",
+      "name": "force_dcm2bids",
+      "command-line-flag": "--force_dcm2bids",
+      "optional": true,
+      "type": "Flag",
+      "id": "force_dcm2bids",
+      "value-key": "[FORCE_DCM2BIDS]"
+    },
+    {
+      "description": "Skip dcm2niix conversion. Option -d should contains NIFTI and json files.",
+      "name": "skip_dcm2niix",
+      "command-line-flag": "--skip_dcm2niix",
+      "optional": true,
+      "type": "Flag",
+      "id": "skip_dcm2niix",
+      "value-key": "[SKIP_DCM2NIIX]"
+    },
+    {
+      "description": "Overwrite output if it exists.",
+      "name": "clobber",
+      "command-line-flag": "--clobber",
+      "optional": true,
+      "type": "Flag",
+      "id": "clobber",
+      "value-key": "[CLOBBER]"
+    },
+    {
+      "default-value": "INFO",
+      "description": "Set logging level to the console.",
+      "name": "log_level",
+      "value-choices": [
+        "DEBUG",
+        "INFO",
+        "WARNING",
+        "ERROR",
+        "CRITICAL"
+      ],
+      "optional": true,
+      "command-line-flag": "-l",
+      "type": "String",
+      "id": "log_level",
+      "value-key": "[LOG_LEVEL]"
+    },
+    {
+      "description": "Report dcm2bids version and the BIDS version.",
+      "name": "version",
+      "command-line-flag": "-v",
+      "optional": true,
+      "type": "String",
+      "id": "version",
+      "value-key": "[VERSION]"
+    }
+  ],
+  "suggested-resources": {
+    "ram": 1,
+    "walltime-estimate": 24000,
+    "cpu-cores": 1
+  },
+  "name": "dcm2bids",
+  "schema-version": "0.5"
+}
