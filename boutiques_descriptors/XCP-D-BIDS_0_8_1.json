@@ -375,7 +375,7 @@
             "BoutiquesOutputFileTypeSetter": {
                 "xcpd_output_dir":  "XcpdOutput"
             },
-            "BoutiquesBidsSingleSubjectMaker": "subject_dir",
+            "BoutiquesFreesurferLicenseFinder": "fs_license_file",
             "BoutiquesPostProcessingCleaner": ["work"]
         }
     }
