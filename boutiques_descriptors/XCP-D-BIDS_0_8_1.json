@@ -4,7 +4,7 @@
     "tool-version": "0.8.1",
     "schema-version": "0.5",
     "url": "https://xcp-d.readthedocs.io/en/latest/index.html",
-    "command-line": "mkdir -p work; export FS_LICENSE=$PWD/[FS_LICENSE_FILE]; xcp_d [SUBJECT_PREPROC_FMRI_DIR] [OUTPUT_DIR] participant --omp-nthreads 2 [MODE] [COMBINERUNS] [VERBOSE] [INPUT_TYPE] [TASK] [SMOOTHING] [DESPIKE] [LINC_QC] [MIN_TIME] [NUISANCE] --fs-license-file [FS_LICENSE_FILE] [DUMMY_SCANS] [BPF] [LOWER_BPF] [UPPER_BPF] [BPF_ORDER] [MOTION_FILTER_TYPE] [BAND_STOP_MIN] [BAND_STOP_MAX] [MOTION_FILTER_ORDER] [HEAD_RADIUS] [FD_THRESH] [WARP_SURFACES] [BIDS_FILTER] -w work --notrack",
+    "command-line": "true [DATASET_DESCRIPTION_FILE]; mkdir -p work; export FS_LICENSE=$PWD/[FS_LICENSE_FILE]; xcp_d [SUBJECT_PREPROC_FMRI_DIR] [OUTPUT_DIR] participant --omp-nthreads 2 [MODE] [COMBINERUNS] [VERBOSE] [INPUT_TYPE] [TASK] [SMOOTHING] [DESPIKE] [LINC_QC] [MIN_TIME] [NUISANCE] --fs-license-file [FS_LICENSE_FILE] [DUMMY_SCANS] [BPF] [LOWER_BPF] [UPPER_BPF] [BPF_ORDER] [MOTION_FILTER_TYPE] [BAND_STOP_MIN] [BAND_STOP_MAX] [MOTION_FILTER_ORDER] [HEAD_RADIUS] [FD_THRESH] [WARP_SURFACES] [BIDS_FILTER] -w work --notrack",
     "container-image": {
         "image": "pennlinc/xcp_d:0.8.1",
         "index": "docker://",
@@ -18,6 +18,14 @@
             "optional": false,
             "type": "File",
             "value-key": "[SUBJECT_PREPROC_FMRI_DIR]"
+        },
+        {
+            "description": "The dataset description JSON file that goes alongside your input",
+            "id": "dataset_description_file",
+            "name": "dataset_description_file",
+            "optional": false,
+            "type": "File",
+            "value-key": "[DATASET_DESCRIPTION_FILE]"
         },
         {
             "description": "The name of the folder to store outputs of XCPD processing.",
@@ -158,7 +166,7 @@
             "command-line-flag": "--dummy-scans",
             "id": "dummy_scans",
             "name": "Dummy time",
-            "description": "Number of volumes to remove from the beginning of each run. If set to auto, xcp_d will extract non-steady-state volume indices from the preprocessing derivatives’ confounds file.",
+            "description": "Number of volumes to remove from the beginning of each run. If set to auto, xcp_d will extract non-steady-state volume indices from the confounds file of the preprocessing derivatives.",
             "optional": true,
             "type": "Number",
             "value-key": "[DUMMY_SCANS]"
@@ -262,7 +270,7 @@
             "command-line-flag": "--warp-surfaces-native2std",
             "id": "warp_surfaces",
             "name": "Warp surfaces",
-            "description": "If used, a workflow will be run to warp native-space (fsnative) reconstructed cortical surfaces (surf.gii files) produced by Freesurfer into standard (fsLR) space. These surface files are primarily used for visual quality assessment. By default, this workflow is disabled. IMPORTANT: This parameter can only be run if the –cifti flag is also enabled.",
+            "description": "If used, a workflow will be run to warp native-space (fsnative) reconstructed cortical surfaces (surf.gii files) produced by Freesurfer into standard (fsLR) space. These surface files are primarily used for visual quality assessment. By default, this workflow is disabled. IMPORTANT: This parameter can only be run if the cifti flag is also enabled.",
             "optional": true,
             "type": "String",
             "value-key": "[WARP_SURFACES]",
@@ -370,12 +378,15 @@
     "custom": {
         "cbrain:readonly-input-files": true,
         "cbrain:author": "Natacha Beck <nbeck@mcin.ca>, Erik Lee <leex6144@umn.edu>, Pierre Rioux <pierre.rioux@mcgill.ca>",
-        "cbrain:no-run-id-for-outputs": [ "xcpd_output_dir", "xcpd_ses_summary_html_report", "xcpd_sub_summary_html_report"],
         "cbrain:integrator_modules": {
             "BoutiquesOutputFileTypeSetter": {
                 "xcpd_output_dir":  "XcpdOutput"
             },
             "BoutiquesFreesurferLicenseFinder": "fs_license_file",
+            "BoutiquesInputSubdirMaker": {
+              "preproc_fmri_dir":         { "dirname": "derivatives", "append_filename": false },
+              "dataset_description_file": { "dirname": "derivatives", "filename": "dataset_description.json", "append_filename": true }
+            },
             "BoutiquesPostProcessingCleaner": ["work"]
         }
     }
