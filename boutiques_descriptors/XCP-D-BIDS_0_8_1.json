@@ -60,7 +60,7 @@
             "type": "String",
             "value-key": "[INPUT_TYPE]",
             "value-choices": [
-                "fmirprep",
+                "fmriprep",
                 "dcan",
                 "hcp",
                 "nibabies",
@@ -72,7 +72,7 @@
             "id": "mode",
             "name": "mode",
             "description": "The mode of operation for XCP-D. The mode sets several parameters, with values specific to different pipelines. For more information, see the documentation at https://xcp-d.readthedocs.io/en/latest/workflows.html#modes",
-            "optional": true,
+            "optional": false,
             "type": "String",
             "value-key": "[MODE]",
             "value-choices": [
