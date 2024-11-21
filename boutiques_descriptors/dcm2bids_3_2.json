@@ -1,14 +1,14 @@
 {
   "name": "dcm2bids",
   "tool-version": "3.2.0",
-  "author": "Boré, Arnaud; Guay, Samuel; Bedetti, Christophe; Meisler, Steven; GuenTher, Nick",
+  "author": "Arnaud Boré, Samuel Guay, Christophe Arnaud,  Steven Meisler, Nick GuenTher",
   "online-platform-urls": [
     "https://portal.cbrain.mcgill.ca"
   ],
   "url": "https://unfmontreal.github.io/Dcm2Bids/3.2.0/",
   "descriptor-url": "https://github.com/aces/cbrain-plugins-neuro/blob/master/boutiques_descriptors/dcm2bids_3_2.json",
   "description": "DICOM to BIDS converter. dcm2bids reorganises NIfTI files using dcm2niix into the Brain Imaging Data Structure (BIDS). dcm2bids>=3.0.0 is not compatible with config files made for v2.1.9 ",
-  "command-line": ":citing - [CITETOOL]; dcm2bids [DICOM_DIR] [PARTICIPANT] [SESSION] [CONFIG] [OUTPUT_DIR] [AUTO_EXTRACT_ENTITIES] [DO_NOT_REORDER_ENTITIES] [BIDS_VALIDATE] [FORCE_DCM2BIDS] [SKIP_DCM2NIIX] [CLOBBER] [LOG_LEVEL] [VERSION]",
+  "command-line": "echo you [CITETOOL]d to cite dcm2bids; dcm2bids [DICOM_DIR] [PARTICIPANT] [SESSION] [CONFIG] [OUTPUT_DIR] [AUTO_EXTRACT_ENTITIES] [DO_NOT_REORDER_ENTITIES] [BIDS_VALIDATE] [FORCE_DCM2BIDS] [SKIP_DCM2NIIX] [CLOBBER] [LOG_LEVEL] [VERSION]",
   "container-image": {
     "index": "docker://",
     "image": "unfmontreal/dcm2bids:3.2.0",
@@ -52,7 +52,7 @@
     },
     {
       "description": "JSON configuration file (create ahead according to manual at https://unfmontreal.github.io/Dcm2Bids/3.2.0/how-to/create-config-file/ ",
-      "name": "config",
+      "name": "Configuration file",
       "command-line-flag": "-c",
       "optional": false,
       "type": "File",
@@ -98,7 +98,7 @@
     },
     {
       "description": "Overwrite previous temporary dcm2bids output if it exists.",
-      "name": "force_dcm2bids",
+      "name": "Overwrite tmp data",
       "command-line-flag": "--force_dcm2bids",
       "optional": true,
       "type": "Flag",
@@ -107,7 +107,7 @@
     },
     {
       "description": "Skip dcm2niix conversion. Option -d should contains NIFTI and json files.",
-      "name": "skip_dcm2niix",
+      "name": "Skip dcm2niix",
       "command-line-flag": "--skip_dcm2niix",
       "optional": true,
       "type": "Flag",
@@ -117,7 +117,7 @@
     },
     {
       "description": "Overwrite output if it exists.",
-      "name": "clobber",
+      "name": "Clobber",
       "command-line-flag": "--clobber",
       "optional": true,
       "type": "Flag",
@@ -143,7 +143,7 @@
     },
     {
       "description": "If you use dcm2bids in your research or as part of your developments, please always cite it",
-      "name": "agreement",
+      "name": "Agreement",
       "optional": false,
       "type": "String",
       "id": "agreement",
