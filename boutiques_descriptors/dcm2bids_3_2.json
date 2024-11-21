@@ -8,7 +8,7 @@
   "url": "https://unfmontreal.github.io/Dcm2Bids/3.2.0/",
   "descriptor-url": "https://github.com/aces/cbrain-plugins-neuro/blob/master/boutiques_descriptors/dcm2bids_3_2.json",
   "description": "DICOM to BIDS converter. dcm2bids reorganises NIfTI files using dcm2niix into the Brain Imaging Data Structure (BIDS). dcm2bids>=3.0.0 is not compatible with config files made for v2.1.9 ",
-  "command-line": "echo you [CITETOOL]d to cite dcm2bids; dcm2bids [DICOM_DIR] [PARTICIPANT] [SESSION] [CONFIG] [OUTPUT_DIR] [AUTO_EXTRACT_ENTITIES] [DO_NOT_REORDER_ENTITIES] [BIDS_VALIDATE] [FORCE_DCM2BIDS] [SKIP_DCM2NIIX] [CLOBBER] [LOG_LEVEL] [VERSION]",
+  "command-line": "echo you [CITETOOL]d to cite dcm2bids; dcm2bids [DICOM_DIR] [PARTICIPANT] [SESSION] [CONFIG] [OUTPUT_DIR] [AUTO_EXTRACT_ENTITIES] [DO_NOT_REORDER_ENTITIES] [BIDS_VALIDATE] [FORCE_DCM2BIDS] [SKIP_DCM2NIIX] [CLOBBER] [LOG_LEVEL]",
   "container-image": {
     "index": "docker://",
     "image": "unfmontreal/dcm2bids:3.2.0",
@@ -51,7 +51,7 @@
       "value-key": "[SESSION]"
     },
     {
-      "description": "JSON configuration file (create ahead according to manual at https://unfmontreal.github.io/Dcm2Bids/3.2.0/how-to/create-config-file/ ",
+      "description": "JSON configuration file, please create and debug it ahead according to manual at https://unfmontreal.github.io/Dcm2Bids/3.2.0/how-to/create-config-file/ ",
       "name": "Configuration file",
       "command-line-flag": "-c",
       "optional": false,
