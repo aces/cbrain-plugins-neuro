@@ -1,14 +1,26 @@
 {
-  "description": "DICOM to BIDS converter",
-  "command-line": "dcm2bids [DICOM_DIR] [PARTICIPANT] [SESSION] [CONFIG] [OUTPUT_DIR] [AUTO_EXTRACT_ENTITIES] [DO_NOT_REORDER_ENTITIES] [BIDS_VALIDATE] [FORCE_DCM2BIDS] [SKIP_DCM2NIIX] [CLOBBER] [LOG_LEVEL] [VERSION]",
-  "tags":  {
+  "name": "dcm2bids",
+  "tool-version": "3.2.0",
+  "author": "Boré, Arnaud; Guay, Samuel; Bedetti, Christophe; Meisler, Steven; GuenTher, Nick",
+  "online-platform-urls": [
+    "https://portal.cbrain.mcgill.ca"
+  ],
+  "url": "https://unfmontreal.github.io/Dcm2Bids/3.2.0/",
+  "descriptor-url": "https://github.com/aces/cbrain-plugins-neuro/blob/master/boutiques_descriptors/dcm2bids_3_2.json",
+  "description": "DICOM to BIDS converter. dcm2bids reorganises NIfTI files using dcm2niix into the Brain Imaging Data Structure (BIDS). dcm2bids>=3.0.0 is not compatible with config files made for v2.1.9 ",
+  "command-line": ":citing - [CITETOOL]; dcm2bids [DICOM_DIR] [PARTICIPANT] [SESSION] [CONFIG] [OUTPUT_DIR] [AUTO_EXTRACT_ENTITIES] [DO_NOT_REORDER_ENTITIES] [BIDS_VALIDATE] [FORCE_DCM2BIDS] [SKIP_DCM2NIIX] [CLOBBER] [LOG_LEVEL] [VERSION]",
+  "container-image": {
+    "index": "docker://",
+    "image": "unfmontreal/dcm2bids:3.2.0",
+    "type": "singularity"
+  },
+  "tags": {
     "domain": [
-      "nifti",
+      "NIfTI",
       "bids",
-      "neuro-imaging"
+      "neuroimaging"
     ]
   },
-  "tool-version": "3.2.0",
   "inputs": [
     {
       "description": "DICOM directory(ies) or archive(s) (tar, tar.bz2, tar.gz or zip).",
@@ -16,7 +28,7 @@
       "command-line-flag": "-d",
       "optional": false,
       "list": true,
-      "type": "String",
+      "type": "File",
       "id": "dicom_dir",
       "value-key": "[DICOM_DIR]"
     },
@@ -39,20 +51,20 @@
       "value-key": "[SESSION]"
     },
     {
-      "description": "JSON configuration file (see manual online https://unfmontreal.github.io/Dcm2Bids/3.2.0/how-to/create-config-file/ ",
+      "description": "JSON configuration file (create on according to manual at https://unfmontreal.github.io/Dcm2Bids/3.2.0/how-to/create-config-file/ ",
       "name": "config",
       "command-line-flag": "-c",
       "optional": false,
-      "type": "String",
+      "type": "File",
       "id": "config",
       "value-key": "[CONFIG]"
     },
     {
-      "description": "Output BIDS directory. [%(default)s]",
+      "description": "BIDS directory, provide it if you like to add a new subject to be added to a BIDS directory",
       "name": "output_dir",
       "command-line-flag": "-o",
       "optional": true,
-      "type": "String",
+      "type": "File",
       "id": "output_dir",
       "value-key": "[OUTPUT_DIR]"
     },
@@ -63,7 +75,8 @@
       "optional": true,
       "type": "Flag",
       "id": "auto_extract_entities",
-      "value-key": "[AUTO_EXTRACT_ENTITIES]"
+      "value-key": "[AUTO_EXTRACT_ENTITIES]",
+      "default-value": true
     },
     {
       "description": "If set, it will not reorder entities according to the relative ordering indicated in the BIDS specification and use the order defined in custom_entities by the user.\nCannot be used with --auto_extract_entities.  [%(default)s]",
@@ -75,7 +88,7 @@
       "value-key": "[DO_NOT_REORDER_ENTITIES]"
     },
     {
-      "description": "If set, once your conversion is done it will check if your output folder is BIDS valid. [%(default)s]\nbids-validator needs to be installed check: https://github.com/bids-standard/bids-validator#quickstart",
+      "description": "If set, once your conversion is done it will check if your output folder is BIDS valid. ",
       "name": "bids_validate",
       "command-line-flag": "--bids_validate",
       "optional": true,
@@ -102,7 +115,7 @@
       "value-key": "[SKIP_DCM2NIIX]"
     },
     {
-      "description": "Overwrite output if it exists.",
+      "description": "Overwrite output if it exists (currently not-applicable).",
       "name": "clobber",
       "command-line-flag": "--clobber",
       "optional": true,
@@ -135,6 +148,35 @@
       "type": "String",
       "id": "version",
       "value-key": "[VERSION]"
+    },
+    {
+      "description": "If you use dcm2bids in your research or as part of your developments, please always cite it",
+      "name": "agreement",
+      "optional": false,
+      "type": "String",
+      "id": "agreement",
+      "value-key": "[CITETOOL]",
+      "value-choices": [
+        "agree"
+      ]
+    }
+  ],
+  "output-files": [
+    {
+      "name": "Output BIDS SUBJECT directory",
+      "id": "bids_subject",
+      "description": "the bids subject folder sub-xxxxx",
+      "list": false,
+      "path-template": "sub-[PARTICIPANT]"
+    },
+    {
+      "name": "Output BIDS directory",
+      "id": "bids",
+      "description": "the bids subject folder sub-xxxxx",
+      "optional": false,
+      "list": false,
+      "path-template": "[OUTPUT_DIR]",
+      "command-line-flag": "-o"
     }
   ],
   "suggested-resources": {
@@ -142,6 +184,21 @@
     "walltime-estimate": 24000,
     "cpu-cores": 1
   },
-  "name": "dcm2bids",
+  "custom": {
+    "cbrain:readonly-input-files": true,
+    "cbrain:author": "Serge Boroday <serge.boroday@mcin.ca>",
+    "cbrain:integrator_modules": {
+      "BoutiquesFileTypeVerifier": {
+        "dicom_dir": [
+          "DicomCollection",
+          "TarArchive",
+          "ZipArchive"
+        ]
+      },
+      "BoutiquesOutputFileTypeSetter": {
+        "bids_subject": "BidsSubject"
+      }
+    }
+  },
   "schema-version": "0.5"
 }
