@@ -23,8 +23,8 @@
   },
   "inputs": [
     {
-      "description": "DICOM directory(ies) or archive(s) (tar, tar.bz2, tar.gz or zip).",
-      "name": "dicom_dir",
+      "description": "DICOM directory(ies) or archive(s) (tar, tar.bz2, tar.gz or zip) for given subject. Note, you might need extract subject data from large DICOM dataset, or split the dataset before with appropriate DICOM tool or library ",
+      "name": "DICOM subject data",
       "command-line-flag": "-d",
       "optional": false,
       "list": true,
@@ -33,8 +33,8 @@
       "value-key": "[DICOM_DIR]"
     },
     {
-      "description": "Participant ID",
-      "name": "participant",
+      "description": "Participant ID, e.g. 0000123",
+      "name": "Participant ID",
       "command-line-flag": "-p",
       "optional": false,
       "type": "String",
@@ -42,8 +42,8 @@
       "value-key": "[PARTICIPANT]"
     },
     {
-      "description": "Session ID",
-      "name": "session",
+      "description": "Session ID, e.g. 001",
+      "name": "Session ID",
       "command-line-flag": "-s",
       "optional": true,
       "type": "String",
@@ -51,7 +51,7 @@
       "value-key": "[SESSION]"
     },
     {
-      "description": "JSON configuration file (create on according to manual at https://unfmontreal.github.io/Dcm2Bids/3.2.0/how-to/create-config-file/ ",
+      "description": "JSON configuration file (create ahead according to manual at https://unfmontreal.github.io/Dcm2Bids/3.2.0/how-to/create-config-file/ ",
       "name": "config",
       "command-line-flag": "-c",
       "optional": false,
@@ -60,8 +60,8 @@
       "value-key": "[CONFIG]"
     },
     {
-      "description": "BIDS directory, provide it if you like to add a new subject to be added to a BIDS directory",
-      "name": "output_dir",
+      "description": "Existing BIDS dataset or stub, provide it if you like to add a new subject into that BIDS directory",
+      "name": "Place the subject directory into this BIDS dataset or stub",
       "command-line-flag": "-o",
       "optional": true,
       "type": "File",
@@ -70,7 +70,7 @@
     },
     {
       "description": "If set, it will automatically try to extract entity information [task, dir, echo] based on the suffix and datatype. ",
-      "name": "auto_extract_entities",
+      "name": "Auto extract entities",
       "command-line-flag": "--auto_extract_entities",
       "optional": true,
       "type": "Flag",
@@ -80,7 +80,7 @@
     },
     {
       "description": "If set, it will not reorder entities according to the relative ordering indicated in the BIDS specification and use the order defined in custom_entities by the user.\nCannot be used with --auto_extract_entities.  [%(default)s]",
-      "name": "do_not_reorder_entities",
+      "name": "Do not reorder entities",
       "command-line-flag": "--do_not_reorder_entities",
       "optional": true,
       "type": "Flag",
@@ -89,7 +89,7 @@
     },
     {
       "description": "If set, once your conversion is done it will check if your output folder is BIDS valid. ",
-      "name": "bids_validate",
+      "name": "BIDS validate",
       "command-line-flag": "--bids_validate",
       "optional": true,
       "type": "Flag",
@@ -112,10 +112,11 @@
       "optional": true,
       "type": "Flag",
       "id": "skip_dcm2niix",
-      "value-key": "[SKIP_DCM2NIIX]"
+      "value-key": "[SKIP_DCM2NIIX]",
+      "requires-inputs": ["dicom_dir"]
     },
     {
-      "description": "Overwrite output if it exists (currently not-applicable).",
+      "description": "Overwrite output if it exists.",
       "name": "clobber",
       "command-line-flag": "--clobber",
       "optional": true,
@@ -126,7 +127,7 @@
     {
       "default-value": "INFO",
       "description": "Set logging level to the console.",
-      "name": "log_level",
+      "name": "Log level",
       "value-choices": [
         "DEBUG",
         "INFO",
@@ -172,8 +173,8 @@
     {
       "name": "Output BIDS directory",
       "id": "bids",
-      "description": "the bids subject folder sub-xxxxx",
-      "optional": false,
+      "description": "the existing bids folder or stub, where the subject will be added",
+      "optional": true,
       "list": false,
       "path-template": "[OUTPUT_DIR]",
       "command-line-flag": "-o"
