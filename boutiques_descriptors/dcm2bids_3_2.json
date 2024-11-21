@@ -142,15 +142,6 @@
       "value-key": "[LOG_LEVEL]"
     },
     {
-      "description": "Report dcm2bids version and the BIDS version.",
-      "name": "version",
-      "command-line-flag": "-v",
-      "optional": true,
-      "type": "String",
-      "id": "version",
-      "value-key": "[VERSION]"
-    },
-    {
       "description": "If you use dcm2bids in your research or as part of your developments, please always cite it",
       "name": "agreement",
       "optional": false,
