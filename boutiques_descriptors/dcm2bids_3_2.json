@@ -8,7 +8,7 @@
   "url": "https://unfmontreal.github.io/Dcm2Bids/3.2.0/",
   "descriptor-url": "https://github.com/aces/cbrain-plugins-neuro/blob/master/boutiques_descriptors/dcm2bids_3_2.json",
   "description": "DICOM to BIDS converter. dcm2bids reorganises NIfTI files using dcm2niix into the Brain Imaging Data Structure (BIDS). dcm2bids>=3.0.0 is not compatible with config files made for v2.1.9 ",
-  "command-line": "echo you [CITETOOL]d to cite dcm2bids; set  -o pipefail; dcm2bids [DICOM_DIR] [PARTICIPANT] [SESSION] [CONFIG] [OUTPUT_DIR] [AUTO_EXTRACT_ENTITIES] [DO_NOT_REORDER_ENTITIES] [BIDS_VALIDATE] [FORCE_DCM2BIDS] [SKIP_DCM2NIIX] [CLOBBER] [LOG_LEVEL] | sed -r \"s/\\x1B\\[[0-9;]*[mK]//g\"",
+  "command-line": "echo you [CITETOOL]d to cite dcm2bids; SCAFFOLD=' [SCAFFOLD_DIR] '; [ \"$SCAFFOLD\" != \" -o \" ] && dcm2bids_scaffold [SCAFFOLD_DIR] [OVERWRITE]  ; set  -o pipefail; dcm2bids [DICOM_DIR] [PARTICIPANT] [SESSION] [CONFIG] [SCAFFOLD_DIR] [OUTPUT_DIR] [AUTO_EXTRACT_ENTITIES] [DO_NOT_REORDER_ENTITIES] [BIDS_VALIDATE] [FORCE_DCM2BIDS] [SKIP_DCM2NIIX] [CLOBBER] [LOG_LEVEL] | sed -r \"s/\\x1B\\[[0-9;]*[mK]//g\"",
   "container-image": {
     "index": "docker://",
     "image": "unfmontreal/dcm2bids:3.2.0",
@@ -17,7 +17,7 @@
   "tags": {
     "domain": [
       "NIfTI",
-      "bids",
+      "BIDS",
       "neuroimaging"
     ]
   },
@@ -40,6 +40,25 @@
       "type": "String",
       "id": "participant",
       "value-key": "[PARTICIPANT]"
+    },
+    {
+      "id": "scaffold",
+      "name": "BIDS scaffold directory",
+      "description": "Creates stab/scaffolding BIDS directory using dcm2bids_scaffold, the subject directory(-ies) will placed inside this directory.",
+      "optional": true,
+      "type": "String",
+      "value-key": "[SCAFFOLD_DIR]",
+      "command-line-flag": "-o"
+    },
+    {
+      "id": "overwrite",
+      "name": "Overwrite",
+      "description": "Force overwriting when creating scaffold.",
+      "optional": true,
+      "type": "Flag",
+      "value-key": "[OVERWRITE]",
+      "command-line-flag": "--force",
+      "requires-inputs": ["scaffold"]
     },
     {
       "description": "Session ID, e.g. 001",
@@ -159,16 +178,37 @@
       "id": "bids_subject",
       "description": "the bids subject folder sub-xxxxx",
       "list": false,
+      "optional": true,
       "path-template": "sub-[PARTICIPANT]"
     },
     {
       "name": "Output BIDS directory",
-      "id": "bids",
+      "id": "existing_bids",
       "description": "the existing bids folder or stub, where the subject will be added",
       "optional": true,
       "list": false,
       "path-template": "[OUTPUT_DIR]",
       "command-line-flag": "-o"
+    },
+    {
+      "name": "Scaffold BIDS directory",
+      "id": "scaffold_bids",
+      "description": "newly created scaffold folder, where the subject will be added",
+      "optional": true,
+      "list": false,
+      "path-template": "[SCAFFOLD_DIR]",
+      "command-line-flag": "-o"
+    }
+  ],
+  "groups": [
+    {
+      "id": "bids",
+      "name": "Write to a BIDS dataset. Otherwise, a single BIDS Subject directory will be created",
+      "members": [
+        "scaffold",
+        "output_dir"
+      ],
+      "mutually-exclusive": true
     }
   ],
   "suggested-resources": {
@@ -177,7 +217,6 @@
     "cpu-cores": 1
   },
   "custom": {
-    "cbrain:readonly-input-files": true,
     "cbrain:author": "Serge Boroday <serge.boroday@mcin.ca>",
     "cbrain:integrator_modules": {
       "BoutiquesFileTypeVerifier": {
@@ -185,10 +224,13 @@
           "DicomCollection",
           "TarArchive",
           "ZipArchive"
-        ]
+        ],
+        "config": [ "JsonFile"]
       },
       "BoutiquesOutputFileTypeSetter": {
-        "bids_subject": "BidsSubject"
+        "bids_subject": "BidsSubject",
+        "existing_bids": "BidsDataset",
+        "scaffold_bids": "BidsDataset"
       }
     }
   },
