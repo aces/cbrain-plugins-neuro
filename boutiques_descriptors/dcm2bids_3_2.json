@@ -8,7 +8,7 @@
   "url": "https://unfmontreal.github.io/Dcm2Bids/3.2.0/",
   "descriptor-url": "https://github.com/aces/cbrain-plugins-neuro/blob/master/boutiques_descriptors/dcm2bids_3_2.json",
   "description": "DICOM to BIDS converter. dcm2bids reorganises NIfTI files using dcm2niix into the Brain Imaging Data Structure (BIDS). dcm2bids>=3.0.0 is not compatible with config files made for v2.1.9 ",
-  "command-line": "echo you [CITETOOL]d to cite dcm2bids; SCAFFOLD=' [SCAFFOLD_DIR] '; [ \"$SCAFFOLD\" != \" -o \" ] && dcm2bids_scaffold [SCAFFOLD_DIR] [OVERWRITE]  ; set  -o pipefail; dcm2bids [DICOM_DIR] [PARTICIPANT] [SESSION] [CONFIG] [SCAFFOLD_DIR] [OUTPUT_DIR] [AUTO_EXTRACT_ENTITIES] [DO_NOT_REORDER_ENTITIES] [BIDS_VALIDATE] [FORCE_DCM2BIDS] [SKIP_DCM2NIIX] [CLOBBER] [LOG_LEVEL] | sed -r \"s/\\x1B\\[[0-9;]*[mK]//g\"",
+  "command-line": "echo you [CITETOOL]d to cite dcm2bids; { case '  '  in  \" [SCAFFOLD_DIR] \"*) ;; *) dcm2bids_scaffold [SCAFFOLD_DIR] [OVERWRITE]  ;; esac; set -o pipefail; dcm2bids [DICOM_DIR] [PARTICIPANT] [SESSION] [CONFIG] [SCAFFOLD_DIR] [OUTPUT_DIR] [AUTO_EXTRACT_ENTITIES] [DO_NOT_REORDER_ENTITIES] [BIDS_VALIDATE] [FORCE_DCM2BIDS] [SKIP_DCM2NIIX] [CLOBBER] [LOG_LEVEL] } | sed -r \"s/\\x1B\\[[0-9;]*[mK]//g\"" ,
   "container-image": {
     "index": "docker://",
     "image": "unfmontreal/dcm2bids:3.2.0",
@@ -107,7 +107,7 @@
       "value-key": "[DO_NOT_REORDER_ENTITIES]"
     },
     {
-      "description": "If set, once your conversion is done it will check if your output folder is BIDS valid. ",
+      "description": "If set, once your conversion is done it will check if your output directory is BIDS valid. ",
       "name": "BIDS validate",
       "command-line-flag": "--bids_validate",
       "optional": true,
@@ -176,7 +176,7 @@
     {
       "name": "Output BIDS SUBJECT directory",
       "id": "bids_subject",
-      "description": "the bids subject folder sub-xxxxx",
+      "description": "the bids subject directory sub-xxxxx",
       "list": false,
       "optional": true,
       "path-template": "sub-[PARTICIPANT]"
@@ -184,7 +184,7 @@
     {
       "name": "Output BIDS directory",
       "id": "existing_bids",
-      "description": "the existing bids folder or stub, where the subject will be added",
+      "description": "the existing bids directory or stub, where the subject will be added, resulting a new dataset",
       "optional": true,
       "list": false,
       "path-template": "[OUTPUT_DIR]",
@@ -193,7 +193,7 @@
     {
       "name": "Scaffold BIDS directory",
       "id": "scaffold_bids",
-      "description": "newly created scaffold folder, where the subject will be added",
+      "description": "newly created scaffold directory, where the subject will be added",
       "optional": true,
       "list": false,
       "path-template": "[SCAFFOLD_DIR]",
@@ -231,6 +231,9 @@
         "bids_subject": "BidsSubject",
         "existing_bids": "BidsDataset",
         "scaffold_bids": "BidsDataset"
+      },
+      "BoutiquesFileNameMatcher": {
+        "scaffold": "^[a-zA-Z0-9_\\+=\\-]{0,63}$"
       }
     }
   },
