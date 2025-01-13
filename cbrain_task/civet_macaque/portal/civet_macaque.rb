@@ -519,11 +519,11 @@ class CbrainTask::CivetMacaque < PortalTask
         all_access = SingleFile.find_all_accessible_by_user(user, :access_requested => :read) # a relation
                                .where("#{Userfile.table_name}.group_id" => t1.group_id)
         # Names in DB are not case sensitive, so searching for _t2 matches files with _T2
-        t2_id  = all_access.where(:name => t1_name.sub(/(\b|_)t1(\b|_)/i,'\1t2\2')).limit(1).raw_first_column("#{Userfile.table_name}.id")[0]
-        pd_id  = all_access.where(:name => t1_name.sub(/(\b|_)t1(\b|_)/i,'\1pd\2')).limit(1).raw_first_column("#{Userfile.table_name}.id")[0]
-        mk_id  = all_access.where(:name => t1_name.sub(/(\b|_)t1(\b|_)/i,'\1mask\2')).limit(1).raw_first_column("#{Userfile.table_name}.id")[0]
-        mp_id  = all_access.where(:name => t1_name.sub(/(\b|_)t1(\b|_)/i,'\1mp2\2')).limit(1).raw_first_column("#{Userfile.table_name}.id")[0]
-        csf_id = all_access.where(:name => t1_name.sub(/(\b|_)t1(\b|_)/i,'\1csf\2')).limit(1).raw_first_column("#{Userfile.table_name}.id")[0]
+        t2_id  = all_access.where(:name => t1_name.sub(/(\b|_)t1(\b|_)/i,'\1t2\2')).limit(1).pluck("#{Userfile.table_name}.id")[0]
+        pd_id  = all_access.where(:name => t1_name.sub(/(\b|_)t1(\b|_)/i,'\1pd\2')).limit(1).pluck("#{Userfile.table_name}.id")[0]
+        mk_id  = all_access.where(:name => t1_name.sub(/(\b|_)t1(\b|_)/i,'\1mask\2')).limit(1).pluck("#{Userfile.table_name}.id")[0]
+        mp_id  = all_access.where(:name => t1_name.sub(/(\b|_)t1(\b|_)/i,'\1mp2\2')).limit(1).pluck("#{Userfile.table_name}.id")[0]
+        csf_id = all_access.where(:name => t1_name.sub(/(\b|_)t1(\b|_)/i,'\1csf\2')).limit(1).pluck("#{Userfile.table_name}.id")[0]
       end
 
       if t1_name.match(/(\w+)(\W+|_)(\w+)(\W+|_)t1(\b|_)/i)

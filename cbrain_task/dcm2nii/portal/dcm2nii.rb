@@ -63,7 +63,7 @@ class CbrainTask::Dcm2nii < PortalTask
       # Adjust description
       task.description  = (task.description.presence || "").strip
       task.description += "\n\n" if task.description.present?
-      task.description += Userfile.where(:id => col_id).raw_first_column(:name)[0].presence || ""
+      task.description += Userfile.where(:id => col_id).pluck(:name)[0].presence || ""
 
       task_list << task
     end
