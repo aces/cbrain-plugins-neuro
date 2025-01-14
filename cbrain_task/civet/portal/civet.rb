@@ -502,9 +502,9 @@ class CbrainTask::Civet < PortalTask
       if t1_name =~ /(\b|_)t1(\b|_)/i
         all_access = SingleFile.find_all_accessible_by_user(user, :access_requested => :read) # a relation
         # Names in DB are not case sensitive, so searching for _t2 matches files with _T2
-        t2_id = all_access.where(:name => t1_name.sub(/(\b|_)t1(\b|_)/i,'\1t2\2')).limit(1).raw_first_column("#{Userfile.table_name}.id")[0]
-        pd_id = all_access.where(:name => t1_name.sub(/(\b|_)t1(\b|_)/i,'\1pd\2')).limit(1).raw_first_column("#{Userfile.table_name}.id")[0]
-        mk_id = all_access.where(:name => t1_name.sub(/(\b|_)t1(\b|_)/i,'\1mask\2')).limit(1).raw_first_column("#{Userfile.table_name}.id")[0]
+        t2_id = all_access.where(:name => t1_name.sub(/(\b|_)t1(\b|_)/i,'\1t2\2')).limit(1).pluck("#{Userfile.table_name}.id")[0]
+        pd_id = all_access.where(:name => t1_name.sub(/(\b|_)t1(\b|_)/i,'\1pd\2')).limit(1).pluck("#{Userfile.table_name}.id")[0]
+        mk_id = all_access.where(:name => t1_name.sub(/(\b|_)t1(\b|_)/i,'\1mask\2')).limit(1).pluck("#{Userfile.table_name}.id")[0]
       end
 
       if t1_name.match(/(\w+)(\W+|_)(\w+)(\W+|_)t1(\b|_)/i)

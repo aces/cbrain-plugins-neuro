@@ -66,13 +66,13 @@ class CbrainTask::FslRandomise < PortalTask
       cb_error "Error: this task can only run with a #{FslMatrixFile.pretty_type}" if
         files.count { |u| u.is_a?(FslMatrixFile) } != 1
       params[:matrix_id] =
-        FslMatrixFile.where(:id => ids).raw_first_column(:id).first
+        FslMatrixFile.where(:id => ids).ids.first
 
       # Should be launch with one FslTContrastFile (option: -t)
       cb_error "Error: this task can only run with a #{FslTContrastFile.pretty_type}" if
         files.count { |u| u.is_a?(FslTContrastFile) } != 1
       params[:t_contrasts_id] =
-        (FslTContrastFile.where(:id => ids).raw_first_column(:id)).first
+        FslTContrastFile.where(:id => ids).ids.first
     end
 
     # Should be launch with 2 Nifti file at least
@@ -81,12 +81,12 @@ class CbrainTask::FslRandomise < PortalTask
 
     # Search for a f_contrasts_id
     params[:f_contrasts_id] =
-      (FslFContrastFile.where(:id => ids).raw_first_column(:id)).first ||
+      FslFContrastFile.where(:id => ids).ids.first ||
       files.detect {|f| f.name =~ /\.fts$/ }.try(:id)
 
     # Search for an exchangeability_matrix file
     params[:exchangeability_matrix_id] =
-      (FslExchangeabilityFile.where(:id => ids).raw_first_column(:id)).first ||
+      FslExchangeabilityFile.where(:id => ids).ids.first ||
       files.detect {|f| f.name =~ /\.grp$/ }.try(:id)
 
     # Search for a mask
@@ -94,7 +94,7 @@ class CbrainTask::FslRandomise < PortalTask
       files.detect {|f| f.name =~ /mask/ }.try(:id)
 
     # Initial input_files
-    params[:input_ids] = (NiftiFile.where(:id => ids).raw_first_column(:id))
+    params[:input_ids] = NiftiFile.where(:id => ids).ids
     params[:input_ids] = params[:input_ids] - [params[:mask_id]] if params[:mask_id]
 
     return ""
