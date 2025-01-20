@@ -49,6 +49,7 @@ module BoutiquesFreesurferLicenseFinder
   def before_form #:nodoc:
     descriptor = self.descriptor_for_before_form
     inputid    = descriptor.custom_module_info('BoutiquesFreesurferLicenseFinder')
+    return super if inputid.blank? # nothing configured? skip
 
     # Already set? Do nothing.
     return super if invoke_params[inputid].present?

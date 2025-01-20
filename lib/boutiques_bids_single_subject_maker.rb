@@ -75,6 +75,7 @@ module BoutiquesBidsSingleSubjectMaker
   def descriptor_for_form
     descriptor = super.dup
     inputid    = descriptor.custom_module_info('BoutiquesBidsSingleSubjectMaker')
+    return descriptor if inputid.blank? # nothing to do
     input      = descriptor.input_by_id(inputid)
 
     # Adjust the description
@@ -136,6 +137,7 @@ module BoutiquesBidsSingleSubjectMaker
     # Extract the descriptor, module config, and input name
     descriptor   = self.descriptor_for_setup
     inputid      = descriptor.custom_module_info('BoutiquesBidsSingleSubjectMaker')
+    return true if inputid.blank? # nothing to do and super worked fine
     userfile_id  = invoke_params[inputid]
     userfile     = Userfile.find(userfile_id)
     subject_name = userfile.name # 'sub-1234'
@@ -296,6 +298,7 @@ module BoutiquesBidsSingleSubjectMaker
   def descriptor_for_cluster_commands
     descriptor = super.dup
     inputid    = descriptor.custom_module_info('BoutiquesBidsSingleSubjectMaker')
+    return descriptor if inputid.blank? # nothing to do
     input      = descriptor.input_by_id(inputid)
 
     # The two strings we need
@@ -333,6 +336,8 @@ module BoutiquesBidsSingleSubjectMaker
   # content of a participants.tsv file .
   def descriptor_with_participant_tsv_input_file(descriptor)
     descriptor = descriptor.dup
+    inputid    = descriptor.custom_module_info('BoutiquesBidsSingleSubjectMaker')
+    return descriptor if inputid.blank? # nothing to do
 
     # Add new input for dataset_description.json
     new_input_dd = BoutiquesSupport::Input.new(
