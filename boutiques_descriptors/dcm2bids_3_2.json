@@ -1,0 +1,241 @@
+{
+  "name": "dcm2bids",
+  "tool-version": "3.2.0",
+  "author": "Arnaud Boré, Samuel Guay, Christophe Arnaud,  Steven Meisler, Nick GuenTher",
+  "online-platform-urls": [
+    "https://portal.cbrain.mcgill.ca"
+  ],
+  "url": "https://unfmontreal.github.io/Dcm2Bids/3.2.0/",
+  "descriptor-url": "https://github.com/aces/cbrain-plugins-neuro/blob/master/boutiques_descriptors/dcm2bids_3_2.json",
+  "description": "DICOM to BIDS converter. dcm2bids reorganises NIfTI files using dcm2niix into the Brain Imaging Data Structure (BIDS). dcm2bids>=3.0.0 is not compatible with config files made for v2.1.9 ",
+  "command-line": "echo you [CITETOOL]d to cite dcm2bids; [ '  '  !=  \" [SCAFFOLD_DIR] \" ] && dcm2bids_scaffold [SCAFFOLD_DIR] [OVERWRITE] ;  dcm2bids [DICOM_DIR] [PARTICIPANT] [SESSION] [CONFIG] [SCAFFOLD_DIR] [OUTPUT_DIR] [AUTO_EXTRACT_ENTITIES] [DO_NOT_REORDER_ENTITIES] [BIDS_VALIDATE] [FORCE_DCM2BIDS] [SKIP_DCM2NIIX] [CLOBBER] [LOG_LEVEL] ",
+  "container-image": {
+    "index": "docker://",
+    "image": "unfmontreal/dcm2bids:3.2.0",
+    "type": "singularity"
+  },
+  "tags": {
+    "domain": [
+      "NIfTI",
+      "BIDS",
+      "neuroimaging"
+    ]
+  },
+  "inputs": [
+    {
+      "id": "agreement",
+      "name": "Agreement",
+      "description": "dcm2bids will be cited whenever it is used for research or as part of developments",
+      "optional": false,
+      "type": "String",
+      "value-key": "[CITETOOL]",
+      "value-choices": [
+        "agree"
+      ]
+    },
+    {
+      "id": "dicom_dir",
+      "name": "DICOM subject data",
+      "description": "DICOM directory(ies) or archive(s) (tar, tar.bz2, tar.gz or zip) for given subject. Note, you might need extract subject data from large DICOM dataset, or split the dataset before with appropriate DICOM tool or library ",
+      "command-line-flag": "-d",
+      "optional": false,
+      "list": true,
+      "type": "File",
+      "value-key": "[DICOM_DIR]"
+    },
+    {
+      "id": "participant",
+      "name": "Participant ID",
+      "description": "Alphanumerical participant label, informally referred as a participant Id. Avoid overly long labels. For greater compatibility with bids validation tool use only lower case characters (if any), for example  0000123f",
+      "command-line-flag": "-p",
+      "optional": false,
+      "type": "String",
+      "value-key": "[PARTICIPANT]"
+    },
+    {
+      "id": "scaffold",
+      "name": "BIDS scaffold directory",
+      "description": "Creates stab/scaffolding BIDS directory using dcm2bids_scaffold, the subject directory(-ies) will placed inside this directory.",
+      "optional": true,
+      "type": "String",
+      "value-key": "[SCAFFOLD_DIR]",
+      "command-line-flag": "-o"
+    },
+    {
+      "id": "overwrite",
+      "name": "Overwrite scaffold",
+      "description": "Force overwriting when creating scaffold.",
+      "optional": true,
+      "type": "Flag",
+      "value-key": "[OVERWRITE]",
+      "command-line-flag": "--force",
+      "requires-inputs": [
+        "scaffold"
+      ]
+    },
+    {
+      "name": "Session ID",
+      "id": "session",
+      "description": "Session label, which is a reasonbaly short sequence of alphanumericals, possibly interleaved with underscores and hyphens, for example mri-day_1.",
+      "command-line-flag": "-s",
+      "optional": true,
+      "type": "String",
+      "value-key": "[SESSION]"
+    },
+    {
+      "name": "Configuration file",
+      "id": "config",
+      "description": "JSON configuration file, please create and debug it ahead according to manual at https://unfmontreal.github.io/Dcm2Bids/3.2.0/how-to/create-config-file/ ",
+      "command-line-flag": "-c",
+      "optional": false,
+      "type": "File",
+      "value-key": "[CONFIG]"
+    },
+    {
+      "id": "output_dir",
+      "name": "Preexisting BIDS dataset scaffold",
+      "description": "Existing BIDS dataset, scaffold or stub, provide it if you like to add a new subject into that BIDS directory. This is an experimental feature, may corrupt data when not used carefully. Recommended solution is create subject folders separately then combine",
+      "command-line-flag": "-o",
+      "optional": true,
+      "type": "File",
+      "value-key": "[OUTPUT_DIR]"
+    },
+    {
+      "id": "auto_extract_entities",
+      "name": "Auto extract entities",
+      "description": "If set, it will automatically try to extract entity information [task, dir, echo] based on the suffix and datatype. ",
+      "command-line-flag": "--auto_extract_entities",
+      "optional": true,
+      "type": "Flag",
+      "value-key": "[AUTO_EXTRACT_ENTITIES]",
+      "default-value": true
+    },
+    {
+      "id": "do_not_reorder_entities",
+      "name": "Do not reorder entities",
+      "description": "If set, it will not reorder entities according to the relative ordering indicated in the BIDS specification and use the order defined in custom_entities by the user.\nCannot be used with --auto_extract_entities.  [%(default)s]",
+      "command-line-flag": "--do_not_reorder_entities",
+      "optional": true,
+      "type": "Flag",
+      "value-key": "[DO_NOT_REORDER_ENTITIES]"
+    },
+    {
+      "name": "BIDS validate",
+      "id": "bids_validate",
+      "description": "If set, once your conversion is done it will check if your output directory is BIDS valid. ",
+      "command-line-flag": "--bids_validate",
+      "optional": true,
+      "type": "Flag",
+      "value-key": "[BIDS_VALIDATE]"
+    },
+    {
+      "name": "Overwrite tmp data",
+      "id": "force_dcm2bids",
+      "description": "Overwrite previous temporary dcm2bids output if it exists. Experimental.",
+      "command-line-flag": "--force_dcm2bids",
+      "optional": true,
+      "type": "Flag",
+      "value-key": "[FORCE_DCM2BIDS]"
+    },
+    {
+      "name": "Skip dcm2niix",
+      "description": "Skip dcm2niix conversion. One of directories supplied with option -d should contains NIFTI and json files.",
+      "id": "skip_dcm2niix",
+      "command-line-flag": "--skip_dcm2niix",
+      "optional": true,
+      "type": "Flag",
+      "value-key": "[SKIP_DCM2NIIX]",
+      "requires-inputs": [
+        "dicom_dir"
+      ]
+    },
+    {
+      "name": "Clobber",
+      "id": "clobber",
+      "description": "Overwrite output if it exists. Experimental.",
+      "command-line-flag": "--clobber",
+      "optional": true,
+      "type": "Flag",
+      "value-key": "[CLOBBER]"
+    },
+    {
+      "id": "log_level",
+      "name": "Log level",
+      "description": "Set logging level to the console.",
+      "default-value": "INFO",
+      "value-choices": [
+        "DEBUG",
+        "INFO",
+        "WARNING",
+        "ERROR",
+        "CRITICAL"
+      ],
+      "optional": true,
+      "command-line-flag": "-l",
+      "type": "String",
+      "value-key": "[LOG_LEVEL]"
+    }
+  ],
+  "output-files": [
+    {
+      "name": "Output BIDS SUBJECT directory",
+      "id": "bids_subject",
+      "description": "the bids subject directory sub-xxxxx",
+      "list": false,
+      "optional": true,
+      "path-template": "sub-[PARTICIPANT]"
+    },
+    {
+      "name": "Scaffold BIDS directory",
+      "id": "scaffold_bids",
+      "description": "Newly created BIDS dataset scaffold directory, where the subject directory added",
+      "optional": true,
+      "list": false,
+      "path-template": "[SCAFFOLD_DIR]",
+      "command-line-flag": "-o"
+    }
+  ],
+  "groups": [
+    {
+      "id": "bids",
+      "name": "Write to a BIDS dataset. Otherwise, a single BIDS Subject directory will be created",
+      "members": [
+        "scaffold",
+        "output_dir"
+      ],
+      "mutually-exclusive": true
+    }
+  ],
+  "suggested-resources": {
+    "ram": 1,
+    "walltime-estimate": 24000,
+    "cpu-cores": 1
+  },
+  "custom": {
+    "cbrain:author": "Serge Boroday <serge.boroday@mcin.ca>",
+    "cbrain:save_back_inputs" : ["output_dir"],
+    "cbrain:integrator_modules": {
+      "BoutiquesFileTypeVerifier": {
+        "dicom_dir": [
+          "DicomCollection",
+          "TarArchive",
+          "ZipArchive"
+        ],
+        "config": [
+          "JsonFile"
+        ]
+      },
+      "BoutiquesOutputFileTypeSetter": {
+        "bids_subject": "BidsSubject",
+        "existing_bids": "BidsDataset",
+        "scaffold_bids": "BidsDataset"
+      },
+      "BoutiquesInputRegexChecker": {
+        "scaffold": "^[a-zA-Z0-9_\\+=\\-]{0,63}$",
+        "participant": "^[a-zA-Z0-9]{1,255}$",
+        "session": "^[a-zA-Z0-9][a-zA-Z0-9_-]{0,255}$"
+      }
+    }
+  },
+  "schema-version": "0.5"
+}
