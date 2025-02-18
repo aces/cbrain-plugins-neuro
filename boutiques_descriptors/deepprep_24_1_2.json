@@ -1,0 +1,117 @@
+{
+    "name": "DeepPrep",
+    "tool-version": "24.1.2",
+    "schema-version": "0.5",
+    "author": "personalized Brain Functional Seuctors (pBFS) Lab",
+    "description": "An accelerated, scalable, and robust pipeline for neuroimaging preprocessing empowered by deep learning",
+    "descriptor-url": "XXX",
+    "command-line": "wd=\"$PWD\"; /opt/DeepPrep/deepprep/deepprep.sh \"$wd\"/<bids_dir> \"$wd\"/<output_dir> participant --fs_license_file \"$wd\"/<fs_license_file> <bold_task_type> --skip_bids_validation",
+    "inputs": [
+        {
+            "description": "BIDS dataset input directory",
+            "id": "bids_dir",
+            "name": "bids_dir",
+            "optional": false,
+            "type": "File",
+            "value-key": "<bids_dir>"
+
+        },
+        {
+            "description": "The output directory",
+            "id": "output_dir_name",
+            "name": "output_dir_name",
+            "optional": false,
+            "type": "String",
+            "value-key": "<output_dir>"
+        },
+        {
+            "command-line-flag": "--bold_task_type",
+            "description": "The task label of BOLD images",
+            "id": "bold_task_type",
+            "name": "bold_task_type",
+            "optional": false,
+            "type": "String",
+            "value-key": "<bold_task_type>",
+            "value-choices": [
+                "6cat",
+                "rest",
+                "motor",
+                "rest motor"
+            ]
+        },
+        {
+            "description": "FreeSurfer license file",
+            "id": "fs_license_file",
+            "name": "fs_license_file",
+            "optional": false,
+            "type": "File",
+            "value-key": "<fs_license_file>"
+        }
+    ],
+    "groups": [
+        {
+            "id": "mandatory",
+            "name": "Mandatory parameters",
+            "description": "Mandatory parameters",
+            "members": [
+                "bids_dir",
+                "output_dir_name",
+                "bold_task_type"
+            ]
+        }
+    ],
+    "output-files": [
+        {
+            "id" : "output_dir",
+            "name" : "Output Directory",
+            "description" : "This is the directory where the overall outputs are to be stored.",
+            "path-template" : "<output_dir>",
+            "optional" : false
+        }
+    ],
+    "suggested-resources": {
+        "cpu-cores": 4,
+        "ram": 12,
+        "walltime-estimate": 172000
+    },
+    "tags": {
+        "application-type": [
+            "bids"
+        ],
+        "domain": [
+            "neuroinformatics",
+            "deeplearning"
+        ]
+    },
+    "container-image": {
+        "type": "singularity",
+        "index": "docker://",
+        "image": "pbfslab/deepprep:24.1.2"
+    },
+    "custom": {
+        "cbrain:author": "Natacha Beck <nbeck@mcin.ca>",
+        "cbrain:readonly-input-files": true,
+        "cbrain:integrator_modules": {
+            "BoutiquesFileTypeVerifier": {
+                "bids_dir": [ "BidsSubject" ],
+                "fs_license_file": [ "FreesurferLicense", "TextFile", "SingleFile" ]
+            },
+            "BoutiquesFileNameMatcher": {
+                "bids_dir": "^sub-[a-zA-Z0-9_]+$"
+            },
+            "BoutiquesFreesurferLicenseFinder": "fs_license_file",
+            "BoutiquesOutputFileTypeSetter": {
+                "output_dir": "FileCollection"
+            },
+            "BoutiquesPostProcessingCleaner": [
+                "[OUTPUT_DIR]"
+            ],
+            "BoutiquesBidsSingleSubjectMaker": "bids_dir",
+            "BoutiquesInputCacheCleaner": [ "bids_dir" ],
+            "BoutiquesOutputCacheCleaner": [ "output_dir" ],
+            "BoutiquesOutputFilenameRenamer": {
+                "output_dir": [ "bids_dir", "output_dir_name" ]
+            }
+        }
+    }
+}
