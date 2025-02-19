@@ -4,7 +4,7 @@
     "schema-version": "0.5",
     "author": "personalized Brain Functional Seuctors (pBFS) Lab",
     "description": "An accelerated, scalable, and robust pipeline for neuroimaging preprocessing empowered by deep learning",
-    "descriptor-url": "XXX",
+    "descriptor-url": "https://deepprep.readthedocs.io/en/latest/",
     "command-line": "wd=\"$PWD\"; /opt/DeepPrep/deepprep/deepprep.sh \"$wd\"/<bids_dir> \"$wd\"/<output_dir> participant --fs_license_file \"$wd\"/<fs_license_file> <bold_task_type> --skip_bids_validation",
     "inputs": [
         {
@@ -14,7 +14,6 @@
             "optional": false,
             "type": "File",
             "value-key": "<bids_dir>"
-
         },
         {
             "description": "The output directory",
@@ -104,7 +103,7 @@
                 "output_dir": "FileCollection"
             },
             "BoutiquesPostProcessingCleaner": [
-                "[OUTPUT_DIR]"
+                "<output_dir>"
             ],
             "BoutiquesBidsSingleSubjectMaker": "bids_dir",
             "BoutiquesInputCacheCleaner": [ "bids_dir" ],
