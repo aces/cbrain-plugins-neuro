@@ -2,9 +2,9 @@
     "name": "DeepPrep",
     "tool-version": "24.1.2",
     "schema-version": "0.5",
-    "author": "personalized Brain Functional Seuctors (pBFS) Lab",
+    "author": "personalized Brain Functional Sectors (pBFS) Lab",
     "description": "An accelerated, scalable, and robust pipeline for neuroimaging preprocessing empowered by deep learning",
-    "descriptor-url": "https://deepprep.readthedocs.io/en/latest/",
+    "descriptor-url": "https://deepprep.readthedocs.io/en/24.1.2/",
     "command-line": "wd=\"$PWD\"; /opt/DeepPrep/deepprep/deepprep.sh \"$wd\"/<bids_dir> \"$wd\"/<output_dir> participant --fs_license_file \"$wd\"/<fs_license_file> <bold_task_type> --skip_bids_validation",
     "inputs": [
         {
@@ -114,3 +114,4 @@
         }
     }
 }
+
