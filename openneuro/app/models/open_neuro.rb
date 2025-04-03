@@ -207,15 +207,18 @@ class OpenNeuro
   end
 
   def send_final_message
-    num_files = self.data_provider.userfiles.count
-    raw_files = self.raw_file_count || "unknown"
+    dp_files      = self.data_provider.userfiles
+    num_userfiles = dp_files.count
+    num_files     = dp_files.sum(:num_files)
+    tot_size      = dp_files.sum(:size)
+    raw_files     = self.raw_file_count || "unknown"
     Message.send_message(DATA_PROVIDER_OWNER,
       {
         :type          => :system,
         :header        => "OpenNeuro dataset populated",
         :description   => "An OpenNeuro dataset has been populated",
         :variable_text => "OpenNeuro Dataset Name: #{self.name}\n" +
-                          "Populated: #{num_files} CBRAIN entries / #{raw_files} entries on DP"
+                          "Populated: #{num_userfiles} CBRAIN entries (#{num_files} files, #{tot_size} bytes) / #{raw_files} entries in OpenNeuro dataset"
       }
     )
     self.to_register_file_count = nil # zap metadata, no longer useful

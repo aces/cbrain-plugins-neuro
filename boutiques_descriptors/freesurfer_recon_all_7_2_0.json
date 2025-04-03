@@ -185,7 +185,7 @@
         }
     ],
     "suggested-resources": {
-        "ram":               10240,
+        "ram":               10,
         "walltime-estimate": 960,
         "cpu-cores":         1
     },
