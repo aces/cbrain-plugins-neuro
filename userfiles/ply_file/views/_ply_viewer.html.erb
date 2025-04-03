@@ -31,7 +31,7 @@ It is not garanteed to work well.
 
     // Values obtained from Rails server side
     var link_id    = "<%= link_id %>";
-    var url        = "<%= raw escape_javascript content_userfile_path(@userfile, :content_loader => :ply_content) %>";
+    var url        = "<%= raw j content_userfile_path(@userfile, :content_loader => :ply_content) %>";
 
     // Our main launch link.
     var start_link = $("#"+link_id);

@@ -41,7 +41,7 @@ with MINC2 files (which are HDF5-based).
 
     // Values obtained from Rails server side
     var link_id    = "<%= link_id %>";
-    var url        = "<%= raw escape_javascript content_userfile_path(@userfile, :content_loader => :minc_content) %>";
+    var url        = "<%= raw j content_userfile_path(@userfile, :content_loader => :minc_content) %>";
 
     // Our main launch link.
     var start_link = $("#"+link_id);

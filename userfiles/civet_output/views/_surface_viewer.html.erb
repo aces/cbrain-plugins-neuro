@@ -329,12 +329,12 @@
     ////////////////////////////////////
 
     viewer.loadModelFromURL(
-      "<%= raw escape_javascript content_userfile_path(@userfile) %>?content_loader=collection_file&arguments=<%= @userfile.name + "/" + @userfile.surfaces_dir %>/" + "<%= @userfile.surfaces_objs[0]%>",
+      "<%= raw j content_userfile_path(@userfile) %>?content_loader=collection_file&arguments=<%= @userfile.name + "/" + @userfile.surfaces_dir %>/" + "<%= @userfile.surfaces_objs[0]%>",
       {
         complete: function() {
           viewer.loadColorMapFromURL(color_maps[0].url);
           viewer.loadIntensityDataFromURL(
-            "<%= raw escape_javascript content_userfile_path(@userfile) %>?content_loader=collection_file&arguments=<%= @userfile.overlays[0][1] %>",
+            "<%= raw j content_userfile_path(@userfile) %>?content_loader=collection_file&arguments=<%= @userfile.overlays[0][1] %>",
             {
               name: "<%= @userfile.overlays[0][0] %>",
               complete: loadEnd
@@ -472,7 +472,7 @@
       viewer.clearScreen();
       loadStart();
       viewer.loadModelFromURL(
-        "<%= raw escape_javascript content_userfile_path(@userfile) %>?content_loader=collection_file&arguments=<%= @userfile.name + "/" + @userfile.surfaces_dir %>/" + $(event.target).val(),
+        "<%= raw j content_userfile_path(@userfile) %>?content_loader=collection_file&arguments=<%= @userfile.name + "/" + @userfile.surfaces_dir %>/" + $(event.target).val(),
         {
           complete: loadEnd
         }
@@ -484,7 +484,7 @@
       var filename = $(event.target).val()
       var basename = filename.replace(/\\/g,'/').replace( /.*\//, '' )
       viewer.loadIntensityDataFromURL(
-        "<%= raw escape_javascript content_userfile_path(@userfile) %>?content_loader=collection_file&arguments=" + filename,
+        "<%= raw j content_userfile_path(@userfile) %>?content_loader=collection_file&arguments=" + filename,
         {
           name: basename,
           complete: loadEnd
