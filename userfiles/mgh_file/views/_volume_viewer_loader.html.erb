@@ -25,7 +25,7 @@ viewer.loadVolumes({
   volumes: [
     {
       type: "mgh",
-      url: "<%= content_userfile_path(@userfile, :content_loader => :raw_content, :file_name => @userfile.name, :viewer_userfile_class => :MghFile) %>",
+      url: "<%= raw escape_javascript content_userfile_path(@userfile, :content_loader => :raw_content, :file_name => @userfile.name, :viewer_userfile_class => :MghFile) %>",
       template: {
         element_id: "volume-ui-template-<%= @userfile.id %>",
         viewer_insert_class: "volume-viewer-display"
