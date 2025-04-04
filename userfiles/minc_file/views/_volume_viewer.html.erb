@@ -62,8 +62,6 @@ volume_ui_template_id = "volume-ui-template-#{@userfile.id}"
   viewable_by_volume_viewer = volumes_info_for_viewer.keys.reject{ |name| name == @userfile.name}
 %>
 
-<% json = lambda { |x| JSON[x].html_safe } %>
-
 <div id="brainbrowser-volume-<%= bb_identifier %>"></div>
 
 <div id="global-controls-<%= bb_identifier %>" class="volume-viewer-controls">
@@ -559,7 +557,7 @@ volume_ui_template_id = "volume-ui-template-#{@userfile.id}"
       $(document).ready(function(){
         $("#overlay-selection-<%= bb_identifier %>").chosen().change(function(e){
           var volume_name = e.target.value;
-          var volumes_info_for_viewer =  <%= json.( volumes_info_for_viewer ) %>;
+          var volumes_info_for_viewer =  <%= raw volumes_info_for_viewer.to_json %>;
           var volume_0 = volumes_info_for_viewer["<%= @userfile.name %>"];
           var volume_1 = volumes_info_for_viewer[volume_name];
 
