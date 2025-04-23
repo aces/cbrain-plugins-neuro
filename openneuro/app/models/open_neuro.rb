@@ -150,9 +150,9 @@ class OpenNeuro
 
   ############################################################
   # Meta data persistence helpers; here we store and retrieve
-  # miscellanous values used for tracking the progres of
+  # miscellanous values used for tracking the progress of
   # the registration BAC. All of the key-values are stored in
-  # the metadata of DataProvider associated with the ON dataset.
+  # the metadata of the DataProvider associated with the ON dataset.
   ############################################################
 
   # Set the progress string when registration is
@@ -179,6 +179,7 @@ class OpenNeuro
     if bac_status == 'Completed'
       self.data_provider.meta[:openneuro_registration_progress] = 'Completed'
       self.send_final_message # notify admin
+      self.record_openneuro_description
       return 'Completed'
     end
 
@@ -197,6 +198,7 @@ class OpenNeuro
     if donecount.to_s == expcount.to_s
       self.data_provider.meta[:openneuro_registration_progress] = 'Completed'
       self.send_final_message
+      self.record_openneuro_description
       return 'Completed'
     end
 
@@ -224,6 +226,24 @@ class OpenNeuro
     self.to_register_file_count = nil # zap metadata, no longer useful
     self.raw_file_count         = nil # zap metadata, no longer useful
     self.registration_bac_id    = nil # zap metadata, no longer useful
+  end
+
+  # Given a 'dataset_description.json' file has been registered,
+  # will populate, if needed, the description field of the data
+  # provider and the workgroup with the 'Name' found in there.
+  def record_openneuro_description
+    return false if self.work_group.description.present?
+    ddj = self.data_provider.userfiles.where(:type => JsonFile, :name => 'dataset_description.json').first
+    return false unless ddj
+    ddj.sync_to_cache
+    dd = JSON.parse(File.read(ddj.cache_full_path))
+    desc = dd['Name']
+    return false if desc.blank?
+    self.work_group   .update_attribute(:description, desc)
+    self.data_provider.update_attribute(:description, desc)
+    true
+  rescue
+    false # just give up
   end
 
   # Returns the timestamp of the last time the
