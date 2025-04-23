@@ -12,6 +12,10 @@
 
   <% t.cell("Dataset Version",     :show_width => 2) { on_version } %>
 
+  <% if @open_neuro.work_group.description.present? %>
+    <% t.cell("Description",       :show_width => 2) { @open_neuro.work_group.description } %>
+  <% end %>
+
   <% t.cell("Official Documentation", :show_width => 2) do %>
     <%= link_to 'OpenNeuro Dataset Page', "https://openneuro.org/datasets/#{on_name}/versions/#{on_version}", :target => '_blank', :class => 'button' %>
     (this will open in a separate tab)
@@ -42,7 +46,8 @@
             .map { |type,count| "#{count} x #{type}" }
             .join(", ")
       %>
-      (Total of <%= @open_neuro.work_group.userfiles.sum(:num_files)%> files)
+      (Total of <%= @open_neuro.work_group.userfiles.sum(:num_files)%> files,
+       using <%= colored_pretty_size(@open_neuro.work_group.userfiles.sum(:size)) %>)
     <% end %>
   <% end %>
 
