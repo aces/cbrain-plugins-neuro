@@ -10,7 +10,7 @@
     "author": "Eric Upschulte and Stefan Harmeling and Katrin Amunts and Timo Dickscheid",
     "url": "https://github.com/FZJ-INM1-BDA/celldetection",
     "description": "Contour proposal networks for biomedical instance segmentation",
-    "command-line": "python /usr/local/lib/python3.10/dist-packages/celldetection_scripts/cpn_inference.py -i $(realpath <-i input>) <-o outputs> <--inputs_method INPUTS_METHOD> <--inputs_dataset INPUTS_DATASET> -m $(realpath <-m MODELS>) <--masks MASKS> <--point_masks POINT_MASKS> <--point_mask_exclusive> <--masks_dataset MASKS_DATASET> <--point_masks_dataset POINT_MASKS_DATASET> <--tile_size TILE_SIZE> <--stride STRIDE> <--border_removal BORDER_REMOVAL> <--stitching_rule STITCHING_RULE> <--min_vote MIN_VOTE> <--labels> <--flat_labels> <--demo_figure> <--overlay> <--truncated_images> <-p> <--spacing SPACING> <--separator SEPARATOR> <--gamma GAMMA> <--contrast CONTRAST> <--brightness BRIGHTNESS> <--percentile PERCENTILE> <--model_parameters MODEL_PARAMETERS> <--skip_existing>",
+    "command-line": "python /usr/local/lib/python3.10/dist-packages/celldetection_scripts/cpn_inference.py -i $(realpath <-i input>) <-o outputs> <--inputs_method INPUTS_METHOD> <--inputs_dataset INPUTS_DATASET> -m $(realpath <-m MODELS>) <--masks MASKS> <--point_masks POINT_MASKS> <--point_mask_exclusive> <--masks_dataset MASKS_DATASET> <--point_masks_dataset POINT_MASKS_DATASET> <--tile_size TILE_SIZE> <--stride STRIDE> <--border_removal BORDER_REMOVAL> <--stitching_rule STITCHING_RULE> <--min_vote MIN_VOTE> <--labels> <--flat_labels> <--demo_figure> <--overlay> <--truncated_images> <--properties PROPERTIES> <--spacing SPACING> <--separator SEPARATOR> <--gamma GAMMA> <--contrast CONTRAST> <--brightness BRIGHTNESS> <--percentile PERCENTILE> <--model_parameters MODEL_PARAMETERS> <--skip_existing>",
     "inputs": [
         {
             "description": "Input filename",
@@ -218,7 +218,7 @@
             "name": "Properties",
             "optional": true,
             "type": "String",
-            "value-key": "<-p>",
+            "value-key": "<--properties PROPERTIES>",
             "command-line-flag": "--properties",
             "list": true
         },
@@ -366,6 +366,17 @@
     },
     "custom": {
         "cbrain:readonly-input-files": true,
-        "cbrain:author": "Natacha Beck <nbeck@mcin.ca>"
+        "cbrain:author": "Natacha Beck <nbeck@mcin.ca>",
+        "cbrain:integrator_modules": {
+            "BoutiquesOutputFileTypeSetter": {
+                "output_dir": "CellDetectionOutput"
+            }
+        }
+    },
+    "tags": {
+        "domain": [
+            "neuroinformatics",
+            "celldetection"
+        ]
     }
 }
