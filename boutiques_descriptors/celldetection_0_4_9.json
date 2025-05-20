@@ -1,0 +1,382 @@
+{
+    "name": "celldetection",
+    "tool-version": "0.4.9",
+    "container-image": {
+        "image": "ericup/celldetection:latest",
+        "index": "docker://",
+        "type":  "singularity"
+    },
+    "schema-version": "0.5",
+    "author": "Eric Upschulte and Stefan Harmeling and Katrin Amunts and Timo Dickscheid",
+    "url": "https://github.com/FZJ-INM1-BDA/celldetection",
+    "description": "Contour proposal networks for biomedical instance segmentation",
+    "command-line": "python /usr/local/lib/python3.10/dist-packages/celldetection_scripts/cpn_inference.py -i $(realpath <-i input>) <-o outputs> <--inputs_method INPUTS_METHOD> <--inputs_dataset INPUTS_DATASET> -m $(realpath <-m MODELS>) <--masks MASKS> <--point_masks POINT_MASKS> <--point_mask_exclusive> <--masks_dataset MASKS_DATASET> <--point_masks_dataset POINT_MASKS_DATASET> <--tile_size TILE_SIZE> <--stride STRIDE> <--border_removal BORDER_REMOVAL> <--stitching_rule STITCHING_RULE> <--min_vote MIN_VOTE> <--labels> <--flat_labels> <--demo_figure> <--overlay> <--truncated_images> <--properties PROPERTIES> <--spacing SPACING> <--separator SEPARATOR> <--gamma GAMMA> <--contrast CONTRAST> <--brightness BRIGHTNESS> <--percentile PERCENTILE> <--model_parameters MODEL_PARAMETERS> <--skip_existing>",
+    "inputs": [
+        {
+            "description": "Input filename",
+            "id": "inputs",
+            "name": "Input",
+            "optional": false,
+            "type": "File",
+            "value-key": "<-i input>",
+            "list": false
+        },
+        {
+            "description": "Method used for loading non-hdf5 inputs.",
+            "id": "inputs_method",
+            "name": "Inputs method",
+            "optional": true,
+            "type": "String",
+            "value-key": "<--inputs_method INPUTS_METHOD>",
+            "command-line-flag": "--inputs_method",
+            "list": false
+        },
+        {
+            "description": "Dataset name for hdf5 inputs.",
+            "id": "inputs_dataset",
+            "name": "Input dataset",
+            "optional": true,
+            "type": "String",
+            "value-key": "<--inputs_dataset INPUTS_DATASET>",
+            "command-line-flag": "--inputs_dataset",
+            "list": false
+        },
+        {
+            "description": "Model",
+            "id": "model",
+            "name": "Model",
+            "optional": false,
+            "type": "File",
+            "value-key": "<-m MODELS>",
+            "list": false
+        },
+        {
+            "description": "A mask determines where the model searches for objects. Regions with values <= 0are ignored. Hence, objects will only be found where the mask is positive. Masks are linked to inputs by order. If masks are used, all inputs must have one.",
+            "id": "mask",
+            "name": "Masks",
+            "optional": true,
+            "type": "File",
+            "value-key": "<--masks MASKS>",
+            "command-line-flag": "--masks",
+            "list": false
+        },
+        {
+            "description": "A point mask is a mask image with positive values at an object`s location. The model aims to convert points to contours. Masks are linked to inputs by order. If masks are used, all inputs must have one.",
+            "id": "point_masks",
+            "name": "Point masks",
+            "optional": true,
+            "type": "File",
+            "value-key": "<--point_masks POINT_MASKS>",
+            "command-line-flag": "--point_masks",
+            "list": false
+        },
+        {
+            "description": "If set, the points in `point_masks` (if provided) are the only objects to be segmented. Otherwise (default), the points in `point_masks` are considered non-exclusive, meaning other objects are detected and segmented in addition. Note that this option overrides `masks`.",
+            "id": "point_mask_exclusive",
+            "name": "Point mask exclusive",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "<--point_mask_exclusive>",
+            "command-line-flag": "--point_mask_exclusive",
+            "list": false,
+            "default-value": false
+        },
+        {
+            "description": "Dataset name for hdf5 inputs.",
+            "id": "masks_dataset",
+            "name": "Masks dataset",
+            "optional": true,
+            "type": "String",
+            "value-key": "<--masks_dataset MASKS_DATASET>",
+            "command-line-flag": "--masks_dataset",
+            "list": false
+        },
+        {
+            "description": "Dataset name for hdf5 inputs.",
+            "id": "point_masks_dataset",
+            "name": "Point masks dataset",
+            "optional": true,
+            "type": "String",
+            "value-key": "<--point_masks_dataset POINT_MASKS_DATASET>",
+            "command-line-flag": "--point_masks_dataset",
+            "list": false
+        },
+        {
+            "description": "Tile/window size for sliding window processing.",
+            "id": "tile_size",
+            "name": "Tile size",
+            "optional": true,
+            "type": "Number",
+            "value-key": "<--tile_size TILE_SIZE>",
+            "command-line-flag": "--tile_size",
+            "list": false,
+            "default-value": "1024"
+        },
+        {
+            "description": "Stride for sliding window processing.",
+            "id": "stride",
+            "name": "Stride",
+            "optional": true,
+            "type": "Number",
+            "value-key": "<--stride STRIDE>",
+            "command-line-flag": "--stride",
+            "list": false,
+            "default-value": "768"
+        },
+        {
+            "description": "Number of border pixels for the removal of partial objects during tiled inference.",
+            "id": "border_removal",
+            "name": "Border removal",
+            "optional": true,
+            "type": "Number",
+            "value-key": "<--border_removal BORDER_REMOVAL>",
+            "command-line-flag": "--border_removal"
+        },
+        {
+            "description": "Stitching rule to use for collating results from sliding window processing.",
+            "id": "stitching_rule",
+            "name": "Stitching rule",
+            "optional": true,
+            "type": "String",
+            "value-key": "<--stitching_rule STITCHING_RULE>",
+            "command-line-flag": "--stitching_rule",
+            "list": false,
+            "default-value": "nms",
+            "value-choices": [
+                "nms",
+                "ex_br"
+            ]
+        },
+        {
+            "description": "Required smallest vote count for a detected object to be accepted. Only used for ensembles. Minimum vote count is 1, maximum the number of models that are part of the ensemble.",
+            "id": "min_vote",
+            "name": "Min vote",
+            "optional": true,
+            "type": "Number",
+            "value-key": "<--min_vote MIN_VOTE>",
+            "command-line-flag": "--min_vote",
+            "list": false
+        },
+        {
+            "description": "Whether to convert contours to label image.",
+            "id": "labels",
+            "name": "Labels",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "<--labels>",
+            "command-line-flag": "--labels",
+            "list": false,
+            "default-value": false
+        },
+        {
+            "description": "Whether to use labels without channels.",
+            "id": "flat_labels",
+            "name": "Flat labels",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "<--flat_labels>",
+            "command-line-flag": "--flat_labels",
+            "list": false,
+            "default-value": false
+        },
+        {
+            "description": "Whether to write a demo figure. Note: Intended for smaller images!",
+            "id": "demo_figure",
+            "name": "Demo figure",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "<--demo_figure>",
+            "command-line-flag": "--demo_figure",
+            "list": false,
+            "default-value": false
+        },
+        {
+            "description": "Whether to write transparent label image to disk. This is mainly useful as an overlay for visual inspection.",
+            "id": "overlay",
+            "name": "Overlay",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "<--overlay>",
+            "command-line-flag": "--overlay",
+            "list": false,
+            "default-value": false
+        },
+        {
+            "description": "Whether to support truncated images.",
+            "id": "truncated_images",
+            "name": "Truncated images",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "<--truncated_images>",
+            "command-line-flag": "--truncated_images",
+            "list": false,
+            "default-value": false
+        },
+        {
+            "description": "Region properties",
+            "id": "properties",
+            "name": "Properties",
+            "optional": true,
+            "type": "String",
+            "value-key": "<--properties PROPERTIES>",
+            "command-line-flag": "--properties",
+            "list": true
+        },
+        {
+            "description": "The pixel spacing. Relevant for pixel-based region properties.",
+            "id": "spacing",
+            "name": "Spacing",
+            "optional": true,
+            "type": "Number",
+            "value-key": "<--spacing SPACING>",
+            "command-line-flag": "--spacing",
+            "list": false
+        },
+        {
+            "description": "Separator string for region properties that are written to multiple columns. Default is '- as in bbox-0, bbox-1, bbox-2, bbox-4.",
+            "id": "separator",
+            "name": "Separator string",
+            "optional": true,
+            "type": "String",
+            "value-key": "<--separator SEPARATOR>",
+            "command-line-flag": "--separator",
+            "list": false
+        },
+        {
+            "description": "Gamma value for gamma transform.",
+            "id": "gamma",
+            "name": "Gamma value",
+            "optional": true,
+            "type": "Number",
+            "value-key": "<--gamma GAMMA>",
+            "command-line-flag": "--gamma",
+            "list": false
+        },
+        {
+            "description": "Factor for contrast adjustment.",
+            "id": "contrast",
+            "name": "Contrast",
+            "optional": true,
+            "type": "Number",
+            "value-key": "<--contrast CONTRAST>",
+            "command-line-flag": "--contrast",
+            "list": false
+        },
+        {
+            "description": "Factor for brightness adjustment.",
+            "id": "brightness",
+            "name": "Brightness",
+            "optional": true,
+            "type": "Number",
+            "value-key": "<--brightness BRIGHTNESS>",
+            "command-line-flag": "--brightness",
+            "list": false
+        },
+        {
+            "description": "Percentile norm. Performs min-max normalization with specified percentiles.Specify either two values `(min, max)` or just `max` interpreted as (1 - max, max).",
+            "id": "percentile",
+            "name": "Percentile",
+            "optional": true,
+            "type": "Number",
+            "value-key": "<--percentile PERCENTILE>",
+            "command-line-flag": "--percentile",
+            "list": true
+        },
+        {
+            "description": "Model parameters. Pass as string in 'key=value,key1=value1' format",
+            "id": "model_parameters",
+            "name": "Model parameters",
+            "optional": true,
+            "type": "String",
+            "value-key": "<--model_parameters MODEL_PARAMETERS>",
+            "command-line-flag": "--model_parameters",
+            "list": false
+        },
+        {
+            "description": "Whether to skip existing files.",
+            "id": "skip_existing",
+            "name": "Skip existing",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "<--skip_existing>",
+            "command-line-flag": "--skip_existing",
+            "list": false,
+            "default-value": false
+        }
+    ],
+    "output-files": [
+        {
+            "name":      "Output folder",
+            "value-key": "<-o outputs>",
+            "id": "output_dir",
+            "description": "Output folder",
+            "optional": false,
+            "command-line-flag": "-o",
+            "path-template": "celldetection_output"
+        }
+    ],
+    "groups": [
+        {
+            "id": "mandatory",
+            "name": "Mandatory parameters",
+            "description": "Mandatory parameters",
+            "members": [
+                "inputs",
+                "model"
+            ]
+        },
+        {
+            "id": "optional",
+            "name": "Optional parameters",
+            "description": "Optional parameters",
+            "members": [
+                "inputs_method",
+                "inputs_dataset",
+                "mask",
+                "point_masks",
+                "point_mask_exclusive",
+                "masks_dataset",
+                "point_masks_dataset",
+                "tile_size",
+                "stride",
+                "border_removal",
+                "stitching_rule",
+                "min_vote",
+                "labels",
+                "flat_labels",
+                "demo_figure",
+                "overlay",
+                "truncated_images",
+                "properties",
+                "spacing",
+                "separator",
+                "gamma",
+                "contrast",
+                "brightness",
+                "percentile",
+                "model_parameters",
+                "skip_existing"
+            ]
+        }
+    ],
+    "suggested-resources": {
+        "cpu-cores": 1,
+        "ram": 6,
+        "walltime-estimate": 3600
+    },
+    "custom": {
+        "cbrain:readonly-input-files": true,
+        "cbrain:author": "Natacha Beck <nbeck@mcin.ca>",
+        "cbrain:integrator_modules": {
+            "BoutiquesOutputFileTypeSetter": {
+                "output_dir": "CellDetectionOutput"
+            }
+        }
+    },
+    "tags": {
+        "domain": [
+            "neuroinformatics",
+            "celldetection"
+        ]
+    }
+}
