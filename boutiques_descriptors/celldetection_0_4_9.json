@@ -360,9 +360,9 @@
         }
     ],
     "suggested-resources": {
-        "cpu-cores": 1,
+        "cpu-cores": 8,
         "ram": 6,
-        "walltime-estimate": 3600
+        "walltime-estimate": 7200
     },
     "custom": {
         "cbrain:readonly-input-files": true,
