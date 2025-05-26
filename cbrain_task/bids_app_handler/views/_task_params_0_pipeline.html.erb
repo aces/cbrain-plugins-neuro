@@ -92,7 +92,7 @@
     <% end %>
   </ul>
 
-  <%= submit_tag 'Adjusting Pipeline', :value => "Add/Remove Analysis Levels" %>
+  <%= button_tag 'Add/Remove Analysis Levels', :name => 'refresh', :value => "refresh", :class => 'button', :type => 'submit' %>
 
   <% al_description = @task.analysis_levels_input_descriptor['description'].presence %>
   <%= overlay_description("(Descriptions):\n" + al_description) if al_description %>

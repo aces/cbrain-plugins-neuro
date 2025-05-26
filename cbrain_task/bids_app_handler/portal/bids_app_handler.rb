@@ -27,7 +27,7 @@ class CbrainTask::BidsAppHandler < PortalTask
   end
 
   def refresh_form_regex #:nodoc:
-    /refresh|adjust(ing) pipeline|add\/remove/i
+    /refresh/i
   end
 
   def before_form #:nodoc:
