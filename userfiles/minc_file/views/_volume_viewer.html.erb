@@ -99,6 +99,14 @@ volume_ui_template_id = "volume-ui-template-#{@userfile.id}"
       <div class="volume-viewer-display"></div>
       <div class="volume-viewer-controls volume-controls">
         <div class="coords">
+          <span class="control-heading" id="canvas-size-heading-<%= bb_identifier %>-{{VOLID}}">
+            Panel Size:
+          </span>
+          <select id="canvas-size-<%= bb_identifier %>-{{VOLID}}">
+            <option value="256">256</option>
+            <option value="512">512</option>
+            <option value="1024">1024</option>
+          </select>
           <div class="control-heading" id="voxel-coordinates-heading-<%= bb_identifier %>-{{VOLID}}">
             Voxel Coordinates:
           </div>
@@ -250,7 +258,66 @@ volume_ui_template_id = "volume-ui-template-#{@userfile.id}"
         viewer.redrawVolumes();
       });
 
-      // The voxel coordinate input fields.
+      function updateVolumeViewerDisplay() {
+        // Only resize if not in quality_control_panel
+        // for better view
+        if ($("#quality_control_table").is(":visible")) {
+          return;
+        }
+
+        // All the volume viewer display containers on the page
+        $(".volume-viewer-display").each(function() {
+          var flex_container = $(this);
+          // Skip if container not found
+          if (!flex_container.length) return;
+
+          var container_width    = flex_container.width();
+          var total_canvas_width = 0;
+          var number_of_children = flex_container.children().length;
+
+          flex_container.children().each(function() {
+            // To include padding, border, and margin.
+            total_canvas_width += $(this).outerWidth(true);
+          });
+
+          // Add width of the gaps between elements.
+          if (number_of_children > 1) {
+            var gap = parseFloat(flex_container.css('gap')) || 0;
+            total_canvas_width += (number_of_children - 1) * gap;
+          }
+
+          if (total_canvas_width > container_width || total_canvas_width > window.innerWidth) {
+            flex_container.css({
+              "flex-direction": "column",
+            });
+          } else {
+            flex_container.css({
+              "flex-direction": "row",
+            });
+          }
+        });
+      }
+
+      // Call the layout function when zooming or resizing the window.
+      var resize_timer;
+      window.addEventListener("resize", function() {
+        clearTimeout(resize_timer);
+        resize_timer = setTimeout(updateVolumeViewerDisplay, 100);
+      });
+
+      // Call the layout function when the document is ready.
+      $(document).ready(function() {
+        updateVolumeViewerDisplay();
+      });
+
+      // Call the layout function when changing the canvas size.
+      $("#canvas-size-<%= bb_identifier %>-" + vol_id).change(function() {
+        var size = $(this).val();
+        viewer.setPanelSize(size, size, { scale_image: true });
+        setTimeout(updateVolumeViewerDisplay, 100);
+      });
+
+      // The voxel coordinate input fields
       $("#voxel-coords-<%= bb_identifier %>-" + vol_id).change(function() {
         var div = $(this);
 
