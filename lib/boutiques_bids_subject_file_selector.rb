@@ -173,13 +173,13 @@ module BoutiquesBidsSubjectFileSelector
 
       self.addlog("Got an list of #{to_keep.size} files to keep")
       to_keep = to_keep.map { |x| "#{subject_name}/#{x}" } # turns "path" to "subject_name/path"
-      self.addlog("ToKeep=\n#{to_keep.join("\n")}")
+      #self.addlog("ToKeep=\n#{to_keep.join("\n")}")
 
       current_list = IO.popen("find #{subject_name.bash_escape} -type f -print","r") do |fh|
         fh.readlines.map(&:strip)
       end
       self.addlog("Found #{current_list.size} files in '#{subject_name}'")
-      self.addlog("CurrentList=\n#{current_list.join("\n")}")
+      #self.addlog("CurrentList=\n#{current_list.join("\n")}")
 
       common_list = current_list & to_keep
       self.addlog("Found #{common_list.size} files in common")
@@ -187,7 +187,8 @@ module BoutiquesBidsSubjectFileSelector
         common_list.size != to_keep.size
 
       to_remove = current_list - to_keep
-      self.addlog("ToRemove=\n#{to_remove.join("\n")}")
+      self.addlog("Found #{to_remove.size} files to remove")
+      #self.addlog("ToRemove=\n#{to_remove.join("\n")}")
       to_remove.each { |path| File.unlink(path) }
     end
 
