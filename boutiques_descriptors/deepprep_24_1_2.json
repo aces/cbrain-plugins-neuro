@@ -5,7 +5,7 @@
     "author": "personalized Brain Functional Sectors (pBFS) Lab",
     "description": "An accelerated, scalable, and robust pipeline for neuroimaging preprocessing empowered by deep learning",
     "descriptor-url": "https://deepprep.readthedocs.io/en/24.1.2/",
-    "command-line": "wd=\"$PWD\"; /opt/DeepPrep/deepprep/deepprep.sh \"$wd\"/<bids_dir> \"$wd\"/<output_dir> participant --fs_license_file \"$wd\"/<fs_license_file> <bold_task_type> --skip_bids_validation --device cpu",
+    "command-line": "true <bids_dir> ; redis-server --port 0 --unixsocket .redis.sock --daemonize yes --pidfile .redis.pid; wd=\"$PWD\"; /opt/DeepPrep/deepprep/deepprep.sh \"$wd\"/CbrainBidsSingleSubject \"$wd\"/<output_dir> participant --fs_license_file \"$wd\"/<fs_license_file> <bold_task_type> --skip_bids_validation --device cpu; status=$?; kill $(cat .redis.pid); bash -c \"exit $status\"",
     "inputs": [
         {
             "description": "BIDS dataset input directory",
