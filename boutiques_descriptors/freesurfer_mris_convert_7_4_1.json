@@ -88,7 +88,11 @@
   },
   "custom": {
     "cbrain:author": "Serge Boroday",
-    "cbrain:readonly-input-files": true
+    "cbrain:readonly-input-files": true,
+    "BoutiquesFileTypeVerifier": {
+      "license": [ "FreesurferLicense", "TextFile", "SingleFile" ]
+    },
+    "BoutiquesFreesurferLicenseFinder": "license"
   }
 }
 
