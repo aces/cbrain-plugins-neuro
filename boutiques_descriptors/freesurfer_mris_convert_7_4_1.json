@@ -5,7 +5,7 @@
   "descriptor-url": "https://github.com/aces/cbrain-plugins-neuro/blob/master/boutiques_descriptors/freesurfer_recon_all_7_4_1.json",
   "author": "Bruce Fischl <fischl@nmr.mgh.harvard.edu>",
   "description": "This program will convert MRI-surface data formats. These file formats are supported: ASCII: .asc; ICO: .ico, .tri; GEO: .geo; STL: .stl; VTK: .vtk.; GIFTI:  .gii.  MGH surface-encoded 'volume': .mgh, .mgz\n. Freesurfer binary format assumed for all other extensions. This is a basic version with minimal set of options.",
-  "command-line": "export FS_LICENSE=`pwd`/[LICENSE_FILE]; mris_convert [CURV_OPT] [ORIG_OPT] [PATCH_OPT] [INFILE] [OUTFILE]",
+  "command-line": "export FS_LICENSE=$PWD/[LICENSE_FILE]; mris_convert [CURV_OPT] [ORIG_OPT] [PATCH_OPT] [INFILE] [OUTFILE]",
   "schema-version": "0.5",
   "container-image": {
     "index": "docker://",
