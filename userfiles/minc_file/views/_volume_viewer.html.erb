@@ -107,6 +107,21 @@ volume_ui_template_id = "volume-ui-template-#{@userfile.id}"
             <option value="512">512</option>
             <option value="1024">1024</option>
           </select>
+          <div class="panel-toggles" id="panel-toggles-<%= bb_identifier %>-{{VOLID}}">
+            <span class="control-heading">Panels:</span>
+            <label for="toggle-sagittal-<%= bb_identifier %>-{{VOLID}}">
+              <input type="checkbox" id="toggle-sagittal-<%= bb_identifier %>-{{VOLID}}" checked >
+                Sagittal
+            </label>
+            <label for="toggle-coronal-<%= bb_identifier %>-{{VOLID}}">
+              <input type="checkbox" id="toggle-coronal-<%= bb_identifier %>-{{VOLID}}" checked >
+              Coronal
+            </label>
+            <label for="toggle-transverse-<%= bb_identifier %>-{{VOLID}}">
+              <input type="checkbox" id="toggle-transverse-<%= bb_identifier %>-{{VOLID}}" checked >
+              Transverse
+            </label>
+          </div>
           <div class="control-heading" id="voxel-coordinates-heading-<%= bb_identifier %>-{{VOLID}}">
             Voxel Coordinates:
           </div>
@@ -308,6 +323,47 @@ volume_ui_template_id = "volume-ui-template-#{@userfile.id}"
       // Call the layout function when the document is ready.
       $(document).ready(function() {
         updateVolumeViewerDisplay();
+      });
+
+      // Hide/show panels.
+      function verifyTogglePanelSelection(panel) {
+        var checkedCount = 0;
+        // All toggle checkboxes in the same container
+        var $all = $(panel).closest('.panel-toggles').find('input[type="checkbox"]');
+        $all.each(function() {
+          if ($(this).is(':checked')) {
+            checkedCount++;
+          }
+        });
+
+        // No more panel selected, rechecking last one.
+        if (checkedCount === 0) {
+          $(panel).prop('checked', true);
+        }
+      }
+        
+      function togglePanel(cb, volId, idx) {
+        var selector = '#volume-viewer-<%= bb_identifier %>-' + volId + ' .volume-viewer-display canvas';
+        var canvases = document.querySelectorAll(selector);
+        if (canvases && canvases[idx]) {
+          canvases[idx].style.display = cb.checked ? '' : 'none';
+        }
+      }
+
+      // Use the runtime vol_id provided by the volumeuiloaded event.
+      $("#toggle-sagittal-<%= bb_identifier %>-" + vol_id).change(function() {
+        verifyTogglePanelSelection(this);
+        togglePanel(this, vol_id, 0);
+      });
+
+      $("#toggle-coronal-<%= bb_identifier %>-" + vol_id).change(function() {
+        verifyTogglePanelSelection(this);
+        togglePanel(this, vol_id, 1);
+      });
+
+      $("#toggle-transverse-<%= bb_identifier %>-" + vol_id).change(function() {
+        verifyTogglePanelSelection(this);
+        togglePanel(this, vol_id, 2);
       });
 
       // Call the layout function when changing the canvas size.
