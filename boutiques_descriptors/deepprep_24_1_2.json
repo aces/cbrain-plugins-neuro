@@ -5,7 +5,7 @@
     "author": "personalized Brain Functional Sectors (pBFS) Lab",
     "description": "An accelerated, scalable, and robust pipeline for neuroimaging preprocessing empowered by deep learning",
     "descriptor-url": "https://deepprep.readthedocs.io/en/24.1.2/",
-    "command-line": "true [bids_dir] ; redis-server --port 0 --unixsocket .redis.sock --daemonize yes --pidfile .redis.pid; wd=\"$PWD\"; /opt/DeepPrep/deepprep/deepprep.sh \"$wd\"/CbrainBidsSingleSubject \"$wd\"/[output_dir] participant [--bold_task_type '[task1 task2 task3 ...]'] --fs_license_file \"$wd\"/[fs_license_file] [--participant_label '001 002 003'] [--subjects_dir PATH] --skip_bids_validation [--anat_only] [--bold_only] [--bold_sdc] [--bold_confounds] [--bold_skip_frame 0] [--bold_cifti] [--bold_surface_spaces '[None fsnative fsaverage fsaverage6 ...]'] [--bold_volume_space {None MNI152NLin6Asym MNI152NLin2009cAsym}] [--bold_volume_res {02 03...}] [--ignore_error] --device cpu; status=$?; kill $(cat .redis.pid); bash -c \"exit $status\"",
+    "command-line": "true [bids_dir] ; redis-server --port 0 --unixsocket .redis.sock --daemonize yes --pidfile .redis.pid; wd=\"$PWD\"; /opt/DeepPrep/deepprep/deepprep.sh \"$wd\"/CbrainBidsSingleSubject \"$wd\"/[output_dir] participant [--bold_task_type '[task1 task2 task3 ...]'] --fs_license_file \"$wd\"/[fs_license_file] [--subjects_dir PATH] --skip_bids_validation [--anat_only] [--bold_only] [--bold_sdc] [--bold_confounds] [--bold_skip_frame 0] [--bold_cifti] [--bold_surface_spaces '[None fsnative fsaverage fsaverage6 ...]'] [--bold_volume_space {None MNI152NLin6Asym MNI152NLin2009cAsym}] [--bold_volume_res {02 03...}] [--ignore_error] --device cpu; status=$?; kill $(cat .redis.pid); bash -c \"exit $status\"",
     "inputs": [
         {
             "description": "BIDS dataset input directory",
@@ -24,6 +24,14 @@
             "value-key": "[output_dir]"
         },
         {
+            "description": "FreeSurfer license file",
+            "id": "fs_license_file",
+            "name": "fs_license_file",
+            "optional": false,
+            "type": "File",
+            "value-key": "[fs_license_file]"
+        },
+        {
             "command-line-flag": "--bold_task_type",
             "description": "The task label of BOLD images",
             "id": "bold_task_type",
@@ -39,22 +47,7 @@
             ]
         },
         {
-            "description": "FreeSurfer license file",
-            "id": "fs_license_file",
-            "name": "fs_license_file",
-            "optional": false,
-            "type": "File",
-            "value-key": "[fs_license_file]"
-        },
-        {
-            "description": "A space delimited list of participant identifiers or a single identifier (the sub- prefix can be removed)",
-            "id": "participant_label",
-            "name": "participant_label",
-            "optional": true,
-            "type": "String",
-            "value-key": "[--participant_label '001 002 003']"
-        },
-        {
+            "command-line-flag": "--subjects_dir",
             "description": "The output directory of Recon files, default is <output_dir>/Recon",
             "id": "subjects_dir",
             "name": "subjects_dir",
@@ -63,44 +56,45 @@
             "value-key": "[--subjects_dir PATH]"
         },
         {
+            "command-line-flag": "--anat_only",
             "description": "Only the anatomical images will be processed.",
             "id": "anat_only",
             "name": "anat_only",
             "optional": true,
             "type": "Flag",
-            "command-line-flag": "--anat_only",
             "value-key": "[--anat_only]"
         },
         {
+            "command-line-flag": "--bold_only",
             "description": "Only the functional images will be processed, where Recon files are pre-requested.",
             "id": "bold_only",
             "name": "bold_only",
             "optional": true,
             "type": "Flag",
-            "command-line-flag": "--bold_only",
             "value-key": "[--bold_only]"
         },
         {
+            "command-line-flag": "--bold_sdc",
             "description": "Applies susceptibility distortion correction (SDC).",
             "id": "bold_sdc",
             "name": "bold_sdc",
             "optional": true,
             "type": "Flag",
-            "command-line-flag": "--bold_sdc",
             "value-key": "[--bold_sdc]",
             "default-value": true
         },
         {
+            "command-line-flag": "--bold_confounds",
             "description": "Generates confounds derived from BOLD fMRI, such as head motion variables and global signals.",
             "id": "bold_confounds",
             "name": "bold_confounds",
             "optional": true,
             "type": "Flag",
-            "command-line-flag": "--bold_confounds",
             "value-key": "[--bold_confounds]",
             "default-value": true
         },
         {
+            "command-line-flag": "--bold_skip_frame",
             "description": "Skip n frames of BOLD fMRI",
             "id": "bold_skip_frames",
             "name": "bold_skip_frames",
@@ -110,15 +104,16 @@
             "default-value": 0
         },
         {
+            "command-line-flag": "--bold_cifti",
             "description": "Output BOLD fMRI in CIFTI format, the space is '91k'.",
             "id": "bold_cifti",
             "name": "bold_cifti",
             "optional": true,
             "type": "Flag",
-            "command-line-flag": "--bold_cifti",
             "value-key": "[--bold_cifti]"
         },
         {
+            "command-line-flag": "--bold_surface_spaces",
             "description": "Specifies surface template spaces, i.e. 'fsnative fsaverage fsaverage[3-6]', default is 'fsaverage6'.",
             "id": "bold_surface_spaces",
             "name": "bold_surface_spaces",
@@ -136,6 +131,7 @@
             ]
         },
         {
+            "command-line-flag": "--bold_volume_space",
             "description": "Specifies an available volumetric space from TemplateFlow.",
             "id": "bold_volume_space",
             "name": "bold_volume_space",
@@ -150,6 +146,7 @@
             ]
         },
         {
+            "command-line-flag": "--bold_volume_res",
             "description": "Specifies the spatial resolution of the corresponding template space from TemplateFlow.",
             "id": "bold_volume_res",
             "name": "bold_volume_res",
@@ -159,13 +156,13 @@
             "default-value": "02"
         },
         {
+            "command-line-flag": "--ignore_error",
             "description": "Ignores the errors that occurred during processing.",
             "id": "ignore_error",
             "name": "ignore_error",
             "optional": true,
             "type": "Flag",
             "default-value": false,
-            "command-line-flag": "--ignore_error",
             "value-key": "[--ignore_error]"
         }
     ],
@@ -186,7 +183,6 @@
             "name": "Optional parameters",
             "description": "Optional parameters",
             "members": [
-                "participant_label",
                 "subjects_dir",
                 "anat_only",
                 "bold_only",
