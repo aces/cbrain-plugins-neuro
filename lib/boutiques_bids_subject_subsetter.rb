@@ -74,7 +74,7 @@ module BoutiquesBidsSubjectSubsetter
   # fake input.
   # Inputs specified in BoutiquesBidsSubjectSubsetter are moved
   # in the "cbrain_bids_extensions" group section.
-  def decriptor_with_subsetter_input(descriptor)
+  def descriptor_with_subsetter_input(descriptor)
     descriptor       = descriptor.dup
     map_ids_for_bbss = descriptor.custom_module_info('BoutiquesBidsSubjectSubsetter') || {}
     return descriptor if map_ids_for_bbss.empty?
@@ -114,19 +114,19 @@ module BoutiquesBidsSubjectSubsetter
   end
 
   def descriptor_for_form #:nodoc:
-    decriptor_with_subsetter_input(super)
+    descriptor_with_subsetter_input(super)
   end
 
   def descriptor_for_before_form #:nodoc:
-    decriptor_with_subsetter_input(super)
+    descriptor_with_subsetter_input(super)
   end
 
   def descriptor_for_after_form #:nodoc:
-    decriptor_with_subsetter_input(super)
+    descriptor_with_subsetter_input(super)
   end
 
   def descriptor_for_final_task_list #:nodoc:
-    decriptor_with_subsetter_input(super)
+    descriptor_with_subsetter_input(super)
   end
 
   # This method overrides the one in BoutiquesClusterTask.
