@@ -69,7 +69,7 @@ module BoutiquesBidsSubjectFileSelector
   # fake input.
   # Inputs specified in BoutiquesBidsSubjectFileSelector are moved
   # in the "cbrain_bids_extensions" group section of the form.
-  def descriptor_with_special_input(descriptor)
+  def descriptor_with_selector_input(descriptor)
     descriptor       = descriptor.dup
     map_ids_for_bbss = descriptor.custom_module_info('BoutiquesBidsSubjectFileSelector') || {}
     return descriptor if map_ids_for_bbss.empty?
@@ -109,19 +109,19 @@ module BoutiquesBidsSubjectFileSelector
   end
 
   def descriptor_for_form #:nodoc:
-    descriptor_with_special_input(super)
+    descriptor_with_selector_input(super)
   end
 
   def descriptor_for_before_form #:nodoc:
-    descriptor_with_special_input(super)
+    descriptor_with_selector_input(super)
   end
 
   def descriptor_for_after_form #:nodoc:
-    descriptor_with_special_input(super)
+    descriptor_with_selector_input(super)
   end
 
   def descriptor_for_final_task_list #:nodoc:
-    descriptor_with_special_input(super)
+    descriptor_with_selector_input(super)
   end
 
   # This method overrides the one in BoutiquesClusterTask.
