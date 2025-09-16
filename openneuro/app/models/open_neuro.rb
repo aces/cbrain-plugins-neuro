@@ -214,13 +214,15 @@ class OpenNeuro
     num_files     = dp_files.sum(:num_files)
     tot_size      = dp_files.sum(:size)
     raw_files     = self.raw_file_count || "unknown"
+    pretty_bytes  = tot_size.to_s.reverse.gsub(/(\d\d\d)/,'\1,').reverse # turns 1234567 into 1,234,567
+    pretty_files  = num_files.to_s.reverse.gsub(/(\d\d\d)/,'\1,').reverse
     Message.send_message(DATA_PROVIDER_OWNER,
       {
         :type          => :system,
         :header        => "OpenNeuro dataset populated",
         :description   => "An OpenNeuro dataset has been populated",
         :variable_text => "OpenNeuro Dataset Name: #{self.name}\n" +
-                          "Populated: #{num_userfiles} CBRAIN entries (#{num_files} files, #{tot_size} bytes) / #{raw_files} entries in OpenNeuro dataset"
+                          "Populated: #{num_userfiles} CBRAIN entries (#{pretty_files} files, #{pretty_bytes} bytes) / #{raw_files} entries in OpenNeuro dataset"
       }
     )
     self.to_register_file_count = nil # zap metadata, no longer useful

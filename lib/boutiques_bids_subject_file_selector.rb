@@ -215,7 +215,7 @@ module BoutiquesBidsSubjectFileSelector
     self.addlog "Backing up files for '#{subject_name}'"
     bk_name = "ORIG-#{subject_name}_#{self.id}"
     File.rename(subject_name, bk_name) if !File.exist?(bk_name)
-    rsyncout = bash_this("rsync -a -l --no-g --chmod=u=rwX,g=rX,Dg+s,o=r --delete #{bk_name.bash_escape}/ #{subject_name.bash_escape} 2>&1")
+    rsyncout = sfs_bash_this("rsync -a -l --no-g --chmod=u=rwX,g=rX,Dg+s,o=r --delete #{bk_name.bash_escape}/ #{subject_name.bash_escape} 2>&1")
     cb_error "Failed to rsync '#{bk_name}' to '#{subject_name}'\nrsync reported: #{rsyncout}" unless rsyncout.blank?
   end
 
@@ -234,7 +234,7 @@ module BoutiquesBidsSubjectFileSelector
   # and returns it. The user of this method is expected to have already
   # properly escaped any special characters in the arguments to the
   # command.
-  def bash_this(command) #:nodoc:
+  def sfs_bash_this(command) #:nodoc:
     fh = IO.popen(command,"r")
     output = fh.read
     fh.close
