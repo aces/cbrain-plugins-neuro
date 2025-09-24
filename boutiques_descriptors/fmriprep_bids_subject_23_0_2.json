@@ -494,7 +494,7 @@
   "suggested-resources": {
     "cpu-cores": 4,
     "ram": 4,
-    "walltime-estimate": 172000
+    "walltime-estimate": 262800
   },
   "tags":                {
     "application-type": [
