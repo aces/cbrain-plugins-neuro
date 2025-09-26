@@ -5,7 +5,7 @@
     "author": "personalized Brain Functional Sectors (pBFS) Lab",
     "description": "An accelerated, scalable, and robust pipeline for neuroimaging preprocessing empowered by deep learning",
     "descriptor-url": "https://deepprep.readthedocs.io/en/24.1.2/",
-    "command-line": "true [bids_dir] ; redis-server --port 0 --unixsocket .redis.sock --daemonize yes --pidfile .redis.pid; wd=\"$PWD\"; /opt/DeepPrep/deepprep/deepprep.sh \"$wd\"/CbrainBidsSingleSubject \"$wd\"/[output_dir] participant [--bold_task_type] --fs_license_file \"$wd\"/[fs_license_file] [--subjects_dir] --skip_bids_validation [--anat_only] [--bold_only] [--bold_sdc] [--bold_confounds] [--bold_skip_frame] [--bold_cifti] [--bold_surface_spaces] [--bold_volume_space] [--bold_volume_res] [--ignore_error] --device cpu; status=$?; kill $(cat .redis.pid); bash -c \"exit $status\"",
+    "command-line": "true [bids_dir] ; redis-server --port 0 --unixsocket .redis.sock --daemonize yes --pidfile .redis.pid; wd=\"$PWD\"; /opt/DeepPrep/deepprep/deepprep.sh \"$wd\"/CbrainBidsSingleSubject \"$wd\"/[output_dir] participant [--bold_task_type] --fs_license_file \"$wd\"/[fs_license_file] --skip_bids_validation [--anat_only] [--bold_only] [--bold_sdc] [--bold_confounds] [--bold_skip_frame] [--bold_cifti] [--bold_surface_spaces] [--bold_volume_space] [--bold_volume_res] [--ignore_error] --device cpu; status=$?; kill $(cat .redis.pid); bash -c \"exit $status\"",
     "inputs": [
         {
             "description": "BIDS dataset input directory",
@@ -40,15 +40,6 @@
             "type": "String",
             "list": true,
             "value-key": "[--bold_task_type]"
-        },
-        {
-            "command-line-flag": "--subjects_dir",
-            "description": "The output directory of Recon files, default is <output_dir>/Recon",
-            "id": "subjects_dir",
-            "name": "subjects_dir",
-            "optional": true,
-            "type": "File",
-            "value-key": "[--subjects_dir]"
         },
         {
             "command-line-flag": "--anat_only",
@@ -178,7 +169,6 @@
             "name": "Optional parameters",
             "description": "Optional parameters",
             "members": [
-                "subjects_dir",
                 "anat_only",
                 "bold_only",
                 "bold_sdc",
