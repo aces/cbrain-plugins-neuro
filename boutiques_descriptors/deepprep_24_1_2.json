@@ -5,7 +5,7 @@
     "author": "personalized Brain Functional Sectors (pBFS) Lab",
     "description": "An accelerated, scalable, and robust pipeline for neuroimaging preprocessing empowered by deep learning",
     "descriptor-url": "https://deepprep.readthedocs.io/en/24.1.2/",
-    "command-line": "true [bids_dir] ; redis-server --port 0 --unixsocket .redis.sock --daemonize yes --pidfile .redis.pid; wd=\"$PWD\"; /opt/DeepPrep/deepprep/deepprep.sh \"$wd\"/CbrainBidsSingleSubject \"$wd\"/[output_dir] participant [--bold_task_type '[task1 task2 task3 ...]'] --fs_license_file \"$wd\"/[fs_license_file] [--subjects_dir PATH] --skip_bids_validation [--anat_only] [--bold_only] [--bold_sdc] [--bold_confounds] [--bold_skip_frame 0] [--bold_cifti] [--bold_surface_spaces '[None fsnative fsaverage fsaverage6 ...]'] [--bold_volume_space {None MNI152NLin6Asym MNI152NLin2009cAsym}] [--bold_volume_res {02 03...}] [--ignore_error] --device cpu; status=$?; kill $(cat .redis.pid); bash -c \"exit $status\"",
+    "command-line": "true [bids_dir] ; redis-server --port 0 --unixsocket .redis.sock --daemonize yes --pidfile .redis.pid; wd=\"$PWD\"; /opt/DeepPrep/deepprep/deepprep.sh \"$wd\"/CbrainBidsSingleSubject \"$wd\"/[output_dir] participant [--bold_task_type] --fs_license_file \"$wd\"/[fs_license_file] [--subjects_dir] --skip_bids_validation [--anat_only] [--bold_only] [--bold_sdc] [--bold_confounds] [--bold_skip_frame] [--bold_cifti] [--bold_surface_spaces] [--bold_volume_space] [--bold_volume_res] [--ignore_error] --device cpu; status=$?; kill $(cat .redis.pid); bash -c \"exit $status\"",
     "inputs": [
         {
             "description": "BIDS dataset input directory",
@@ -38,13 +38,8 @@
             "name": "bold_task_type",
             "optional": false,
             "type": "String",
-            "value-key": "[--bold_task_type '[task1 task2 task3 ...]']",
-            "value-choices": [
-                "6cat",
-                "rest",
-                "motor",
-                "rest motor"
-            ]
+            "list": true,
+            "value-key": "[--bold_task_type]"
         },
         {
             "command-line-flag": "--subjects_dir",
@@ -53,7 +48,7 @@
             "name": "subjects_dir",
             "optional": true,
             "type": "File",
-            "value-key": "[--subjects_dir PATH]"
+            "value-key": "[--subjects_dir]"
         },
         {
             "command-line-flag": "--anat_only",
@@ -100,7 +95,7 @@
             "name": "bold_skip_frames",
             "optional": true,
             "type": "Number",
-            "value-key": "[--bold_skip_frame 0]",
+            "value-key": "[--bold_skip_frame]",
             "default-value": 0
         },
         {
@@ -119,7 +114,7 @@
             "name": "bold_surface_spaces",
             "optional": true,
             "type": "String",
-            "value-key": "[--bold_surface_spaces '[None fsnative fsaverage fsaverage6 ...]']",
+            "value-key": "[--bold_surface_spaces]",
             "default-value": "fsaverage6",
             "value-choices": [
                 "fsnative",
@@ -137,7 +132,7 @@
             "name": "bold_volume_space",
             "optional": true,
             "type": "String",
-            "value-key": "[--bold_volume_space {None MNI152NLin6Asym MNI152NLin2009cAsym}]",
+            "value-key": "[--bold_volume_space]",
             "default-value": "MNI152NLin6Asym",
             "value-choices": [
                 "None",
@@ -152,7 +147,7 @@
             "name": "bold_volume_res",
             "optional": true,
             "type": "String",
-            "value-key": "[--bold_volume_res {02 03...}]",
+            "value-key": "[--bold_volume_res]",
             "default-value": "02"
         },
         {
