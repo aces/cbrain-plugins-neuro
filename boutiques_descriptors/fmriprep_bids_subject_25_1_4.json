@@ -4,7 +4,7 @@
   "author":              "Poldrack lab",
   "description":         "fMRIprep is a functional magnetic resonance image pre-processing pipeline designed to provide an easily accessible, state-of-the-art interface that is robust to differences in scan acquisition protocols and that requires minimal user input, while providing easily interpretable and comprehensive error and output reporting (https://fmriprep.readthedocs.io). NOTE: This descriptor is designed to integrate specifically with a CBRAIN installation. It takes as input a single subject according to the BIDs specification",
   "url":                 "https://fmriprep.readthedocs.io",
-  "command-line":        "fmriprep [BIDS_DIR] [OUTPUT_DIR] PARTICIPANT --SKIP_BIDS_VALIDATION [TASK_ID] --NTHREADS 2 --OMP-NTHREADS 2 --MEM_MB 80000 [LOW_MEM] [BIDS_FILTER_FILE] [ANAT_ONLY] [OUTPUT_SPACES] [BOILERPLATE] [VERBOSE_COUNT] [IGNORE] [LONGITUDINAL] [BOLD2T1W_DOF] [USE_BBR] [MEDIAL_SURFACE_NAN] [USE_AROMA] [AROMA_MELODIC_DIMENSIONALITY] [RETURN_ALL_COMPONENTS] [SKULL_STRIP_TEMPLATE] [SKULL_STRIP_FIXED_SEED] [FMAP_BSPLINE] [FMAP_NO_DEMEAN] [USE_SYN_SDC] [FORCE_SYN] [FS_LICENSE] [FS_SUBJECTS_DIR] [HIRES] [CIFTI_OUTPUT] [NO_RECONALL] [RESOURCE_MONITOR] [REPORTS_ONLY] [OUTPUT_LAYOUT] [WRITE_GRAPH] [STOP_ON_FIRST_CRASH] [NOTRACK] [SLOPPY]",
+  "command-line":        "fmriprep [BIDS_DIR] [OUTPUT_DIR] participant --skip_bids_validation [TASK_ID] --nthreads 2 --omp-nthreads 2 --mem_mb 80000 [LOW_MEM] [BIDS_FILTER_FILE] [ANAT_ONLY] [OUTPUT_SPACES] [BOILERPLATE] [VERBOSE_COUNT] [IGNORE] [LONGITUDINAL] [BOLD2T1W_DOF] [USE_BBR] [MEDIAL_SURFACE_NAN] [USE_AROMA] [AROMA_MELODIC_DIMENSIONALITY] [RETURN_ALL_COMPONENTS] [SKULL_STRIP_TEMPLATE] [SKULL_STRIP_FIXED_SEED] [FMAP_BSPLINE] [FMAP_NO_DEMEAN] [USE_SYN_SDC] [FORCE_SYN] [FS_LICENSE] [FS_SUBJECTS_DIR] [HIRES] [CIFTI_OUTPUT] [NO_RECONALL] [RESOURCE_MONITOR] [REPORTS_ONLY] [OUTPUT_LAYOUT] [WRITE_GRAPH] [STOP_ON_FIRST_CRASH] [NOTRACK] [SLOPPY]",
   "schema-version":      "0.5",
   "container-image":     {
     "type":  "singularity",
@@ -503,7 +503,7 @@
   "suggested-resources": {
     "cpu-cores": 4,
     "ram": 4,
-    "walltime-estimate": 172000
+    "walltime-estimate": 262800
   },
   "tags":                {
     "application-type": [
