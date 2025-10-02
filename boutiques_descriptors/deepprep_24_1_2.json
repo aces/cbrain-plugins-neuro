@@ -228,7 +228,10 @@
             "BoutiquesPostProcessingCleaner": [
                 "<output_dir>"
             ],
-            "BoutiquesBidsSingleSubjectMaker": "bids_dir"
+            "BoutiquesBidsSingleSubjectMaker": "bids_dir",
+            "BoutiquesInputRegexChecker": {
+                "bold_task_type": "[a-zA-Z0-9 _-]"
+            }
         }
     }
 }
