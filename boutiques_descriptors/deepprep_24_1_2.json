@@ -33,7 +33,7 @@
         },
         {
             "command-line-flag": "--bold_task_type",
-            "description": "The task label of BOLD images",
+            "description": "The task label of BOLD images (e.g. task1 task2 task3)",
             "id": "bold_task_type",
             "name": "bold_task_type",
             "optional": false,
