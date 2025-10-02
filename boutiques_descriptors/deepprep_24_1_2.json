@@ -5,7 +5,7 @@
     "author": "personalized Brain Functional Sectors (pBFS) Lab",
     "description": "An accelerated, scalable, and robust pipeline for neuroimaging preprocessing empowered by deep learning",
     "descriptor-url": "https://deepprep.readthedocs.io/en/24.1.2/",
-    "command-line": "true [bids_dir] ; redis-server --port 0 --unixsocket .redis.sock --daemonize yes --pidfile .redis.pid; wd=\"$PWD\"; /opt/DeepPrep/deepprep/deepprep.sh \"$wd\"/CbrainBidsSingleSubject \"$wd\"/[output_dir] participant [--bold_task_type] --fs_license_file \"$wd\"/[fs_license_file] --skip_bids_validation [--anat_only] [--bold_only] [--bold_sdc] [--bold_confounds] [--bold_skip_frame] [--bold_cifti] [--bold_surface_spaces] [--bold_volume_space] [--bold_volume_res] [--ignore_error] --device cpu; status=$?; kill $(cat .redis.pid); bash -c \"exit $status\"",
+    "command-line": "true <bids_dir> ; redis-server --port 0 --unixsocket .redis.sock --daemonize yes --pidfile .redis.pid; wd=\"$PWD\"; /opt/DeepPrep/deepprep/deepprep.sh \"$wd\"/CbrainBidsSingleSubject \"$wd\"/<output_dir> participant <--bold_task_type> --fs_license_file \"$wd\"/<fs_license_file> --skip_bids_validation [--anat_only] [--bold_only] [--bold_sdc] [--bold_confounds] [--bold_skip_frame] [--bold_cifti] [--bold_surface_spaces] [--bold_volume_space] [--bold_volume_res] [--ignore_error] --device cpu; status=$?; kill $(cat .redis.pid); bash -c \"exit $status\"",
     "inputs": [
         {
             "description": "BIDS dataset input directory",
@@ -13,7 +13,7 @@
             "name": "bids_dir",
             "optional": false,
             "type": "File",
-            "value-key": "[bids_dir]"
+            "value-key": "<bids_dir>"
         },
         {
             "description": "The output directory",
@@ -21,7 +21,7 @@
             "name": "output_dir_name",
             "optional": false,
             "type": "String",
-            "value-key": "[output_dir]"
+            "value-key": "<output_dir>"
         },
         {
             "description": "FreeSurfer license file",
@@ -29,7 +29,7 @@
             "name": "fs_license_file",
             "optional": false,
             "type": "File",
-            "value-key": "[fs_license_file]"
+            "value-key": "<fs_license_file>"
         },
         {
             "command-line-flag": "--bold_task_type",
@@ -38,8 +38,8 @@
             "name": "bold_task_type",
             "optional": false,
             "type": "String",
-            "list": true,
-            "value-key": "[--bold_task_type]"
+            "list": false,
+            "value-key": "<--bold_task_type>"
         },
         {
             "command-line-flag": "--anat_only",
@@ -228,12 +228,7 @@
             "BoutiquesPostProcessingCleaner": [
                 "<output_dir>"
             ],
-            "BoutiquesBidsSingleSubjectMaker": "bids_dir",
-            "BoutiquesInputCacheCleaner": [ "bids_dir" ],
-            "BoutiquesOutputCacheCleaner": [ "output_dir" ],
-            "BoutiquesOutputFilenameRenamer": {
-                "output_dir": [ "bids_dir", "output_dir_name" ]
-            }
+            "BoutiquesBidsSingleSubjectMaker": "bids_dir"
         }
     }
 }
