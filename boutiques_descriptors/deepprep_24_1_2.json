@@ -5,7 +5,7 @@
     "author": "personalized Brain Functional Sectors (pBFS) Lab",
     "description": "An accelerated, scalable, and robust pipeline for neuroimaging preprocessing empowered by deep learning",
     "descriptor-url": "https://deepprep.readthedocs.io/en/24.1.2/",
-    "command-line": "true <bids_dir> ; redis-server --port 0 --unixsocket .redis.sock --daemonize yes --pidfile .redis.pid; wd=\"$PWD\"; /opt/DeepPrep/deepprep/deepprep.sh \"$wd\"/CbrainBidsSingleSubject \"$wd\"/<output_dir> participant --fs_license_file \"$wd\"/<fs_license_file> <bold_task_type> --skip_bids_validation --device cpu; status=$?; kill $(cat .redis.pid); bash -c \"exit $status\"",
+    "command-line": "true <bids_dir> ; redis-server --port 0 --unixsocket .redis.sock --daemonize yes --pidfile .redis.pid; wd=\"$PWD\"; /opt/DeepPrep/deepprep/deepprep.sh \"$wd\"/CbrainBidsSingleSubject \"$wd\"/<output_dir> participant <--bold_task_type> --fs_license_file \"$wd\"/<fs_license_file> --skip_bids_validation [--anat_only] [--bold_only] [--bold_sdc] [--bold_confounds] [--bold_skip_frame] [--bold_cifti] [--bold_surface_spaces] [--bold_volume_space] [--bold_volume_res] [--ignore_error] --device cpu; status=$?; kill $(cat .redis.pid); bash -c \"exit $status\"",
     "inputs": [
         {
             "description": "BIDS dataset input directory",
@@ -24,27 +24,132 @@
             "value-key": "<output_dir>"
         },
         {
-            "command-line-flag": "--bold_task_type",
-            "description": "The task label of BOLD images",
-            "id": "bold_task_type",
-            "name": "bold_task_type",
-            "optional": false,
-            "type": "String",
-            "value-key": "<bold_task_type>",
-            "value-choices": [
-                "6cat",
-                "rest",
-                "motor",
-                "rest motor"
-            ]
-        },
-        {
             "description": "FreeSurfer license file",
             "id": "fs_license_file",
             "name": "fs_license_file",
             "optional": false,
             "type": "File",
             "value-key": "<fs_license_file>"
+        },
+        {
+            "command-line-flag": "--bold_task_type",
+            "description": "The task label of BOLD images (e.g. task1 task2 task3)",
+            "id": "bold_task_type",
+            "name": "bold_task_type",
+            "optional": false,
+            "type": "String",
+            "list": false,
+            "value-key": "<--bold_task_type>"
+        },
+        {
+            "command-line-flag": "--anat_only",
+            "description": "Only the anatomical images will be processed.",
+            "id": "anat_only",
+            "name": "anat_only",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "[--anat_only]"
+        },
+        {
+            "command-line-flag": "--bold_only",
+            "description": "Only the functional images will be processed, where Recon files are pre-requested.",
+            "id": "bold_only",
+            "name": "bold_only",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "[--bold_only]"
+        },
+        {
+            "command-line-flag": "--bold_sdc",
+            "description": "Applies susceptibility distortion correction (SDC).",
+            "id": "bold_sdc",
+            "name": "bold_sdc",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "[--bold_sdc]",
+            "default-value": true
+        },
+        {
+            "command-line-flag": "--bold_confounds",
+            "description": "Generates confounds derived from BOLD fMRI, such as head motion variables and global signals.",
+            "id": "bold_confounds",
+            "name": "bold_confounds",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "[--bold_confounds]",
+            "default-value": true
+        },
+        {
+            "command-line-flag": "--bold_skip_frame",
+            "description": "Skip n frames of BOLD fMRI",
+            "id": "bold_skip_frames",
+            "name": "bold_skip_frames",
+            "optional": true,
+            "type": "Number",
+            "value-key": "[--bold_skip_frame]",
+            "default-value": 0
+        },
+        {
+            "command-line-flag": "--bold_cifti",
+            "description": "Output BOLD fMRI in CIFTI format, the space is '91k'.",
+            "id": "bold_cifti",
+            "name": "bold_cifti",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "[--bold_cifti]"
+        },
+        {
+            "command-line-flag": "--bold_surface_spaces",
+            "description": "Specifies surface template spaces, i.e. 'fsnative fsaverage fsaverage[3-6]', default is 'fsaverage6'.",
+            "id": "bold_surface_spaces",
+            "name": "bold_surface_spaces",
+            "optional": true,
+            "type": "String",
+            "value-key": "[--bold_surface_spaces]",
+            "default-value": "fsaverage6",
+            "value-choices": [
+                "fsnative",
+                "fsaverage",
+                "fsaverage3",
+                "fsaverage4",
+                "fsaverage5",
+                "fsaverage6"
+            ]
+        },
+        {
+            "command-line-flag": "--bold_volume_space",
+            "description": "Specifies an available volumetric space from TemplateFlow.",
+            "id": "bold_volume_space",
+            "name": "bold_volume_space",
+            "optional": true,
+            "type": "String",
+            "value-key": "[--bold_volume_space]",
+            "default-value": "MNI152NLin6Asym",
+            "value-choices": [
+                "None",
+                "MNI152NLin6Asym",
+                "MNI152NLin2009cAsym"
+            ]
+        },
+        {
+            "command-line-flag": "--bold_volume_res",
+            "description": "Specifies the spatial resolution of the corresponding template space from TemplateFlow.",
+            "id": "bold_volume_res",
+            "name": "bold_volume_res",
+            "optional": true,
+            "type": "String",
+            "value-key": "[--bold_volume_res]",
+            "default-value": "02"
+        },
+        {
+            "command-line-flag": "--ignore_error",
+            "description": "Ignores the errors that occurred during processing.",
+            "id": "ignore_error",
+            "name": "ignore_error",
+            "optional": true,
+            "type": "Flag",
+            "default-value": false,
+            "value-key": "[--ignore_error]"
         }
     ],
     "groups": [
@@ -55,7 +160,25 @@
             "members": [
                 "bids_dir",
                 "output_dir_name",
-                "bold_task_type"
+                "bold_task_type",
+                "fs_license_file"
+            ]
+        },
+        {
+            "id": "optional",
+            "name": "Optional parameters",
+            "description": "Optional parameters",
+            "members": [
+                "anat_only",
+                "bold_only",
+                "bold_sdc",
+                "bold_confounds",
+                "bold_skip_frames",
+                "bold_cifti",
+                "bold_surface_spaces",
+                "bold_volume_space",
+                "bold_volume_res",
+                "ignore_error"
             ]
         }
     ],
@@ -106,10 +229,8 @@
                 "<output_dir>"
             ],
             "BoutiquesBidsSingleSubjectMaker": "bids_dir",
-            "BoutiquesInputCacheCleaner": [ "bids_dir" ],
-            "BoutiquesOutputCacheCleaner": [ "output_dir" ],
-            "BoutiquesOutputFilenameRenamer": {
-                "output_dir": [ "bids_dir", "output_dir_name" ]
+            "BoutiquesInputRegexChecker": {
+                "bold_task_type": "[a-zA-Z0-9 _-]+"
             }
         }
     }
