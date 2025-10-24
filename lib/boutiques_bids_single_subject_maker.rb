@@ -112,7 +112,18 @@ module BoutiquesBidsSingleSubjectMaker
     self.params[:interface_userfile_ids].reject! do |v|
        v.to_s == tsv_input_file_id.to_s || v.to_s == dd_input_file_id.to_s
     end
-    super
+
+    # Standard task array generator code
+    task_array = super
+
+    # Now re-insert the IDs of the two special files; this will help in case
+    # the user does a "edit params"
+    task_array.each do |task|
+      task.invoke_params[:cbrain_participants_tsv]  = tsv_input_file_id if tsv_input_file_id
+      task.invoke_params[:dataset_description_json] = dd_input_file_id  if dd_input_file_id
+    end
+
+    return task_array
   end
 
   ############################################
