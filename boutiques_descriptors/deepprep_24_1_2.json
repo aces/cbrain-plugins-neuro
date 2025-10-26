@@ -213,6 +213,9 @@
     "custom": {
         "cbrain:author": "Natacha Beck <nbeck@mcin.ca>",
         "cbrain:readonly-input-files": true,
+        "cbrain:override-nput-string-ruby-regex": {
+            "bold_task_type": ":ids-with-spaces:"
+        },
         "cbrain:integrator_modules": {
             "BoutiquesFileTypeVerifier": {
                 "bids_dir": [ "BidsSubject" ],

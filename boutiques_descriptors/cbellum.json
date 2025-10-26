@@ -126,8 +126,11 @@
       "walltime-estimate": 60
   },
   "custom": {
-    "cbrain:readonly-input-files": true, 
+    "cbrain:readonly-input-files": true,
     "cbrain:author": "Natacha Beck <nbeck@mcin.ca>",
+    "cbrain:override-input-string-ruby-regex": {
+      "dimension": ":ids-with-spaces:"
+    },
     "cbrain:integrator_modules": {
       "BoutiquesFileTypeVerifier": {
         "input_file": [ "NpyFile" ]
@@ -136,7 +139,7 @@
         "input_file": "\\.npy$"
       },
       "BoutiquesOutputFileTypeSetter": {
-        "output_file_ply": "PlyFile", 
+        "output_file_ply": "PlyFile",
         "output_file_npy": "NpyFile"
       }
     }
