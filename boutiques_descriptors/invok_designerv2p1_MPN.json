@@ -1,0 +1,13 @@
+{
+    "phase": [
+        "/home/hayabusa/PROJECT_MPN/MPN_TESTS/sub-MPN0000087/ses-MPN1Scan1/dwi/sub-MPN0000087_ses-MPN1Scan1_acq-multib38_dir-AP_part-phase_dwi.nii.gz",
+        "/home/hayabusa/PROJECT_MPN/MPN_TESTS/sub-MPN0000087/ses-MPN1Scan1/dwi/sub-MPN0000087_ses-MPN1Scan1_acq-multib38_dir-AP_part-phase_dwi.nii.gz"
+    ],
+    "pe_dir": "j-",
+    "pe_b0": "/home/hayabusa/PROJECT_MPN/MPN_TESTS/sub-MPN0000087/ses-MPN1Scan1/dwi/sub-MPN0000087_ses-MPN1Scan1_acq-b0_dir-PA_sbref.nii.gz",
+    "scratch": "/home/hayabusa/PROJECT_MPN/MPN_TESTS/TEST_CBRAIN/sub-MPN0000087_DesignerOutput",
+    "MAG": [
+        "/home/hayabusa/PROJECT_MPN/MPN_TESTS/sub-MPN0000087/ses-MPN1Scan1/dwi/sub-MPN0000087_ses-MPN1Scan1_acq-multib38_dir-AP_dwi.nii.gz",
+        "/home/hayabusa/PROJECT_MPN/MPN_TESTS/sub-MPN0000087/ses-MPN1Scan1/dwi/sub-MPN0000087_ses-MPN1Scan1_acq-multib70_dir-AP_dwi.nii.gz"
+    ]
+}

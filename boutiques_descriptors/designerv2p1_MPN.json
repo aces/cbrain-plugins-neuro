@@ -1,0 +1,104 @@
+{
+    "name": "Designer2",
+    "description": "Designer2 is a denoising and model fitting pipeline for multishell data",
+    "tool-version": "v2.0.13",
+    "schema-version": "0.5",
+    "url":"https://nyu-diffusionmri.github.io/DESIGNER-v2/",
+    "command-line": "B0=[RPE_B0]; SUBJECT=$(basename $B0); SID=${SUBJECT%%_ses}; designer [MAG] [OUT_DIR] -denoise -shrinkage frob -algorithm jespersen [PHASE] -degibbs -pf 0.75 [PENDIR] -eddy [RPE_B0] -normalize -b1correct [PROCESSING] -nocleanup",
+    "container-image": {
+        "image": "designer2_v2.0.13",
+        "index": "docker://",
+        "type": "singularity"
+    },
+    "inputs": [
+        {
+            "name": "Input Phase DWI file",
+            "id": "phase",
+            "type": "File",
+	    "list": true,
+	    "list-separator": ",",
+            "optional": false,
+            "value-key": "[PHASE]",
+	    "command-line-flag":"-phase"
+        },
+        {
+            "name": "Phase encoding direction",
+            "id": "pe_dir",
+            "type": "String",
+            "optional": false,
+            "command-line-flag": "-pe_dir",
+	    "value-key":"[PENDIR]",
+            "value-choices": ["j-","j","i-","i","k-","k"]
+        },
+	{
+            "name": "Phase encoding b0",
+            "id": "pe_b0",
+            "type": "File",
+            "optional": false,
+            "command-line-flag": "-rpe_pair",
+            "value-key":"[RPE_B0]"
+        },
+        {
+            "name": "temporal files",
+            "id": "scratch",
+            "type": "File",
+            "optional": false,
+            "command-line-flag": "-scratch",
+            "value-key":"[PROCESSING]"
+        },      
+        {
+            "name": "Input Magnitude DWI files",
+            "id": "MAG",
+	    "list": true,
+	    "list-separator": ",",
+            "type": "File",
+            "optional": false,
+            "value-key":"[MAG]"
+        }
+    ],
+    "output-files": [
+        {
+            "name": "Output Merged Denoised DWI files",
+            "id": "OUT_DIR",
+	    "description": "directory output",
+	    "optional": false,
+	    "list": false,
+            "value-key": "[OUT_DIR]",
+	    "path-template": "[PROCESSING]"
+       }
+    ],
+    "tags": {
+        "domain": "boutiques"
+    },
+    "suggested-resources": {
+        "cpu-cores": 8,
+        "ram": 8,
+        "walltime-estimate": 360
+    },
+    "error-codes": [
+        {
+            "code": 1,
+            "description": "Crashed"
+        }
+    ],
+    "custom": {
+        "cbrain:author": "Alexandre Pastor-Bernier <alexandre.pastor@mcgill.ca>",
+        "cbrain:readonly-input-files": true,
+        "cbrain:integrator_modules": {
+            "BoutiquesFileNameMatcher": {
+                "input": "\\.nii(\\.gz)?$"
+            },
+            "BoutiquesFileTypeVerifier": {
+                "input":   [ "NiftiFile", "SingleFile" ]
+            },
+            "BoutiquesOutputFileTypeSetter": {
+                "output_dir": "DesignerOutput"
+            },
+	    "BoutiquesFileNameMatcher": {
+        "subject_dir": "^sub-[a-zA-Z0-9_]+$"
+            },
+            "BoutiquesInputCacheCleaner": [ "input" ],
+            "BoutiquesPostProcessingCleaner": [ "[PROCESSING]" ]
+        }
+    }
+}
