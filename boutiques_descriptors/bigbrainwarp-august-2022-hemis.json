@@ -1,0 +1,167 @@
+{
+  "name":                 "BigBrainWarp",
+  "tool-version":         "August-2022-Hemis",
+  "author":               "Casey Paquola",
+  "description":          "Toolbox for integration of BigBrain 3D histology with mutlimodal neuroimaging. Casey Paquola, Jessica Royer, Lindsay B Lewis, Claude Lepage, Tristan Glatard, Konrad Wagstyl, Jordan DeKraker, Paule-J Toussaint, Sofie Louise Valk, D. Louis Collins, Ali Khan, Katrin Amunts, Alan C Evans, Timo Dickscheid, Boris Bernhardt bioRxiv 2021.05.04.442563; doi: https://doi.org/10.1101",
+  "online-platform-urls": [
+    "https://portal.cbrain.mcgill.ca"
+  ],
+  "command-line":         "wd=\"$PWD\"; source /BigBrainWarp/scripts/init.sh || exit 2; cd \"$wd\" || exit 2; mkdir -p bigbrainwarp-results || exit 2; cp /BigBrainWarp/bigbrainwarp $HOME; bash $HOME/bigbrainwarp [IN_SPACE] [OUT_SPACE] --wd bigbrainwarp-results [DESC] [IN_LH] [IN_RH] [INTERP] [OUT_NAME] [OUT_TYPE]",
+  "schema-version":       "0.5",
+  "container-image":      {
+    "image": "caseypaquola/bigbrainwarp:latest",
+    "type":  "singularity",
+    "index": "docker://"
+  },
+  "inputs":               [
+    {
+      "id":                "in_space",
+      "name":              "Input space (--in_space)",
+      "description":       "Space of input data",
+      "type":              "String",
+      "optional":          false,
+      "command-line-flag": "--in_space",
+      "value-key":         "[IN_SPACE]",
+      "value-choices":     [
+        "bigbrain",
+        "bigbrainsym",
+        "icbm",
+        "fsaverage",
+        "fs_LR"
+      ]
+    },
+    {
+      "id":                "output_space",
+      "name":              "Output space (--out_space)",
+      "description":       "Space of output data",
+      "type":              "String",
+      "optional":          false,
+      "command-line-flag": "--out_space",
+      "value-key":         "[OUT_SPACE]",
+      "value-choices":     [
+        "bigbrain",
+        "bigbrainsym",
+        "icbm",
+        "fsaverage",
+        "fs_LR"
+      ]
+    },
+    {
+      "id":                "descriptor_of_input",
+      "name":              "Descriptor of input",
+      "description":       "descriptor of input data, which will be used to name the output.",
+      "type":              "String",
+      "optional":          false,
+      "command-line-flag": "--desc",
+      "value-key":         "[DESC]"
+    },
+    {
+      "id":                "in_lh",
+      "name":              "Input left hemisphere (--in_lh)",
+      "description":       "Path to input data, left hemisphere surface. Permitted formats: label.gii, annot, shape.gii, curv or txt. ",
+      "type":              "File",
+      "optional":          false,
+      "command-line-flag": "--in_lh",
+      "value-key":         "[IN_LH]"
+    },
+    {
+      "id":                "in_rh",
+      "name":              "Input right hemisphere (--in_rh)",
+      "description":       "Path to input data, right hemisphere surface. Permitted formats: label.gii, annot, shape.gii, curv or txt",
+      "type":              "File",
+      "optional":          false,
+      "command-line-flag": "--in_rh",
+      "value-key":         "[IN_RH]"
+    },
+    {
+      "id":                "interp",
+      "name":              "Interpolation method (--interp)",
+      "description":       "For -in_vol, it can be trilinear (default), tricubic, nearest or sinc. For -in_lh/-in_rh, can be linear or nearest. Only works for .txt, however. Other types are forced to defaults (label.gii and .annot to nearest, shape.gii and .curv to linear)",
+      "type":              "String",
+      "optional":          true,
+      "command-line-flag": "--interp",
+      "value-key":         "[INTERP]",
+      "value-choices":     [
+        "trilinear",
+        "tricubic",
+        "nearest",
+        "sinc",
+        "linear"
+      ]
+    },
+    {
+      "id":                "out_name",
+      "name":              "Output name prefix (--out_name)",
+      "description":       "Prefix for output files. Defaults to prefix of input file for -in_vol. Output will be in the form {wd}/{out_name}_{out_space}",
+      "type":              "String",
+      "optional":          true,
+      "command-line-flag": "--out_name",
+      "value-key":         "[OUT_NAME]"
+    },
+    {
+      "id":                "out_type",
+      "name":              "Output type (--out_type)",
+      "description":       "Specify output in surface or volume space for bigbrain and bigbrainsym. Otherwise, defaults to the same type as the input.",
+      "type":              "String",
+      "optional":          true,
+      "command-line-flag": "--out_type",
+      "value-key":         "[OUT_TYPE]",
+      "value-choices":     [
+        "surface",
+        "volume"
+      ]
+    }
+  ],
+  "groups":               [
+    {
+      "id":              "inputs",
+      "name":            "Inputs",
+      "description":     "Note that this integration of BigBrainWarp is only for the case of a separate hemispheres. For processing a full volume, use the version August2022-Vol.",
+      "members":         [
+        "in_lh",
+        "in_rh"
+      ]
+    },
+    {
+      "id":          "extra",
+      "name":        "Extra parameters",
+      "description": "Extra arguments",
+      "members":     [
+        "interp",
+        "out_name",
+        "out_type"
+      ]
+    }
+  ],
+  "output-files":         [
+    {
+      "id":            "outputs",
+      "name":          "Output directory",
+      "path-template": "bigbrainwarp-results"
+    }
+  ],
+  "suggested-resources":  {
+    "walltime-estimate": 7200
+  },
+  "tags":                 {
+    "domain": [
+      "neuroinformatics"
+    ]
+  },
+  "custom":               {
+    "cbrain:readonly-input-files": true,
+    "cbrain:author":               "Natacha Beck <nbeck@mcin.ca>, Pierre Rioux <pierre.rioux@mcgill.ca>",
+    "cbrain:integrator_modules":   {
+      "BoutiquesInputRegexChecker": {
+        "descriptor_of_input": [
+          "\\w+([\\.-]\\w+)*",
+          "must be a simple identifier of letters and digits, with maybe dashes or periods"
+        ],
+        "out_name": [
+          "\\w+",
+          "must be a simple identifier of letters and digits"
+        ]
+      }
+    }
+  }
+}
