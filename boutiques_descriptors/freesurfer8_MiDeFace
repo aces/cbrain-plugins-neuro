@@ -31,24 +31,6 @@
             "optional":          false
         },
         {
-            "id":                "output",
-            "name":              "NIFTI file",
-            "type": "File",
-            "description":       "Single NIFTI file from series",
-            "command-line-flag": "--o",
-            "value-key":         "[INPUT]",
-            "optional":          false
-        },
-        {
-            "id":                "outdirname",
-            "name":              "Name for output",
-            "type":              "String",
-            "value-key":         "[OUTDIRNAME]",
-            "default-value":     "{full_noex}-{task_id}",
-            "command-line-flag": "--odir",
-            "optional":          false
-        },
-        {
             "id":                "directive",
             "name":              "Directive",
             "type":              "String",
@@ -156,7 +138,26 @@
             "description":   "The output directory produced by the program",
             "path-template": "[OUTDIRNAME]",
             "optional":      false
-        }
+        },
+        {
+            "id":                "output",
+            "name":              "NIFTI file",
+            "type": "File",
+            "description":       "Single NIFTI deface_reface for input",
+            "command-line-flag": "--o",
+            "value-key":         "[OUTPUT_FILE]",
+            "optional":          false
+        },
+        {
+            "id":                "outdirname",
+            "name":              "Output",
+            "description":       "The output directory produced by the program",
+            "type":              "String",
+            "value-key":         "[OUTDIRNAME]",
+            "default-value":     "{full_noex}-{task_id}",
+            "command-line-flag": "--odir",
+            "optional":          false
+        },
     ],
     "groups": [
         {
