@@ -1,9 +1,9 @@
 {
     "name":           "FreeSurferReconAll",
-    "description":    "Performs all, or any part of, the FreeSurfer cortical reconstruction process. Includes the optional brainstem module.",
-    "tool-version":   "v7.4.1",
+    "description":    "Performs FreeSurfer defacing and refacing",
+    "tool-version":   "v8",
     "url":            "https://surfer.nmr.mgh.harvard.edu/fswiki/recon-all",
-    "descriptor-url": "https://github.com/aces/cbrain-plugins-neuro/blob/master/boutiques_descriptors/freesurfer_recon_all_7_1_1.json",
+    "descriptor-url": "https://github.com/aces/cbrain-plugins-neuro/blob/master/boutiques_descriptors/freesurfer8_MiDeFace.json",
     "author":         "Laboratory for Computational Neuroimaging ",
     "schema-version": "0.5",
     "command-line":   "export SUBJECTS_DIR=`pwd`\nexport FS_LICENSE=`pwd`/[LICENSE_FILE]\nif test ! -d [OUTDIRNAME] ; then\n  recon-all -subjid [OUTDIRNAME] [INPUT] [DIRECTIVES] [QCACHE] [MPRAGE] [3T] [CW256] [NOTAL-CHECK] [NO-WSGCAATLAS] [NO-SKULLSTRIP]\nelse\n  recon-all -subjid [OUTDIRNAME] [DIRECTIVES] [QCACHE] [MPRAGE] [3T] [CW256] [NOTAL-CHECK] [NO-WSGCAATLAS] [NO-SKULLSTRIP]\nfi\nfsstatus=$?\ntest $fsstatus -eq 0 -a X[BRAINSTEM] = XsegmentBS.sh && segmentBS.sh [OUTDIRNAME]\ntest $fsstatus -eq 0 -a X[HIP_AMY] = XsegmentHA_T1.sh && segmentHA_T1.sh [OUTDIRNAME]\nbash -c \"exit $fsstatus\"\n",
