@@ -1,0 +1,220 @@
+{
+    "name":           "FreeSurferReconAll",
+    "description":    "Performs all, or any part of, the FreeSurfer cortical reconstruction process. Includes the optional brainstem module.",
+    "tool-version":   "v7.4.1",
+    "url":            "https://surfer.nmr.mgh.harvard.edu/fswiki/recon-all",
+    "descriptor-url": "https://github.com/aces/cbrain-plugins-neuro/blob/master/boutiques_descriptors/freesurfer_recon_all_7_1_1.json",
+    "author":         "Laboratory for Computational Neuroimaging ",
+    "schema-version": "0.5",
+    "command-line":   "export SUBJECTS_DIR=`pwd`\nexport FS_LICENSE=`pwd`/[LICENSE_FILE]\nif test ! -d [OUTDIRNAME] ; then\n  recon-all -subjid [OUTDIRNAME] [INPUT] [DIRECTIVES] [QCACHE] [MPRAGE] [3T] [CW256] [NOTAL-CHECK] [NO-WSGCAATLAS] [NO-SKULLSTRIP]\nelse\n  recon-all -subjid [OUTDIRNAME] [DIRECTIVES] [QCACHE] [MPRAGE] [3T] [CW256] [NOTAL-CHECK] [NO-WSGCAATLAS] [NO-SKULLSTRIP]\nfi\nfsstatus=$?\ntest $fsstatus -eq 0 -a X[BRAINSTEM] = XsegmentBS.sh && segmentBS.sh [OUTDIRNAME]\ntest $fsstatus -eq 0 -a X[HIP_AMY] = XsegmentHA_T1.sh && segmentHA_T1.sh [OUTDIRNAME]\nbash -c \"exit $fsstatus\"\n",
+    "container-image": {
+        "index": "docker://",
+        "image": "freesurfer/freesurfer:7.4.1",
+        "type":  "singularity"
+    },
+    "inputs": [
+        {
+            "id":                "input",
+            "name":              "NIFTI file",
+            "type":              "File",
+            "description":       "Single NIFTI file from series",
+            "command-line-flag": "-i",
+            "value-key":         "[INPUT]",
+            "optional":          false
+        },
+        {
+            "id":                "license",
+            "name":              "License file",
+            "type":              "File",
+            "description":       "Valid license file needed to run FreeSurfer",
+            "value-key":         "[LICENSE_FILE]",
+            "optional":          false
+        },
+        {
+            "id":                "outdirname",
+            "name":              "Name for output",
+            "type":              "String",
+            "value-key":         "[OUTDIRNAME]",
+            "default-value":     "{full_noex}-{task_id}",
+            "optional":          false
+        },
+        {
+            "id":                "directive",
+            "name":              "Directive",
+            "type":              "String",
+            "description":       "The directive that control what processing to perform",
+            "value-key":         "[DIRECTIVES]",
+            "optional":          false,
+            "default-value":     "-all",
+            "value-choices": [
+                "-all",
+                "-autorecon1",
+                "-autorecon2",
+                "-autorecon2-cp",
+                "-autorecon2-wm",
+                "-autorecon2-inflate1",
+                "-autorecon2-perhemi",
+                "-autorecon3"
+            ]
+        },
+        {
+            "id":                "qcache_flag",
+            "name":              "qcache",
+            "type":              "Flag",
+            "description":       "Produce the pre-cached files required by the Qdec utility, allowing rapid analysis of group data",
+            "command-line-flag": "-qcache",
+            "value-key":         "[QCACHE]",
+            "optional":          true
+        },
+        {
+            "id":                "mprage_flag",
+            "name":              "mprage",
+            "type":              "Flag",
+            "description":       "Assume scan parameters are MGH MP-RAGE protocol",
+            "command-line-flag": "-mprage",
+            "value-key":         "[MPRAGE]",
+            "optional":          true
+        },
+        {
+            "id":                "3T_flag",
+            "name":              "3T",
+            "type":              "Flag",
+            "description":       "The -3T flag enables two specific options in recon-all for images acquired with a 3T scanner:  3T-specific NU intensity correction parameters are used in the Non-Uniform normalization stage, and the Schwartz 3T atlas is used for Talairach alignment",
+            "command-line-flag": "-3T",
+            "value-key":         "[3T]",
+            "optional":          true
+        },
+        {
+            "id":                "cw256_flag",
+            "name":              "cw256",
+            "type":              "Flag",
+            "description":       "Include this flag after -autorecon1 if images have a FOV > 256",
+            "command-line-flag": "-cw256",
+            "value-key":         "[CW256]",
+            "optional":          true
+        },
+        {
+            "id":                "notal_flag",
+            "name":              "Notal check",
+            "type":              "Flag",
+            "description":       "Skip the automatic failure detection of Talairach alignment",
+            "command-line-flag": "-notal-check",
+            "value-key":         "[NOTAL-CHECK]",
+            "optional":          true
+        },
+        {
+            "id":                "no_wsgcaatlas_flag",
+            "name":              "No wsgcaatlas",
+            "type":              "Flag",
+            "description":       "Do not use GCA atlas when skull stripping",
+            "command-line-flag": "-no-wsgcaatlas",
+            "value-key":         "[NO-WSGCAATLAS]",
+            "optional":          true
+        },
+        {
+            "id":                "noskullstrip_flag",
+            "name":              "No skull strip",
+            "type":              "Flag",
+            "description":       "Exclude skull strip step",
+            "command-line-flag": "-noskullstrip",
+            "value-key":         "[NO-SKULLSTRIP]",
+            "optional":          true
+        },
+        {
+            "id":                "brainstem_structures_flag",
+            "name":              "Brainstem structures",
+            "type":              "Flag",
+            "description":       "Segmentation of brainstem structures",
+            "command-line-flag": "segmentBS.sh",
+            "value-key":         "[BRAINSTEM]",
+            "optional":          true
+        },
+        {
+            "id":                "hippocampus_amygdala_flag",
+            "name":              "Hippocampus and amygdala structures",
+            "type":              "Flag",
+            "description":       "Segmentation of hippocampus and amygdala",
+            "command-line-flag": "segmentHA_T1.sh",
+            "value-key":         "[HIP_AMY]",
+            "optional":          true
+        }
+    ],
+    "output-files": [
+        {
+            "id":            "output_dir",
+            "name":          "Output",
+            "description":   "The output directory produced by the program",
+            "path-template": "[OUTDIRNAME]",
+            "optional":      false
+        }
+    ],
+    "groups": [
+        {
+            "id": "files_group",
+            "name": "Input and output files and pipeline control",
+            "description": "File names and control directives",
+            "members": [
+                "input",
+                "license",
+                "outdirname",
+                "directive"
+            ]
+        },
+        {
+            "id": "sci_params",
+            "name": "Recon-All parameters",
+            "description": "Options and parameters for recon-all",
+            "members": [
+                "qcache_flag",
+                "mprage_flag",
+                "3T_flag",
+                "cw256_flag",
+                "notal_flag",
+                "noskullstrip_flag",
+                "no_wsgcaatlas_flag"
+            ]
+        },
+        {
+            "id": "segmentation_params",
+            "name": "Segmentation modules",
+            "description": "Segmentation modules performed after recon-all",
+            "members": [
+                "brainstem_structures_flag",
+                "hippocampus_amygdala_flag"
+            ]
+        }
+    ],
+    "suggested-resources": {
+        "ram":               10,
+        "walltime-estimate": 82800,
+        "cpu-cores":         1
+    },
+    "error-codes": [
+        {
+            "description": "Crashed",
+            "code": 1
+        }
+    ],
+    "custom": {
+        "cbrain:author": "Natacha Beck <nbeck@mcin.ca>, Pierre Rioux <pierre.rioux@mcgill.ca>",
+        "cbrain:readonly-input-files": true,
+        "cbrain:integrator_modules": {
+            "BoutiquesFileNameMatcher": {
+                "input": "\\.nii(\\.gz)?$"
+            },
+            "BoutiquesFileTypeVerifier": {
+                "input":   [ "NiftiFile", "SingleFile" ],
+                "license": [ "FreesurferLicense", "TextFile", "SingleFile" ]
+            },
+            "BoutiquesFreesurferLicenseFinder": "license",
+            "BoutiquesOutputFileTypeSetter": {
+                "output_dir": "ReconAllCrossSectionalOutput"
+            },
+            "BoutiquesInputCacheCleaner": [ "input" ],
+            "BoutiquesOutputCacheCleaner": [ "output_dir" ],
+            "BoutiquesOutputFilenameRenamer": {
+                "output_dir": [ "input", "outdirname" ]
+            }
+        }
+    }
+}
