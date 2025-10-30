@@ -1,172 +1,71 @@
 {
-    "name":           "FreeSurferReconAll",
-    "description":    "Performs FreeSurfer defacing and refacing",
-    "tool-version":   "v8",
-    "url":            "https://surfer.nmr.mgh.harvard.edu/fswiki/recon-all",
+    "name": "FreeSurfer_MiDeFace",
+    "description": "Performs FreeSurfer defacing and refacing",
+    "tool-version": "v8",
+    "url": "https://surfer.nmr.mgh.harvard.edu/fswiki/recon-all",
     "descriptor-url": "https://github.com/aces/cbrain-plugins-neuro/blob/master/boutiques_descriptors/freesurfer8_MiDeFace.json",
-    "author":         "Laboratory for Computational Neuroimaging ",
+    "author": "Laboratory for Computational Neuroimaging ",
     "schema-version": "0.5",
-    "command-line":   "export SUBJECTS_DIR=`pwd`\nexport FS_LICENSE=`pwd`/[LICENSE_FILE]\nif test ! -d [OUTDIRNAME] ; 
-then\n wrap_defaceV2.sh -subjid [OUTDIR] [INPUTDIR] [SID] [SES] [ACQ]\nbash -c \"exit $fsstatus\"\n",
+    "command-line": "export SUBJECTS_DIR=`pwd`\nexport FS_LICENSE=`pwd`/[LICENSE_FILE]\nif test ! -d [OUTDIRNAME] ;then\n wrap_defaceV2.sh -subjid [OUTDIR] [INPUTDIR] [SID] [SES] [ACQ] \nbash -c \"exit $fsstatus\"\n",
     "container-image": {
         "index": "docker://",
         "image": "freesurfer/freesurfer:7.4.1",
-        "type":  "singularity"
+        "type": "singularity"
     },
     "inputs": [
-    {
-      "description": "Subject folder for BIDS (folders name should be sub-XXXXX).",
-      "id": "subject_dir",
-      "name": "BIDS Subject Folder",
-      "optional": false,
-      "type": "File",
-      "value-key": "[SUBJECT_DIR]"
-    },
-    {
-      "description": "Subject session (could be ses-XXX or only XXX).",
-      "id": "ses",
-      "name": "Subject session",
-      "optional": true,
-      "type": "String",
-      "value-key": "[SES]",
-      "command-line-flag": "-ses"
-    },
         {
-            "id":                "license",
-            "name":              "License file",
-            "type":              "File",
-            "description":       "Valid license file needed to run FreeSurfer",
-            "value-key":         "[LICENSE_FILE]",
-            "optional":          false
+            "description": "Subject folder for BIDS (folders name should be sub-XXXXX).",
+            "id": "subject_dir",
+            "name": "BIDS Subject Folder",
+            "optional": false,
+            "type": "File",
+            "value-key": "[SUBJECT_DIR]"
         },
         {
-            "id":                "directive",
-            "name":              "Directive",
-            "type":              "String",
-            "description":       "The directive that control what processing to perform",
-            "value-key":         "[DIRECTIVES]",
-            "optional":          false,
-            "default-value":     "-all",
-            "value-choices": [
-                "-all",
-                "-autorecon1",
-                "-autorecon2",
-                "-autorecon2-cp",
-                "-autorecon2-wm",
-                "-autorecon2-inflate1",
-                "-autorecon2-perhemi",
-                "-autorecon3"
-            ]
+            "description": "Subject session (could be ses-XXX or only XXX).",
+            "id": "ses",
+            "name": "Subject session",
+            "optional": true,
+            "type": "String",
+            "value-key": "[SES]",
+            "command-line-flag": "-ses"
         },
         {
-            "id":                "qcache_flag",
-            "name":              "qcache",
-            "type":              "Flag",
-            "description":       "Produce the pre-cached files required by the Qdec utility, allowing rapid analysis of group data",
-            "command-line-flag": "-qcache",
-            "value-key":         "[QCACHE]",
-            "optional":          true
-        },
-        {
-            "id":                "mprage_flag",
-            "name":              "mprage",
-            "type":              "Flag",
-            "description":       "Assume scan parameters are MGH MP-RAGE protocol",
-            "command-line-flag": "-mprage",
-            "value-key":         "[MPRAGE]",
-            "optional":          true
-        },
-        {
-            "id":                "3T_flag",
-            "name":              "3T",
-            "type":              "Flag",
-            "description":       "The -3T flag enables two specific options in recon-all for images acquired with a 3T scanner:  3T-specific NU intensity correction parameters are used in the Non-Uniform normalization stage, and the Schwartz 3T atlas is used for Talairach alignment",
-            "command-line-flag": "-3T",
-            "value-key":         "[3T]",
-            "optional":          true
-        },
-        {
-            "id":                "cw256_flag",
-            "name":              "cw256",
-            "type":              "Flag",
-            "description":       "Include this flag after -autorecon1 if images have a FOV > 256",
-            "command-line-flag": "-cw256",
-            "value-key":         "[CW256]",
-            "optional":          true
-        },
-        {
-            "id":                "notal_flag",
-            "name":              "Notal check",
-            "type":              "Flag",
-            "description":       "Skip the automatic failure detection of Talairach alignment",
-            "command-line-flag": "-notal-check",
-            "value-key":         "[NOTAL-CHECK]",
-            "optional":          true
-        },
-        {
-            "id":                "no_wsgcaatlas_flag",
-            "name":              "No wsgcaatlas",
-            "type":              "Flag",
-            "description":       "Do not use GCA atlas when skull stripping",
-            "command-line-flag": "-no-wsgcaatlas",
-            "value-key":         "[NO-WSGCAATLAS]",
-            "optional":          true
-        },
-        {
-            "id":                "noskullstrip_flag",
-            "name":              "No skull strip",
-            "type":              "Flag",
-            "description":       "Exclude skull strip step",
-            "command-line-flag": "-noskullstrip",
-            "value-key":         "[NO-SKULLSTRIP]",
-            "optional":          true
-        },
-        {
-            "id":                "brainstem_structures_flag",
-            "name":              "Brainstem structures",
-            "type":              "Flag",
-            "description":       "Segmentation of brainstem structures",
-            "command-line-flag": "segmentBS.sh",
-            "value-key":         "[BRAINSTEM]",
-            "optional":          true
-        },
-        {
-            "id":                "hippocampus_amygdala_flag",
-            "name":              "Hippocampus and amygdala structures",
-            "type":              "Flag",
-            "description":       "Segmentation of hippocampus and amygdala",
-            "command-line-flag": "segmentHA_T1.sh",
-            "value-key":         "[HIP_AMY]",
-            "optional":          true
+            "id": "license",
+            "name": "License file",
+            "type": "File",
+            "description": "Valid license file needed to run FreeSurfer",
+            "value-key": "[LICENSE_FILE]",
+            "optional": false
         }
     ],
     "output-files": [
         {
-            "id":            "output_dir",
-            "name":          "Output",
-            "description":   "The output directory produced by the program",
+            "id": "output_dir",
+            "name": "Output",
+            "description": "The output directory produced by the program",
             "path-template": "[OUTDIRNAME]",
-            "optional":      false
+            "optional": false
         },
         {
-            "id":                "output",
-            "name":              "NIFTI file",
+            "id": "output",
+            "name": "NIFTI file",
             "type": "File",
-            "description":       "Single NIFTI deface_reface for input",
+            "description": "Single NIFTI deface_reface for input",
             "command-line-flag": "--o",
-            "value-key":         "[OUTPUT_FILE]",
-            "optional":          false
+            "value-key": "[OUTPUT_FILE]",
+            "optional": false
         },
         {
-            "id":                "outdirname",
-            "name":              "Output",
-            "description":       "The output directory produced by the program",
-            "type":              "String",
-            "value-key":         "[OUTDIRNAME]",
-            "default-value":     "{full_noex}-{task_id}",
+            "id": "outdirname",
+            "name": "Output",
+            "description": "The output directory produced by the program",
+            "type": "String",
+            "value-key": "[OUTDIRNAME]",
+            "default-value": "{full_noex}-{task_id}",
             "command-line-flag": "--odir",
-            "optional":          false
-        },
+            "optional": false
+        }
     ],
     "groups": [
         {
@@ -205,9 +104,9 @@ then\n wrap_defaceV2.sh -subjid [OUTDIR] [INPUTDIR] [SID] [SES] [ACQ]\nbash -c \
         }
     ],
     "suggested-resources": {
-        "ram":               10,
+        "ram": 10,
         "walltime-estimate": 82800,
-        "cpu-cores":         1
+        "cpu-cores": 1
     },
     "error-codes": [
         {
@@ -223,17 +122,31 @@ then\n wrap_defaceV2.sh -subjid [OUTDIR] [INPUTDIR] [SID] [SES] [ACQ]\nbash -c \
                 "input": "\\.nii(\\.gz)?$"
             },
             "BoutiquesFileTypeVerifier": {
-                "input":   [ "NiftiFile", "SingleFile" ],
-                "license": [ "FreesurferLicense", "TextFile", "SingleFile" ]
+                "input": [
+                    "NiftiFile",
+                    "SingleFile"
+                ],
+                "license": [
+                    "FreesurferLicense",
+                    "TextFile",
+                    "SingleFile"
+                ]
             },
             "BoutiquesFreesurferLicenseFinder": "license",
             "BoutiquesOutputFileTypeSetter": {
                 "output_dir": "ReconAllCrossSectionalOutput"
             },
-            "BoutiquesInputCacheCleaner": [ "input" ],
-            "BoutiquesOutputCacheCleaner": [ "output_dir" ],
+            "BoutiquesInputCacheCleaner": [
+                "input"
+            ],
+            "BoutiquesOutputCacheCleaner": [
+                "output_dir"
+            ],
             "BoutiquesOutputFilenameRenamer": {
-                "output_dir": [ "input", "outdirname" ]
+                "output_dir": [
+                    "input",
+                    "outdirname"
+                ]
             }
         }
     }
