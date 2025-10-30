@@ -14,15 +14,23 @@ then\n wrap_defaceV2.sh -subjid [OUTDIR] [INPUTDIR] [SID] [SES] [ACQ]\nbash -c \
         "type":  "singularity"
     },
     "inputs": [
-        {
-            "id":                "input",
-            "name":              "NIFTI file",
-            "type":              "File",
-            "description":       "Single NIFTI file from series",
-            "command-line-flag": "--i",
-            "value-key":         "[INPUT]",
-            "optional":          false
-        },
+    {
+      "description": "Subject folder for BIDS (folders name should be sub-XXXXX).",
+      "id": "subject_dir",
+      "name": "BIDS Subject Folder",
+      "optional": false,
+      "type": "File",
+      "value-key": "[SUBJECT_DIR]"
+    },
+    {
+      "description": "Subject session (could be ses-XXX or only XXX).",
+      "id": "ses",
+      "name": "Subject session",
+      "optional": true,
+      "type": "String",
+      "value-key": "[SES]",
+      "command-line-flag": "-ses"
+    },
         {
             "id":                "license",
             "name":              "License file",
