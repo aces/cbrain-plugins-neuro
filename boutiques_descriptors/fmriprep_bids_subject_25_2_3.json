@@ -1,0 +1,544 @@
+{
+  "name":                "FMRIprepBidsSubject",
+  "tool-version":        "25.2.3",
+  "author":              "Poldrack lab",
+  "description":         "fMRIprep is a functional magnetic resonance image pre-processing pipeline designed to provide an easily accessible, state-of-the-art interface that is robust to differences in scan acquisition protocols and that requires minimal user input, while providing easily interpretable and comprehensive error and output reporting (https://fmriprep.readthedocs.io). NOTE: This descriptor is designed to integrate specifically with a CBRAIN installation. It takes as input a single subject according to the BIDs specification",
+  "url":                 "https://fmriprep.readthedocs.io",
+  "command-line":        "fmriprep [BIDS_DIR] [OUTPUT_DIR] participant --skip_bids_validation [TASK_ID] --nthreads 2 --omp-nthreads 2 --mem_mb 80000 [LOW_MEM] [BIDS_FILTER_FILE] [ANAT_ONLY] [LEVEL] [OUTPUT_SPACES] [BOILERPLATE_ONLY] [VERBOSE_COUNT] [IGNORE] [LONGITUDINAL] [BOLD2ANAT_INIT] [BOLD2ANAT_DOF] [USE_BBR] [MEDIAL_SURFACE_NAN] [RETURN_ALL_COMPONENTS] [SKULL_STRIP_TEMPLATE] [SKULL_STRIP_FIXED_SEED] [FMAP_BSPLINE] [FMAP_NO_DEMEAN] [FORCE] [FS_LICENSE] [FS_SUBJECTS_DIR] [HIRES] [CIFTI_OUTPUT] [NO_RECONALL] [RESOURCE_MONITOR] [REPORTS_ONLY] [OUTPUT_LAYOUT] [WRITE_GRAPH] [STOP_ON_FIRST_CRASH] [NOTRACK] [SLOPPY]",
+  "schema-version":      "0.5",
+  "container-image":     {
+    "type":  "singularity",
+    "index": "docker://",
+    "image": "nipreps/fmriprep:25.2.3"
+  },
+  "inputs":              [
+    {
+      "id":          "bids_dir",
+      "name":        "BIDS dataset",
+      "description": "BIDS dataset input file",
+      "type":        "File",
+      "optional":    false,
+      "value-key":   "[BIDS_DIR]"
+    },
+    {
+      "id":            "output_dir_name",
+      "name":          "Name of output",
+      "description":   "The name of the output",
+      "type":          "String",
+      "optional":      false,
+      "default-value": "{full_noex}-{task_id}",
+      "value-key":     "[OUTPUT_DIR]"
+    },
+    {
+      "id":                "fs_license_file",
+      "name":              "FreeSurfer license",
+      "description":       "The FreeSurfer license key file",
+      "type":              "File",
+      "optional":          false,
+      "command-line-flag": "--fs-license-file",
+      "value-key":         "[FS_LICENSE]"
+    },
+    {
+      "id":               "fs_subjects_dir",
+      "name":             "FreeSurfer subjects directory",
+      "description":      "An existing FreeSurfer subjects directory to reuse.",
+      "type":             "File",
+      "optional":         true,
+      "command-line-flag": "--fs-subjects-dir",
+      "value-key":        "[FS_SUBJECTS_DIR]"
+    },
+    {
+      "id":                "output_spaces",
+      "name":              "Output Spaces",
+      "description":       "List of output spaces",
+      "type":              "String",
+      "optional":          true,
+      "list":              true,
+      "list-separator":    " ",
+      "command-line-flag": "--output-spaces",
+      "value-key":         "[OUTPUT_SPACES]",
+      "value-choices":     [
+        "T1w",
+        "anat",
+        "template",
+        "fsnative",
+        "fsaverage",
+        "fsaverage5",
+        "fsaverage6",
+        "MNI152NLin6Asym",
+        "MNI152NLin2009cAsym",
+        "MNI152NLin2009cAsym:res-1",
+        "MNI152NLin2009cAsym:res-2"
+      ]
+    },
+    {
+      "id":                "task_id",
+      "name":              "Task ID",
+      "description":       "Select a specific task to be processed",
+      "type":              "String",
+      "optional":          true,
+      "command-line-flag": "-t",
+      "value-key":         "[TASK_ID]"
+    },
+    {
+      "id":                "low_mem",
+      "name":              "Low memory mode",
+      "description":       "Attempt to reduce memory usage (will increase disk usage in working directory)",
+      "type":              "Flag",
+      "optional":          true,
+      "command-line-flag": "--low-mem",
+      "value-key":         "[LOW_MEM]"
+    },
+    {
+      "id":                "pybids_file",
+      "name":              "PyBIDS filter file",
+      "description":       "A JSON file containing PyBIDS filter rules",
+      "type":              "File",
+      "optional":          true,
+      "command-line-flag": "--bids-filter-file",
+      "value-key":         "[BIDS_FILTER_FILE]"
+    },
+    {
+      "id":                "anat_only",
+      "name":              "Anatomical processing only",
+      "description":       "Run anatomical workflows only",
+      "type":              "Flag",
+      "optional":          true,
+      "command-line-flag": "--anat-only",
+      "value-key":         "[ANAT_ONLY]"
+    },
+    {
+      "id":                "level",
+      "name":              "Processing level",
+      "description":       "may be 'minimal' (nothing that can be recomputed), 'resampling' (recomputable targets that aid in resampling) or 'full' (all target outputs).",
+      "type":              "String",
+      "optional":          true,
+      "default-value":     "full",
+      "command-line-flag": "--level",
+      "value-key":         "[LEVEL]",
+      "value-choices":     [
+        "minimal",
+        "resampling",
+        "full"
+      ]
+    },
+    {
+      "id":                "boilerplate_only",
+      "name":              "Generate boilerplate only",
+      "description":       "Generate boilerplate only",
+      "type":              "Flag",
+      "optional":          true,
+      "command-line-flag": "--boilerplate-only",
+      "value-key":         "[BOILERPLATE_ONLY]"
+    },
+    {
+      "id":            "verbose_count",
+      "name":          "Verbose output",
+      "description":   "Increases log verbosity for each occurence, debug level is -vvv",
+      "type":          "String",
+      "optional":      true,
+      "value-key":     "[VERBOSE_COUNT]",
+      "value-choices": [
+        "-v",
+        "-vv",
+        "-vvv"
+      ]
+    },
+    {
+      "id":                "ignore",
+      "name":              "Ignore some input data",
+      "description":       "Ignore selected aspects of the input dataset to disable corresponding parts of the workflow",
+      "type":              "String",
+      "optional":          true,
+      "list":              true,
+      "command-line-flag": "--ignore",
+      "value-key":         "[IGNORE]",
+      "value-choices":     [
+        "fieldmaps",
+        "slicetiming",
+        "sbref",
+        "t2w",
+        "flair"
+      ]
+    },
+    {
+      "id":                "longitudinal",
+      "name":              "Process dataset as longitudinal",
+      "description":       "Treat dataset as longitudinal - may increase runtime",
+      "type":              "Flag",
+      "optional":          true,
+      "command-line-flag": "--longitudinal",
+      "value-key":         "[LONGITUDINAL]"
+    },
+    {
+      "id":               "bold2anat_init",
+      "name":             "Method of initial BOLD to anatomical coregistration",
+      "description":      "If auto, a T2w image is used if available, otherwise the T1w image. t1w forces use of the T1w, t2w forces use of the T2w, and header uses the BOLD header information without an initial registration.",
+      "type":             "String",
+      "optional":         true,
+      "command-line-flag": "--bold2anat-init",
+      "value-key":        "[BOLD2ANAT_INIT]",
+      "value-choices":    [
+        "auto",
+        "t1w",
+        "t2w",
+        "header"
+      ],
+      "default-value":    "auto"
+    },
+    {
+      "id":                "bold2anat_dof",
+      "name":              "BOLD to T1w registration degrees of freedom",
+      "description":       "Degrees of freedom when registering BOLD to T1w images. 6 degrees (rotation and translation) are used by default.",
+      "type":              "Number",
+      "optional":          true,
+      "default-value":     6,
+      "command-line-flag": "--bold2anat-dof",
+      "value-key":         "[BOLD2ANAT_DOF]",
+      "value-choices":     [
+        6,
+        9,
+        12
+      ]
+    },
+    {
+      "id":                "output_layout",
+      "name":              "Output Layout",
+      "description":       "Organization of outputs. 'bids' (default) places fMRIPrep derivatives in the output directory, and defaults to placing FreeSurfer derivatives in <output-dir>/sourcedata/freesurfer. 'legacy' creates derivative datasets as subdirectories of outputs.",
+      "type":              "String",
+      "optional":          true,
+      "default-value":     "bids",
+      "command-line-flag": "--output-layout",
+      "value-key":         "[OUTPUT_LAYOUT]",
+      "value-choices":     [
+        "bids",
+        "legacy"
+      ]
+    },
+    {
+      "id":                "medial_surface_nan",
+      "name":              "Medial surface NaN",
+      "description":       "Replace medial wall values with NaNs on functional GIFTI files. Only performed for GIFTI files mapped to a freesurfer subject (fsaverage or fsnative).",
+      "type":              "Flag",
+      "optional":          true,
+      "command-line-flag": "--medial-surface-nan",
+      "value-key":         "[MEDIAL_SURFACE_NAN]"
+    },
+    {
+      "id":                "return_all_components",
+      "name":              "Return all components",
+      "description":       "Include all components estimated in CompCor decomposition in the confounds file instead of only the components sufficient to explain 50 percent of BOLD variance in each CompCor mask",
+      "type":              "Flag",
+      "optional":          true,
+      "command-line-flag": "--return-all-components",
+      "value-key":         "[RETURN_ALL_COMPONENTS]"
+    },
+    {
+      "id":                "skull_strip_template",
+      "name":              "ANTs skull strip template",
+      "description":       "Select ANTs skull-stripping template (default: OASIS30ANTs))",
+      "type":              "String",
+      "optional":          true,
+      "default-value":     "OASIS30ANTs",
+      "command-line-flag": "--skull-strip-template",
+      "value-key":         "[SKULL_STRIP_TEMPLATE]",
+      "value-choices":     [
+        "OASIS30ANTs"
+      ]
+    },
+    {
+      "id":                "skull_strip_fixed_seed",
+      "name":              "Fixed skull strip seed",
+      "description":       "Do not use a random seed for skull-stripping - will ensure run-to-run replicability when used with --omp-nthreads 1",
+      "type":              "Flag",
+      "optional":          true,
+      "command-line-flag": "--skull-strip-fixed-seed",
+      "value-key":         "[SKULL_STRIP_FIXED_SEED]"
+    },
+    {
+      "id":                "fmap_bspline",
+      "name":              "Least Squares B-Spline field",
+      "description":       "Fit a B-Spline field using least-squares (experimental)",
+      "type":              "Flag",
+      "optional":          true,
+      "command-line-flag": "--fmap-bspline",
+      "value-key":         "[FMAP_BSPLINE]"
+    },
+    {
+      "id":                "fmap_no_demean",
+      "name":              "Fieldmap keeps median",
+      "description":       "Do not remove median (within mask) from fieldmap",
+      "type":              "Flag",
+      "optional":          true,
+      "command-line-flag": "--fmap-no-demean",
+      "value-key":         "[FMAP_NO_DEMEAN]"
+    },
+    {
+      "id":                "force",
+      "name":              "Force selection",
+      "description":       "Force selected processing choices",
+      "type":              "String",
+      "optional":          true,
+      "command-line-flag": "--force",
+      "list":              true,
+      "list-separator":    ",",
+      "value-choices": [
+        "bbr",
+        "no-bbr",
+        "syn-sdc",
+        "fmap-jacobian"
+      ],
+      "value-key":         "[FORCE]"
+    },
+    {
+      "id":                "no_submm_recon",
+      "name":              "Disable hires reconstruction",
+      "description":       "Disable sub-millimeter (hires) reconstruction",
+      "type":              "Flag",
+      "optional":          true,
+      "command-line-flag": "--no-submm-recon",
+      "value-key":         "[HIRES]"
+    },
+    {
+      "id":                "cifti_output",
+      "name":              "CIFTI output",
+      "description":       "Output BOLD files as CIFTI dtseries",
+      "type":              "String",
+      "optional":          true,
+      "command-line-flag": "--cifti-output",
+      "value-key":         "[CIFTI_OUTPUT]",
+      "value-choices":     [
+        "91k",
+        "170k"
+      ]
+    },
+    {
+      "id":                "no_reconall",
+      "name":              "Disable FreeSurfer ReconAll",
+      "description":       "Disable FreeSurfer surface preprocessing.",
+      "type":              "Flag",
+      "optional":          true,
+      "command-line-flag": "--fs-no-reconall",
+      "value-key":         "[NO_RECONALL]"
+    },
+    {
+      "id":                "resource_monitor",
+      "name":              "NiPype resource monitoring",
+      "description":       "Enable Nipype's resource monitoring to keep track of memory and CPU usage",
+      "type":              "Flag",
+      "optional":          true,
+      "command-line-flag": "--resource-monitor",
+      "value-key":         "[RESOURCE_MONITOR]"
+    },
+    {
+      "id":                "reports_only",
+      "name":              "Reports only",
+      "description":       "Only generate reports, don't run workflows. This will only rerun report aggregation, not reportlet generation for specific nodes.",
+      "type":              "Flag",
+      "optional":          true,
+      "command-line-flag": "--reports-only",
+      "value-key":         "[REPORTS_ONLY]"
+    },
+    {
+      "id":                "write_graph",
+      "name":              "Write workflow graph",
+      "description":       "Write workflow graph.",
+      "type":              "Flag",
+      "optional":          true,
+      "command-line-flag": "--write-graph",
+      "value-key":         "[WRITE_GRAPH]"
+    },
+    {
+      "id":                "stop_on_first_crash",
+      "name":              "Stop on first crash",
+      "description":       "Force stopping on first crash, even if a work directory was specified.",
+      "type":              "Flag",
+      "optional":          true,
+      "command-line-flag": "--stop-on-first-crash",
+      "value-key":         "[STOP_ON_FIRST_CRASH]"
+    },
+    {
+      "id":                "notrack",
+      "name":              "Do not track",
+      "description":       "Opt-out of sending tracking information of this run to the FMRIPREP developers. This information helps to improve FMRIPREP and provides an indicator of real world usage crucial for obtaining funding.",
+      "type":              "Flag",
+      "optional":          true,
+      "command-line-flag": "--notrack",
+      "value-key":         "[NOTRACK]"
+    },
+    {
+      "id":                "sloppy",
+      "name":              "Sloppy processing",
+      "description":       "Use low-quality tools for speed - TESTING ONLY",
+      "type":              "Flag",
+      "optional":          true,
+      "command-line-flag": "--sloppy",
+      "value-key":         "[SLOPPY]"
+    }
+  ],
+  "groups":              [
+    {
+      "id":          "bids_options",
+      "name":        "BIDS options",
+      "description": "Options for filtering BIDS queries",
+      "members":     [
+        "task_id",
+        "pybids_file"
+      ]
+    },
+    {
+      "id":          "wf_options",
+      "name":        "Workflow options",
+      "description": "Workflow configuration",
+      "members":     [
+        "ignore",
+        "output_spaces",
+        "longitudinal",
+        "bold2anat_init",
+        "bold2anat_dof",
+        "force"
+      ]
+    },
+    {
+      "id":          "output_options",
+      "name":        "Output options",
+      "description": "Options for modulating outputs",
+      "members":     [
+        "output_layout",
+        "medial_surface_nan",
+        "cifti_output"
+      ]
+    },
+    {
+      "id":          "confounds_options",
+      "name":        "Confounds options",
+      "description": "Options relating to confounds",
+      "members":     [
+        "return_all_components"
+      ]
+    },
+    {
+      "id":          "ants_options",
+      "name":        "ANTs options",
+      "description": "Options related to ANTs registrations",
+      "members":     [
+        "skull_strip_template",
+        "skull_strip_fixed_seed"
+      ]
+    },
+    {
+      "id":          "fieldmaps_options",
+      "name":        "Fieldmaps options",
+      "description": "Options related to handling fieldmaps",
+      "members":     [
+        "fmap_bspline",
+        "fmap_no_demean"
+      ]
+    },
+    {
+      "id":          "fs_options",
+      "name":        "ReconAll option",
+      "description": "Options related to FreeSurfer ReconAll",
+      "members":     [
+        "no_reconall",
+        "no_submm_recon"
+      ]
+    },
+    {
+      "id":          "limited_workflow",
+      "name":        "Limited Workflow",
+      "description": "Options for performing only a subset of the workflow",
+      "members":     [
+        "anat_only",
+        "level",
+        "boilerplate_only",
+        "reports_only"
+      ]
+    },
+    {
+      "id":          "memory_and_parallelism",
+      "name":        "Memory and Parallel Control Parameters",
+      "description": "Parameters used to define memory requirements and multithreading",
+      "members":     [
+        "low_mem",
+        "sloppy"
+      ]
+    },
+    {
+      "id":          "debugging",
+      "name":        "Debugging Parameters",
+      "description": "Diagnostic parameters for debugging fMRIprep",
+      "members":     [
+        "verbose_count",
+        "resource_monitor",
+        "stop_on_first_crash",
+        "notrack",
+        "write_graph"
+      ]
+    }
+  ],
+  "output-files":        [
+    {
+      "id":            "output_dir",
+      "name":          "Output Directory",
+      "description":   "This is the directory where the overall outputs are to be stored.",
+      "optional":      false,
+      "path-template": "[OUTPUT_DIR]"
+    }
+  ],
+  "suggested-resources": {
+    "cpu-cores": 4,
+    "ram": 4,
+    "walltime-estimate": 262800
+  },
+  "tags":                {
+    "application-type": [
+      "bids"
+    ],
+    "domain": [
+      "neuroinformatics",
+      "fmri"
+    ]
+  },
+  "custom":              {
+    "cbrain:readonly-input-files": true,
+    "cbrain:author":               "Natacha Beck <nbeck@mcin.ca>, Pierre Rioux <pierre.rioux@mcgill.ca>",
+    "cbrain:integrator_modules":   {
+      "BoutiquesFileTypeVerifier": {
+        "bids_dir": [
+          "BidsSubject"
+        ],
+        "fs_license_file": [
+          "FreesurferLicense",
+          "TextFile",
+          "SingleFile"
+        ]
+      },
+      "BoutiquesFileNameMatcher": {
+        "bids_dir": "^sub-[a-zA-Z0-9_]+$"
+      },
+      "BoutiquesFreesurferLicenseFinder": "fs_license_file",
+      "BoutiquesOutputFileTypeSetter": {
+        "output_dir": "FmriPrepOutput"
+      },
+      "BoutiquesPostProcessingCleaner": [
+        "work",
+        "[OUTPUT_DIR]"
+      ],
+      "BoutiquesBidsSingleSubjectMaker": "bids_dir",
+      "BoutiquesInputCacheCleaner": [
+        "bids_dir"
+      ],
+      "BoutiquesOutputCacheCleaner": [
+        "output_dir"
+      ],
+      "BoutiquesOutputFilenameRenamer": {
+        "output_dir": [
+          "bids_dir",
+          "output_dir_name"
+        ]
+      }
+    }
+  }
+}
+
