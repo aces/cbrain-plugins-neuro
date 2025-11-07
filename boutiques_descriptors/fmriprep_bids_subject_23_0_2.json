@@ -517,6 +517,9 @@
   "custom":              {
     "cbrain:readonly-input-files": true,
     "cbrain:author":               "Natacha Beck <nbeck@mcin.ca>, Pierre Rioux <pierre.rioux@mcgill.ca>",
+    "cbrain:override-input-string-ruby-regex": {
+      "output_spaces": ":ids-with-spaces:"
+    },
     "cbrain:integrator_modules":   {
       "BoutiquesAllowedExitCodes": [ 0, 1 ],
       "BoutiquesFileTypeVerifier": {
