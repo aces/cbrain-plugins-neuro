@@ -1,15 +1,15 @@
 {
   "name":                "FMRIprepBidsSubject",
-  "tool-version":        "23.0.2",
+  "tool-version":        "25.2.3",
   "author":              "Poldrack lab",
   "description":         "fMRIprep is a functional magnetic resonance image pre-processing pipeline designed to provide an easily accessible, state-of-the-art interface that is robust to differences in scan acquisition protocols and that requires minimal user input, while providing easily interpretable and comprehensive error and output reporting (https://fmriprep.readthedocs.io). NOTE: This descriptor is designed to integrate specifically with a CBRAIN installation. It takes as input a single subject according to the BIDs specification",
   "url":                 "https://fmriprep.readthedocs.io",
-  "command-line":        "fmriprep [BIDS_DIR] [OUTPUT_DIR] participant --skip_bids_validation [TASK_ID] --nthreads 2 --omp-nthreads 2 --mem_mb 80000 [LOW_MEM] [BIDS_FILTER_FILE] [ANAT_ONLY] [OUTPUT_SPACES] [BOILERPLATE] [VERBOSE_COUNT] [IGNORE] [LONGITUDINAL] [BOLD2T1W_DOF] [USE_BBR] [MEDIAL_SURFACE_NAN] [USE_AROMA] [AROMA_MELODIC_DIMENSIONALITY] [RETURN_ALL_COMPONENTS] [SKULL_STRIP_TEMPLATE] [SKULL_STRIP_FIXED_SEED] [FMAP_BSPLINE] [FMAP_NO_DEMEAN] [USE_SYN_SDC] [FORCE_SYN] [FS_LICENSE] [FS_SUBJECTS_DIR] [HIRES] [CIFTI_OUTPUT] [NO_RECONALL] [RESOURCE_MONITOR] [REPORTS_ONLY] [OUTPUT_LAYOUT] [WRITE_GRAPH] [STOP_ON_FIRST_CRASH] [NOTRACK] [SLOPPY]",
+  "command-line":        "fmriprep [BIDS_DIR] [OUTPUT_DIR] participant --skip_bids_validation [TASK_ID] --nthreads 2 --omp-nthreads 2 --mem_mb 80000 [LOW_MEM] [BIDS_FILTER_FILE] [ANAT_ONLY] [LEVEL] [OUTPUT_SPACES] [BOILERPLATE_ONLY] [VERBOSE_COUNT] [IGNORE] [LONGITUDINAL] [BOLD2ANAT_INIT] [BOLD2ANAT_DOF] [USE_BBR] [MEDIAL_SURFACE_NAN] [RETURN_ALL_COMPONENTS] [SKULL_STRIP_TEMPLATE] [SKULL_STRIP_FIXED_SEED] [FMAP_BSPLINE] [FMAP_NO_DEMEAN] [FORCE] [FS_LICENSE] [FS_SUBJECTS_DIR] [HIRES] [CIFTI_OUTPUT] [NO_RECONALL] [RESOURCE_MONITOR] [REPORTS_ONLY] [OUTPUT_LAYOUT] [WRITE_GRAPH] [STOP_ON_FIRST_CRASH] [NOTRACK] [SLOPPY]",
   "schema-version":      "0.5",
   "container-image":     {
     "type":  "singularity",
     "index": "docker://",
-    "image": "nipreps/fmriprep:23.0.2"
+    "image": "nipreps/fmriprep:25.2.3"
   },
   "inputs":              [
     {
@@ -108,13 +108,28 @@
       "value-key":         "[ANAT_ONLY]"
     },
     {
-      "id":                "boilerplate",
+      "id":                "level",
+      "name":              "Processing level",
+      "description":       "may be 'minimal' (nothing that can be recomputed), 'resampling' (recomputable targets that aid in resampling) or 'full' (all target outputs).",
+      "type":              "String",
+      "optional":          true,
+      "default-value":     "full",
+      "command-line-flag": "--level",
+      "value-key":         "[LEVEL]",
+      "value-choices":     [
+        "minimal",
+        "resampling",
+        "full"
+      ]
+    },
+    {
+      "id":                "boilerplate_only",
       "name":              "Generate boilerplate only",
       "description":       "Generate boilerplate only",
       "type":              "Flag",
       "optional":          true,
-      "command-line-flag": "--boilerplate",
-      "value-key":         "[BOILERPLATE]"
+      "command-line-flag": "--boilerplate-only",
+      "value-key":         "[BOILERPLATE_ONLY]"
     },
     {
       "id":            "verbose_count",
@@ -156,28 +171,35 @@
       "value-key":         "[LONGITUDINAL]"
     },
     {
-      "id":                "bold2t1w_dof",
+      "id":               "bold2anat_init",
+      "name":             "Method of initial BOLD to anatomical coregistration",
+      "description":      "If auto, a T2w image is used if available, otherwise the T1w image. t1w forces use of the T1w, t2w forces use of the T2w, and header uses the BOLD header information without an initial registration.",
+      "type":             "String",
+      "optional":         true,
+      "command-line-flag": "--bold2anat-init",
+      "value-key":        "[BOLD2ANAT_INIT]",
+      "value-choices":    [
+        "auto",
+        "t1w",
+        "t2w",
+        "header"
+      ],
+      "default-value":    "auto"
+    },
+    {
+      "id":                "bold2anat_dof",
       "name":              "BOLD to T1w registration degrees of freedom",
       "description":       "Degrees of freedom when registering BOLD to T1w images. 6 degrees (rotation and translation) are used by default.",
       "type":              "Number",
       "optional":          true,
       "default-value":     6,
-      "command-line-flag": "--bold2t1w-dof",
-      "value-key":         "[BOLD2T1W_DOF]",
+      "command-line-flag": "--bold2anat-dof",
+      "value-key":         "[BOLD2ANAT_DOF]",
       "value-choices":     [
         6,
         9,
         12
       ]
-    },
-    {
-      "id":                "use_bbr",
-      "name":              "Force boundary-based registration",
-      "description":       "Always use boundary-based registration (no goodness-of-fit checks)",
-      "type":              "Flag",
-      "optional":          true,
-      "command-line-flag": "--force-bbr",
-      "value-key":         "[USE_BBR]"
     },
     {
       "id":                "output_layout",
@@ -203,15 +225,6 @@
       "value-key":         "[MEDIAL_SURFACE_NAN]"
     },
     {
-      "id":                "use_aroma",
-      "name":              "Use ICA_AROMA",
-      "description":       "Add ICA_AROMA to your preprocessing stream",
-      "type":              "Flag",
-      "optional":          true,
-      "command-line-flag": "--use-aroma",
-      "value-key":         "[USE_AROMA]"
-    },
-    {
       "id":                "return_all_components",
       "name":              "Return all components",
       "description":       "Include all components estimated in CompCor decomposition in the confounds file instead of only the components sufficient to explain 50 percent of BOLD variance in each CompCor mask",
@@ -219,16 +232,6 @@
       "optional":          true,
       "command-line-flag": "--return-all-components",
       "value-key":         "[RETURN_ALL_COMPONENTS]"
-    },
-    {
-      "id":                "aroma_melodic_dimensionality",
-      "name":              "AROMA MELODIC dimensionality",
-      "description":       "Exact or maximum number of MELODIC components to estimate (positive = exact, negative = maximum)",
-      "type":              "Number",
-      "optional":          true,
-      "default-value":     -200,
-      "command-line-flag": "--aroma-melodic-dimensionality",
-      "value-key":         "[AROMA_MELODIC_DIMENSIONALITY]"
     },
     {
       "id":                "skull_strip_template",
@@ -271,22 +274,21 @@
       "value-key":         "[FMAP_NO_DEMEAN]"
     },
     {
-      "id":                "use_syn_sdc",
-      "name":              "Use SyN distortion correction",
-      "description":       "EXPERIMENTAL: Use fieldmap-free distortion correction",
-      "type":              "Flag",
+      "id":                "force",
+      "name":              "Force selection",
+      "description":       "Force selected processing choices",
+      "type":              "String",
       "optional":          true,
-      "command-line-flag": "--use-syn-sdc",
-      "value-key":         "[USE_SYN_SDC]"
-    },
-    {
-      "id":                "force_syn",
-      "name":              "Force SyN correction",
-      "description":       "EXPERIMENTAL/TEMPORARY: Use SyN correction in addition to fieldmap correction, if available",
-      "type":              "Flag",
-      "optional":          true,
-      "command-line-flag": "--force-syn",
-      "value-key":         "[FORCE_SYN]"
+      "command-line-flag": "--force",
+      "list":              true,
+      "list-separator":    ",",
+      "value-choices": [
+        "bbr",
+        "no-bbr",
+        "syn-sdc",
+        "fmap-jacobian"
+      ],
+      "value-key":         "[FORCE]"
     },
     {
       "id":                "no_submm_recon",
@@ -392,8 +394,9 @@
         "ignore",
         "output_spaces",
         "longitudinal",
-        "bold2t1w_dof",
-        "use_bbr"
+        "bold2anat_init",
+        "bold2anat_dof",
+        "force"
       ]
     },
     {
@@ -404,15 +407,6 @@
         "output_layout",
         "medial_surface_nan",
         "cifti_output"
-      ]
-    },
-    {
-      "id":          "ica_options",
-      "name":        "ICA-AROMA options",
-      "description": "Options related to ICA-AROMA",
-      "members":     [
-        "use_aroma",
-        "aroma_melodic_dimensionality"
       ]
     },
     {
@@ -451,21 +445,13 @@
       ]
     },
     {
-      "id":          "syn_options",
-      "name":        "Experimental SyN options",
-      "description": "Experimental options for SyN distortion correction. Use at their your own risk.",
-      "members":     [
-        "use_syn_sdc",
-        "force_syn"
-      ]
-    },
-    {
       "id":          "limited_workflow",
       "name":        "Limited Workflow",
       "description": "Options for performing only a subset of the workflow",
       "members":     [
         "anat_only",
-        "boilerplate",
+        "level",
+        "boilerplate_only",
         "reports_only"
       ]
     },
@@ -521,7 +507,6 @@
       "output_spaces": ":ids-with-spaces:"
     },
     "cbrain:integrator_modules":   {
-      "BoutiquesAllowedExitCodes": [ 0, 1 ],
       "BoutiquesFileTypeVerifier": {
         "bids_dir": [
           "BidsSubject"
@@ -559,3 +544,4 @@
     }
   }
 }
+
