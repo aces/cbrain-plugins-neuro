@@ -1,0 +1,105 @@
+{
+  "name": "FreeSurferMrisConvert",
+  "tool-version": "v7.4.1",
+  "url": "https://surfer.nmr.mgh.harvard.edu/fswiki/mris_convert",
+  "descriptor-url": "https://github.com/aces/cbrain-plugins-neuro/blob/master/boutiques_descriptors/freesurfer_recon_all_7_4_1.json",
+  "author": "Bruce Fischl <fischl@nmr.mgh.harvard.edu>",
+  "description": "This program will convert MRI-surface data formats. These file formats are supported: ASCII: .asc; ICO: .ico, .tri; GEO: .geo; STL: .stl; VTK: .vtk.; GIFTI:  .gii.  MGH surface-encoded 'volume': .mgh, .mgz\n. Freesurfer binary format assumed for all other extensions. This is a basic version with minimal set of options.",
+  "command-line": "export FS_LICENSE=$PWD/[LICENSE_FILE]; mris_convert [CURV_OPT] [ORIG_OPT] [PATCH_OPT] [INFILE] [OUTFILE]",
+  "schema-version": "0.5",
+  "container-image": {
+    "index": "docker://",
+    "image": "freesurfer/freesurfer:7.4.1",
+    "type": "singularity"
+  },
+  "inputs": [
+    {
+      "id": "infile",
+      "name": "Input surface file",
+      "type": "File",
+      "description": "Input surface file path",
+      "optional": false,
+      "value-key": "[INFILE]"
+    },
+    {
+      "id": "license",
+      "name": "License file",
+      "type": "File",
+      "description": "Valid license file needed to run FreeSurfer",
+      "value-key": "[LICENSE_FILE]",
+      "optional": false
+    },
+    {
+      "id": "outfile",
+      "name": "Output surface file name",
+      "type": "String",
+      "description": "Output surface file path",
+      "optional": false,
+      "value-key": "[OUTFILE]"
+    },
+    {
+      "id": "curv_file",
+      "name": "Curvature file",
+      "type": "File",
+      "description": "Input curvature file path",
+      "optional": true,
+      "command-line-flag": "-c",
+      "value-key": "[CURV_OPT]"
+    },
+    {
+      "id": "orig_file",
+      "name": "Original coordinates file",
+      "type": "File",
+      "description": "Original surface coordinates file path",
+      "optional": true,
+      "command-line-flag": "-o",
+      "value-key": "[ORIG_OPT]"
+    },
+    {
+      "id": "patch",
+      "name": "Patch format",
+      "type": "Flag",
+      "description": "Convert to/from patch format",
+      "optional": true,
+      "command-line-flag": "-p",
+      "value-key": "[PATCH_OPT]"
+    }
+  ],
+  "output-files": [
+    {
+      "id": "converted_surface",
+      "name": "Converted surface file",
+      "path-template": "[OUTFILE]",
+      "optional": false,
+      "description": "The converted surface file in the specified format"
+    }
+  ],
+  "tags": {
+    "domain": [
+      "neuroimaging",
+      "format conversion",
+      "FreeSurfer",
+      "neuroimaging"
+    ]
+  },
+  "suggested-resources": {
+    "ram": 2,
+    "walltime-estimate": 6600
+  },
+  "custom": {
+    "cbrain:author": "Serge Boroday <serge.boroday@mcin.ca>",
+    "cbrain:readonly-input-files": true,
+    "cbrain:integrator_modules": {
+      "BoutiquesFileTypeVerifier": {
+        "license": [
+          "FreesurferLicense",
+          "TextFile",
+          "SingleFile"
+        ]
+      },
+      "BoutiquesFreesurferLicenseFinder": "license"
+    }
+  }
+}
+
+
