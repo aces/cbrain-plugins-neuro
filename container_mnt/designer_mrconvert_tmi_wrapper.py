@@ -94,6 +94,7 @@ def designer_file_extraction(args):
     return magnitudes, phases, rpe_pair
 
 def main():
+    os.environ['PYTHONUNBUFFERED'] = '1'
     version = "1.0.0"
     print_log(f"Starting designer, mrconvert, and tmi wrapper script")
     print_log(f"By Natacha Beck nbeck@mcin.ca, based on code from Alex Palex Pastor Bernier")
