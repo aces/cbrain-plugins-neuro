@@ -15,7 +15,7 @@ import code
 
 def print_log(message):
     time_stamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    print(f"{time_stamp}: {message}")
+    print(f"{time_stamp}: {message}", flush=True)
 
 def run_command(cmd, description,):
     print_log(f"Running command: {' '.join(cmd)}")
@@ -94,6 +94,7 @@ def designer_file_extraction(args):
     return magnitudes, phases, rpe_pair
 
 def main():
+    os.environ['PYTHONUNBUFFERED'] = '1'
     version = "1.0.0"
     print_log(f"Starting designer, mrconvert, and tmi wrapper script")
     print_log(f"By Natacha Beck nbeck@mcin.ca, based on code from Alex Palex Pastor Bernier")
@@ -142,6 +143,9 @@ def main():
     # Create output directory if it doesn't exist
     if not os.path.exists(args.output):
         os.makedirs(args.output)
+
+    # Get absolute path of output directory
+    output_absolute_path = os.path.abspath(args.output)
 
     # designer command construction
     designer_cmd = ["designer"]
@@ -203,7 +207,7 @@ def main():
     # Input output
     designer_cmd.append(",".join(magnitudes))
 
-    designer_cmd.append(f"{args.output}/DWI_designer.nii")
+    designer_cmd.append(f"{output_absolute_path}/DWI_designer.nii")
 
     # Create .mrtrix.conf file
     mrtrix_conf_path = Path.home() / ".mrtrix.conf"
@@ -218,10 +222,10 @@ def main():
     if args.mrconvert_fslgrad:
         mrconvert_cmd.append("-fslgrad")
 
-    mrconvert_cmd.append(f"{args.output}/DWI_designer.bvec")
-    mrconvert_cmd.append(f"{args.output}/DWI_designer.bval")
-    mrconvert_cmd.append(f"{args.output}/DWI_designer.nii")
-    mrconvert_cmd.append(f"{args.output}/DWI_designer.mif")
+    mrconvert_cmd.append(f"{output_absolute_path}/DWI_designer.bvec")
+    mrconvert_cmd.append(f"{output_absolute_path}/DWI_designer.bval")
+    mrconvert_cmd.append(f"{output_absolute_path}/DWI_designer.nii")
+    mrconvert_cmd.append(f"{output_absolute_path}/DWI_designer.mif")
 
     run_command(mrconvert_cmd, "mrconvert")
 
@@ -231,12 +235,12 @@ def main():
         tmi_cmd.append("-DKI")
     if args.tmi_DTI:
         tmi_cmd.append("-DTI")
-    tmi_cmd.append(args.output)
+    tmi_cmd.append(output_absolute_path)
     if args.tmi_nocleanup:
         tmi_cmd.append("-nocleanup")
 
-    tmi_cmd.append(f"{args.output}/DWI_designer.mif")
-    tmi_cmd.append(f"{args.output}/tmi_output_phase")
+    tmi_cmd.append(f"{output_absolute_path}/DWI_designer.mif")
+    tmi_cmd.append(f"{output_absolute_path}/tmi_output_phase")
 
     run_command(tmi_cmd, "tmi")
 

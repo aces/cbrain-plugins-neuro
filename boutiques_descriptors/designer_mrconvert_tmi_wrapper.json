@@ -4,7 +4,7 @@
     "tool-version": "v2.0.13",
     "schema-version": "0.5",
     "url":"https://nyu-diffusionmri.github.io/DESIGNER-v2/",
-    "command-line": "python /wrapper/designer_mrconvert_tmi_wrapper.py <designer_bids_input FILE> <designer_output STRING> --designer_bids_subject <designer_bids_input FILE> <--designer_ses_pattern STRING> <--designer_file_pattern STRING> <--designer_eddy FLAG> <--designer_denoise FLAG> <--designer_shrinkage STRING> <--designer_algorithm STRING> <--designer_degibbs FLAG> <--designer_pf NUMBER> <--designer_pe_dir STRING>  <--designer_b1correct FLAG> <--designer_normalize FLAG> <--designer_scratch STRING> <--designer_nocleanup FLAG> <--mrconvert_fslgrad FLAG> <--tmi_DKI FLAG> <--tmi_DTI FLAG> <--tmi_nocleanup FLAG>",
+    "command-line": "python -u /wrapper/designer_mrconvert_tmi_wrapper.py <designer_bids_input FILE> <designer_output STRING> --designer_bids_subject <designer_bids_input FILE> <--designer_ses_pattern STRING> <--designer_file_pattern STRING> <--designer_eddy FLAG> <--designer_denoise FLAG> <--designer_shrinkage STRING> <--designer_algorithm STRING> <--designer_degibbs FLAG> <--designer_pf NUMBER> <--designer_pe_dir STRING>  <--designer_b1correct FLAG> <--designer_normalize FLAG> <--designer_scratch STRING> <--designer_nocleanup FLAG> <--mrconvert_fslgrad FLAG> <--tmi_DKI FLAG> <--tmi_DTI FLAG> <--tmi_nocleanup FLAG>",
     "container-image": {
         "image": "designer_mrconvert_tmi_wrapper.sif",
         "type": "singularity"
