@@ -3,35 +3,35 @@
 # Based on code provided by Alex Palex Pastor Bernier
 #   converted in Python from bash script by Natacha Beck nbeck@mcin.ca
 
+from datetime import datetime
+from pathlib import Path
 import argparse
 import subprocess
 import sys
 import glob
 import os
+import code
+
 
 def print_log(message):
-    subprocess.run(f"echo $(date +\"%Y-%m-%d %H:%M:%S\"): {message}", shell=True)
+    time_stamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    print(f"{time_stamp}: {message}")
 
-def run_command(cmd, description,error_exit_code=2):
+def run_command(cmd, description,):
     print_log(f"Running command: {' '.join(cmd)}")
     try:
-        result = subprocess.run(cmd, shell=False, check=True, capture_output=True, text=True)
+        result = subprocess.run(cmd, shell=False, check=True)
         print_log(f"{description} completed successfully")
-        return result
     except subprocess.CalledProcessError as error:
-        print_log(f"Error running {description}: {error}")
+        print_log(f"Error running {description}: {error}, code: {error.returncode}")
         print_log(f"Command: {cmd}")
-        if error.stdout:
-            print_log(f"Stdout: {error.stdout}")
-        if error.stderr:
-            print_log(f"Stderr: {error.stderr}")
-        sys.exit(error_exit_code)
+        sys.exit(error.returncode)
 
-def designer_file_extraction(args,error_exit_code=2):
+def designer_file_extraction(args):
 
     if args.designer_file_pattern is None:
         print_log("Error: --designer_file_pattern is required.")
-        sys.exit(error_exit_code)
+        sys.exit(2)
 
     phases, magnitudes, rpe_pair = [], [], []
     # Iterate over BIDS structure to find magnitude and phase files
@@ -57,7 +57,7 @@ def designer_file_extraction(args,error_exit_code=2):
                 rpe_absolute_path = os.path.abspath(rpe_file)
                 if not os.path.exists(rpe_absolute_path):
                     print_log(f"Error: RPE file {rpe_absolute_path} does not exist.")
-                    sys.exit(error_exit_code)
+                    sys.exit(2)
                 rpe_pair.append(rpe_absolute_path)
 
             if os.path.isdir(dwi_dir):
@@ -75,20 +75,20 @@ def designer_file_extraction(args,error_exit_code=2):
                             print_log(f"Found pair: {extrapolated_magnitude_file} <-> {phase_file}")
                         else:
                             print_log(f"Warning: Extrapolated magnitude file not found for phase file {phase_file}")
-                            sys.exit(error_exit_code)
+                            sys.exit(2)
 
                     # Remove BIDS directory prefix to get relative path
                     for phase_file in phase_files:
                         absolute_path = os.path.abspath(phase_file)
                         if not os.path.exists(absolute_path):
                             print_log(f"Error: Phase file {absolute_path} does not exist.")
-                            sys.exit(error_exit_code)
+                            sys.exit(2)
                         phases.append(os.path.abspath(phase_file))
                     for magnitude_file in magnitude_files:
                         absolute_path = os.path.abspath(magnitude_file)
                         if not os.path.exists(absolute_path):
                             print_log(f"Error: Magnitude file {absolute_path} does not exist.")
-                            sys.exit(error_exit_code)
+                            sys.exit(2)
                         magnitudes.append(os.path.abspath(magnitude_file))
 
     return magnitudes, phases, rpe_pair
@@ -96,7 +96,7 @@ def designer_file_extraction(args,error_exit_code=2):
 def main():
     version = "1.0.0"
     print_log(f"Starting designer, mrconvert, and tmi wrapper script")
-    print_log(f"By Natacha Beck \(nbeck@mcin.ca\) based on code from Alex Palex Pastor Bernier")
+    print_log(f"By Natacha Beck nbeck@mcin.ca, based on code from Alex Palex Pastor Bernier")
     print_log(f"Version: {version}")
 
     parser = argparse.ArgumentParser(description='This is a wrapper to run designer, mrconvert, and tmi commands')
@@ -137,7 +137,11 @@ def main():
 
 
     # designer - handle extraction of magnitude and phase files
-    magnitudes, phases, rpe_pair = designer_file_extraction(args,2)
+    magnitudes, phases, rpe_pair = designer_file_extraction(args)
+
+    # Create output directory if it doesn't exist
+    if not os.path.exists(args.output):
+        os.makedirs(args.output)
 
     # designer command construction
     designer_cmd = ["designer"]
@@ -201,8 +205,13 @@ def main():
 
     designer_cmd.append(f"{args.output}/DWI_designer.nii")
 
-    run_command(designer_cmd, "designer",3)
+    # Create .mtrix.conf file
+    mtrix_conf_path = Path.home() / ".mtrix.conf"
+    if not os.path.exists(mtrix_conf_path):
+        with open(mtrix_conf_path, 'w') as conf_file:
+            conf_file.write("BZeroThreshold: 61\n")
 
+    run_command(designer_cmd, "designer")
 
     # mrconvert
     mrconvert_cmd = ["mrconvert"]
@@ -214,7 +223,7 @@ def main():
     mrconvert_cmd.append(f"{args.output}/DWI_designer.nii")
     mrconvert_cmd.append(f"{args.output}/DWI_designer.mif")
 
-    run_command(mrconvert_cmd, "mrconvert",4)
+    run_command(mrconvert_cmd, "mrconvert")
 
     # tmi
     tmi_cmd = ["tmi"]
@@ -229,7 +238,7 @@ def main():
     tmi_cmd.append(f"{args.output}/DWI_designer.mif")
     tmi_cmd.append(f"{args.output}/tmi_output_phase")
 
-    run_command(tmi_cmd, "tmi",5)
+    run_command(tmi_cmd, "tmi")
 
     print_log("Designer, mrconvert, and tmi commands completed successfully!")
 
