@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Based on code provided by Alex Palex Pastor Bernier
+# Based on code provided by Alex Pastor Bernier
 #   converted in Python from bash script by Natacha Beck nbeck@mcin.ca
 
 from datetime import datetime
@@ -97,7 +97,7 @@ def main():
     os.environ['PYTHONUNBUFFERED'] = '1'
     version = "1.0.0"
     print_log(f"Starting designer, mrconvert, and tmi wrapper script")
-    print_log(f"By Natacha Beck nbeck@mcin.ca, based on code from Alex Palex Pastor Bernier")
+    print_log(f"By Natacha Beck nbeck@mcin.ca, based on code from Alex Pastor Bernier")
     print_log(f"Version: {version}")
 
     parser = argparse.ArgumentParser(description='This is a wrapper to run designer, mrconvert, and tmi commands')
@@ -198,8 +198,8 @@ def main():
 
     if args.designer_scratch:
         designer_cmd.append("-scratch")
-
-        designer_cmd.append(args.designer_scratch)
+        scratch_absolute_path = os.getcwd() + "/" + args.designer_scratch
+        designer_cmd.append(scratch_absolute_path)
 
     if args.designer_nocleanup:
         designer_cmd.append("-nocleanup")
