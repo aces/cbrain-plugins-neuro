@@ -205,10 +205,10 @@ def main():
 
     designer_cmd.append(f"{args.output}/DWI_designer.nii")
 
-    # Create .mtrix.conf file
-    mtrix_conf_path = Path.home() / ".mtrix.conf"
-    if not os.path.exists(mtrix_conf_path):
-        with open(mtrix_conf_path, 'w') as conf_file:
+    # Create .mrtrix.conf file
+    mrtrix_conf_path = Path.home() / ".mrtrix.conf"
+    if not os.path.exists(mrtrix_conf_path):
+        with open(mrtrix_conf_path, 'w') as conf_file:
             conf_file.write("BZeroThreshold: 61\n")
 
     run_command(designer_cmd, "designer")
