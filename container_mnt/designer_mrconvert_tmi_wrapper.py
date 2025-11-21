@@ -15,7 +15,7 @@ import code
 
 def print_log(message):
     time_stamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    print(f"{time_stamp}: {message}")
+    print(f"{time_stamp}: {message}", flush=True)
 
 def run_command(cmd, description,):
     print_log(f"Running command: {' '.join(cmd)}")
@@ -143,6 +143,9 @@ def main():
     if not os.path.exists(args.output):
         os.makedirs(args.output)
 
+    # Get absolute path of output directory
+    output_absolute_path = os.path.abspath(args.output)
+
     # designer command construction
     designer_cmd = ["designer"]
     # Add magnitude files to command line all magnitude files should be separated by a ','
@@ -203,7 +206,7 @@ def main():
     # Input output
     designer_cmd.append(",".join(magnitudes))
 
-    designer_cmd.append(f"{args.output}/DWI_designer.nii")
+    designer_cmd.append(f"{output_absolute_path}/DWI_designer.nii")
 
     # Create .mtrix.conf file
     mtrix_conf_path = Path.home() / ".mtrix.conf"
@@ -218,10 +221,10 @@ def main():
     if args.mrconvert_fslgrad:
         mrconvert_cmd.append("-fslgrad")
 
-    mrconvert_cmd.append(f"{args.output}/DWI_designer.bvec")
-    mrconvert_cmd.append(f"{args.output}/DWI_designer.bval")
-    mrconvert_cmd.append(f"{args.output}/DWI_designer.nii")
-    mrconvert_cmd.append(f"{args.output}/DWI_designer.mif")
+    mrconvert_cmd.append(f"{output_absolute_path}/DWI_designer.bvec")
+    mrconvert_cmd.append(f"{output_absolute_path}/DWI_designer.bval")
+    mrconvert_cmd.append(f"{output_absolute_path}/DWI_designer.nii")
+    mrconvert_cmd.append(f"{output_absolute_path}/DWI_designer.mif")
 
     run_command(mrconvert_cmd, "mrconvert")
 
@@ -231,12 +234,12 @@ def main():
         tmi_cmd.append("-DKI")
     if args.tmi_DTI:
         tmi_cmd.append("-DTI")
-    tmi_cmd.append(args.output)
+    tmi_cmd.append(output_absolute_path)
     if args.tmi_nocleanup:
         tmi_cmd.append("-nocleanup")
 
-    tmi_cmd.append(f"{args.output}/DWI_designer.mif")
-    tmi_cmd.append(f"{args.output}/tmi_output_phase")
+    tmi_cmd.append(f"{output_absolute_path}/DWI_designer.mif")
+    tmi_cmd.append(f"{output_absolute_path}/tmi_output_phase")
 
     run_command(tmi_cmd, "tmi")
 
