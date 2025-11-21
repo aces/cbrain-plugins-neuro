@@ -103,7 +103,7 @@
             "default-value": true,
             "optional": true
         },
-                {
+        {
             "name": "Bias correction",
             "command-line-flag": "--designer_b1correct",
             "value-key": "<--designer_b1correct FLAG>",
@@ -305,6 +305,7 @@
     ],
     "custom": {
         "cbrain:author": "Alexandre Pastor-Bernier <alexandre.pastor@mcgill.ca> and Natacha Beck <nbeck@mcin.ca>",
+        "cbrain:plugins-container-bindmount": "/wrapper",
         "cbrain:readonly-input-files": true,
         "cbrain:integrator_modules": {
             "BoutiquesFileTypeVerifier": {
