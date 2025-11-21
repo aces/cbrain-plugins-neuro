@@ -20,7 +20,7 @@ def print_log(message):
 def run_command(cmd, description,):
     print_log(f"Running command: {' '.join(cmd)}")
     try:
-        result = subprocess.run(cmd, shell=False, check=True)
+        subprocess.run(cmd, shell=False, check=True)
         print_log(f"{description} completed successfully")
     except subprocess.CalledProcessError as error:
         print_log(f"Error running {description}: {error}, code: {error.returncode}")
@@ -198,7 +198,7 @@ def main():
 
     if args.designer_scratch:
         designer_cmd.append("-scratch")
-        scratch_absolute_path = os.getcwd() + "/" + args.designer_scratch
+        scratch_absolute_path = os.path.abspath(args.designer_scratch)
         designer_cmd.append(scratch_absolute_path)
 
     if args.designer_nocleanup:
@@ -231,6 +231,9 @@ def main():
 
     # tmi
     tmi_cmd = ["tmi"]
+    tmi_cmd.append(f"{output_absolute_path}/DWI_designer.mif")
+    tmi_cmd.append(f"{output_absolute_path}/tmi_output_phase")
+
     if args.tmi_DKI:
         tmi_cmd.append("-DKI")
     if args.tmi_DTI:
@@ -238,9 +241,6 @@ def main():
     tmi_cmd.append(output_absolute_path)
     if args.tmi_nocleanup:
         tmi_cmd.append("-nocleanup")
-
-    tmi_cmd.append(f"{output_absolute_path}/DWI_designer.mif")
-    tmi_cmd.append(f"{output_absolute_path}/tmi_output_phase")
 
     run_command(tmi_cmd, "tmi")
 
