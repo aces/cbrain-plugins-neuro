@@ -231,9 +231,6 @@ def main():
 
     # tmi
     tmi_cmd = ["tmi"]
-    tmi_cmd.append(f"{output_absolute_path}/DWI_designer.mif")
-    tmi_cmd.append(f"{output_absolute_path}/tmi_output_phase")
-
     if args.tmi_DKI:
         tmi_cmd.append("-DKI")
     if args.tmi_DTI:
@@ -242,6 +239,9 @@ def main():
     if args.tmi_nocleanup:
         tmi_cmd.append("-nocleanup")
 
+    tmi_cmd.append(f"{output_absolute_path}/DWI_designer.mif")
+    tmi_cmd.append(f"{output_absolute_path}/tmi_output_phase")
+    
     run_command(tmi_cmd, "tmi")
 
     print_log("Designer, mrconvert, and tmi commands completed successfully!")
