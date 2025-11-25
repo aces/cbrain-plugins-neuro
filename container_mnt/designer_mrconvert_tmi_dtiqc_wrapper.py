@@ -20,7 +20,6 @@ def print_log(message):
     time_stamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     print(f"{time_stamp}: {message}", flush=True)
 
-
 def print_header(version):
     print_log(f"Starting designer, mrconvert, and tmi wrapper script")
     print_log(f"By Natacha Beck nbeck@mcin.ca, based on code from Alex Pastor Bernier")
@@ -170,7 +169,9 @@ def prepare_designer_cmd(args):
     if not os.path.exists(args.output):
         os.makedirs(args.output)
 
-    args.output_absolute_path = os.path.abspath(args.output)
+    # Get absolute path of output directory
+    output_absolute_path = os.path.abspath(args.output)
+    args.output_absolute_path = output_absolute_path 
 
     # designer command construction
     designer_cmd = ["designer"]
@@ -254,13 +255,10 @@ def prepare_mrconvert_cmd(args):
 #################
 
 def prepare_tmi_cmd(args):
-    tmi_cmd = ["tmi"]
-    tmi_cmd.append(f"{args.output_absolute_path}/DWI_designer.mif")
-    tmi_output_phase_dir = f"{args.output_absolute_path}/tmi_output_phase"
+    tmi_output_phase_dir      = f"{args.output_absolute_path}/tmi_output_phase"
     args.tmi_output_phase_dir = tmi_output_phase_dir
-    print(f"{args.tmi_output_phase_dir}")
-    tmi_cmd.append(tmi_output_phase_dir)
 
+    tmi_cmd = ["tmi"]
     if args.tmi_DKI:
         tmi_cmd.append("-DKI")
     if args.tmi_DTI:
@@ -269,7 +267,10 @@ def prepare_tmi_cmd(args):
     if args.tmi_nocleanup:
         tmi_cmd.append("-nocleanup")
 
-    return tmi_cmd,tmi_output_phase_dir
+    tmi_cmd.append(f"{output_absolute_path}/DWI_designer.mif")
+    tmi_cmd.append(f"{output_absolute_path}/tmi_output_phase")
+
+    return tmi_cmd
 
 # dtiQC preparation
 ###################
@@ -285,7 +286,7 @@ def prepare_dtiqc_cmd(args):
 
 def main():
     os.environ['PYTHONUNBUFFERED'] = '1'
-    version = "1.0.0"
+    version = "1.0.1"
     print_header(version)
 
     args = parse_args_list()
