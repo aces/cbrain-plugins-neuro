@@ -1,5 +1,5 @@
 {
-    "name": "designer_mrconvert_tmi_dtiqc_wrapper",
+    "name": "designer_mrconvert_tmi_wrapper",
     "description": "Designer2 is a denoising and model fitting pipeline for multishell data",
     "tool-version": "v2.0.13",
     "schema-version": "0.5",
@@ -11,7 +11,7 @@
     },
     "inputs": [
     {
-        "name": "Mtrix B0 Threshold",
+        "name": "Mrtrix B0 Threshold",
         "command-line-flag": "--mrtrix_BZeroThreshold",
         "value-key": "<mrtrix_BZeroThreshold NUMBER>",
         "type": "Number",
