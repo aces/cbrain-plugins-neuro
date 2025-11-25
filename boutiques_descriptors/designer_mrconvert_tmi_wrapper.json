@@ -1,5 +1,5 @@
 {
-    "name": "designer_mrconvert_tmi_wrapper",
+    "name": "designer_mrconvert_tmi",
     "description": "Designer2 is a denoising and model fitting pipeline for multishell data",
     "tool-version": "v2.0.13",
     "schema-version": "0.5",
