@@ -246,7 +246,7 @@
     ],
     "groups": [
         {
-            "id": "mtrix_conf",
+            "id": "mrtrix_conf",
             "name": "Mrtrix - Options",
             "description": "Options for mrtrix",
             "members": [
