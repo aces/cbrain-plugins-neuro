@@ -264,7 +264,6 @@ def prepare_tmi_cmd(args):
         tmi_cmd.append("-DKI")
     if args.tmi_DTI:
         tmi_cmd.append("-DTI")
-    tmi_cmd.append(args.output_absolute_path)
     if args.tmi_nocleanup:
         tmi_cmd.append("-nocleanup")
 
