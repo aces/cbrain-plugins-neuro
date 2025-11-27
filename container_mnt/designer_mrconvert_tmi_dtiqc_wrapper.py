@@ -77,10 +77,9 @@ def parse_args_list():
 
 def add_extra_args(args):
     # Get absolute path of output directory
-    output_absolute_path = os.path.abspath(args.output)
-    args.output_absolute_path = output_absolute_path
+    args.output_absolute_path = os.path.abspath(args.output)
     # tmi output phase directory
-    args.tmi_output_phase_dir = f"{output_absolute_path}/tmi_output_phase"
+    args.tmi_output_phase_dir = f"{args.output_absolute_path}/tmi_output_phase"
 
 ##########################################
 # Prepare commands
@@ -265,11 +264,10 @@ def prepare_tmi_cmd(args):
         tmi_cmd.append("-DKI")
     if args.tmi_DTI:
         tmi_cmd.append("-DTI")
-    tmi_cmd.append(args.output_absolute_path)
     if args.tmi_nocleanup:
         tmi_cmd.append("-nocleanup")
 
-    tmi_cmd.append(f"{output_absolute_path}/DWI_designer.mif")
+    tmi_cmd.append(f"{args.output_absolute_path}/DWI_designer.mif")
     tmi_cmd.append(f"{args.tmi_output_phase_dir}")
 
     return tmi_cmd
