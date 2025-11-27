@@ -221,13 +221,6 @@
             "description": "Directory output",
             "path-template": "<designer_output STRING>",
             "optional": false
-       },
-       {
-            "name": "Scratch directory",
-            "id": "designer_scratch_dir",
-            "description": "Scratch directory output",
-            "path-template": "<--designer_scratch STRING>",
-            "optional": true
        }
     ],
     "tags": {
