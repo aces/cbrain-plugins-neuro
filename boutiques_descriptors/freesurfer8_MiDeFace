@@ -1,0 +1,153 @@
+{
+    "name": "FreeSurfer_MiDeFace",
+    "description": "Performs FreeSurfer defacing and refacing",
+    "tool-version": "v8",
+    "url": "https://surfer.nmr.mgh.harvard.edu/fswiki/recon-all",
+    "descriptor-url": "https://github.com/aces/cbrain-plugins-neuro/blob/master/boutiques_descriptors/freesurfer8_MiDeFace.json",
+    "author": "Laboratory for Computational Neuroimaging ",
+    "schema-version": "0.5",
+    "command-line": "export SUBJECTS_DIR=`pwd`\nexport FS_LICENSE=`pwd`/[LICENSE_FILE]\nif test ! -d [OUTDIRNAME] ;then\n wrap_defaceV2.sh -subjid [OUTDIR] [INPUTDIR] [SID] [SES] [ACQ] \nbash -c \"exit $fsstatus\"\n",
+    "container-image": {
+        "index": "docker://",
+        "image": "freesurfer/freesurfer:7.4.1",
+        "type": "singularity"
+    },
+    "inputs": [
+        {
+            "description": "Subject folder for BIDS (folders name should be sub-XXXXX).",
+            "id": "subject_dir",
+            "name": "BIDS Subject Folder",
+            "optional": false,
+            "type": "File",
+            "value-key": "[SUBJECT_DIR]"
+        },
+        {
+            "description": "Subject session (could be ses-XXX or only XXX).",
+            "id": "ses",
+            "name": "Subject session",
+            "optional": true,
+            "type": "String",
+            "value-key": "[SES]",
+            "command-line-flag": "-ses"
+        },
+        {
+            "id": "license",
+            "name": "License file",
+            "type": "File",
+            "description": "Valid license file needed to run FreeSurfer",
+            "value-key": "[LICENSE_FILE]",
+            "optional": false
+        }
+    ],
+    "output-files": [
+        {
+            "id": "output_dir",
+            "name": "Output",
+            "description": "The output directory produced by the program",
+            "path-template": "[OUTDIRNAME]",
+            "optional": false
+        },
+        {
+            "id": "output",
+            "name": "NIFTI file",
+            "type": "File",
+            "description": "Single NIFTI deface_reface for input",
+            "command-line-flag": "--o",
+            "value-key": "[OUTPUT_FILE]",
+            "optional": false
+        },
+        {
+            "id": "outdirname",
+            "name": "Output",
+            "description": "The output directory produced by the program",
+            "type": "String",
+            "value-key": "[OUTDIRNAME]",
+            "default-value": "{full_noex}-{task_id}",
+            "command-line-flag": "--odir",
+            "optional": false
+        }
+    ],
+    "groups": [
+        {
+            "id": "files_group",
+            "name": "Input and output files and pipeline control",
+            "description": "File names and control directives",
+            "members": [
+                "input",
+                "license",
+                "outdirname",
+                "directive"
+            ]
+        },
+        {
+            "id": "sci_params",
+            "name": "Recon-All parameters",
+            "description": "Options and parameters for recon-all",
+            "members": [
+                "qcache_flag",
+                "mprage_flag",
+                "3T_flag",
+                "cw256_flag",
+                "notal_flag",
+                "noskullstrip_flag",
+                "no_wsgcaatlas_flag"
+            ]
+        },
+        {
+            "id": "segmentation_params",
+            "name": "Segmentation modules",
+            "description": "Segmentation modules performed after recon-all",
+            "members": [
+                "brainstem_structures_flag",
+                "hippocampus_amygdala_flag"
+            ]
+        }
+    ],
+    "suggested-resources": {
+        "ram": 10,
+        "walltime-estimate": 82800,
+        "cpu-cores": 1
+    },
+    "error-codes": [
+        {
+            "description": "Crashed",
+            "code": 1
+        }
+    ],
+    "custom": {
+        "cbrain:author": "Natacha Beck <nbeck@mcin.ca>, Pierre Rioux <pierre.rioux@mcgill.ca>",
+        "cbrain:readonly-input-files": true,
+        "cbrain:integrator_modules": {
+            "BoutiquesFileNameMatcher": {
+                "input": "\\.nii(\\.gz)?$"
+            },
+            "BoutiquesFileTypeVerifier": {
+                "input": [
+                    "NiftiFile",
+                    "SingleFile"
+                ],
+                "license": [
+                    "FreesurferLicense",
+                    "TextFile",
+                    "SingleFile"
+                ]
+            },
+            "BoutiquesFreesurferLicenseFinder": "license",
+            "BoutiquesOutputFileTypeSetter": {
+                "output_dir": "ReconAllCrossSectionalOutput"
+            },
+            "BoutiquesInputCacheCleaner": [
+                "input"
+            ],
+            "BoutiquesOutputCacheCleaner": [
+                "output_dir"
+            ],
+            "BoutiquesOutputFilenameRenamer": {
+                "output_dir": [
+                    "input",
+                    "outdirname"
+                ]
+            }
+        }
+    }
+}
