@@ -49,7 +49,7 @@ bet ${OUT}/b0.nii.gz ${OUT}/b0_BET.nii.gz -f 0.2 -g 0.3
 #register b0 to MNI space
 antsRegistrationSyN.sh -d 3 -f /cerebra/BrainExtractionBrain_mni_icbm152_t1_tal_nlin_asym_09c.nii.gz -m ${OUT}/b0_BET.nii.gz -o ${OUT}/b0_MNI.nii.gz
 # resize fa to mni res isometric
-resample_image --reference /cerebra/BrainExtractionBrain_mni_icbm152_t1_tal_nlin_asym_09c.nii.gz --nosmooth ${OUT}/fa_dtiBET.nii ${OUT}/fa_dti_RSZ.nii.gz
+resample_image --reference /cerebra/BrainExtractionBrain_mni_icbm152_t1_tal_nlin_asym_09c.nii.gz --nosmooth ${OUT}/fa_dti.nii /mnt_OUT/fa_dti_RSZ.nii.gz
 ##apply transformation to resized FA
 antsApplyTransforms --verbose -d 3 -i ${OUT}/fa_dti_RSZ.nii.gz -r /cerebra/BrainExtractionBrain_mni_icbm152_t1_tal_nlin_asym_09c.nii.gz -o ${OUT}/fa_MNI.nii.gz -t ${OUT}/b0_MNI0GenericAffine.mat -n 'GenericLabel'
 
