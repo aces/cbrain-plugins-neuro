@@ -41,7 +41,6 @@ echo "Processing subject" $SID "on" $OUT
 # run the command
 cmd="resample_image --reference /cerebra/BrainExtractionBrain_mni_icbm152_t1_tal_nlin_asym_09c.nii.gz --nosmooth ${OUT}/fa_dti.nii ${OUT}/fa_dti.nii.gz"
 echo $cmd
-resample_image --reference /cerebra/BrainExtractionBrain_mni_icbm152_t1_tal_nlin_asym_09c.nii.gz --nosmooth ${OUT}/fa_dti.nii ${OUT}/fa_dti_RSZ.nii.gz
 
 #register directly fa to mni space = same space as label atlas
 #extract b0 from trace and bet
