@@ -41,9 +41,18 @@ echo "Processing subject" $SID "on" $OUT
 # run the command
 cmd="resample_image --reference /cerebra/BrainExtractionBrain_mni_icbm152_t1_tal_nlin_asym_09c.nii.gz --nosmooth ${OUT}/fa_dti.nii ${OUT}/fa_dti.nii.gz"
 echo $cmd
-resample_image --reference /cerebra/BrainExtractionBrain_mni_icbm152_t1_tal_nlin_asym_09c.nii.gz --nosmooth ${OUT}/fa_dti.nii ${OUT}/fa_dti_RSZ.nii.gz
 
 #register directly fa to mni space = same space as label atlas
+#extract b0 from trace and bet
+fslroi ${OUT}/trace_allshells.nii ${OUT}/b0.nii.gz 0 1
+bet ${OUT}/b0.nii.gz ${OUT}/b0_BET.nii.gz -f 0.2 -g 0.3
+#mask bet upon fa_MNI.nii.gz
+fslmaths ${OUT}/b0_BET.nii.gz -bin ${OUT}/b0_BET_MASK.nii.gz
+#apply mask to fa
+fslmaths ${OUT}/fa_dti.nii -mul ${OUT}/b0_BET_MASK.nii.gz ${OUT}/fa_BET.nii.gz
+# resize fa to mni res isometric
+resample_image --reference /cerebra/BrainExtractionBrain_mni_icbm152_t1_tal_nlin_asym_09c.nii.gz --nosmooth ${OUT}/fa_BET.nii.gz ${OUT}/fa_dti_RSZ.nii.gz
+# do now registration directly of FA
 antsRegistrationSyN.sh -d 3 -f /cerebra/BrainExtractionBrain_mni_icbm152_t1_tal_nlin_asym_09c.nii.gz -m ${OUT}/fa_dti_RSZ.nii.gz -o ${OUT}/fa_MNI
 
 #copy files to output
