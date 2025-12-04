@@ -46,12 +46,14 @@ echo $cmd
 #extract b0 from trace and bet
 fslroi ${OUT}/trace_allshells.nii ${OUT}/b0.nii.gz 0 1
 bet ${OUT}/b0.nii.gz ${OUT}/b0_BET.nii.gz -f 0.2 -g 0.3
-#register b0 to MNI space
-antsRegistrationSyN.sh -d 3 -f /cerebra/BrainExtractionBrain_mni_icbm152_t1_tal_nlin_asym_09c.nii.gz -m ${OUT}/b0_BET.nii.gz -o ${OUT}/b0_MNI.nii.gz
+#mask bet upon fa_MNI.nii.gz
+fslmaths ${OUT}/b0_BET.nii.gz -bin ${OUT}/b0_BET_MASK.nii.gz
+#apply mask to fa
+fslmaths ${OUT}/fa_dti.nii -mul ${OUT}/b0_BET_MASK.nii.gz ${OUT}/fa_BET.nii.gz
 # resize fa to mni res isometric
-resample_image --reference /cerebra/BrainExtractionBrain_mni_icbm152_t1_tal_nlin_asym_09c.nii.gz --nosmooth ${OUT}/fa_dti.nii /mnt_OUT/fa_dti_RSZ.nii.gz
-##apply transformation to resized FA
-antsApplyTransforms --verbose -d 3 -i ${OUT}/fa_dti_RSZ.nii.gz -r /cerebra/BrainExtractionBrain_mni_icbm152_t1_tal_nlin_asym_09c.nii.gz -o ${OUT}/fa_MNI.nii.gz -t ${OUT}/b0_MNI0GenericAffine.mat -n 'GenericLabel'
+resample_image --reference /cerebra/BrainExtractionBrain_mni_icbm152_t1_tal_nlin_asym_09c.nii.gz --nosmooth ${OUT}/fa_BET.nii.gz ${OUT}/fa_dti_RSZ.nii.gz
+# do now registration directly of FA
+antsRegistrationSyN.sh -d 3 -f /cerebra/BrainExtractionBrain_mni_icbm152_t1_tal_nlin_asym_09c.nii.gz -m ${OUT}/fa_dti_RSZ.nii.gz -o ${OUT}/fa_MNI
 
 #copy files to output
 cp /cerebra/CerebrAS_plus2RSZ.nii.gz ${OUT}/
