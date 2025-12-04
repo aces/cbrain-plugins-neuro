@@ -1,0 +1,104 @@
+{
+    "name": "MNp_FreeSurfer_MiDeFace",
+    "description": "Performs FreeSurfer defacing and refacing for MPN data",
+    "tool-version": "7.4.1",
+    "url": "https://surfer.nmr.mgh.harvard.edu/fswiki/recon-all",
+    "descriptor-url": "https://github.com/aces/cbrain-plugins-neuro/blob/master/boutiques_descriptors/freesurfer8_MiDeFace.json",
+    "author": "Laboratory for Computational Neuroimaging ",
+    "schema-version": "0.5",
+    "command-line": "export FS_LICENSE=`pwd`/[LICENSE_FILE]; CbrainBidsSingleSubject='<INPUTDIR FILE>' && bash /wrapper/mnp_wrap_defaceV3.sh -i <INPUTDIR FILE> <-s SES STRING> <-a ACQ STRING> $CbrainBidsSingleSubject `pwd`/<OUTPUT_DIR STRING>",
+    "container-image": {
+        "index": "docker://",
+        "image": "freesurfer/freesurfer:7.4.1",
+        "type": "singularity"
+    },
+    "inputs": [
+        {
+            "name": "BIDS Subject Folder",
+            "value-key": "<INPUTDIR FILE>",
+            "type": "File",
+            "id": "subject_dir",
+            "description": "Subject folder for BIDS (folders name should be sub-XXXXX).",
+            "optional": false
+        },
+        {
+            "name": "Output Mideface Defaced files",
+            "type": "String",
+            "value-key": "<OUTPUT_DIR STRING>",
+            "id": "mideface_output",
+            "description": "Mideface Defaced output",
+            "default-value": "mideface_output",
+            "list": false,
+            "optional": false
+        },
+        {
+            "name": "Subject session",
+            "command-line-flag": "-s",
+            "value-key": "<-s SES STRING>",
+            "type": "String",
+            "id": "ses",
+            "description": "Subject session (could be ses-XXX or only XXX).",
+            "optional": true
+        },
+        {
+            "name": "Acquisition string array",
+            "command-line-flag":"-a",
+            "value-key": "<-a ACQ STRING>",
+            "type": "String",
+            "id": "acq",
+	        "list": true,
+	        "list-separator": ",",
+            "optional": false
+        },
+        {
+            "name": "License file",
+            "type": "File",
+            "value-key": "[LICENSE_FILE]",
+            "id": "license",
+            "description": "Valid license file needed to run FreeSurfer",
+            "optional": false
+        }
+    ],
+    "output-files": [
+        {
+            "name": "Output Anonymized files",
+            "id": "MIDEFACE_OUT_DIR",
+            "description": "Directory output",
+            "path-template": "<OUTPUT_DIR STRING>",
+            "optional": false
+       }
+    ],
+    "tags": {
+        "domain": "boutiques"
+    },
+    "suggested-resources": {
+        "ram": 10,
+        "walltime-estimate": 82800,
+        "cpu-cores": 1
+    },
+    "error-codes": [
+        {
+            "description": "Crashed",
+            "code": 1
+        }
+    ],
+    "custom": {
+        "cbrain:author": "Alexandre Pastor-Bernier <alexandre.pastor@mcgill.ca> and Natacha Beck <nbeck@mcin.ca>",
+        "cbrain:plugins-container-bindmount": "/wrapper",
+        "cbrain:readonly-input-files": true,
+        "cbrain:integrator_modules": {
+            "BoutiquesFileTypeVerifier": {
+                "subject_dir": [ "BidsSubject" ],
+                "license":     [ "FreesurferLicense" ]
+            },
+            "BoutiquesFreesurferLicenseFinder": "license",
+            "BoutiquesFileNameMatcher": {
+                "subject_dir": "^sub-[a-zA-Z0-9_]+$"
+            },
+            "BoutiquesBidsSingleSubjectMaker": "subject_dir",
+            "BoutiquesOutputFileTypeSetter": {
+                "mideface_output": "MpnFreesurferMidefaceOutput"
+            }
+        }
+    }
+}
