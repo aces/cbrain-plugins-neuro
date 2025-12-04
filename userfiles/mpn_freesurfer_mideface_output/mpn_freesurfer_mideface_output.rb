@@ -20,13 +20,13 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-# A FileCollection to model the output of Mideface from FreeSurfer for MPN project
+# A FileCollection to model the output of Mideface from FreeSurfer for MPn project
 class MpnFreesurferMidefaceOutput < FileCollection
 
   Revision_info=CbrainFileRevision[__FILE__] #:nodoc:
 
   def self.pretty_type #:nodoc:
-    "MPN FreeSurfer MiDeface Output"
+    "MPn FreeSurfer MiDeface Output"
   end
 
 end

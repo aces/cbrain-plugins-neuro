@@ -144,7 +144,7 @@
             "optional": true
         },
         {
-            "name": "Phase enconding direction",
+            "name": "Phase encoding direction",
             "command-line-flag": "--designer_pe_dir",
             "value-key": "<--designer_pe_dir STRING>",
             "type": "String",
