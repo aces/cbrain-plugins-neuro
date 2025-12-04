@@ -6,7 +6,7 @@
     "descriptor-url": "https://github.com/aces/cbrain-plugins-neuro/blob/master/boutiques_descriptors/freesurfer8_MiDeFace.json",
     "author": "Laboratory for Computational Neuroimaging ",
     "schema-version": "0.5",
-    "command-line": "export FS_LICENSE=`pwd`/[LICENSE_FILE]; CbrainBidsSingleSubject='<INPUTDIR FILE>' && bash /wrapper/mnp_wrap_defaceV3.sh -i <INPUTDIR FILE> <-s SES STRING> <-a ACQ STRING> $CbrainBidsSingleSubject `pwd`/<OUTPUT_DIR STRING>",
+    "command-line": "export FS_LICENSE=`pwd`/[LICENSE_FILE]; CbrainBidsSingleSubject='<INPUTDIR FILE>' && bash /wrapper/mpn_wrap_defaceV3.sh -i <INPUTDIR FILE> <-s SES STRING> <-a ACQ STRING> $CbrainBidsSingleSubject `pwd`/<OUTPUT_DIR STRING>",
     "container-image": {
         "index": "docker://",
         "image": "freesurfer/freesurfer:7.4.1",
