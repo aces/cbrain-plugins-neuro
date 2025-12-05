@@ -317,7 +317,7 @@ def main():
         print_log(f"Error: dwi_post_eddy.qc file not found at {eddy_qc_source}")
         sys.exit(2)
 
-    run_command(["cp", eddy_qc_source, args.output_absolute_path], "Copy dwi_post_eddy.qc to output directory")
+    run_command(["cp -r", eddy_qc_source, args.output_absolute_path], "Copy dwi_post_eddy.qc to output directory")
 
     # Remove DWI_designer.nii from output directory
     run_command(["rm", f"{args.output_absolute_path}/DWI_designer.mif"], "Remove DWI_designer.nii from output directory")
