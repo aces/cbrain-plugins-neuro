@@ -84,7 +84,7 @@ for file in ${OUT}/fa_MNIWarped.nii.gz; do
     if [ ${VOXALL[$i]} == "0" ]; then # volume on this tag is zero
     result="NA"
     else
-    result=$(echo "scale=6; ${VOXABV[$i]} / ${VOXALL[$i]}" | bc)
+    result=$(perl -e "print sprintf(\"%.6f\", ${VOXABV[$i]} / ${VOXALL[$i]})")
     fi
     results+=("$result")
 
