@@ -311,6 +311,17 @@ def main():
     dtiqc_cmd = prepare_dtiqc_cmd(args)
     run_command(dtiqc_cmd, "dtiQC")
 
+    # Copy dwi_post_eddy.qc from arg.designer_scratch/eddy_processing/dwi_post_eddy.qc to args.output_absolute_path
+    eddy_qc_source = os.path.join(args.designer_scratch, "eddy_processing", "dwi_post_eddy.qc")
+    if not os.path.exists(eddy_qc_source):
+        print_log(f"Error: dwi_post_eddy.qc file not found at {eddy_qc_source}")
+        sys.exit(2)
+
+    run_command(["cp -r", eddy_qc_source, args.output_absolute_path], "Copy dwi_post_eddy.qc to output directory")
+
+    # Remove DWI_designer.nii from output directory
+    run_command(["rm", f"{args.output_absolute_path}/DWI_designer.mif"], "Remove DWI_designer.nii from output directory")
+
     print_log("Designer, mrconvert, and tmi commands completed successfully!")
 
 if __name__ == "__main__":
