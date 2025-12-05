@@ -320,7 +320,7 @@ def main():
     run_command(["cp", eddy_qc_source, args.output_absolute_path], "Copy dwi_post_eddy.qc to output directory")
 
     # Remove DWI_designer.nii from output directory
-    run_command(["rm", f"{args.output_absolute_path}/DWI_designer.nii"], "Remove DWI_designer.nii from output directory")
+    run_command(["rm", f"{args.output_absolute_path}/DWI_designer.mif"], "Remove DWI_designer.nii from output directory")
 
     print_log("Designer, mrconvert, and tmi commands completed successfully!")
 
