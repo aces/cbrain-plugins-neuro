@@ -1,7 +1,7 @@
 {
     "name": "FastSurfer",
     "description": "A fast and accurate deep learning-based neuroimaging pipeline for brain MRI processing, offering FreeSurfer-compatible segmentation and surface reconstruction",
-    "tool-version": "1.0.0",
+    "tool-version": "v2.4.2",
     "url": "https://github.com/Deep-MI/FastSurfer",
     "descriptor-url": "https://github.com/aces/cbrain-plugins-neuro/tree/master/boutiques_descriptors/fastsurfer_cuda_2_4_2.json",
     "author": "Deep Learning in Medical Image Analysis Group, German Center for Neurodegenerative Diseases",
