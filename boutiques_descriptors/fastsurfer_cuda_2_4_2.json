@@ -1,0 +1,236 @@
+{
+    "name": "FastSurfer",
+    "description": "A fast and accurate deep learning-based neuroimaging pipeline for brain MRI processing, offering FreeSurfer-compatible segmentation and surface reconstruction",
+    "tool-version": "1.0.0",
+    "url": "https://github.com/Deep-MI/FastSurfer",
+    "descriptor-url": "https://github.com/aces/cbrain-plugins-neuro/tree/master/boutiques_descriptors/fastsurfer_cuda_2_4_2.json",
+    "author": "Deep Learning in Medical Image Analysis Group, German Center for Neurodegenerative Diseases",
+    "schema-version": "0.5",
+    "command-line": "export SUBJECTS_DIR=$PWD; export FS_LICENSE=${PWD}/[LICENSE_FILE]\n; run_fastsurfer.sh [SUBJECT_ID] --t1 ${PWD}/[T1_INPUT] [T2_INPUT_FLAG] [SEGMENTATION_ONLY] [SURFACE_ONLY] [VOX_SIZE] [DEVICE] [THREADS] [BIASFIELD_CORRECTION] [EDIT_MODE] [THREE_T] [CEREBELLUM_FLAG] [HYPOTHALAMUS_FLAG] [QC_SNAPSHOTS]",
+    "container-image": {
+        "index": "docker://",
+        "image": "deepmi/fastsurfer:cuda-v.2.4.2",
+        "type": "singularity"
+    },
+    "inputs": [
+        {
+            "id": "t1_input",
+            "name": "T1 MRI input",
+            "type": "File",
+            "description": "T1 full head input (not bias corrected).",
+            "value-key": "[T1_INPUT]",
+            "optional": false
+        },
+        {
+            "id": "subject_id",
+            "name": "Subject ID",
+            "type": "String",
+            "description": "Subject ID to create directory inside SUBJECTS_DIR",
+            "command-line-flag": "--sid",
+            "value-key": "[SUBJECT_ID]",
+            "optional": false
+        },
+        {
+            "id": "fs_license",
+            "name": "FreeSurfer License",
+            "type": "File",
+            "description": "Path to FreeSurfer license key file. Register at https://surfer.nmr.mgh.harvard.edu/registration.html for free to obtain it",
+            "value-key": "[LICENSE_FILE]",
+            "optional": false
+        },
+        {
+            "id": "t2_input",
+            "name": "T2 MRI input",
+            "type": "File",
+            "description": "Optional T2 full head input for hypothalamus segmentation",
+            "command-line-flag": "--t2",
+            "value-key": "[T2_INPUT_FLAG]",
+            "optional": true
+        },
+        {
+            "id": "seg_only",
+            "name": "Segmentation only",
+            "type": "Flag",
+            "description": "Run only FastSurferVINN segmentation pipeline (no surface reconstruction)",
+            "command-line-flag": "--seg_only",
+            "value-key": "[SEGMENTATION_ONLY]",
+            "optional": true
+        },
+        {
+            "id": "surf_only",
+            "name": "Surface only",
+            "type": "Flag",
+            "description": "Run surface pipeline only (segmentation must already exist)",
+            "command-line-flag": "--surf_only",
+            "value-key": "[SURFACE_ONLY]",
+            "optional": true
+        },
+        {
+            "id": "vox_size",
+            "name": "Voxel Size",
+            "type": "String",
+            "description": "Force processing at specific voxel size (0.7-1mm or 'min')",
+            "command-line-flag": "--vox_size",
+            "value-key": "[VOX_SIZE]",
+            "optional": true,
+            "default-value": "min"
+        },
+        {
+            "id": "device",
+            "name": "Processing Device",
+            "type": "String",
+            "description": "Set device for neural network inference (cpu, cuda, or specific device like cuda:0)",
+            "command-line-flag": "--device",
+            "value-key": "[DEVICE]",
+            "optional": true
+        },
+        {
+            "id": "threads",
+            "name": "Number of Threads",
+            "type": "Number",
+            "description": "Set OpenMP and ITK threads for processing",
+            "command-line-flag": "--threads",
+            "value-key": "[THREADS]",
+            "optional": true,
+            "integer": true,
+            "minimum": 1
+        },
+        {
+            "id": "no_biasfield",
+            "name": "No Biasfield Correction",
+            "type": "Flag",
+            "description": "Deactivate bias field correction and partial volume-corrected statistics",
+            "command-line-flag": "--no_biasfield",
+            "value-key": "[BIASFIELD_CORRECTION]",
+            "optional": true
+        },
+        {
+            "id": "edits",
+            "name": "Enable Manual Edits",
+            "type": "Flag",
+            "description": "Enable manual edits by replacing intermediate/result files with manedit substitutes",
+            "command-line-flag": "--edits",
+            "value-key": "[EDIT_MODE]",
+            "optional": true
+        },
+        {
+            "id": "three_t",
+            "name": "3T Atlas",
+            "type": "Flag",
+            "description": "Use 3T atlas for talairach registration (better eTIV estimates for 3T images)",
+            "command-line-flag": "--3T",
+            "value-key": "[THREE_T]",
+            "optional": true
+        },
+        {
+            "id": "no_cereb",
+            "name": "Skip Cerebellum Segmentation",
+            "type": "Flag",
+            "description": "Skip cerebellum segmentation (CerebNet)",
+            "command-line-flag": "--no_cereb",
+            "value-key": "[CEREBELLUM_FLAG]",
+            "optional": true
+        },
+        {
+            "id": "no_hypothal",
+            "name": "Skip Hypothalamus Segmentation",
+            "type": "Flag",
+            "description": "Skip hypothalamus segmentation (HypVINN)",
+            "command-line-flag": "--no_hypothal",
+            "value-key": "[HYPOTHALAMUS_FLAG]",
+            "optional": true
+        },
+        {
+            "id": "qc_snap",
+            "name": "Create QC Snapshots",
+            "type": "Flag",
+            "description": "Create QC snapshots to simplify quality control process",
+            "command-line-flag": "--qc_snap",
+            "value-key": "[QC_SNAPSHOTS]",
+            "optional": true
+        }
+    ],
+    "output-files": [
+        {
+            "id": "output_dir",
+            "name": "Output Directory",
+            "description": "The output directory containing all FastSurfer results",
+            "path-template": "[SUBJECT_ID]",
+            "optional": false
+        }
+    ],
+    "groups": [
+        {
+            "id": "required_inputs",
+            "name": "Required Inputs",
+            "description": "Essential input files and parameters",
+            "members": [
+                "t1_input",
+                "subject_id",
+                "fs_license"
+            ]
+        },
+        {
+            "id": "pipeline_control",
+            "name": "Pipeline Control",
+            "description": "Options to control which pipeline components to run",
+            "members": [
+                "seg_only",
+                "surf_only"
+            ],
+            "mutually_exclusive": true
+        },
+        {
+            "id": "processing_options",
+            "name": "Processing Options",
+            "description": "General processing parameters",
+            "members": [
+                "vox_size",
+                "device",
+                "threads",
+                "no_biasfield",
+                "edits",
+                "three_t"
+            ]
+        },
+        {
+            "id": "segmentation_modules",
+            "name": "Segmentation Modules",
+            "description": "Options for specific segmentation modules",
+            "members": [
+                "no_cereb",
+                "no_hypothal",
+                "t2_input",
+                "qc_snap"
+            ]
+        }
+    ],
+    "suggested-resources": {
+        "ram": 16,
+        "walltime-estimate": 14400,
+        "cpu-cores": 4,
+        "gpu-cores": 1
+    },
+    "error-codes": [
+        {
+            "code": 1,
+            "description": "Crashed"
+        }
+    ],
+    "custom": {
+        "cbrain:readonly-input-files": true,
+        "cbrain:integrator_modules": {
+            "BoutiquesFileTypeVerifier": {
+                "t1_input": ["NiftiFile", "MghFile", "SingleFile"],
+                "t2_input": ["NiftiFile", "MghFile", "SingleFile"],
+                "fs_license": ["FreesurferLicense", "TextFile", "SingleFile"]
+            },
+            "BoutiquesFreesurferLicenseFinder": "fs_license",
+            "BoutiquesOutputFileTypeSetter": {
+                "output_dir": "FastSurferOutput"
+            },
+            "BoutiquesInputCacheCleaner": ["t1_input", "t2_input"],
+            "BoutiquesOutputCacheCleaner": ["output_dir"]
+        }
+    }
+}
