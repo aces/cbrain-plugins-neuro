@@ -172,13 +172,13 @@
         },
         {
             "id": "pipeline_control",
-            "name": "Pipeline Control",
+            "name": "Select Pipeline Components",
             "description": "Options to control which pipeline components to run",
             "members": [
                 "seg_only",
                 "surf_only"
             ],
-            "mutually_exclusive": true
+            "mutually-exclusive": true
         },
         {
             "id": "processing_options",
