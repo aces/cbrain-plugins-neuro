@@ -6,7 +6,7 @@
     "descriptor-url": "https://github.com/aces/cbrain-plugins-neuro/tree/master/boutiques_descriptors/fastsurfer_cuda_2_4_2.json",
     "author": "Deep Learning in Medical Image Analysis Group, German Center for Neurodegenerative Diseases",
     "schema-version": "0.5",
-    "command-line": "echo CBRAIN 'browse path' is [DERIVATIVES_PREFIX]; export SUBJECTS_DIR=$PWD; export FS_LICENSE=${PWD}/[LICENSE_FILE]\n run_fastsurfer.sh [SUBJECT_ID] --t1 ${PWD}/[T1_INPUT] [T2_INPUT_FLAG] [SEGMENTATION_ONLY] [SURFACE_ONLY] [VOX_SIZE] [DEVICE] [THREADS] [BIASFIELD_CORRECTION] [EDIT_MODE] [THREE_T] [CEREBELLUM_FLAG] [HYPOTHALAMUS_FLAG] [QC_SNAPSHOTS]",
+    "command-line": "echo CBRAIN 'browse path' is [DERIVATIVES_PREFIX]; export SUBJECTS_DIR=$PWD; export FS_LICENSE=${PWD}/[LICENSE_FILE]; [ -d [RESULTS] ] && T1FILE=\"--t1 ${PWD}/[T1_INPUT]\"\n run_fastsurfer.sh [SUBJECT_ID] $T1FILE [T2_INPUT_FLAG] [SEGMENTATION_ONLY] [SURFACE_ONLY] [VOX_SIZE] [DEVICE] [THREADS] [BIASFIELD_CORRECTION] [EDIT_MODE] [THREE_T] [CEREBELLUM_FLAG] [HYPOTHALAMUS_FLAG] [QC_SNAPSHOTS]",
     "container-image": {
         "index": "docker://",
         "image": "deepmi/fastsurfer:cuda-v2.4.2",
@@ -17,7 +17,7 @@
             "id": "t1_input",
             "name": "T1 MRI input",
             "type": "File",
-            "description": "T1 full head input (not bias corrected).",
+            "description": "T1 full head input (not bias corrected). On second rerun input is ignored (unless task cache is deleted)",
             "value-key": "[T1_INPUT]",
             "optional": false
         },
@@ -166,7 +166,8 @@
             "name": "Output Directory",
             "description": "The output directory containing all FastSurfer results",
             "path-template": "[SUBJECT_ID]",
-            "optional": false
+            "optional": false,
+            "value-key": "[RESULTS]"
         }
     ],
     "groups": [
