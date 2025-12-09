@@ -6,7 +6,7 @@
     "descriptor-url": "https://github.com/aces/cbrain-plugins-neuro/tree/master/boutiques_descriptors/fastsurfer_cuda_2_4_2.json",
     "author": "Deep Learning in Medical Image Analysis Group, German Center for Neurodegenerative Diseases",
     "schema-version": "0.5",
-    "command-line": "echo CBRAIN 'browse path' is [DERIVATIVES_PREFIX]; export SUBJECTS_DIR=$PWD; export FS_LICENSE=${PWD}/[LICENSE_FILE]; [ -d [RESULTS] ] && T1FILE=\"--t1 ${PWD}/[T1_INPUT]\"\n run_fastsurfer.sh [SUBJECT_ID] $T1FILE [T2_INPUT_FLAG] [SEGMENTATION_ONLY] [SURFACE_ONLY] [VOX_SIZE] [DEVICE] [THREADS] [BIASFIELD_CORRECTION] [EDIT_MODE] [THREE_T] [CEREBELLUM_FLAG] [HYPOTHALAMUS_FLAG] [QC_SNAPSHOTS]",
+    "command-line": "true [DERIVATIVES_PREFIX]; export SUBJECTS_DIR=$PWD; export FS_LICENSE=${PWD}/[LICENSE_FILE]; T1_FULLPATH='    '; [ ! -d [RESULTS] ] && T1_FULLPATH=\"--t1 ${PWD}/[T1_INPUT]\"\n run_fastsurfer.sh [SUBJECT_ID] $T1_FULLPATH [T2_INPUT] [SEGMENTATION_ONLY] [SURFACE_ONLY] [VOX_SIZE] [DEVICE] [THREADS] [BIASFIELD_CORRECTION] [EDIT_MODE] [THREE_T] [CEREBELLUM_FLAG] [HYPOTHALAMUS_FLAG] [QC_SNAPSHOTS]",
     "container-image": {
         "index": "docker://",
         "image": "deepmi/fastsurfer:cuda-v2.4.2",
@@ -17,7 +17,7 @@
             "id": "t1_input",
             "name": "T1 MRI input",
             "type": "File",
-            "description": "T1 full head input (not bias corrected). On second rerun input is ignored (unless task cache is deleted)",
+            "description": "T1 full head input (not bias corrected). On second rerun input is ignored unless task cache is deleted",
             "value-key": "[T1_INPUT]",
             "optional": false
         },
@@ -44,14 +44,14 @@
             "type": "File",
             "description": "Optional T2 full head input for hypothalamus segmentation",
             "command-line-flag": "--t2",
-            "value-key": "[T2_INPUT_FLAG]",
+            "value-key": "[T2_INPUT]",
             "optional": true
         },
         {
             "id": "seg_only",
             "name": "Segmentation only",
             "type": "Flag",
-            "description": "Run only FastSurferVINN segmentation pipeline (no surface reconstruction)",
+            "description": "Run only FastSurferVINN segmentation pipeline (no surface reconstruction). If you plan rerun task latter with surface pipeline, keep task cache intact",
             "command-line-flag": "--seg_only",
             "value-key": "[SEGMENTATION_ONLY]",
             "optional": true
@@ -153,8 +153,8 @@
         {
             "default-value": "derivatives/",
             "id": "derivatives_prefix",
-            "name": "derivatives_prefix",
-            "description": "This parameters should be used only with multi-Level data providers. Folders to put before the pipeline specific folder. By default this will look like DataProvider/derivatives/PipelineName, where pipeline name is specific to the current pipeline. The provided string must end in /",
+            "name": "Save results to a dataprovider subfolder for derivatives",
+            "description": "This experimental parameter should be used only with multi-Level data providers with branching folder structure. Contact admins if you need one. Folders to put before the pipeline specific folder. By default this will look like DataProviderDir/derivatives/PipelineName, where pipeline name is specific to the current pipeline. The provided string must end in /",
             "optional": true,
             "type": "String",
             "value-key": "[DERIVATIVES_PREFIX]"
@@ -233,6 +233,9 @@
         "cbrain:integrator_modules": {
             "BoutiquesForcedOutputBrowsePath" : {
                 "output_dir": "[DERIVATIVES_PREFIX]fastsurfer_v2.4.2"
+            },
+            "BoutiquesFileNameMatcher": {
+                "input": "\\.nii(\\.gz)?$|\\.mg(z|h)$"
             },
             "BoutiquesFileTypeVerifier": {
                 "t1_input": ["NiftiFile", "MghFile", "SingleFile"],
