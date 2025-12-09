@@ -26,8 +26,6 @@ class FastSurferOutput < ReconAllOutput
 
   Revision_info=CbrainFileRevision[__FILE__] #:nodoc:
 
-  cbrain_abstract_model! # objects of this class are not to be instanciated
-  
   def self.pretty_type #:nodoc:
     "FastSurfer Output"
   end
