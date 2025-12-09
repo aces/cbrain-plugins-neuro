@@ -6,7 +6,7 @@
     "descriptor-url": "https://github.com/aces/cbrain-plugins-neuro/tree/master/boutiques_descriptors/fastsurfer_cuda_2_4_2.json",
     "author": "Deep Learning in Medical Image Analysis Group, German Center for Neurodegenerative Diseases",
     "schema-version": "0.5",
-    "command-line": "true [DERIVATIVES_PREFIX]; export SUBJECTS_DIR=$PWD; export FS_LICENSE=${PWD}/[LICENSE_FILE]; T1_FULLPATH='    '; [ ! -d [RESULTS] ] && T1_FULLPATH=\"--t1 ${PWD}/[T1_INPUT]\"\n run_fastsurfer.sh [SUBJECT_ID] $T1_FULLPATH [T2_INPUT] [SEGMENTATION_ONLY] [SURFACE_ONLY] [VOX_SIZE] [DEVICE] [THREADS] [BIASFIELD_CORRECTION] [EDIT_MODE] [THREE_T] [CEREBELLUM_FLAG] [HYPOTHALAMUS_FLAG] [QC_SNAPSHOTS]",
+    "command-line": "true [DERIVATIVES_PREFIX]; export SUBJECTS_DIR=$PWD; export FS_LICENSE=${PWD}/[LICENSE_FILE]; T1_FULLPATH='    '; [ ! -d [RESULTS] ] && T1_FULLPATH=\"--t1 ${PWD}/[T1_INPUT]\"\n run_fastsurfer.sh [SUBJECT_ID] $T1_FULLPATH [T2_INPUT] [SEGMENTATION_ONLY] [SURFACE_ONLY] [VOX_SIZE] [DEVICE] [THREADS] [BIASFIELD_CORRECTION] [THREE_T] [CEREBELLUM_FLAG] [HYPOTHALAMUS_FLAG] [QC_SNAPSHOTS]",
     "container-image": {
         "index": "docker://",
         "image": "deepmi/fastsurfer:cuda-v2.4.2",
@@ -94,7 +94,8 @@
             "default-value": 4,
             "optional": true,
             "integer": true,
-            "minimum": 1
+            "minimum": 1,
+            "maximum": 32
         },
         {
             "id": "no_biasfield",
@@ -103,15 +104,6 @@
             "description": "Deactivate bias field correction and partial volume-corrected statistics",
             "command-line-flag": "--no_biasfield",
             "value-key": "[BIASFIELD_CORRECTION]",
-            "optional": true
-        },
-        {
-            "id": "edits",
-            "name": "Enable Manual Edits",
-            "type": "Flag",
-            "description": "Enable manual edits by replacing intermediate/result files with manedit substitutes",
-            "command-line-flag": "--edits",
-            "value-key": "[EDIT_MODE]",
             "optional": true
         },
         {
@@ -200,7 +192,6 @@
                 "device",
                 "threads",
                 "no_biasfield",
-                "edits",
                 "three_t"
             ]
         },
