@@ -235,7 +235,8 @@
                 "output_dir": "[DERIVATIVES_PREFIX]fastsurfer_v2.4.2"
             },
             "BoutiquesFileNameMatcher": {
-                "input": "\\.nii(\\.gz)?$|\\.mg(z|h)$"
+                "t1_input": "\\.nii(\\.gz)?$|\\.mg(z|h)$",
+                "t2_input": "\\.nii(\\.gz)?$|\\.mg(z|h)$"
             },
             "BoutiquesFileTypeVerifier": {
                 "t1_input": ["NiftiFile", "MghFile", "SingleFile"],
