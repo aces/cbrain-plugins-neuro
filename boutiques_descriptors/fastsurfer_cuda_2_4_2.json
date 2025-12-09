@@ -209,7 +209,7 @@
     ],
     "suggested-resources": {
         "ram": 20,
-        "walltime-estimate": 40000,
+        "walltime-estimate": 43200,
         "cpu-cores": 4,
         "gpu-cores": 1
     },
@@ -219,8 +219,21 @@
             "description": "Crashed"
         }
     ],
+    "tags": {
+        "domain": [
+            "NIfTI",
+            "anatomical",
+            "cortical thickness",
+            "imaging",
+            "mgz",
+            "neuroimaging",
+            "surface",
+            "deeplearning",
+            "volumetric analysis"]
+    },
     "custom": {
         "cbrain:readonly-input-files": true,
+        "cbrain:author": "Serge Boroday <serge.boroday@mcin.ca>",
         "cbrain:integrator_modules": {
             "BoutiquesForcedOutputBrowsePath" : {
                 "output_dir": "[DERIVATIVES_PREFIX]fastsurfer_v2.4.2"
