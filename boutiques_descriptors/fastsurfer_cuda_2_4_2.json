@@ -91,6 +91,7 @@
             "description": "Set OpenMP and ITK threads for processing",
             "command-line-flag": "--threads",
             "value-key": "[THREADS]",
+            "default-value": 4,
             "optional": true,
             "integer": true,
             "minimum": 1
@@ -215,8 +216,8 @@
         }
     ],
     "suggested-resources": {
-        "ram": 16,
-        "walltime-estimate": 14400,
+        "ram": 20,
+        "walltime-estimate": 40000,
         "cpu-cores": 4,
         "gpu-cores": 1
     },
@@ -230,7 +231,7 @@
         "cbrain:readonly-input-files": true,
         "cbrain:integrator_modules": {
             "BoutiquesForcedOutputBrowsePath" : {
-                "output_dir": "[DERIVATIVES_PREFIX]fastsurfer_2_4_2"
+                "output_dir": "[DERIVATIVES_PREFIX]fastsurfer_v2.4.2"
             },
             "BoutiquesFileTypeVerifier": {
                 "t1_input": ["NiftiFile", "MghFile", "SingleFile"],
