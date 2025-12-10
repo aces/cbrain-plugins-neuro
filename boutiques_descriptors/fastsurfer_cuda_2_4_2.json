@@ -6,7 +6,7 @@
     "descriptor-url": "https://github.com/aces/cbrain-plugins-neuro/tree/master/boutiques_descriptors/fastsurfer_cuda_2_4_2.json",
     "author": "Deep Medical Imaging Lab, German Center for Neurodegenerative Diseases",
     "schema-version": "0.5",
-    "command-line": "true [DERIVATIVES_PREFIX]; export SUBJECTS_DIR=$PWD; export FS_LICENSE=${PWD}/[LICENSE_FILE]; T1_FULLPATH='    '; [ ! -d [RESULTS] ] && T1_FULLPATH=\"--t1 ${PWD}/[T1_INPUT]\"\n run_fastsurfer.sh [SUBJECT_ID] $T1_FULLPATH [T2_INPUT] [SEGMENTATION_ONLY] [SURFACE_ONLY] [VOX_SIZE] [DEVICE] [THREADS] [BIASFIELD_CORRECTION] [THREE_T] [CEREBELLUM_FLAG] [HYPOTHALAMUS_FLAG] [QC_SNAPSHOTS]",
+    "command-line": "true [DERIVATIVES_PREFIX]; export SUBJECTS_DIR=$PWD; export FS_LICENSE=${PWD}/[LICENSE_FILE]; T1_FULLPATH='    '; [ ! -d [RESULTS] ] && T1_FULLPATH=\"--t1 ${PWD}/[T1_INPUT]\"; run_fastsurfer.sh [SUBJECT_ID] $T1_FULLPATH [T2_INPUT] [SEGMENTATION_ONLY] [SURFACE_ONLY] [VOX_SIZE] [DEVICE] [THREADS] [BIASFIELD_CORRECTION] [THREE_T] [CEREBELLUM_FLAG] [HYPOTHALAMUS_FLAG] [QC_SNAPSHOTS]",
     "container-image": {
         "index": "docker://",
         "image": "deepmi/fastsurfer:cuda-v2.4.2",
