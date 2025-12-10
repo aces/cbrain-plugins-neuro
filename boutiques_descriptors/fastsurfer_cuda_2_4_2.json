@@ -1,10 +1,10 @@
 {
     "name": "FastSurfer",
-    "description": "A fast and accurate deep learning-based neuroimaging pipeline for brain MRI processing, offering FreeSurfer-compatible segmentation and surface reconstruction",
+    "description": "A fast and accurate deep learning-based neuroimaging pipeline for brain MRI processing, offering FreeSurfer-compatible segmentation and surface reconstruction.",
     "tool-version": "v2.4.2",
-    "url": "https://github.com/Deep-MI/FastSurfer",
+    "url": "https://deep-mi.org/FastSurfer",
     "descriptor-url": "https://github.com/aces/cbrain-plugins-neuro/tree/master/boutiques_descriptors/fastsurfer_cuda_2_4_2.json",
-    "author": "Deep Learning in Medical Image Analysis Group, German Center for Neurodegenerative Diseases",
+    "author": "Deep Medical Imaging Lab, German Center for Neurodegenerative Diseases",
     "schema-version": "0.5",
     "command-line": "true [DERIVATIVES_PREFIX]; export SUBJECTS_DIR=$PWD; export FS_LICENSE=${PWD}/[LICENSE_FILE]; T1_FULLPATH='    '; [ ! -d [RESULTS] ] && T1_FULLPATH=\"--t1 ${PWD}/[T1_INPUT]\"\n run_fastsurfer.sh [SUBJECT_ID] $T1_FULLPATH [T2_INPUT] [SEGMENTATION_ONLY] [SURFACE_ONLY] [VOX_SIZE] [DEVICE] [THREADS] [BIASFIELD_CORRECTION] [THREE_T] [CEREBELLUM_FLAG] [HYPOTHALAMUS_FLAG] [QC_SNAPSHOTS]",
     "container-image": {
@@ -17,7 +17,7 @@
             "id": "t1_input",
             "name": "T1 MRI input",
             "type": "File",
-            "description": "T1 full head input (not bias corrected). On second rerun input is ignored unless task cache is deleted",
+            "description": "T1 full head input (not bias corrected). On second rerun t1 input is ignored unless task cache (i.e. output folder) is deleted",
             "value-key": "[T1_INPUT]",
             "optional": false
         },
@@ -145,8 +145,8 @@
         {
             "default-value": "derivatives/",
             "id": "derivatives_prefix",
-            "name": "Save results to a dataprovider subfolder for derivatives",
-            "description": "This experimental parameter should be used only with multi-Level data providers with branching folder structure. Contact admins if you need one. Folders to put before the pipeline specific folder. By default this will look like DataProviderDir/derivatives/PipelineName, where pipeline name is specific to the current pipeline. The provided string must end in /",
+            "name": "Save results to a data provider's derivatives subfolder",
+            "description": "This experimental parameter should be used only with multi-Level data providers with appropriate folder structure. Contact admins if you need one. Folders to put before the pipeline specific folder. By default this will look like DataProviderDir/derivatives/PipelineName, where pipeline name is specific to the current pipeline. The provided string must end in /",
             "optional": true,
             "type": "String",
             "value-key": "[DERIVATIVES_PREFIX]"
@@ -163,16 +163,6 @@
         }
     ],
     "groups": [
-        {
-            "id": "required_inputs",
-            "name": "Required Inputs",
-            "description": "Essential input files and parameters",
-            "members": [
-                "t1_input",
-                "subject_id",
-                "fs_license"
-            ]
-        },
         {
             "id": "pipeline_control",
             "name": "Select Pipeline Components",
