@@ -211,6 +211,7 @@
     ],
     "tags": {
         "domain": [
+            "FreeSurfer",
             "NIfTI",
             "anatomical",
             "cortical thickness",
