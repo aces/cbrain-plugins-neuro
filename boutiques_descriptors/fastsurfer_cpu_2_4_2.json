@@ -17,7 +17,7 @@
             "id": "t1_input",
             "name": "T1 MRI input",
             "type": "File",
-            "description": "T1 full head input (not bias corrected). On second rerun t1 input is ignored unless task cache (i.e. output folder) is deleted",
+            "description": "T1 full head input (not bias corrected). Note that during re-run t1 input is ignored, unless task cache (i.e. output folder) is deleted. Instead a copy of the t1 data stored in that folder is used.",
             "value-key": "[T1_INPUT]",
             "optional": false
         },
@@ -51,7 +51,7 @@
             "id": "seg_only",
             "name": "Segmentation only",
             "type": "Flag",
-            "description": "Run only FastSurferVINN segmentation pipeline (no surface reconstruction). If you plan rerun task latter with surface pipeline, keep task cache intact",
+            "description": "Run only FastSurferVINN segmentation pipeline (no surface reconstruction). If you plan rerun task latter with the surface pipeline, keep the task cache intact",
             "command-line-flag": "--seg_only",
             "value-key": "[SEGMENTATION_ONLY]",
             "optional": true
@@ -137,7 +137,7 @@
             "id": "qc_snap",
             "name": "Create QC Snapshots",
             "type": "Flag",
-            "description": "Create QC snapshots to simplify quality control process",
+            "description": "Create QC snapshots for HypVINN to simplify quality control process",
             "command-line-flag": "--qc_snap",
             "value-key": "[QC_SNAPSHOTS]",
             "optional": true
@@ -146,7 +146,7 @@
             "default-value": "derivatives/",
             "id": "derivatives_prefix",
             "name": "Save results to a data provider's derivatives subfolder",
-            "description": "This experimental parameter should be used only with multi-Level data providers with appropriate folder structure. Contact admins if you need one. Folders to put before the pipeline specific folder. By default this will look like DataProviderDir/derivatives/PipelineName, where pipeline name is specific to the current pipeline. The provided string must end in /",
+            "description": "This experimental parameter should be used only with multi-Level data providers with appropriate folder structure. Contact admins if you need one. This parameter define folders to put before the pipeline specific folder. Ususally this will look like DataProviderDir/derivatives/PipelineName, where pipeline name is specific to the current pipeline. The provided string must end in /",
             "optional": true,
             "type": "String",
             "value-key": "[DERIVATIVES_PREFIX]"
