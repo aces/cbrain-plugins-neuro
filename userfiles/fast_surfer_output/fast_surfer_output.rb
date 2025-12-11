@@ -20,8 +20,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.  
 #
 
-# This abstract class represents a FileCollection meant to model a FastSurfer collection.
-# Due to a relation to FreeSurfer inherets ReconAllOutput
+# A FileCollection that contains FastSurfer output.
+# Since FastSurfer is designed as a replacement for FreeSurfer, this class inherits from ReconAllOutput.
 class FastSurferOutput < ReconAllOutput
 
   Revision_info=CbrainFileRevision[__FILE__] #:nodoc:
