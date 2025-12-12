@@ -227,7 +227,7 @@
         "cbrain:author": "Serge Boroday <serge.boroday@mcin.ca>",
         "cbrain:integrator_modules": {
             "BoutiquesInputValueFixer": {
-                "device": "gpu",
+                "device": "cuda",
                 "threads": 4
             },
             "BoutiquesForcedOutputBrowsePath" : {
