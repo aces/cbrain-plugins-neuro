@@ -81,7 +81,7 @@ echo "Output folder for QA:" $OUT
 echo "Acquisitions to process:" "${ACQY[@]}"
 
 ## Loop through each element in ACQ array
-ddfor ACQ in "${ACQY[@]}"; do
+for ACQ in $(echo $ACQY | tr "," " "); do
   echo "Processing: $ACQ"
   sid_ses_acq="${SID}_${SES}_${ACQ}"
   OUT2=${OUT}/Anonymized_${sid_ses_acq}
