@@ -58,7 +58,7 @@ fslmaths ${OUT}/fa_BET.nii -mul -1 -mul ${OUT}/b0_BET_MASK.nii.gz ${OUT}/fa_dti_
 resample_image --reference /cerebra/BrainExtractionBrain_mni_icbm152_t1_tal_nlin_asym_09c.nii.gz --nosmooth ${OUT}/fa_BET.nii.gz ${OUT}/fa_dti_RSZ.nii.gz
 
 # do now registration directly of FA
-antsRegistrationSyNQuick.sh -d 3 -f /cerebra/BrainExtractionBrain_mni_icbm152_t1_tal_nlin_asym_09c.nii.gz -m ${OUT}/fa_dti_RSZ.nii.gz -o ${OUT}/fa_MNI_INV
+antsRegistrationSyNQuick.sh -d 3 -f /cerebra/BrainExtractionBrain_mni_icbm152_t1_tal_nlin_asym_09c.nii.gz -m ${OUT}/fa_dti_RSZ.nii.gz -o ${OUT}/fa_MNI
 
 #copy files to output
 cp /cerebra/CerebrAS_plus2RSZ.nii.gz ${OUT}/
