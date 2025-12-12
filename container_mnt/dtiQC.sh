@@ -50,10 +50,18 @@ bet ${OUT}/b0.nii.gz ${OUT}/b0_BET.nii.gz -f 0.2 -g 0.3
 fslmaths ${OUT}/b0_BET.nii.gz -bin ${OUT}/b0_BET_MASK.nii.gz
 #apply mask to fa
 fslmaths ${OUT}/fa_dti.nii -mul ${OUT}/b0_BET_MASK.nii.gz ${OUT}/fa_BET.nii.gz
+
+# Invert fa for contrast coherence with ICBM template
+fslmaths ${OUT}/fa_BET.nii -mul -1 -mul ${OUT}/b0_BET_MASK.nii.gz ${OUT}/fa_dti_INV.nii.gz
+
 # resize fa to mni res isometric
 resample_image --reference /cerebra/BrainExtractionBrain_mni_icbm152_t1_tal_nlin_asym_09c.nii.gz --nosmooth ${OUT}/fa_BET.nii.gz ${OUT}/fa_dti_RSZ.nii.gz
+
 # do now registration directly of FA
-antsRegistrationSyN.sh -d 3 -f /cerebra/BrainExtractionBrain_mni_icbm152_t1_tal_nlin_asym_09c.nii.gz -m ${OUT}/fa_dti_RSZ.nii.gz -o ${OUT}/fa_MNI
+antsRegistrationSyNQuick.sh -d 3 -f /cerebra/BrainExtractionBrain_mni_icbm152_t1_tal_nlin_asym_09c.nii.gz -m ${OUT}/fa_dti_RSZ.nii.gz -o ${OUT}/fa_MNI_INV
+
+# Invert again to native FA contrast
+fslmaths ${OUT}/fa_MNI_INVWarped.nii.gz -mul -1 -mul /cerebra/BrainExtractionMask_mni_icbm152_t1_tal_nlin_asym_09c.nii.gz ${OUT}/fa_MNI.nii.gz
 
 #copy files to output
 cp /cerebra/CerebrAS_plus2RSZ.nii.gz ${OUT}/
@@ -66,7 +74,7 @@ FOUT=${OUT}/${SID}_Atlas_proj_FA_DESIGNER_MPPCA_PHASE_JESP_Thr.csv
 echo 'DM',$(seq -f "atlas_roi%1g.nii.gz" -s ", " 1 103 | tr -s '[:blank:]' | paste -s -d,)>  ${FOUT}
 
 thr=0.9
-for file in ${OUT}/fa_MNIWarped.nii.gz; do
+for file in ${OUT}/fa_MNI.nii.gz; do
 
   #returns integer total voxels and total vol in mm3, we are getting voxel ratio
 	vox_abovethr=$(fslstats -K /cerebra/CerebrAS_plus2RSZ.nii.gz ${file} -l ${thr} -V)
@@ -109,7 +117,7 @@ unset result results
 
 thr=$(sed -n '4p' ${FOUT} | awk -F',' '{print $104}') # YES MEAN NOISE IN CC 0.83
 unset VOXALL VOXABV result results
-for file in ${OUT}/fa_MNIWarped.nii.gz; do
+for file in ${OUT}/fa_MNI.nii.gz; do
 
   #returns integer total voxels and total vol in mm3, we are getting voxel ratio
 	vox_abovethr=$(fslstats -K ${OUT}/CerebrAS_plus2RSZ.nii.gz ${file} -l ${thr} -V)
@@ -124,7 +132,7 @@ for file in ${OUT}/fa_MNIWarped.nii.gz; do
     if [ ${VOXALL[$i]} == "0" ]; then # volume on this tag is zero
     result="NA"
     else
-    result=$(echo "scale=6; ${VOXABV[$i]} / ${VOXALL[$i]}" | bc)
+    result=$(perl -e "print sprintf(\"%.6f\", ${VOXABV[$i]} / ${VOXALL[$i]})")
     fi
     results+=("$result")
   done
