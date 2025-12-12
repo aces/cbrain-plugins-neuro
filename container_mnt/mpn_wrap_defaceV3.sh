@@ -81,11 +81,11 @@ echo "Output folder for QA:" $OUT
 echo "Acquisitions to process:" "${ACQY[@]}"
 
 ## Loop through each element in ACQ array
-for ACQ in "${ACQY[@]}"; do
+for ACQ in $(echo $ACQY | tr "," " "); do
   echo "Processing: $ACQ"
   sid_ses_acq="${SID}_${SES}_${ACQ}"
   OUT2=${OUT}/Anonymized_${sid_ses_acq}
-  input_file=${IN}/${SID}/${SES}/anat/${sid_ses_acq}.nii.gz
+  input_file=${IN}/${SID}/ses-${SES}/anat/${sid_ses_acq}.nii.gz
   deface_output=${sid_ses_acq}_defaced.nii.gz
   qc_dir=${OUT2}/QC
 
