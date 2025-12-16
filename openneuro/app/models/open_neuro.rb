@@ -110,6 +110,7 @@ class OpenNeuro
       fname, ftype = fi.name, fi.symbolic_type
       next unless Userfile.is_legal_filename?(fname)
       next unless ftype == :regular || ftype == :directory
+      next if fname == 'derivatives' # we skip those big folders for the moment
       suggested_klass = SingleFile     if ftype == :regular
       suggested_klass = FileCollection if ftype == :directory
       suggested_klass = suggested_klass.suggested_file_type(fname) || suggested_klass

@@ -62,7 +62,7 @@ class MincFile < SingleFile
   def which_minc_version
     type = :unknown
     return type unless File.exist?(self.cache_full_path)
-    IO.popen("file #{self.cache_full_path.to_s.bash_escape}") do |fh|
+    IO.popen([ "file", self.cache_full_path.to_s ], "r") do |fh|
       first_line = fh.readline
       if first_line =~ /NetCDF/i
         type =  :minc1
@@ -78,11 +78,11 @@ class MincFile < SingleFile
   # Returns the mincfile itself; uncompressed if it is compressed on the DP.
   def minc_content
     if self.name =~ /(\.mgz|\.gz|\.Z)$/i
-      IO.popen("gunzip -c #{self.cache_full_path.to_s.bash_escape}") { |fh| fh.read }
+      IO.popen([ "gunzip",  "-c", self.cache_full_path.to_s ], "r", :binmode => true ) { |fh| fh.read }
     elsif self.name =~ /(\.bz2)$/i
-      IO.popen("bunzip2 -c #{self.cache_full_path.to_s.bash_escape}") { |fh| fh.read }
+      IO.popen([ "bunzip2", "-c", self.cache_full_path.to_s ], "r", :binmode => true ) { |fh| fh.read }
     else
-      File.open(self.cache_full_path, "r").read
+      File.open(self.cache_full_path, "r", :binmode => true).read
     end
   end
 

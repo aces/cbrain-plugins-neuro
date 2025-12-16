@@ -40,11 +40,11 @@ class PlyFile < SingleFile
   # Returns the ply file itself; uncompressed if it is compressed on the DP.
   def ply_content
     if self.name =~ /(\.gz|\.Z)$/i
-      IO.popen("gunzip -c #{self.cache_full_path.to_s.bash_escape}") { |fh| fh.read }
+      IO.popen([ "gunzip",  "-c", self.cache_full_path.to_s ], "r", :binmode => true) { |fh| fh.read }
     elsif self.name =~ /(\.bz2)$/i
-      IO.popen("bunzip2 -c #{self.cache_full_path.to_s.bash_escape}") { |fh| fh.read }
+      IO.popen([ "bunzip2", "-c", self.cache_full_path.to_s ], "r", :binmode => true) { |fh| fh.read }
     else
-      File.open(self.cache_full_path, "r").read
+      File.open(self.cache_full_path, "r", :binmode => true).read
     end
   end
 
