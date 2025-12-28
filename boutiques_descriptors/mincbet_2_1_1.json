@@ -1,5 +1,5 @@
 {
-    "tool-version": "1.0.0", 
+    "tool-version": "2.1.1", 
     "name": "MINCBet", 
     "command-line": "mincbet [INPUT_FILE] [MASK] [FRACTIONAL_INTENSITY] [VERTICAL_GRADIENT] [HYPERINTENSE_THRESHOLD] [OVERLAY_FLAG] [BINARY_MASK_FLAG] [APPROX_SKULL_FLAG] [NO_SEG_OUTPUT_FLAG] [BIC_VIEW_FLAG] [REVERSED_FLAG] [THRESHOLDING_FLAG]", 
     "inputs": [
