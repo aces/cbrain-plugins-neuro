@@ -1,320 +1,536 @@
 {
-    "tool-version": "6.0.5",
-    "name": "Oxford_ASL-BIDS_Subject",
+    "tool-version": "6.0.4",
+    "name": "oxford_asl",
     "author": "Oxford Centre for Functional MRI of the Brain (FMRIB)",
-    "description": "Oxford_asl for BIDS subject",
-    "command-line": "bids_ox_asl [BIDS_DIR] [NAME_OUTDIR] [SPATIAL_FLAG] [WP_FLAG] [MC_FLAG] [ARTOFF_FLAG] [FIXBOLUS_FLAG] [IAF] [IBF] [TIS] [CASL_FLAG] [BOLUS] [BAT] [T1] [T1B] [SLICEDT] [SLICEBAND] [RPT] [TR_CALIB] [CMETHOD] [PV_CORR]",
+    "description": "oxford_asl is part of BASIL (https://asl-docs.readthedocs.io/en/latest/oxford_asl_userguide.html)",
+    "descriptor-url": "https://github.com/aces/cbrain-plugins-neuro/blob/master/cbrain_task_descriptors/oxford_asl.json",
+    "command-line": "if [[ -f \"[FSL_INFILE]\" ]]; then fsl_anat -i [FSL_INFILE] -o FSLANAT_OUT; FSLANAT='--fslanat=FSLANAT_OUT.anat'; elif [[ -d \"[FSLANAT]\" ]]; then FSLANAT=\"--fslanat=[FSLANAT]\"; else FSLANAT=''; fi && oxford_asl [INPUT_FILE] [OUTPUT_DIR] [MASK] [SPATIAL] [WP] [MC] [IAF] [IBF] [TIS] [TIIMG] [CASL] [ARTSUPP] [FIXBOLUS] [BOLUS] [BAT] [T1] [T1B] [SLICEDT] [SLICEBAND] [RPTS] $FSLANAT [S] [SBRAIN] [FASTSRC] [SENSCORR] [M0] [ALPHA] [C] [TR] [CMETHOD] [TE] [T2BL] [T2CSF] [CBLIP] [PEDIR] [ECHOSPACING] [PVCORR]; ",
     "schema-version": "0.5",
     "container-image": {
-        "image": "mcin/fsl:6.0.5",
+        "image": "mcin/docker-fsl:latest",
         "index": "docker://",
         "type": "singularity"
     },
     "inputs": [
         {
-            "description": "BIDS dataset input file",
-            "id": "bids_dir",
-            "name": "bids_dir",
-            "optional": false,
+            "command-line-flag": "-i",
+            "description": "ASL data input",
+            "value-key": "[INPUT_FILE]",
             "type": "File",
-            "value-key": "[BIDS_DIR]"
+            "list": false,
+            "optional": false,
+            "id": "asl_data",
+            "name": "Asl data"
         },
         {
-            "description": "Oxford_asl output directory.",
-            "id": "output_dir",
-            "name": "output_dir",
-            "optional": false,
+            "command-line-flag": "-m",
+            "description": "Mask (in native space of ASL data) - {default: automatically generated}",
+            "value-key": "[MASK]",
+            "type": "File",
+            "list": false,
+            "optional": true,
+            "id": "mask",
+            "name": "Mask"
+        },
+        {
+            "command-line-flag": "--spatial",
+            "command-line-flag-separator": "=",
+            "description": "Perform ASL analysis with automatic spatial smoothing of CBF (could be set to 'off')",
+            "value-choices": [
+                "on",
+                "off"
+            ],
+            "value-key": "[SPATIAL]",
             "type": "String",
-            "value-key": "[NAME_OUTDIR]"
-        },
-        {
+            "list": false,
+            "optional": true,
             "id": "spatial",
-            "name": "Spatial processing",
-            "description": "Use spatial regularisation. This option is highly recommended.",
-            "optional": true,
-            "type": "Flag",
-            "value-key": "[SPATIAL_FLAG]",
-            "command-line-flag": "--spatial"
+            "name": "Spatial smoothing"
         },
         {
-            "id": "white_paper",
-            "name": "White paper mode",
-            "optional": true,
+            "command-line-flag": "--wp",
+            "description": "Analysis that conforms to the 'white paper' (Alsop et al. 2014)",
+            "value-key": "[WP]",
             "type": "Flag",
-            "value-key": "[WP_FLAG]",
-            "command-line-flag": "--wp"
+            "list": false,
+            "optional": true,
+            "id": "white_perform",
+            "name": "White paper mode"
         },
         {
+            "command-line-flag": "--mc",
+            "description": "Apply motion correction using mcflirt",
+            "value-key": "[MC]",
+            "type": "Flag",
+            "list": false,
+            "optional": true,
             "id": "motion_correction",
-            "name": " Motion correction",
-            "optional": true,
-            "type": "Flag",
-            "value-key": "[MC_FLAG]",
-            "command-line-flag": "--mc"
+            "name": "Motion correction"
         },
         {
-            "id": "artoff",
-            "name": " Arterial suppression",
-            "description": "Arterial suppression (vascular crushing) was used.",
-            "optional": true,
-            "type": "Flag",
-            "value-key": "[ARTOFF_FLAG]",
-            "command-line-flag": "--artoff"
-        },
-        {
-            "id": "fixbolus",
-            "name": "Fix bolus duration",
-            "description": "Turn off automatic estimation of bolus duration as it is fixed, e.g. by QUIPSSII or CASL.",
-            "optional": true,
-            "type": "Flag",
-            "value-key": "[FIXBOLUS_FLAG]",
-            "command-line-flag": "--fixbolus"
-        },
-        {
-            "id": "iaf",
-            "name": "Input ASL format",
-            "optional": false,
-            "default-value": "diff",
+            "command-line-flag": "--iaf",
+            "description": "Input ASL format",
+            "value-key": "[IAF]",
             "value-choices": [
                 "diff",
-                "ct",
-                "tc"
+                "tc",
+                "ct"
             ],
+            "default-value": "diff",
             "type": "String",
-            "value-key": "[IAF]",
-            "command-line-flag": "--iaf",
-            "command-line-flag-separator": "="
+            "list": false,
+            "optional": true,
+            "id": "iaf",
+            "name": "Input ASL format"
         },
         {
-            "id": "ibf",
-            "name": "Input block format",
-            "optional": false,
-            "value-choices": [
-                "tis",
-                "rpt"
-            ],
-            "type": "String",
-            "value-key": "[IBF]",
             "command-line-flag": "--ibf",
-            "command-line-flag-separator": "="
-        },
-        {
-            "id": "tis",
-            "name": "Inversion time",
-            "description": "Comma separated list of inflow times in seconds (e.g. --tis 0.2,0.4,0.6).",
-            "optional": false,
+            "description": "Input block format (for multi-TI)",
+            "value-key": "[IBF]",
+            "value-choices": [
+                "rpt",
+                "tis"
+            ],
             "type": "String",
-            "value-key": "[TIS]",
+            "list": false,
+            "optional": true,
+            "id": "ibf",
+            "name": "Input block format"
+        },
+        {
             "command-line-flag": "--tis",
-            "command-line-flag-separator": "="
+            "command-line-flag-separator": "=",
+            "description": "comma separated list of inflow times in seconds, e.g. --tis 0.2,0.4,0.6",
+            "value-key": "[TIS]",
+            "type": "String",
+            "list": false,
+            "optional": true,
+            "id": "tis",
+            "name": "Inversion time"
         },
         {
-            "id": "casl",
-            "name": "CASL",
-            "description": "ASL acquisition is pseudo cASL (pcASL) rather than pASL.",
+            "command-line-flag": "--tiimg",
+            "description": "4D image containing voxelwise TI values",
+            "value-key": "[TIIMG]",
+            "type": "File",
+            "list": false,
             "optional": true,
+            "id": "tiimg",
+            "name": "4D image"
+        },
+        {
+            "command-line-flag": "--casl",
+            "description": "ASL acquisition is  pseudo cASL (pcASL) rather than pASL",
+            "value-key": "[CASL]",
             "type": "Flag",
-            "value-key": "[CASL_FLAG]",
-            "command-line-flag": "--casl"
+            "list": false,
+            "optional": true,
+            "id": "casl",
+            "name": "Casl"
         },
         {
-            "id": "bolus",
-            "name": "Bolus",
-            "description": "Duration of the ASL labeling bolus in seconds.",
+            "command-line-flag": "--artsupp",
+            "description": "Arterial suppression (vascular crushing) was used, same as artoff",
+            "value-key": "[ARTSUPP]",
+            "type": "Flag",
+            "list": false,
             "optional": true,
-            "default-value": 1,
-            "type": "Number",
-            "value-key": "[BOLUS]",
+            "id": "artsupp",
+            "name": "Arterial suppression"
+        },
+        {
+            "command-line-flag": "--fixbolus",
+            "description": "Turn off automatic estimation of bolus duration as it is fixed, e.g. by QUIPSSII or CASL",
+            "value-key": "[FIXBOLUS]",
+            "type": "String",
+            "list": false,
+            "optional": true,
+            "id": "fixbolus",
+            "name": "Fix bolus duration"
+        },
+        {
             "command-line-flag": "--bolus",
-            "command-line-flag-separator": "="
+            "command-line-flag-separator": "=",
+            "description": "Duration of the ASL labeling bolus in seconds - {default: 1}",
+            "value-key": "[BOLUS]",
+            "type": "String",
+            "list": false,
+            "optional": true,
+            "id": "bolus",
+            "name": "Bolus duration"
         },
         {
-            "id": "bat",
-            "name": "Bolus arrival time",
-            "description": "Bolus arrival time in seconds - {Enter: 0.7 (pASL); 1.3 (cASL)}",
-            "optional": false,
-            "type": "Number",
-            "value-key": "[BAT]",
             "command-line-flag": "--bat",
-            "command-line-flag-separator": "="
+            "command-line-flag-separator": "=",
+            "description": "Bolus arrival time in seconds - {default: 0.7 (pASL); 1.3 (cASL)}",
+            "value-key": "[BAT]",
+            "type": "String",
+            "list": false,
+            "optional": true,
+            "id": "bat",
+            "name": "Bolus arrival time"
         },
         {
-            "id": "t1",
-            "name": "Tissue T1 value",
-            "default-value": 1.3,
-            "optional": true,
-            "type": "Number",
-            "value-key": "[T1]",
             "command-line-flag": "--t1",
-            "command-line-flag-separator": "="
+            "command-line-flag-separator": "=",
+            "description": "Tissue T1 value - {default: 1.3}",
+            "value-key": "[T1]",
+            "default-value": "1.3",
+            "type": "String",
+            "list": false,
+            "optional": true,
+            "id": "t1",
+            "name": "Tissue T1 value"
         },
         {
-            "id": "t1b",
-            "name": "Blood T1 value",
-            "optional": true,
-            "default-value": 1.65,
-            "type": "Number",
-            "value-key": "[T1B]",
             "command-line-flag": "--t1b",
-            "command-line-flag-separator": "="
+            "command-line-flag-separator": "=",
+            "description": "Blood T1 value - {default: 1.65}",
+            "value-key": "[T1B]",
+            "default-value": "1.65",
+            "type": "String",
+            "list": false,
+            "optional": true,
+            "id": "t1b",
+            "name": "Blood T1"
         },
         {
-            "id": "slicedt",
-            "name": "Timing difference",
-            "description": "Timing difference between slices in seconds.",
-            "optional": true,
-            "default-value": 0,
-            "type": "Number",
-            "value-key": "[SLICEDT]",
             "command-line-flag": "--slicedt",
-            "command-line-flag-separator": "="
+            "command-line-flag-separator": "=",
+            "description": "Timing difference between slices in seconds - {default: 0}",
+            "value-key": "[SLICEDT]",
+            "default-value": "0",
+            "type": "String",
+            "list": false,
+            "optional": true,
+            "id": "slicedt",
+            "name": "Timing difference"
         },
         {
-            "id": "sliceband",
-            "name": "Number of slices",
-            "description": "Number of slices per band in a multi-band setup.",
-            "optional": true,
-            "default-value": 0,
-            "type": "Number",
-            "value-key": "[SLICEBAND]",
             "command-line-flag": "--sliceband",
-            "command-line-flag-separator": "="
+            "command-line-flag-separator": "=",
+            "description": "Number of slices per band in a multi-band setup",
+            "value-key": "[SLICEBAND]",
+            "type": "String",
+            "list": false,
+            "optional": true,
+            "id": "sliceband",
+            "name": "Number of slices"
         },
         {
-            "id": "rpts",
-            "name": " Number of repeated measurements",
-            "description": "Number of repeated measurements for each TI/PLD in the TIs list, for use where the number of repeated measurements varies at each TI.",
-            "optional": true,
-            "default-value": 0,
-            "type": "Number",
-            "value-key": "[RPT]",
             "command-line-flag": "--rpts",
-            "command-line-flag-separator": "="
+            "command-line-flag-separator": "=",
+            "description": " Number of repeated measurements for each TI/PLD in the TIs list, for use where the number of repeated measurements varies at each TI.",
+            "value-key": "[RPTS]",
+            "type": "String",
+            "list": false,
+            "optional": true,
+            "id": "rpts",
+            "name": "Number of repeated measurements"
         },
         {
-            "id": "tr",
-            "name": "TR of calibration",
-            "description": "Repetition time of calibration in seconds - {default: 3.2s}",
+            "description": "An existing fsl_anat directory from structural image",
+            "value-key": "[FSLANAT]",
+            "type": "File",
+            "list": false,
             "optional": true,
-            "default-value": 3.2,
-            "type": "Number",
-            "value-key": "[TR_CALIB]",
+            "id": "fslanat",
+            "name": "fsl_anat directory"
+        },
+        {
+            "description": "Run Anat FSL with a single input image file, such as .nii.gz. The result will be used with Oxford ASL --fslanat option",
+            "value-key": "[FSL_INFILE]",
+            "type": "File",
+            "list": false,
+            "optional": true,
+            "id": "infile",
+            "name": "An image to run FSL Anat with before Oxford Asl"
+        },
+        {
+            "command-line-flag": "-s",
+            "description": "Structural image (whole head)",
+            "value-key": "[S]",
+            "type": "File",
+            "list": false,
+            "optional": true,
+            "id": "s",
+            "name": "Structural image"
+        },
+        {
+            "command-line-flag": "--sbrain",
+            "description": "Structural image (already BETed)",
+            "value-key": "[SBRAIN]",
+            "type": "File",
+            "list": false,
+            "optional": true,
+            "id": "sbrain",
+            "name": "Structural image"
+        },
+        {
+            "command-line-flag": "--fastsrc",
+            "description": "Images from a FAST segmenation - if not set FAST will be run on structural",
+            "value-key": "[FASTSRC]",
+            "type": "File",
+            "list": false,
+            "optional": true,
+            "id": "fastsrc",
+            "name": "Images from FAST"
+        },
+        {
+            "command-line-flag": "--senscorr",
+            "description": "use bias field (from segmentation) for sensitivity correction",
+            "value-key": "[SENSCORR]",
+            "type": "Flag",
+            "list": false,
+            "optional": true,
+            "id": "senscorr",
+            "name": "Bias field"
+        },
+        {
+            "command-line-flag": "--M0",
+            "description": "(single) precomputed M0 value (e.g. from having run a separate calibration)",
+            "value-key": "[M0]",
+            "type": "String",
+            "list": false,
+            "optional": true,
+            "id": "m0",
+            "name": "M0 value"
+        },
+        {
+            "command-line-flag": "--alpha",
+            "description": "Inversion efficiency - {default: 0.98 (pASL); 0.85 (cASL)}",
+            "value-key": "[ALPHA]",
+            "type": "String",
+            "list": false,
+            "optional": true,
+            "id": "alpha",
+            "name": "Inversion efficiency"
+        },
+        {
+            "command-line-flag": "-c",
+            "description": "M0 calibration image (proton density or mean control image)",
+            "value-key": "[C]",
+            "type": "File",
+            "list": false,
+            "optional": true,
+            "id": "c",
+            "name": "M0 calibration"
+        },
+        {
             "command-line-flag": "--tr",
-            "command-line-flag-separator": "="
+            "description": "Repetition time of calibration in seconds - {default: 3.2 s}",
+            "default-value": "3.2",
+            "value-key": "[TR]",
+            "type": "String",
+            "list": false,
+            "optional": true,
+            "id": "tr",
+            "name": "TR of calibration"
         },
         {
-            "id": "cmethod",
-            "name": "Calibration method",
-            "description": "Specifies whether the calibration is done via a single M0 value calculated from the CSF in the ventricles (single) or using a voxelwise approach where M0 is calcuated in every voxel (voxel).\nThe voxelwise method is the simplest and follows the procedure in the ‘White Paper’, adding a correction for partial volume effects around the edge of the brain. This is is used whenever a structural image is not supplied. The single method, using CSF for calibration, automatically generates a ventricle mask in ASL space from the segmentation of the structural image. You should inspect this mask to ensure it has been sucessful (in the calib subdirectory of the results). This procedure can sometimes fail, in which case you can supply your own mask using the --csf option. More advanced calibration can be performed using asl_calib.",
-            "optional": true,
+            "command-line-flag": "--cmethod",
+            "description": "Single - default if structural image is supplied M0 value will be calculated within automatically created CSF mask || voxel  - default if no structral image is supplied voxelwise M0 values derrived from calibration image",
             "value-choices": [
                 "single",
                 "voxel"
             ],
-            "type": "String",
             "value-key": "[CMETHOD]",
-            "command-line-flag": "--cmethod",
-            "command-line-flag-separator": "="
+            "type": "String",
+            "list": false,
+            "optional": true,
+            "id": "cmethod",
+            "name": "Calibration method"
         },
         {
-            "id": "pvcorr",
-            "name": "Volume correction",
+            "command-line-flag": "--t2csf",
+            "description": "Value for T2 of CSF in millisecond for calibration - {default is based on 3T Field Strength}",
+            "value-key": "[T2CSF]",
+            "type": "String",
+            "list": false,
             "optional": true,
+            "id": "t2csf",
+            "name": "T2 CSF"
+        },
+        {
+            "command-line-flag": "--t2bl",
+            "description": "Value for T2 of blood in millisecond for calibration - {default: 0}",
+            "value-key": "[T2BL]",
+            "type": "String",
+            "list": false,
+            "optional": true,
+            "id": "t2bl",
+            "name": "T2 Blood"
+        },
+        {
+            "command-line-flag": "--te",
+            "description": "Echo time for readout in milliseconds - {default: 0}",
+            "default-value": "",
+            "value-key": "[TE]",
+            "type": "String",
+            "list": false,
+            "optional": true,
+            "id": "te",
+            "name": "TE time"
+        },
+        {
+            "command-line-flag": "--cblip",
+            "description": "Phase-encode-reversed (blipped) calibration image",
+            "value-key": "[CBLIP]",
+            "type": "File",
+            "list": false,
+            "optional": true,
+            "id": "cblip",
+            "name": "Blipped calibration"
+        },
+        {
+            "command-line-flag": "--pedir",
+            "command-line-flag-separator": "=",
+            "description": "Phase encoding direction",
+            "value-key": "[PEDIR]",
+            "value-choices": [
+                "x",
+                "y",
+                "z",
+                "-x",
+                "-y",
+                "-z"
+            ],
+            "type": "String",
+            "list": false,
+            "optional": true,
+            "id": "pedir",
+            "name": "Direction"
+        },
+        {
+            "command-line-flag": "--echospacing",
+            "command-line-flag-separator": "=",
+            "description": "Effective EPI echo spacing (sometimes called dwell time) in seconds",
+            "value-key": "[ECHOSPACING]",
+            "type": "String",
+            "list": false,
+            "optional": true,
+            "id": "echospacing",
+            "name": "EPI"
+        },
+        {
+            "command-line-flag": "--pvcorr",
+            "description": "Do partial volume correction",
+            "value-key": "[PVCORR]",
             "type": "Flag",
-            "value-key": "[PV_CORR]",
-            "command-line-flag": "--pvcorr"
+            "list": false,
+            "optional": true,
+            "id": "pvcorr",
+            "name": "Volume correction"
         }
     ],
     "groups": [
         {
-            "id": "main_options",
-            "name": "Main options",
-            "members": [
-                "spatial",
-                "white_paper",
-                "motion_correction"
-            ]
-        },
-        {
-            "id": "acquisition_specific",
-            "name": "Acquisition specific options",
+            "id": "acquisition",
+            "name": "Acquisition specific/Data specific",
             "members": [
                 "iaf",
                 "ibf",
                 "tis",
+                "tiimg",
                 "casl",
+                "artsupp",
+                "fixbolus",
                 "bolus",
-                "slicedt",
                 "bat",
                 "t1",
                 "t1b",
-                "rpts",
-                "sliceband"
+                "slicedt",
+                "sliceband",
+                "rpts"
             ]
+        },
+        {
+            "id": "structural",
+            "name": "Structural image",
+            "members": [
+                "s",
+                "sbrain",
+                "fastsrc",
+                "senscorr"
+            ]
+        },
+        {
+            "description": "Run a new FSL Anat or provide results folder of already executed FSL Anat. You can use either run FSL Anat on an image file or supply an existing folder with previously saved results of FSL Anat, but not both." ,
+            "mutually-exclusive": true,
+            "members": [
+                "fslanat",
+                "infile"
+            ],
+            "id": "group_1",
+            "name": "FSL Anat Structural data"
         },
         {
             "id": "calibration",
-            "name": "Calibration",
+            "name": "Calibration options",
             "members": [
+                "m0",
+                "alpha",
+                "c",
                 "tr",
-                "cmethod"
+                "cmethod",
+                "te",
+                "t2csf",
+                "t2bl"
             ]
         },
         {
-            "id": "kinetic_analysis",
-            "name": "Kinetic analysis",
+            "id": "distortion",
+            "name": "Distortion correction",
             "members": [
-                "artoff",
-                "fixbolus"
+                "cblip",
+                "echospacing",
+                "pedir"
             ]
         },
         {
-            "id": "partial_volume_correction",
-            "name": "Partial volume correction",
+            "id": "partial",
+            "name": "Partial correction",
             "members": [
                 "pvcorr"
             ]
         }
+
     ],
     "output-files": [
         {
-            "name": "Output folder",
-            "id": "oxford_output",
-            "description": "A folder containing the output files.",
-            "optional": false,
+            "id": "outputs",
+            "name": "Oxford asl Outputs",
+            "description": "Oxford asl Outputs",
+            "command-line-flag": "-o",
+            "value-key": "[OUTPUT_DIR]",
+            "path-template": "[INPUT_FILE]",
             "list": false,
-            "path-template": "[NAME_OUTDIR]"
+            "path-template-stripped-extensions": [
+                ".nii.gz",
+                ".nii"
+            ]
+        },
+        {
+            "description": "A folder containing the output files for fsl_anat. Includes outputs for the images, reorientation, cropping, bias correction, registration, brain extraction, and segmentation.",
+            "list": false,
+            "id": "fsl_out",
+            "optional": true,
+            "path-template": "FSLANAT_OUT.anat",
+            "name": "FSL Anat Output folder"
         }
     ],
     "tags": {
         "domain": [
             "neuroinformatics",
-            "neuroimaging"
+            "mri"
         ]
     },
     "suggested-resources": {
-        "walltime-estimate": 3660
+        "ram": 4,
+        "walltime-estimate": 6000
     },
     "custom": {
-        "cbrain:author": [
-            "Safa Sanami <s.sanami70@gmail.com>",
-            "Darius Valevicius <darius.valevicius@mail.mcgill.ca>",
-            "Natacha Beck <nbeck@mcin.ca>"
-        ],
-        "cbrain:readonly-input-files": true,
-        "cbrain:integrator_modules": {
-            "BoutiquesFileTypeVerifier": {
-                "bids_dir": [
-                    "BidsSubject"
-                ]
-            },
-            "BoutiquesFileNameMatcher": {
-                "bids_dir": "^sub-[a-zA-Z0-9_]+$"
-            },
-            "BoutiquesOutputFileTypeSetter": {
-                "oxford_output": "OxfordAslOutput"
-            },
-            "BoutiquesBidsSingleSubjectMaker": "bids_dir"
-        }
+        "cbrain:author": "Natacha Beck",
+        "cbrain:readonly-input-files": true
     }
 }
