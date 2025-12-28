@@ -8,7 +8,7 @@
     ],
     "command-line": "fslstats [t] [INPUT_FILE] [l] [u] [r] [R] [e] [E] [v] [V] [m] [M] [s] [S] [w] [x] [X] [c] [C] [p] [P] [a] [n] [k] [d] [h] [H] > [OUTPUT_FILE]",
     "container-image": {
-        "image": "mcin/docker-fsl:latest",
+        "image": "mcin/docker-fsl:5.0.9",
         "index": "docker://",
         "type": "singularity"
     },

@@ -1,0 +1,382 @@
+{
+    "name": "FMRIprepSingleSubject",
+    "schema-version": "0.5",
+    "tool-version": "20.2.0",
+    "author": "Poldrack lab",
+    "url": "https://fmriprep.readthedocs.io",
+    "command-line": "SUB_FULL_PATH=[SUBJECT_DIR]; SUBJECT_NAME=$(basename \"$SUB_FULL_PATH\"); FAKE_BIDS_DIR=fake_bids_dir; [[ \"$SUB_FULL_PATH\" != /* ]] && SUB_FULL_PATH=\"$PWD\"/\"$SUB_FULL_PATH\"; mkdir -p \"$FAKE_BIDS_DIR\"; test -e \"$FAKE_BIDS_DIR\"/\"$SUBJECT_NAME\" || ln -s \"$SUB_FULL_PATH\" \"$FAKE_BIDS_DIR\"/\"$SUBJECT_NAME\"; fmriprep \"$FAKE_BIDS_DIR\" [OUTPUT_DIR] participant --skip_bids_validation --participant_label \"$SUBJECT_NAME\" [TASK_ID] --nthreads 1 --omp-nthreads 1 --mem_mb 8192 [LOW_MEM] [USE_PLUGIN] [ANAT_ONLY] [BOILERPLATE] [VERBOSE_COUNT] [IGNORE] [LONGITUDINAL] [BOLD2T1W_DOF] [USE_BBR] [MEDIAL_SURFACE_NAN] [USE_AROMA] [AROMA_MELODIC_DIMENSIONALITY] [SKULL_STRIP_TEMPLATE] [SKULL_STRIP_FIXED_SEED] [FMAP_BSPLINE] [FMAP_NO_DEMEAN] [USE_SYN_SDC] [FORCE_SYN] [FS_LICENSE] [HIRES] [CIFTI_OUTPUT] [RUN_RECONALL] [RESOURCE_MONITOR] [REPORTS_ONLY] [RUN_UUID] [WRITE_GRAPH] [STOP_ON_FIRST_CRASH] [NOTRACK] [SLOPPY]; status=$?; test $status -eq 0 && rm -rf [OUTPUT_DIR]/freesurfer/fsaverage; bash -c \"exit $status\"",
+        "description": "fMRIprep is a functional magneticresonance image pre-processing pipeline that is designed to provide an easily accessible, state-of-the-art interface that is robust to differences in scan acquisition protocols and that requires minimal user input, while providing easily interpretable and comprehensive error and output reporting (https://fmriprep.readthedocs.io). NOTE: This descriptor is designed to integrate specifically with a CBRAIN installation. It takes as input a single subject according to the BIDs specification",
+    "inputs": [
+        {
+            "description": "subject folder for BIDS (folders name should be sub-XXXXX).",
+            "id": "subject_dir",
+            "name": "subject_dir",
+            "optional": false,
+            "type": "File",
+            "value-key": "[SUBJECT_DIR]"
+        },
+        {
+            "description": "the output path for the outcomes of preprocessing and visual reports",
+            "id": "output_dir_name",
+            "name": "output_dir_name",
+            "optional": false,
+            "type": "String",
+            "value-key": "[OUTPUT_DIR]"
+        },
+        {
+            "command-line-flag": "--fs-license-file",
+            "description": "The FreeSurfer license key file",
+            "id": "fs_license_file",
+            "name": "fs_license_file",
+            "optional": false,
+            "type": "File",
+            "value-key": "[FS_LICENSE]"
+        },
+        {
+            "command-line-flag": "-t",
+            "description": "select a specific task to be processed",
+            "id": "task_id",
+            "name": "task_id",
+            "optional": true,
+            "type": "String",
+            "value-key": "[TASK_ID]"
+        },
+        {
+            "command-line-flag": "--low-mem",
+            "description": "attempt to reduce memory usage (will increase disk usage in working directory)",
+            "id": "low_mem",
+            "name": "low_mem",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "[LOW_MEM]"
+        },
+        {
+            "command-line-flag": "--use-plugin",
+            "description": "nipype plugin configuration file",
+            "id": "use_plugin",
+            "name": "use_plugin",
+            "optional": true,
+            "type": "String",
+            "value-key": "[USE_PLUGIN]"
+        },
+        {
+            "command-line-flag": "--anat-only",
+            "description": "run anatomical workflows only",
+            "id": "anat_only",
+            "name": "anat_only",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "[ANAT_ONLY]"
+        },
+        {
+            "command-line-flag": "--boilerplate",
+            "description": "generate boilerplate only",
+            "id": "boilerplate",
+            "name": "boilerplate",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "[BOILERPLATE]"
+        },
+        {
+            "command-line-flag": "-v",
+            "description": "increases log verbosity for each occurence, debug level is -vvv",
+            "id": "verbose_count",
+            "name": "verbose_count",
+            "optional": true,
+            "type": "String",
+            "value-key": "[VERBOSE_COUNT]"
+        },
+        {
+            "command-line-flag": "--ignore",
+            "description": "ignore selected aspects of the input dataset to disable corresponding parts of the workflow (a space delimited list)",
+            "id": "ignore",
+            "list": true,
+            "name": "ignore",
+            "optional": true,
+            "type": "String",
+            "value-choices": [
+                "fieldmaps",
+                "slicetiming",
+                "sbref"
+            ],
+            "value-key": "[IGNORE]"
+        },
+        {
+            "command-line-flag": "--longitudinal",
+            "description": "treat dataset as longitudinal - may increase runtime",
+            "id": "longitudinal",
+            "name": "longitudinal",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "[LONGITUDINAL]"
+        },
+        {
+            "command-line-flag": "--bold2t1w-dof",
+            "default-value": 6,
+            "description": "Degrees of freedom when registering BOLD to T1w images. 6 degrees (rotation and translation) are used by default.",
+            "id": "bold2t1w_dof",
+            "name": "bold2t1w_dof",
+            "optional": true,
+            "type": "Number",
+            "value-choices": [
+                6,
+                9,
+                12
+            ],
+            "value-key": "[BOLD2T1W_DOF]"
+        },
+        {
+            "command-line-flag": "--force-bbr",
+            "description": "Always use boundary-based registration (no goodness-of-fit checks)",
+            "id": "use_bbr",
+            "name": "use_bbr",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "[USE_BBR]"
+        },
+        {
+            "command-line-flag": "--medial-surface-nan",
+            "description": "Replace medial wall values with NaNs on functional GIFTI files. Only performed for GIFTI files mapped to a freesurfer subject (fsaverage or fsnative).",
+            "id": "medial_surface_nan",
+            "name": "medial_surface_nan",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "[MEDIAL_SURFACE_NAN]"
+        },
+        {
+            "command-line-flag": "--use-aroma",
+            "description": "add ICA_AROMA to your preprocessing stream",
+            "id": "use_aroma",
+            "name": "use_aroma",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "[USE_AROMA]"
+        },
+        {
+            "command-line-flag": "--aroma-melodic-dimensionality",
+            "default-value": -200,
+            "description": "Exact or maximum number of MELODIC components to estimate (positive = exact, negative = maximum)",
+            "id": "aroma_melodic_dimensionality",
+            "name": "aroma_melodic_dimensionality",
+            "optional": true,
+            "type": "Number",
+            "value-key": "[AROMA_MELODIC_DIMENSIONALITY]"
+        },
+        {
+            "command-line-flag": "--skull-strip-template",
+            "default-value": "OASIS30ANTs",
+            "description": "select ANTs skull-stripping template (default: OASIS30ANTs))",
+            "id": "skull_strip_template",
+            "name": "skull_strip_template",
+            "optional": true,
+            "type": "String",
+            "value-choices": [
+                "OASIS30ANTs"
+            ],
+            "value-key": "[SKULL_STRIP_TEMPLATE]"
+        },
+        {
+            "command-line-flag": "--skull-strip-fixed-seed",
+            "description": "do not use a random seed for skull-stripping - will ensure run-to-run replicability when used with --omp-nthreads 1",
+            "id": "skull_strip_fixed_seed",
+            "name": "skull_strip_fixed_seed",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "[SKULL_STRIP_FIXED_SEED]"
+        },
+        {
+            "command-line-flag": "--fmap-bspline",
+            "description": "fit a B-Spline field using least-squares (experimental)",
+            "id": "fmap_bspline",
+            "name": "fmap_bspline",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "[FMAP_BSPLINE]"
+        },
+        {
+            "command-line-flag": "--fmap-no-demean",
+            "description": "do not remove median (within mask) from fieldmap",
+            "id": "fmap_no_demean",
+            "name": "fmap_no_demean",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "[FMAP_NO_DEMEAN]"
+        },
+        {
+            "command-line-flag": "--use-syn-sdc",
+            "description": "EXPERIMENTAL: Use fieldmap-free distortion correction",
+            "id": "use_syn_sdc",
+            "name": "use_syn_sdc",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "[USE_SYN_SDC]"
+        },
+        {
+            "command-line-flag": "--force-syn",
+            "description": "EXPERIMENTAL/TEMPORARY: Use SyN correction in addition to fieldmap correction, if available",
+            "id": "force_syn",
+            "name": "force_syn",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "[FORCE_SYN]"
+        },
+        {
+            "command-line-flag": "--no-submm-recon",
+            "description": "disable sub-millimeter (hires) reconstruction",
+            "id": "hires",
+            "name": "hires",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "[HIRES]"
+        },
+        {
+            "command-line-flag": "--cifti-output",
+            "description": "output BOLD files as CIFTI dtseries",
+            "id": "cifti_output",
+            "name": "cifti_output",
+            "optional": true,
+            "type": "String",
+            "value-choices": [
+                "91k",
+                "170k"
+            ],
+            "value-key": "[CIFTI_OUTPUT]"
+        },
+        {
+            "command-line-flag": "--fs-no-reconall",
+            "description": "disable FreeSurfer surface preprocessing. Note : `--no-freesurfer` is deprecated and will be removed in 1.2. Use `--fs-no-reconall` instead.",
+            "id": "run_reconall",
+            "name": "run_reconall",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "[RUN_RECONALL]"
+        },
+        {
+            "command-line-flag": "--resource-monitor",
+            "description": "enable Nipype's resource monitoring to keep track of memory and CPU usage",
+            "id": "resource_monitor",
+            "name": "resource_monitor",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "[RESOURCE_MONITOR]"
+        },
+        {
+            "command-line-flag": "--reports-only",
+            "description": "only generate reports, don't run workflows. This will only rerun report aggregation, not reportlet generation for specific nodes.",
+            "id": "reports_only",
+            "name": "reports_only",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "[REPORTS_ONLY]"
+        },
+        {
+            "command-line-flag": "--run-uuid",
+            "description": "Specify UUID of previous run, to include error logs in report. No effect without --reports-only.",
+            "id": "run_uuid",
+            "name": "run_uuid",
+            "optional": true,
+            "type": "String",
+            "value-key": "[RUN_UUID]"
+        },
+        {
+            "command-line-flag": "--write-graph",
+            "description": "Write workflow graph.",
+            "id": "write_graph",
+            "name": "write_graph",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "[WRITE_GRAPH]"
+        },
+        {
+            "command-line-flag": "--stop-on-first-crash",
+            "description": "Force stopping on first crash, even if a work directory was specified.",
+            "id": "stop_on_first_crash",
+            "name": "stop_on_first_crash",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "[STOP_ON_FIRST_CRASH]"
+        },
+        {
+            "command-line-flag": "--notrack",
+            "description": "Opt-out of sending tracking information of this run to the FMRIPREP developers. This information helps to improve FMRIPREP and provides an indicator of real world usage crucial for obtaining funding.",
+            "id": "notrack",
+            "name": "notrack",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "[NOTRACK]"
+        },
+        {
+            "command-line-flag": "--sloppy",
+            "description": "Use low-quality tools for speed - TESTING ONLY",
+            "id": "sloppy",
+            "name": "sloppy",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "[SLOPPY]"
+        }
+    ],
+    "groups": [
+        {
+            "id": "memory_and_parallelism",
+            "name": "Memory and Parallel Control Parameters",
+            "description": "Paramters used to define memory requirements and multithreading",
+            "members": [
+                "low_mem"
+            ]
+        },
+        {
+            "id": "debugging",
+            "name": "Debugging Parameters",
+            "description": "Diagnostic parameters for debugging fMRIprep",
+            "members": [
+                "verbose_count",
+                "resource_monitor",
+                "reports_only",
+                "run_uuid",
+                "stop_on_first_crash",
+                "notrack",
+                "write_graph",
+                "sloppy"
+            ]
+        },
+        {
+            "id": "experimental",
+            "name": "Experimental Parameters",
+            "description": "Parameters that one should use at their own risk.",
+            "members": [
+                "use_syn_sdc",
+                "force_syn"
+            ]
+        }
+    ],
+    "output-files" : [{
+        "id" : "output_dir",
+        "name" : "Output Directory",
+        "description" : "This is the directory where the overall outputs are to be stored.",
+        "path-template" : "[OUTPUT_DIR]",
+        "optional" : false
+    }],
+    "suggested-resources": {
+        "cpu-cores":4,
+        "ram": 4,
+        "walltime-estimate": 172000
+    },
+    "tags": {
+        "application-type": [
+            "bids"
+        ],
+        "domain": [
+            "neuroinformatics",
+            "fmri"
+        ]
+    },
+    "container-image": {
+        "type": "singularity",
+        "index": "docker://",
+        "image": "poldracklab/fmriprep:20.2.0"
+    },
+    "custom": {
+        "cbrain:readonly-input-files": true,
+        "cbrain:author": "Natacha Beck <nbeck@mcin.ca>"
+    }
+}
