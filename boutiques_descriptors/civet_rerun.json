@@ -1,0 +1,266 @@
+{
+    "name":           "CivetRerun",
+    "tool-version":   "2.1.1",
+    "schema-version": "0.5",
+    "author":         "C.Y. Lepage et al.",
+    "description":    "This tool runs the CIVET Processing Pipeline on an existing CIVET output",
+    "descriptor-url": "https://github.com/aces/cbrain-plugins-neuro/blob/master/cbrain_task_descriptors/civet_rerun.json",
+    "command-line": "C=[CIVET_OUTPUT]; P=$C/CBRAIN.params.yml; test -e $P || echo \"Not a CBRAIN-generated CivetOutput\"; test -e $P || exit 2; prefix=$(echo $(cat $P | grep prefix: | cut -d: -f2)); dsid=$(echo $(cat $P | grep dsid: | cut -d: -f2)); if ! test -e \"$C/native/${prefix}_${dsid}_t1.mnc\" ; then echo \"Can't find native T1 file\"; exit 2; fi; mkdir -p minc_in civ_out; ln -s -f \"../$C/native/${prefix}_${dsid}_t1.mnc\" minc_in; test -e \"civ_out/${dsid}\" || ln -s -f \"../$C\" \"civ_out/${dsid}\"; for surfatlas in [SURFATLAS] ; do CIVET_Processing_Pipeline -sourcedir minc_in -targetdir civ_out -spawn [MODEL] [TEMPLATE] [LSQ] [INTERP] [N3DIST] [PVE-ADVANCED] [PVE-CLASSIC] [SURFREGMODEL] [COMBINESURF] [THICKNESSMETHODS] [THICKNESSKERNELS] [RESAMPLESURF] -surface-atlas $surfatlas [RESAMPLE-AREAS] [RESAMPLE-VOLUMES] -prefix $prefix -run $dsid ; done",
+    "inputs": [
+        {
+            "name":              "Existing CIVET output",
+            "id":                "civet_in",
+            "description":       "An existing CIVET output which will be modified in situ",
+            "type":              "File",
+            "optional":          false,
+            "value-key":         "[CIVET_OUTPUT]"
+        },
+        {
+            "name":              "Volume model",
+            "id":                "model",
+            "description":       "Model for volume registration",
+            "type":              "String",
+            "optional":          false,
+            "command-line-flag": "-model",
+            "value-choices": [
+                "icbm152nl",
+                "icbm152lin",
+                "icbm152nl_09s",
+                "ADNIhires"
+            ],
+            "default-value":     "icbm152nl_09s",
+            "value-key":         "[MODEL]"
+        },
+        {
+            "name":              "Template",
+            "id":                "template",
+            "description":       "Define the template for image processing",
+            "type":              "String",
+            "optional":          false,
+            "command-line-flag": "-template",
+            "value-choices": [
+                "0.50",
+                "0.75",
+                "1.00"
+            ],
+            "default-value":     "0.50",
+            "value-key":         "[TEMPLATE]"
+        },
+        {
+            "name":              "LSQ",
+            "id":                "lsq",
+            "description":       "Degrees of freedom for linear registration",
+            "type":              "Number",
+            "optional":          false,
+            "value-choices":     [ 0, 6, 9, 12 ],
+            "default-value":     12,
+            "command-line-flag": "-lsq",
+            "command-line-flag-separator": "",
+            "value-key":         "[LSQ]"
+        },
+        {
+            "name":              "Interpolation",
+            "id":                "interp",
+            "description":       "Volume interpolation method from native to stereotaxic space",
+            "type":              "String",
+            "optional":          false,
+            "command-line-flag": "-interp",
+            "value-choices": [
+                "trilinear",
+                "tricubic",
+                "sinc"
+            ],
+            "default-value":     "trilinear",
+            "value-key":         "[INTERP]"
+        },
+        {
+            "name":              "N3 distance",
+            "id":                "n3_dist",
+            "description":       "N3 spline distance in mm (suggested values: 200 for 1.5T scan; 125 or 100 for 3T scan; 0 for MP2RAGE scan in later version than 1.1.12)",
+            "type":              "Number",
+            "optional":          false,
+            "command-line-flag": "-N3-distance",
+            "minimum":           0,
+            "maximum":           300,
+            "default-value":     75,
+            "value-key":         "[N3DIST]"
+        },
+        {
+            "name":              "PVE advanced",
+            "id":                "pve_advanced",
+            "description":       "Selects the advanced combination of PVE options",
+            "type":              "Flag",
+            "optional":          true,
+            "default-value":     true,
+            "command-line-flag": "-correct-pve -subcortical -mask-cerebellum",
+            "disables-inputs":   [ "pve_classic" ],
+            "value-key":         "[PVE-ADVANCED]"
+        },
+        {
+            "name":              "PVE classic",
+            "id":                "pve_classic",
+            "description":       "Selects the classic combination of PVE options",
+            "type":              "Flag",
+            "optional":          true,
+            "default-value":     false,
+            "command-line-flag": "-no-correct-pve -no-subcortical -no-mask-cerebellum",
+            "disables-inputs":   [ "pve_advanced" ],
+            "value-key":         "[PVE-CLASSIC]"
+        },
+        {
+            "name":              "Surface model",
+            "id":                "surfreg_model",
+            "description":       "Model for surface registration",
+            "type":              "String",
+            "optional":          false,
+            "command-line-flag": "-surfreg-model",
+            "value-choices": [
+                "icbm152MCsym",
+                "colinMCasym",
+                "samirMCasym"
+            ],
+            "default-value":     "icbm152MCsym",
+            "value-key":         "[SURFREGMODEL]"
+        },
+        {
+            "name":              "Combine left/right surfaces",
+            "id":                "combine_surface",
+            "description":       "Combine left/right surfaces",
+            "type":              "Flag",
+            "optional":          true,
+            "default-value":     true,
+            "command-line-flag": "-combine-surfaces",
+            "value-key":         "[COMBINESURF]"
+        },
+        {
+            "name":              "Thickness methods",
+            "id":                "thickness_methods",
+            "description":       "Thickness methods",
+            "type":              "String",
+            "optional":          false,
+            "command-line-flag": "-thickness",
+            "default-value":     "tlaplace",
+            "value-key":         "[THICKNESSMETHODS]"
+        },
+        {
+            "name":              "Thickness kernels",
+            "id":                "thickness_kernels",
+            "description":       "Thickness kernels",
+            "type":              "String",
+            "optional":          false,
+            "default-value":     "30",
+            "value-key":         "[THICKNESSKERNELS]"
+        },
+        {
+            "name":              "Resample surfaces",
+            "id":                "resample_surface",
+            "description":       "Resample cortical surfaces to obtain elemental vertex areas and volumes",
+            "type":              "Flag",
+            "optional":          true,
+            "default-value":     true,
+            "command-line-flag": "-resample-surfaces",
+            "value-key":         "[RESAMPLESURF]"
+        },
+        {
+            "name":              "Surface parcellation",
+            "id":                "surf_atlas",
+            "description":       "Atlas for surface parcellation",
+            "type":              "String",
+            "optional":          false,
+            "value-choices": [
+                "lobes",
+                "AAL",
+                "DKT"
+            ],
+            "default-value":     "lobes",
+            "list":              true,
+            "list-separator":    " ",
+            "requires-inputs":   [ "resample_surface" ],
+            "value-key":         "[SURFATLAS]"
+        },
+        {
+            "name":              "Kernel size areas",
+            "id":                "resample_kernel_areas",
+            "description":       "FWHM for resampled surface areas\nList of integers separated by a ':' is accepted for version 2.0.0 and later",
+            "type":              "String",
+            "optional":          true,
+            "command-line-flag": "-area-fwhm",
+            "requires-inputs":   [ "resample_surface" ],
+            "value-key":         "[RESAMPLE-AREAS]"
+        },
+        {
+            "name":              "Kernel size volumes",
+            "id":                "resample_kernel_volumes",
+            "description":       "FWHM for resampled surface volumes\nList of integers separated by a ':' is accepted for version 2.0.0 and later",
+            "type":              "String",
+            "optional":          true,
+            "command-line-flag": "-volume-fwhm",
+            "requires-inputs":   [ "resample_surface" ],
+            "value-key":         "[RESAMPLE-VOLUMES]"
+        }
+    ],
+    "output-files": [
+        {
+            "name":          "Extended CIVET Output",
+            "id":            "civet_out",
+            "description":   "The CIVET output with new processing results in it",
+            "optional":      false,
+            "path-template": "[CIVET_OUTPUT]"
+        }
+    ],
+    "groups": [
+        {
+            "id": "volume_options",
+            "name": "Volume options",
+            "members": [
+                "model",
+                "template",
+                "lsq",
+                "interp",
+                "n3_dist",
+                "pve_advanced",
+                "pve_classic"
+            ]
+        },
+        {
+            "id": "surface_options",
+            "name": "Surface options",
+            "members": [
+                "surfreg_model",
+                "combine_surface",
+                "thickness_methods",
+                "thickness_kernels"
+            ]
+        },
+        {
+            "id": "surface_resampling",
+            "name": "Surface resampling",
+            "members": [
+                "resample_surface",
+                "surf_atlas",
+                "resample_kernel_areas",
+                "resample_kernel_volumes"
+            ]
+        }
+    ],
+    "tags": {
+        "domain": [
+            "cbrain",
+            "platform",
+            "neuroimaging",
+            "anatomical",
+            "internal"
+        ]
+    },
+    "suggested-resources": {
+        "cpu-cores":         1,
+        "ram":               4,
+        "walltime-estimate": 25000
+    },
+    "custom": {
+        "cbrain:author":               "Pierre Rioux",
+        "cbrain:readonly-input-files": false,
+        "cbrain:ignore_outputs":       [ "civet_out" ],
+        "cbrain:save_back_inputs":     [ "civet_in" ]
+    }
+}

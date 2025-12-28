@@ -1,0 +1,42 @@
+{
+    "name": "APPIANPET",
+    "tool-version" : "1",
+    "description" : "APPIAN is an automated pipeline for user-friendly and reproducible analysis of positron emission tomography (PET) images with the aim of automating all processing steps up to the statistical analysis of measures derived from the final output images.",
+    "author": "Thomas Funck (https://github.com/tfunck)",
+    "command-line" : "mkdir [OUTPUT_DIR];python3 /opt/APPIAN/Launcher.py [BIDS_DIR] -t [OUTPUT_DIR]",
+    "container-image": {
+        "image": "APPIAN-PET/APPIAN",
+        "type": "singularity"
+    },
+    "schema-version" : "0.5",
+    "inputs" : [{
+        "id" : "bids_dir",
+        "name" : "BIDS directory",
+        "type" : "File",
+        "command-line-flag" : "-s",
+        "description" : "The directory with the input dataset formatted according to the BIDS standard.",
+        "value-key" : "[BIDS_DIR]",
+        "optional" : false
+
+    }, {
+        "id" : "output_dir_name",
+        "name" : "Output directory name",
+        "type" : "String",
+        "description": "The directory where the output files should be stored.",
+        "value-key" : "[OUTPUT_DIR]",
+        "optional" : false
+    }
+    ],
+    "output-files" : [{
+        "id" : "output_dir",
+        "name" : "Output directory",
+        "description": "The directory where the output files should be stored.",
+        "command-line-flag" : "-t",
+        "path-template" : "[OUTPUT_DIR]",
+        "optional" : false
+    }],
+    "custom": {
+        "cbrain:author": "Natacha Beck <nbeck@mcin.ca>",
+        "cbrain:readonly-input-files": true
+    }
+}

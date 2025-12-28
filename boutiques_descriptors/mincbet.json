@@ -1,0 +1,158 @@
+{
+    "tool-version": "1.0.0", 
+    "name": "MINCBet", 
+    "command-line": "mincbet [INPUT_FILE] [MASK] [FRACTIONAL_INTENSITY] [VERTICAL_GRADIENT] [HYPERINTENSE_THRESHOLD] [OVERLAY_FLAG] [BINARY_MASK_FLAG] [APPROX_SKULL_FLAG] [NO_SEG_OUTPUT_FLAG] [BIC_VIEW_FLAG] [REVERSED_FLAG] [THRESHOLDING_FLAG]", 
+    "inputs": [
+        {
+            "description": "Input image file in mnc format", 
+            "value-key": "[INPUT_FILE]", 
+            "type": "File", 
+            "optional": false, 
+            "id": "infile", 
+            "name": "Input file"
+        }, 
+        {
+            "description": "Output brain mask in mnc format", 
+            "value-key": "[MASK]", 
+            "type": "String", 
+            "optional": false, 
+            "id": "maskfile", 
+            "name": "Mask file"
+        }, 
+        {
+            "command-line-flag": "-f", 
+            "description": "Fractional intensity threshold (0->1); default=0.5; smaller values give larger brain outline estimates", 
+            "value-key": "[FRACTIONAL_INTENSITY]", 
+            "type": "Number", 
+            "maximum": 1, 
+            "minimum": 0, 
+            "optional": true, 
+            "id": "fractional_intensity", 
+            "name": "Fractional intensity threshold"
+        }, 
+        {
+            "command-line-flag": "-g", 
+            "description": "Vertical gradient in fractional intensity threshold (-1->1); default=0; positive values give larger brain outline at bottom, smaller at top", 
+            "value-key": "[VERTICAL_GRADIENT]", 
+            "type": "Number", 
+            "maximum": 1, 
+            "minimum": -1, 
+            "optional": true, 
+            "id": "vg_fractional_intensity", 
+            "name": "Vertical gradient fractional intensity threshold"
+        }, 
+        {
+            "command-line-flag": "-h", 
+            "description": "Ratio for hyperintense voxels (>1) (best for t1); smaller values remove more brain; default=none", 
+            "value-key": "[HYPERINTENSE_THRESHOLD]", 
+            "type": "Number", 
+            "minimum": 1, 
+            "exclusive-minimum": true, 
+            "optional": true, 
+            "id": "hyperintensity_threshold", 
+            "name": "Hyperintensity ratio threshold"
+        }, 
+        {
+            "command-line-flag": "-o", 
+            "description": "Generate brain surface outline overlaid onto original image", 
+            "value-key": "[OVERLAY_FLAG]", 
+            "type": "Flag", 
+            "optional": true, 
+            "id": "overlay_flag", 
+            "name": "Overlay flag"
+        }, 
+        {
+            "command-line-flag": "-m", 
+            "description": "Generate binary brain mask", 
+            "value-key": "[BINARY_MASK_FLAG]", 
+            "type": "Flag", 
+            "optional": true, 
+            "id": "binary_mask_flag", 
+            "name": "Binary mask flag"
+        }, 
+        {
+            "command-line-flag": "-s", 
+            "description": "Generate approximate skull image", 
+            "value-key": "[APPROX_SKULL_FLAG]", 
+            "type": "Flag", 
+            "optional": true, 
+            "id": "approx_skull_flag", 
+            "name": "Approximate skull flag"
+        }, 
+        {
+            "command-line-flag": "-n", 
+            "description": "Don't generate segmented brain image output", 
+            "value-key": "[NO_SEG_OUTPUT_FLAG]", 
+            "type": "Flag", 
+            "optional": true, 
+            "id": "no_seg_output_flag", 
+            "name": "No segmented brain image flag"
+        }, 
+        {
+            "command-line-flag": "-b", 
+            "description": "Generate surface mask in BIC brain-view format", 
+            "value-key": "[BIC_VIEW_FLAG]", 
+            "type": "Flag", 
+            "optional": true, 
+            "id": "bic_view_flag", 
+            "name": "BIC brain-view format flag"
+        }, 
+        {
+            "command-line-flag": "-r", 
+            "description": "Reversed intensities, like t2 and pd", 
+            "value-key": "[REVERSED_FLAG]", 
+            "type": "Flag", 
+            "optional": true, 
+            "id": "reversed_flag", 
+            "name": "Intensity reversal flag"
+        }, 
+        {
+            "command-line-flag": "-t", 
+            "description": "Apply thresholding to segmented brain image and mask", 
+            "value-key": "[THRESHOLDING_FLAG]", 
+            "type": "Flag", 
+            "optional": true, 
+            "id": "thresholding_flag", 
+            "name": "Threshold segmented image flag"
+        }
+    ], 
+    "schema-version": "0.5", 
+    "output-files": [
+        {
+            "path-template": "[MASK].mnc", 
+            "description": "Segmented brain mask file in mnc format", 
+            "optional": true, 
+            "id": "output_mask", 
+            "name": "Output mask file"
+        }, 
+        {
+            "path-template": "[MASK]_overlay.mnc", 
+            "description": "Overlaid brain surface onto original image in mnc format", 
+            "optional": true, 
+            "id": "mask_overlay", 
+            "name": "Surface overlay file"
+        }, 
+        {
+            "path-template": "[MASK]_skull.mnc", 
+            "description": "Approximate skull image file in mnc format", 
+            "optional": true, 
+            "id": "approx_skull_img", 
+            "name": "Approximate skull file"
+        }, 
+        {
+            "path-template": "[MASK]_mask.mnc", 
+            "description": "Binary brain mask file in mnc format", 
+            "optional": true, 
+            "id": "binary_mask", 
+            "name": "Binary brain mask file"
+        }, 
+        {
+            "path-template": "[MASK].obj", 
+            "description": "Surface mask in BIC brain-view format", 
+            "optional": true, 
+            "id": "bic_surface_mask", 
+            "name": "BIC brain-view mask file"
+        }
+    ], 
+    "description": "Automated brain extraction tool wrapper for the MINC libraries"
+}
