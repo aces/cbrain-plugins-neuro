@@ -330,7 +330,8 @@
             "BoutiquesBidsSingleSubjectMaker": "designer_bids_input",
             "BoutiquesOutputFileTypeSetter": {
                 "designer_output": "DmtOutput"
-            }
+            },
+            "BoutiquesOutputCacheCleaner": [ "designer_scratch" ]
         }
     }
 }
