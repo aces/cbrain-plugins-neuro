@@ -230,7 +230,7 @@ class CbrainTask::ReconAll < ClusterTask
 
   def log_file_contains(file, grep_regex) #:nodoc:
     return false unless File.exist?(file)
-    file_contain = File.read(file)
+    file_contain = File.read(file, mode: "rb")
     file_contain =~ grep_regex
   end
 
