@@ -395,6 +395,7 @@
       "name":        "BIDS options",
       "description": "Options for filtering BIDS queries",
       "members":     [
+        "session_id",
         "task_id",
         "pybids_file"
       ]
