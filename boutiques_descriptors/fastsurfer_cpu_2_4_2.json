@@ -25,9 +25,10 @@
             "id": "subject_id",
             "name": "Subject ID",
             "type": "String",
-            "description": "Subject ID to create directory inside SUBJECTS_DIR",
+            "description": "Output folder to be created (typically based on Subject ID)",
             "command-line-flag": "--sid",
             "value-key": "[SUBJECT_ID]",
+            "default-value": "{1}-{2}",
             "optional": false
         },
         {
@@ -156,7 +157,7 @@
         {
             "id": "output_dir",
             "name": "Output Directory",
-            "description": "The output directory containing all FastSurfer results",
+            "description": "The results",
             "path-template": "[SUBJECT_ID]",
             "optional": false,
             "value-key": "[RESULTS]"
@@ -235,6 +236,12 @@
             "BoutiquesFileNameMatcher": {
                 "t1_input": "\\.nii(\\.gz)?$|\\.mg(z|h)$",
                 "t2_input": "\\.nii(\\.gz)?$|\\.mg(z|h)$"
+            },
+            "BoutiquesOutputFilenameRenamer": {
+                "output_dir": [
+                    "t1_input",
+                    "subject_id"
+                ]
             },
             "BoutiquesFileTypeVerifier": {
                 "t1_input": ["NiftiFile", "MghFile", "SingleFile"],
