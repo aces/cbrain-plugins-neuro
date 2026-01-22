@@ -102,7 +102,7 @@ for MOD in "${MODALITY[@]}"; do
     OUT2=${OUT}/Anonymized_${sid_ses_acq}
     input_file=${IN}/${SID}/ses-${SES}/${MOD}/${sid_ses_acq}.nii.gz
     deface_output=${sid_ses_acq}_defaced.nii.gz
-    qc_dir=${OUT2}/QC
+    qc_dir=${OUT2}/QC/${MOD}
 
     mideface_command="mideface --i ${input_file} --o ${deface_output} --odir ${qc_dir} --back-of-head"
     echo "Running command: $mideface_command"
