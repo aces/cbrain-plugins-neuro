@@ -78,6 +78,11 @@ output directory for QA
   esac
 done
 
+if test $# -ne 2 ; then
+  echo "Error: the script needs exactly two mandatory arguments. Run with -h for help"
+  exit 2
+fi
+
 IN="${1}"
 OUT="${2}"
 
