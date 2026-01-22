@@ -4,7 +4,7 @@
   "author":              "Poldrack lab",
   "description":         "fMRIprep is a functional magnetic resonance image pre-processing pipeline designed to provide an easily accessible, state-of-the-art interface that is robust to differences in scan acquisition protocols and that requires minimal user input, while providing easily interpretable and comprehensive error and output reporting (https://fmriprep.readthedocs.io). NOTE: This descriptor is designed to integrate specifically with a CBRAIN installation. It takes as input a single subject according to the BIDs specification",
   "url":                 "https://fmriprep.readthedocs.io",
-  "command-line":        "fmriprep [BIDS_DIR] [OUTPUT_DIR] participant --skip_bids_validation [TASK_ID] --nthreads 2 --omp-nthreads 2 --mem_mb 80000 [LOW_MEM] [BIDS_FILTER_FILE] [ANAT_ONLY] [LEVEL] [OUTPUT_SPACES] [BOILERPLATE_ONLY] [VERBOSE_COUNT] [IGNORE] [LONGITUDINAL] [BOLD2ANAT_INIT] [BOLD2ANAT_DOF] [MEDIAL_SURFACE_NAN] [RETURN_ALL_COMPONENTS] [SKULL_STRIP_TEMPLATE] [SKULL_STRIP_FIXED_SEED] [FMAP_BSPLINE] [FMAP_NO_DEMEAN] [FORCE] [FS_LICENSE] [FS_SUBJECTS_DIR] [HIRES] [CIFTI_OUTPUT] [NO_RECONALL] [RESOURCE_MONITOR] [REPORTS_ONLY] [OUTPUT_LAYOUT] [WRITE_GRAPH] [STOP_ON_FIRST_CRASH] [NOTRACK] [SLOPPY]",
+  "command-line":        "fmriprep [BIDS_DIR] [OUTPUT_DIR] participant --skip_bids_validation [SESSION_LABELS] [TASK_ID] --nthreads 2 --omp-nthreads 2 --mem_mb 80000 [LOW_MEM] [BIDS_FILTER_FILE] [ANAT_ONLY] [LEVEL] [OUTPUT_SPACES] [BOILERPLATE_ONLY] [VERBOSE_COUNT] [IGNORE] [LONGITUDINAL] [BOLD2ANAT_INIT] [BOLD2ANAT_DOF] [MEDIAL_SURFACE_NAN] [RETURN_ALL_COMPONENTS] [SKULL_STRIP_TEMPLATE] [SKULL_STRIP_FIXED_SEED] [FMAP_BSPLINE] [FMAP_NO_DEMEAN] [FORCE] [FS_LICENSE] [FS_SUBJECTS_DIR] [HIRES] [CIFTI_OUTPUT] [NO_RECONALL] [RESOURCE_MONITOR] [REPORTS_ONLY] [OUTPUT_LAYOUT] [WRITE_GRAPH] [STOP_ON_FIRST_CRASH] [NOTRACK] [SLOPPY]",
   "schema-version":      "0.5",
   "container-image":     {
     "type":  "singularity",
@@ -72,12 +72,25 @@
       ]
     },
     {
+      "id":                "session_id",
+      "name":              "Session Label",
+      "description":       "A space-separated list of session labels",
+      "type":              "String",
+      "optional":          true,
+      "list":              true,
+      "list-separator":    " ",
+      "command-line-flag": "--session-label",
+      "value-key":         "[SESSION_LABELS]"
+    },
+    {
       "id":                "task_id",
       "name":              "Task ID",
-      "description":       "Select a specific task to be processed",
+      "description":       "A space-separated list of task IDs",
       "type":              "String",
       "optional":          true,
       "command-line-flag": "-t",
+      "list":              true,
+      "list-separator":    " ",
       "value-key":         "[TASK_ID]"
     },
     {
@@ -382,6 +395,7 @@
       "name":        "BIDS options",
       "description": "Options for filtering BIDS queries",
       "members":     [
+        "session_id",
         "task_id",
         "pybids_file"
       ]
@@ -504,7 +518,9 @@
     "cbrain:readonly-input-files": true,
     "cbrain:author":               "Natacha Beck <nbeck@mcin.ca>, Pierre Rioux <pierre.rioux@mcgill.ca>",
     "cbrain:override-input-string-ruby-regex": {
-      "output_spaces": ":ids-with-spaces:"
+      "output_spaces": ":ids-with-spaces:",
+      "task_id":       ":ids-with-spaces:",
+      "session_id":    ":ids-with-spaces:"
     },
     "cbrain:integrator_modules":   {
       "BoutiquesFileTypeVerifier": {

@@ -109,8 +109,11 @@ module BoutiquesBidsSingleSubjectMaker
     # method might want to create a task for them too.
     tsv_input_file_id = self.invoke_params[:cbrain_participants_tsv]
     dd_input_file_id  = self.invoke_params[:dataset_description_json]
+    ign_input_file_id = self.invoke_params[:cbrain_bids_ignore]
     self.params[:interface_userfile_ids].reject! do |v|
-       v.to_s == tsv_input_file_id.to_s || v.to_s == dd_input_file_id.to_s
+       v.to_s == tsv_input_file_id.to_s ||
+       v.to_s == dd_input_file_id.to_s  ||
+       v.to_s == ign_input_file_id.to_s
     end
 
     # Standard task array generator code
@@ -121,6 +124,7 @@ module BoutiquesBidsSingleSubjectMaker
     task_array.each do |task|
       task.invoke_params[:cbrain_participants_tsv]  = tsv_input_file_id if tsv_input_file_id
       task.invoke_params[:dataset_description_json] = dd_input_file_id  if dd_input_file_id
+      task.invoke_params[:cbrain_bids_ignore]       = ign_input_file_id if ign_input_file_id
     end
 
     return task_array
@@ -169,9 +173,10 @@ module BoutiquesBidsSingleSubjectMaker
       cb_error "Failed to rsync '#{subject_name}';\nrsync reported: #{rsyncout}" unless rsyncout.blank?
     end
 
-    # Two other needed files in a BIDS dataset:
+    # Three other needed files in a BIDS dataset:
     desc_json_path        = Pathname.new(FakeBidsDirName) + "dataset_description.json"
     participants_tsv_path = Pathname.new(FakeBidsDirName) + "participants.tsv"
+    ign_path              = Pathname.new(FakeBidsDirName) + ".bidsignore" # optional
 
     # Create dataset_description.json
     if ! File.exists?(desc_json_path)
@@ -193,6 +198,12 @@ module BoutiquesBidsSingleSubjectMaker
         self.addlog "Appending record for #{subject_name} to participants.tsv"
         File.open(participants_tsv_path,"a") { |fh| fh.write "#{tsv_record}\n" }
       end
+    end
+
+    # Create optional .bidsignore file if any
+    bidsignore_content = read_bidsignore_file()
+    if ! File.exists?(ign_path) && bidsignore_content.present?
+      File.open(ign_path,"w") { |fh| fh.write bidsignore_content }
     end
 
     true
@@ -247,12 +258,28 @@ module BoutiquesBidsSingleSubjectMaker
     dd_content
   end
 
+  # Returns the content of the .bidsignore file selected by the user, if any.
+  # This assumes the file has already been synchronized.
+  def read_bidsignore_file #:nodoc:
+    ign_input_file_id = self.invoke_params[:cbrain_bids_ignore]
+    return nil unless ign_input_file_id
+
+    # Read the content of the ignore file selected by the user
+    cached_ign_path = Userfile.find(ign_input_file_id).cache_full_path
+    ign_content     = File.read(cached_ign_path)
+    ign_content
+  end
+
   # Overrides the same method in BoutiquesClusterTask, as used
-  # during cluster_commands()
+  # during cluster_commands(); we remove the keys for the
+  # special files that are installed within the Dataset structure
+  # but are not real parameters of the tool.
   def finalize_bosh_invoke_struct(invoke_struct) #:nodoc:
     super
       .reject do |k,v|
-         k.to_s == "cbrain_participants_tsv" or k.to_s == "dataset_description_json"
+         k.to_s == "cbrain_participants_tsv"  or
+         k.to_s == "dataset_description_json" or
+         k.to_s == "cbrain_bids_ignore"
       end # returns a dup()
   end
 
@@ -354,7 +381,7 @@ module BoutiquesBidsSingleSubjectMaker
     new_input_dd = BoutiquesSupport::Input.new(
       "name"          => "BIDS 'dataset_description.json' file",
       "id"            => "dataset_description_json",
-      "description"   => "If set, provides a separate dataset_description.json file. If not set, a plain JSON file will be generated with dummy data.",
+      "description"   => "If set, provides a separate 'dataset_description.json' file. If not set, a plain JSON file will be generated with dummy data. Your file doesn't have to be named exactly 'dataset_description.json' by the way, CBRAIN will install it with the proper name.",
       "type"          => "File",
       "optional"      => true,
     )
@@ -364,11 +391,21 @@ module BoutiquesBidsSingleSubjectMaker
     new_input_part = BoutiquesSupport::Input.new(
       "name"          => "BIDS dataset 'participants.tsv' file",
       "id"            => "cbrain_participants_tsv",
-      "description"   => "If set, provides a separate participants.tsv file. Must contain at least the subject being processed. If not set, a plain participants.tsv file will be generated with only the subject ID in it.",
+      "description"   => "If set, provides a separate 'participants.tsv' file. Must contain at least the subject being processed. If not set, a plain participants.tsv file will be generated with only the subject ID in it. Your file itself doesn't have to be named exactly 'participants.tsv' by the way, CBRAIN will install it with the proper name.",
       "type"          => "File",
       "optional"      => true,
     )
     descriptor.inputs <<= new_input_part
+
+    # Add new input for .bidsignore
+    new_input_ign = BoutiquesSupport::Input.new(
+      "name"          => "BIDS dataset '.bidsignore' file",
+      "id"            => "cbrain_bids_ignore",
+      "description"   => "If set, provides a separate .bidsignore file that will be installed within the BIDS dataset. Within CBRAIN, files cannot be named with a leading period, but the text file you provide can actually be named anything you want: CBRAIN will install it with the proper name.",
+      "type"          => "File",
+      "optional"      => true,
+    )
+    descriptor.inputs <<= new_input_ign
 
     # Add new group with that input
     groups       = descriptor.groups || []
@@ -384,6 +421,7 @@ module BoutiquesBidsSingleSubjectMaker
     end
     cb_mod_group.members <<= new_input_dd.id
     cb_mod_group.members <<= new_input_part.id
+    cb_mod_group.members <<= new_input_ign.id
 
     descriptor.groups = groups
     descriptor
