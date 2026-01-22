@@ -54,7 +54,7 @@ output directory for QA
     # For option -a, parse the argument and populate the array
     # Using space as a delimiter (requires quoted argument)
     -a)
-      IFS=' ' read -r -a ACQY <<< "$2"
+      IFS=', ' read -r -a ACQY <<< "$2"
       shift 2
       ;;
     # session
@@ -64,7 +64,7 @@ output directory for QA
       ;;
     # modality
     -m)
-      IFS=' ' read -r -a MODALITY <<< "$2"
+      IFS=', ' read -r -a MODALITY <<< "$2"
       shift 2
       ;;
     # input
