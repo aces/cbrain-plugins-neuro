@@ -1,0 +1,298 @@
+
+<%-
+#
+# CBRAIN Project
+#
+# Copyright (C) 2008-2025
+# The Royal Institution for the Advancement of Learning
+# McGill University
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+-%>
+
+<%= stylesheet_link_tag CivetOutput.public_path("stylesheets/surface_viewer.css").to_s, :media => "all" %>
+
+
+<div id="surface_choice" class="controls">
+
+  <h4>Files:</h4>
+
+  <form id="datafile-form" method="POST"  action="/upload/minc" enctype="multipart/form-data">
+    Surface File:
+    <select id="surffile" name="surface_obj" class="surface_obj">
+      <%= options_for_select @userfile.surfaces_objs %>
+    </select>
+    <br><br>
+  </form>
+
+</div>
+
+<div id="display">
+  <div id="loading" style="display: none"><%= image_tag MincFile.public_path('images/brainbrowser-loader.gif') %></div>
+  <div id="surface-viewer"></div>
+</div>
+
+<div class="controls">
+  <h4>View:</h4>
+  <div class="control-element">
+    Background Color:
+    <select id="clear_color">
+      <option value="0x000000">Black</option>
+      <option value="0x333333">Dark Gray</option>
+      <option value="0x666666">Gray</option>
+      <option value="0x999999">Light Gray</option>
+      <option value="0xcccccc">Pale Gray</option>
+      <option value="0xffffff">White</option>
+      <option value="0xff0000">Red</option>
+      <option value="0x00ff00">Green</option>
+      <option value="0x0000ff">Blue</option>
+      <option value="0x00ffff">Cyan</option>
+      <option value="0xff00ff">Magenta</option>
+      <option value="0xffff00">Yellow</option>
+    </select>
+  </div>
+  <div class="control-element">
+    Autorotate:
+    <span id="autorotate-controls" class="controlgroup">
+      <input type="checkbox"  id="autorotateX"><label for="autorotateX">X</label>
+      <input type="checkbox"  id="autorotateY"><label for="autorotateY">Y</label>
+      <input type="checkbox"  id="autorotateZ"><label for="autorotateZ">Z</label>
+    </span>
+  </div>
+  <div class="control-element">
+    <span id="resetview"                       class="button">Reset View</span>
+    <span id="meshmode"                        class="button">Mesh Mode</span>
+    <span id="brainbrowser_surface_screenshot" class="button">Screenshot</span>
+  </div>
+</div>
+<div id="shapes" class="controls">
+</div>
+
+<script type="text/javascript">
+
+  $("#surface-viewer").load("https://brainbrowser.cbrain.mcgill.ca/surface-viewer-widget?version=2.4.0&height=600&width=600&viewer_callback=init");
+
+  function init(viewer) {
+    "use strict";
+
+    console.log("<%= content_userfile_path(@userfile) %>?content_loader=collection_file&arguments=<%= @userfile.surfaces_objs[0] %>")
+
+    var controls    = $("#controls");
+    var loading_div = $("#loading");
+
+    function loadStart() {
+      loading_div.show();
+    }
+
+    function loadEnd() {
+      loading_div.hide();
+    }
+
+    if (!BrainBrowser.WEBGL_ENABLED) {
+      $("#brainbrowser").html(BrainBrowser.utils.webGLErrorMessage());
+      return;
+    }
+
+    $(".button").button();
+    $(".controlgroup").controlgroup();
+    $("#data-range-box").hide();
+
+    loadStart();
+
+    // Set up some defaults
+    viewer.setAttribute("clamp_colors", true); // By default clamp range.
+    viewer.setAttribute("flip_colors", false); // Don't flip intensity-color relationship.
+
+    ///////////////////////////////////
+    // Event Listeners
+    ///////////////////////////////////
+
+    // If something goes wrong while loading, we don't
+    // want the loading icon to stay on the screen.
+    viewer.addEventListener("error", loadEnd);
+
+    // When a new model is added to the viewer, create a transparancy slider
+    // for each shape that makes up the model.
+    viewer.addEventListener("displaymodel", function(event) {
+      var slider, slider_div;
+      var children      = event.model.children;
+      var current_count = $("#shapes").children().length;
+
+      if(children.length - current_count > 0 ) {
+        children.slice(current_count).forEach(function(shape, i) {
+          slider_div = $("<div id=\"shape_" + i + "\" class=\"shape\">" +
+            "<h4>Shape "+ (i + 1 + current_count) + "</h4>" +
+            "Name: " + shape.name + "<br />" +
+            "Opacity: " +
+            "</div>");
+          slider = $("<div class=\"opacity-slider slider\" data-shape-name=\"" + shape.name + "\"></div>");
+          slider.slider({
+            value: 100,
+            min: -1,
+            max: 101,
+            slide: function(event) {
+              var target     = event.target;
+              var shape_name = $(target).attr('data-shape-name');
+              var alpha      = $(target).slider('value');
+              alpha          = Math.min(100, Math.max(0, alpha)) / 100.0;
+
+              viewer.setTransparency(alpha, {shape_name: shape_name});
+            }
+          });
+          slider.appendTo(slider_div);
+          slider_div.appendTo("#shapes");
+        });
+      }
+    });
+
+    // When the screen is cleared, remove all UI related
+    // to the displayed models.
+    viewer.addEventListener("clearscreen", function(event) {
+      $("#shapes").html("");
+      $("#data-range-box").hide();
+      $("#color-map-box").hide();
+    });
+
+    ////////////////////////////////////
+    //  START RENDERING
+    ////////////////////////////////////
+
+    viewer.loadModelFromURL(
+      "<%= content_userfile_path(@userfile) %>?content_loader=collection_file&arguments=<%= @userfile.name + "/" + @userfile.surfaces_objs[0] %>", {
+        format: "freesurferbin",
+        complete: function() {
+          loading_div.hide()
+        }
+      }
+    );
+
+    viewer.render();
+
+    ///////////////////////////////////
+    // UI
+    ///////////////////////////////////
+
+    // Some keyboard controls for the viewer.
+    $("body").keydown(function(e) {
+      var key_code = e.keyCode;
+      var keys = {
+        // Space
+        32: function() { viewer.separateHalves(); },
+        // Up arrow
+        38: function() { viewer.zoom(1.1); },
+        // Down arrow
+        40: function() { viewer.zoom(1/1.1); }
+      };
+
+      if (keys.hasOwnProperty(key_code)) {
+        keys[key_code]();
+        return false;
+      }
+
+    });
+
+    // Set the background color.
+    $("#clear_color").change(function(e){
+      viewer.setClearColor(parseInt($(e.target).val(), 16));
+    });
+
+    // Reset to the default view.
+    $("#resetview").click(function() {
+      // Setting the view to its current view type will
+      // automatically reset its position.
+      viewer.setView($("[name=hem_view]:checked").val());
+    });
+
+
+    // Toggle wireframe.
+    $("#meshmode").click(function(e) {
+      e.preventDefault();
+      $(this).toggleClass("active")
+      viewer.setWireframe($(this).hasClass("active"));
+    });
+
+    // Grab a screenshot of the canvas.
+    $("#brainbrowser_surface_screenshot").click(function() {
+      var dom_element     = viewer.dom_element;
+      var canvas          = document.createElement("canvas");
+      var spectrum_canvas = document.getElementById("spectrum-canvas");
+      var context         = canvas.getContext("2d");
+      var viewer_image    = new Image();
+
+      canvas.width  = dom_element.offsetWidth;
+      canvas.height = dom_element.offsetHeight;
+
+      // Display the final image in a dialog box.
+      function displayImage() {
+        var result_image = new Image();
+
+        result_image.onload = function() {
+          $("<div></div>").append(result_image).dialog({
+            title:  "Screenshot",
+            height: result_image.height,
+            width:  result_image.width
+          });
+        };
+
+        result_image.src = canvas.toDataURL();
+      }
+
+      // Grab the spectrum canvas to display with the
+      // image.
+      function getSpectrumImage() {
+        var spectrum_image = new Image();
+        spectrum_image.onload = function(){
+          context.drawImage(spectrum_image, 0, 0);
+          displayImage();
+        };
+        spectrum_image.src = spectrum_canvas.toDataURL();
+      }
+
+      // Draw an image of the viewer area, add the spectrum
+      // image it its available, and display everything
+      // in a dialog box.
+      viewer_image.onload = function(){
+        context.drawImage(viewer_image, 0, 0);
+        if ($(spectrum_canvas).is(":visible")) {
+          getSpectrumImage();
+        } else {
+          displayImage();
+        }
+      };
+
+      viewer_image.src = viewer.canvasDataURL();
+    });
+
+    // Control autorotation.
+    $("#autorotate-controls").children().change(function() {
+      viewer.autorotate.x = $("#autorotateX").is(":checked");
+      viewer.autorotate.y = $("#autorotateY").is(":checked");
+      viewer.autorotate.z = $("#autorotateZ").is(":checked");
+    });
+
+    $("#surffile").change(function(event) {
+      viewer.clearScreen();
+      loadStart();
+      viewer.loadModelFromURL(
+        "<%= content_userfile_path(@userfile) %>?content_loader=collection_file&arguments=<%= @userfile.name + "/" + @userfile.surfaces_objs[0] %>",
+        {
+          format: "freesurferbin",
+          complete: loadEnd
+        }
+      );
+    });
+  }
+j
+</script>
