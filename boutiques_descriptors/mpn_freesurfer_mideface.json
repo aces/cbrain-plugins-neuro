@@ -79,7 +79,7 @@
        }
     ],
     "tags": {
-        "domain": "boutiques"
+        "domain": ["neuroimaging"]
     },
     "suggested-resources": {
         "ram": 10,

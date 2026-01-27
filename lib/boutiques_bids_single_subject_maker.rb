@@ -72,8 +72,8 @@ module BoutiquesBidsSingleSubjectMaker
   # Adjust the description for the input so that it says we expect
   # a single subject now. Also adds the new input field
   # for the optional participants.tsv file.
-  def descriptor_for_form
-    descriptor = super.dup
+  def descriptor_with_adjusted_form(descriptor)
+    descriptor = descriptor.dup
     inputid    = descriptor.custom_module_info('BoutiquesBidsSingleSubjectMaker')
     return descriptor if inputid.blank? # nothing to do
     input      = descriptor.input_by_id(inputid)
@@ -90,16 +90,20 @@ module BoutiquesBidsSingleSubjectMaker
     descriptor
   end
 
+  def descriptor_for_form #:nodoc:
+    descriptor_with_adjusted_form(super)
+  end
+
   def descriptor_for_before_form #:nodoc:
-    descriptor_for_form
+    descriptor_with_adjusted_form(super)
   end
 
   def descriptor_for_after_form #:nodoc:
-    descriptor_for_form
+    descriptor_with_adjusted_form(super)
   end
 
   def descriptor_for_show_params #:nodoc:
-    descriptor_for_form
+    descriptor_with_adjusted_form(super)
   end
 
   def final_task_list #:nodoc:
