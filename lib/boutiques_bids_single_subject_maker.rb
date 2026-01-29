@@ -166,7 +166,7 @@ module BoutiquesBidsSingleSubjectMaker
       add_invoke_params_error(ds_input.id, "must be either a BidsDataset or a BidsSubject", descriptor)
     end
 
-    # Validate parsms when given a BidsDataset
+    # Validate params when given a BidsDataset
     # Basically, three File inputs must have been left blank
     if userfile.is_a?(BidsDataset)
       %w( cbrain_participants_tsv dataset_description_json cbrain_bids_ignore ).each do |fid|
@@ -176,7 +176,7 @@ module BoutiquesBidsSingleSubjectMaker
       end
     end
 
-    # Check the size of a BidsDatset
+    # Check the size of a BidsDataset
     if userfile.is_a?(BidsDataset)
       max_gb = ssm_max_bids_dataset_gb()
       if userfile.size > max_gb.gigabytes
@@ -263,10 +263,10 @@ module BoutiquesBidsSingleSubjectMaker
   end
 
   # This method overrides the one in BoutiquesClusterTask.
-  # It does the normal stuff, but then afterwards it creates
-  # the fake BIDS dataset with a symlink to the subject directory
-  # if the current mode of operation is to use a BidsSubject as
-  # the main input.
+  # It does the normal stuff, but then afterwards if
+  # the current mode of operation is to use a BidsSubject, it
+  # creates a fake BIDS dataset, and installs a copy of the
+  # subject directory the main input.
   def setup
     return false unless super # do normal code first; if normal code fails, do nothing else
     descriptor = self.descriptor_for_setup
@@ -312,12 +312,12 @@ module BoutiquesBidsSingleSubjectMaker
       Dir.mkdir(FakeBidsDirName)
     end
 
-    symlink_loc = Pathname.new(FakeBidsDirName) + subject_name
-
-    if ! File.exists?(symlink_loc.to_s)
-      rsyncout = ssm_bash_this("rsync -a -l --no-g --chmod=u=rwX,g=rX,Dg+s,o=r --delete #{subject_name.bash_escape}/ #{symlink_loc.to_s.bash_escape}")
-      cb_error "Failed to rsync '#{subject_name}';\nrsync reported: #{rsyncout}" unless rsyncout.blank?
-    end
+    # Make a copy of the subject data
+    copy_loc = Pathname.new(FakeBidsDirName) + subject_name
+    verb     = File.exists?(copy_loc.to_s) ? "Updating" : "Copying" # helps identifying what happens when restarting
+    self.addlog("BoutiquesBidsSingleSubject: #{verb} subject data '#{subject_name}'")
+    rsyncout = ssm_bash_this("rsync -a -l --no-g --chmod=u=rwX,g=rX,Dg+s,o=r --delete #{subject_name.bash_escape}/ #{copy_loc.to_s.bash_escape}")
+    cb_error "Failed to rsync '#{subject_name}';\nrsync reported: #{rsyncout}" unless rsyncout.blank?
 
     # Three other needed files in a BIDS dataset:
     desc_json_path        = Pathname.new(FakeBidsDirName) + "dataset_description.json"
@@ -511,7 +511,7 @@ module BoutiquesBidsSingleSubjectMaker
     command    = descriptor.command_line
     token      = ds_input.value_key # e.g. '[BIDSDATASET]'
 
-    # Make the substitution; in a stadard situation we build a string
+    # Make the substitution; in a standard situation we build a string
     # like "-bids CbrainFakeBidsDataset" where "-bids" is whatever flag
     # is defined in the input for the BIDS dataset, if any. In backwards compatibility
     # mode it will be just "CbrainFakeBidsDataset" no matter what.
@@ -553,7 +553,7 @@ module BoutiquesBidsSingleSubjectMaker
   # All of these files can be named something other
   # than the name they will be installed as (in fact,
   # this is necessary for the .bidsignore file, since in
-  # CBRAIN no fles can start with a period).
+  # CBRAIN no files can start with a period).
   def descriptor_with_extra_files_for_dataset(descriptor)
     descriptor = descriptor.dup
     inputid    = descriptor.custom_module_info('BoutiquesBidsSingleSubjectMaker')
