@@ -224,7 +224,7 @@
        }
     ],
     "tags": {
-        "domain": "boutiques"
+        "domain": "neuroimaging"
     },
     "suggested-resources": {
         "cpu-cores": 8,
@@ -331,7 +331,10 @@
             "BoutiquesOutputFileTypeSetter": {
                 "designer_output": "DmtOutput"
             },
-            "BoutiquesOutputCacheCleaner": [ "designer_scratch" ]
+            "BoutiquesInputValueFixer": {
+              "designer_scratch": "cbrain_designer_scratch"
+            },
+            "BoutiquesPostProcessingCleaner": [ "<--designer_scratch STRING>" ]
         }
     }
 }
