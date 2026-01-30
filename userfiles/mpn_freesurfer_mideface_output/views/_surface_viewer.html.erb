@@ -286,7 +286,7 @@
       viewer.clearScreen();
       loadStart();
       viewer.loadModelFromURL(
-        "<%= content_userfile_path(@userfile) %>?content_loader=collection_file&arguments=<%= @userfile.name + "/" + @userfile.surfaces_objs[0] %>",
+        "<%= content_userfile_path(@userfile) %>?content_loader=collection_file&arguments=<%= @userfile.name %>/" + $(event.target).val(),
         {
           format: "freesurferbin",
           complete: loadEnd
@@ -294,5 +294,4 @@
       );
     });
   }
-j
 </script>
