@@ -10,20 +10,30 @@
   "author": "Multimodal Imaging and Connectome Analysis (MICA) Lab ",
   "url": "https://github.com/MICA-MNI/micapipe",
   "description": "Please cite: Cruces RR, Royer J, Herholz P, Lariviere S, Vos de Wael R, Paquola C, Benkarim O, Park BY, Degre-Pelletier J, Nelson MC, DeKraker J, Leppert IR, Tardif C, Poline JB, Concha L, Bernhardt BC. Micapipe: A pipeline for multimodal neuroimaging and connectome analysis. Neuroimage. 2022 Nov;263:119612. doi: 10.1016/j.neuroimage.2022.119612. Epub 2022 Sep 5. PMID: 36070839. doi: 10.1016/j.neuroimage.2022.119612",
-  "command-line": "SUBJECT_DIR=[SUBJECT_DIR]; SUBJECT=$(basename $SUBJECT_DIR/sub-*); SUBJECT_ID=${SUBJECT#*-};/neurodocker/startup.sh micapipe -bids $SUBJECT_DIR -sub $SUBJECT_ID [OUTPUT_DIR] [SES] [FS_LICENSE] [PROC_STRUCTURAL] [PROC_SURF] [POST_STRUCTURAL] [PROC_FLAIR] [PROC_FUNC] [PROC_DWI] [SC] [MPC_SWM] [SWM] [MPC] [GD] [QC] [QC_SUBJ] [CLEANUP] [ATLAS] [FREESURFER] [T1WSTR] [UNI] [MF] [SURF_DIR] [T1] [REGSYNTH] [REG_NONLINEAR] [DWI_UPSAMPLE] [TRACTS] [KEEP_TCK] [AUTOTRACT] [FILTER] [ACQSTR] [DWI_MAIN] [DWI_RPE] [DWI_PROC] [RPE_ALL] [REGAFFINE] [DWIACQ] [BTHR] [NO_BVAL] [WSC] [TCK] [FLAIRSTR] [MPC_ACQ] [MPC_IMG] [MPC_REG] [FUNC_MAIN] [FUNC_PE] [FUNC_RPE] [MAINSCANRUN] [PHASEREVERSALRUN] [TOPUP] [SESANAT] [FIX] [NOFIX] [NSR] [GSR] [DROPTR] [NOFC]",
+  "command-line": "/neurodocker/startup.sh micapipe [BIDS_DATASET] [SUBJECT_ID] [SES] [OUTPUT_DIR] [FS_LICENSE] [PROC_STRUCTURAL] [PROC_SURF] [POST_STRUCTURAL] [PROC_FLAIR] [PROC_FUNC] [PROC_DWI] [SC] [MPC_SWM] [SWM] [MPC] [GD] [QC] [QC_SUBJ] [CLEANUP] [ATLAS] [FREESURFER] [T1WSTR] [UNI] [MF] [SURF_DIR] [T1] [REGSYNTH] [REG_NONLINEAR] [DWI_UPSAMPLE] [TRACTS] [KEEP_TCK] [AUTOTRACT] [FILTER] [ACQSTR] [DWI_MAIN] [DWI_RPE] [DWI_PROC] [RPE_ALL] [REGAFFINE] [DWIACQ] [BTHR] [NO_BVAL] [WSC] [TCK] [FLAIRSTR] [MPC_ACQ] [MPC_IMG] [MPC_REG] [FUNC_MAIN] [FUNC_PE] [FUNC_RPE] [MAINSCANRUN] [PHASEREVERSALRUN] [TOPUP] [SESANAT] [FIX] [NOFIX] [NSR] [GSR] [DROPTR] [NOFC]",
   "inputs": [
     {
-      "description": "Subject folder for BIDS (folders name should be sub-XXXXX).",
-      "id": "subject_dir",
-      "name": "BIDS Subject Folder",
+      "name": "BIDS Dataset Folder",
+      "description": "The BIDS Dataset to process",
+      "id": "bids_dir",
       "optional": false,
       "type": "File",
-      "value-key": "[SUBJECT_DIR]"
+      "command-line-flag": "-bids",
+      "value-key": "[BIDS_DATASET]"
     },
     {
-      "description": "Subject session (could be ses-XXX or only XXX).",
-      "id": "ses",
+      "name": "Subject ID",
+      "description": "The ID of the subject to process, with or without 'sub-'",
+      "id": "sub_id",
+      "optional": false,
+      "type": "String",
+      "value-key": "[SUBJECT_ID]",
+      "command-line-flag": "-sub"
+    },
+    {
       "name": "Subject session",
+      "description": "The ID of the session, with or without 'ses-'.",
+      "id": "ses",
       "optional": true,
       "type": "String",
       "value-key": "[SES]",
@@ -687,7 +697,7 @@
       "optional": false,
       "list": false,
       "value-key": "[OUTPUT_DIR]",
-      "path-template": "[SUBJECT_DIR]_res",
+      "path-template": "[SUBJECT_ID]_res",
       "command-line-flag": "-out"
     }
   ],
@@ -703,16 +713,16 @@
     "cbrain:readonly-input-files": true,
     "cbrain:author": "Raul R. Cruces <raul.rodriguezcruces@mcgill.ca>",
     "cbrain:integrator_modules": {
-      "BoutiquesBidsSingleSubjectMaker": "subject_dir",
+      "BoutiquesBidsSingleSubjectMaker": {
+        "dataset_input_id": "bids_dir",
+        "subjects_input_id": "sub_id",
+        "keep_sub_prefix": false
+      },
       "BoutiquesFileTypeVerifier": {
-        "subject_dir": ["BidsSubject"],
         "fs_license_file": ["FreesurferLicense", "TextFile", "SingleFile"]
       },
-      "BoutiquesFileNameMatcher": {
-        "subject_dir": "^sub-[a-zA-Z0-9_]+$"
-      },
       "BoutiquesFreesurferLicenseFinder": "fs_license_file",
-      "BoutiquesPostProcessingCleaner": ["[SUBJECT_DIR]_micapipe_derivatives"],
+      "BoutiquesPostProcessingCleaner": ["[SUBJECT_ID]_micapipe_derivatives"],
       "BoutiquesOutputFileTypeSetter": {
         "output_dir": "MicapipeOutput"
       }
