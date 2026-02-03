@@ -1,0 +1,43 @@
+
+###############################################################
+# GitHub Actions Validate Descriptors
+#
+# This runs "bosh validate" on all Boutiques Descirptors
+#
+# At the end, a Slack notification can be sent if the
+# GitHub repo secret "SLACK_WEBHOOK" is set to a URL
+# (which you can generate within your SLACK config webpage)
+#
+# Pierre Rioux, January 2026
+###############################################################
+
+name: bosh_validate
+on:   [ push, pull_request ]
+jobs:
+  run-tests:
+    name: Validate Descriptors
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      pull-requests: read
+
+    ###########################################################
+    steps:
+
+      ###########################################################
+      - name: Checkout Plugins Codebase
+        uses: actions/checkout@v4
+
+      ###########################################################
+      - name: Setup Boutiques Python Package
+        run: |
+          pip install --user boutiques     || exit 2
+
+      ###########################################################
+      # MAIN TESTS
+      ###########################################################
+      - name: Validate All Descriptors
+        id: descriptor_validation
+        run: |
+          bash .github/workflows/scripts/validate_all_descriptors.sh
+
