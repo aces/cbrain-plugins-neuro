@@ -58,6 +58,6 @@ jobs:
           SLACK_ICON:     https://github.com/aces/cbrain/raw/master/BrainPortal/public/images/custom_logos/cb-small_white_blue.png
           SLACK_MESSAGE: |
             ```
-            Some Boutiques descriptors failed validations
+            Boutiques Descriptor Validations : ${{ steps.descriptor_validation.outcome }}
             ```
 
