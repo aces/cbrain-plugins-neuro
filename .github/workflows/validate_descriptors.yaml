@@ -41,3 +41,23 @@ jobs:
         run: |
           bash .github/workflows/scripts/validate_all_descriptors.sh
 
+      ###########################################################
+      # Final notification
+      ###########################################################
+      - name: Notify Slack
+        if: ${{ failure() || success() }}
+        continue-on-error: true
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_CHANNEL:  ${{ secrets.SLACK_CHANNEL || 'cbrain_ci' }}
+          SLACK_COLOR:    ${{ job.status == 'success' && '#00ff00' || job.status == 'cancelled' && '#ffff00' || '#ff0000' }}
+          SLACK_TITLE:    "${{ github.repository }} Boutiques Descriptor Validations: ${{ job.status }}"
+          SLACK_USERNAME: "GitHub CI" # Doesn't have to be a real slack user
+          SLACK_WEBHOOK:  ${{ secrets.SLACK_WEBHOOK }}
+          SLACK_FOOTER:   ""
+          SLACK_ICON:     https://github.com/aces/cbrain/raw/master/BrainPortal/public/images/custom_logos/cb-small_white_blue.png
+          SLACK_MESSAGE: |
+            ```
+            Some Boutiques descriptors failed validations
+            ```
+
