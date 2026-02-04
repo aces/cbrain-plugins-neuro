@@ -175,7 +175,6 @@
             "default-value":     "lobes",
             "list":              true,
             "list-separator":    " ",
-            "requires-inputs":   [ "resample_surface" ],
             "value-key":         "[SURFATLAS]"
         },
         {
