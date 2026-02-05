@@ -36,7 +36,7 @@
             "value-key": "<-s SES STRING>",
             "type": "String",
             "id": "ses",
-            "description": "The ID of the session, with or without 'ses-'.",
+            "description": "The ID of the session, without 'ses-'.",
             "optional": true
         },
         {
