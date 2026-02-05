@@ -86,12 +86,6 @@
         "walltime-estimate": 82800,
         "cpu-cores": 1
     },
-    "error-codes": [
-        {
-            "description": "Crashed",
-            "code": 1
-        }
-    ],
     "custom": {
         "cbrain:author": "Alexandre Pastor-Bernier <alexandre.pastor@mcgill.ca> and Natacha Beck <nbeck@mcin.ca>",
         "cbrain:plugins-container-bindmount": "/wrapper",

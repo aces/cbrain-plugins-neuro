@@ -48,7 +48,7 @@ subject folder in BIDS
 output directory for QA
 
 ########################################"
-      exit 0
+      exit 1
       ;;
 
     # For option -a, parse the argument and populate the array
@@ -106,7 +106,14 @@ for MOD in "${MODALITY[@]}"; do
 
     mideface_command="mideface --i ${input_file} --o ${deface_output} --odir ${qc_dir} --back-of-head"
     echo "Running command: $mideface_command"
-    eval $mideface_command || { echo "Error: mideface command failed for ${sid_ses_acq}" >&2; exit 2; }
+
+    eval $mideface_command
+    status=$?
+    if test $status -gt 0 ; then
+      echo "Error: mideface command failed for ${sid_ses_acq}" >&2
+      exit 2
+    fi
+
     # move defaced file to output directory
     mv ${deface_output} ${OUT2}/
   done
