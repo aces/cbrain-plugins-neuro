@@ -25,7 +25,7 @@ class MpnFreesurferMidefaceOutput < FileCollection
 
   Revision_info=CbrainFileRevision[__FILE__] #:nodoc:
 
-  has_viewer :name => "Surface Viewer", :partial => :surface_viewer, :if => Proc.new { |u| u.is_locally_synced? }
+  has_viewer :name => "Surface Viewer", :partial => :surface_viewer, :if => Proc.new { |u| u.is_locally_synced? && u.surfaces_objs.size >= 1 }
 
   def surfaces_objs #:nodoc:
     return @surfaces_objs unless @surfaces_objs.nil?

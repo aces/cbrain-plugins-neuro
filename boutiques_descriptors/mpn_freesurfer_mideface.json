@@ -6,7 +6,7 @@
     "descriptor-url": "https://github.com/aces/cbrain-plugins-neuro/blob/master/boutiques_descriptors/mpn_freesurfer8_MiDeFace.json",
     "author": "Laboratory for Computational Neuroimaging ",
     "schema-version": "0.5",
-    "command-line": "export FS_LICENSE=`pwd`/[LICENSE_FILE]; CbrainBidsSingleSubject='<INPUTDIR FILE>' && bash /wrapper/mpn_wrap_defaceV3.sh -i <INPUTDIR FILE> <-s SES STRING> <-m MODALITY STRING> <-a ACQ STRING> $CbrainBidsSingleSubject `pwd`/<OUTPUT_DIR STRING>",
+    "command-line": "export FS_LICENSE=`pwd`/[LICENSE_FILE]; bash /wrapper/mpn_wrap_defaceV3.sh [SUBJECT_ID] <-s SES STRING> <-m MODALITY STRING> <-a ACQ STRING> <BIDS_DATASET> `pwd`/<OUTPUT_DIR STRING>",
     "container-image": {
         "index": "docker://",
         "image": "freesurfer/freesurfer:7.4.1",
@@ -14,22 +14,21 @@
     },
     "inputs": [
         {
-            "name": "BIDS Subject Folder",
-            "value-key": "<INPUTDIR FILE>",
+            "name": "BIDS Dataset Folder",
+            "value-key": "<BIDS_DATASET>",
             "type": "File",
-            "id": "subject_dir",
-            "description": "Subject folder for BIDS (folders name should be sub-XXXXX).",
+            "id": "bids_dir",
+            "description": "The BIDS Dataset to process",
             "optional": false
         },
         {
-            "name": "Output Mideface Defaced files",
+            "name": "Subject ID",
+            "command-line-flag": "-i",
+            "description": "The ID of the subject to process, with or without 'sub-'",
+            "id": "sub_id",
+            "optional": false,
             "type": "String",
-            "value-key": "<OUTPUT_DIR STRING>",
-            "id": "mideface_output",
-            "description": "Mideface Defaced output",
-            "default-value": "mideface_output",
-            "list": false,
-            "optional": false
+            "value-key": "[SUBJECT_ID]"
         },
         {
             "name": "Subject session",
@@ -37,7 +36,7 @@
             "value-key": "<-s SES STRING>",
             "type": "String",
             "id": "ses",
-            "description": "Subject session (could be ses-XXX or only XXX).",
+            "description": "The ID of the session, with or without 'ses-'.",
             "optional": true
         },
         {
@@ -72,9 +71,10 @@
     "output-files": [
         {
             "name": "Output Anonymized files",
-            "id": "MIDEFACE_OUT_DIR",
+            "id": "mideface_output",
+            "value-key": "<OUTPUT_DIR STRING>",
             "description": "Directory output",
-            "path-template": "<OUTPUT_DIR STRING>",
+            "path-template": "[SUBJECT_ID]_Anonymized_<-s SES STRING>",
             "optional": false
        }
     ],
@@ -98,14 +98,18 @@
         "cbrain:readonly-input-files": true,
         "cbrain:integrator_modules": {
             "BoutiquesFileTypeVerifier": {
-                "subject_dir": [ "BidsSubject" ],
-                "license":     [ "FreesurferLicense" ]
+                "bids_dir": [ "BidsSubject" ],
+                "license":  [ "FreesurferLicense" ]
             },
             "BoutiquesFreesurferLicenseFinder": "license",
             "BoutiquesFileNameMatcher": {
-                "subject_dir": "^sub-[a-zA-Z0-9_]+$"
+                "bids_dir": "^sub-[a-zA-Z0-9_]+$"
             },
-            "BoutiquesBidsSingleSubjectMaker": "subject_dir",
+            "BoutiquesBidsSingleSubjectMaker": {
+                "dataset_input_id": "bids_dir",
+                "subjects_input_id": "sub_id",
+                "keep_sub_prefix": true
+            },
             "BoutiquesOutputFileTypeSetter": {
                 "mideface_output": "MpnFreesurferMidefaceOutput"
             }
