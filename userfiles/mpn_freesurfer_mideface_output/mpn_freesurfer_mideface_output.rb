@@ -30,10 +30,13 @@ class MpnFreesurferMidefaceOutput < FileCollection
   def surfaces_objs #:nodoc:
     return @surfaces_objs unless @surfaces_objs.nil?
 
-    surf_list = self.list_files.map(&:name).select { |n| n =~ /\.surf\z/ }
-    surf_list.map!{|path| Pathname.new(path).relative_path_from(self.name).to_s }
+    @surface_objs = self.list_files
+                    .map(&:name)
+                    .select { |n| n =~ /\.surf\z/ }
+                    .map { |path| Pathname.new(path).relative_path_from(self.name) }
+                    .map(&:to_s)
 
-    return surf_list
+    return @surface_objs
   end
 
   def self.pretty_type #:nodoc:
