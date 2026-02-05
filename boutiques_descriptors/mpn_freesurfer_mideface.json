@@ -6,7 +6,7 @@
     "descriptor-url": "https://github.com/aces/cbrain-plugins-neuro/blob/master/boutiques_descriptors/mpn_freesurfer8_MiDeFace.json",
     "author": "Laboratory for Computational Neuroimaging ",
     "schema-version": "0.5",
-    "command-line": "export FS_LICENSE=`pwd`/<LICENSE_FILE>; bash /wrapper/mpn_wrap_defaceV3.sh <SUBJECT_ID> <-s SES STRING> <-m MODALITY STRING> <-a ACQ STRING> <BIDS_DATASET> `pwd`/<OUTPUT_DIR STRING>",
+    "command-line": "export FS_LICENSE=`pwd`/<LICENSE_FILE>; bash /wrapper/mpn_wrap_defaceV3.sh <-i SUBJECT_ID> <-s SES STRING> <-m MODALITY STRING> <-a ACQ STRING> <BIDS_DATASET> `pwd`/<OUTPUT_DIR STRING>",
     "container-image": {
         "index": "docker://",
         "image": "freesurfer/freesurfer:7.4.1",
@@ -28,7 +28,7 @@
             "id": "sub_id",
             "optional": false,
             "type": "String",
-            "value-key": "<SUBJECT_ID>"
+            "value-key": "<-i SUBJECT_ID>"
         },
         {
             "name": "Subject session",
@@ -74,7 +74,7 @@
             "id": "mideface_output",
             "value-key": "<OUTPUT_DIR STRING>",
             "description": "Directory output",
-            "path-template": "<SUBJECT_ID>_Anonymized_<-s SES STRING>",
+            "path-template": "<-i SUBJECT_ID>_Anonymized_<-s SES STRING>",
             "optional": false
        }
     ],
