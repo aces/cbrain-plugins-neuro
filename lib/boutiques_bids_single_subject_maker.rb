@@ -113,16 +113,23 @@ module BoutiquesBidsSingleSubjectMaker
     ds_input  = dataset_btq_input(descriptor)
     sub_input = subjects_btq_input(descriptor)
 
-    # Adjust the description
-    description  = ds_input.description.presence || ""
-    description += "\n"
-    description += "Note: this integration works with either a full BidsDataset (a folder that can be named anything), or a single BidsSubject (a folder named like 'sub-xyz').\n"
+    # Adjust the Dataset input description
+    ds_description  = ds_input.description.presence || ""
+    ds_description += "\n"
+    ds_description += "Note: this integration works with either a full BidsDataset (a folder that can be named anything), or a single BidsSubject (a folder named like 'sub-xyz').\n"
     if sub_input
       sample_subid = strip_sub_prefix?(descriptor) ? 'xyz' : 'sub-xyz'
-      description += "If you provide a BidsSubject, the field '#{sub_input.name}' where you normally put a subject name will be filled for you automatically with a value in the format '#{sample_subid}'."
+      ds_description += "If you provide a BidsSubject, the other field '#{sub_input.name}' where you normally put a subject name will be filled for you automatically with a value in the format '#{sample_subid}'."
     end
+    ds_input.description = ds_description.strip
 
-    ds_input.description = description.strip
+    # Adjust participant ID description, if any
+    if sub_input
+      sub_description  = sub_input.description.presence || ""
+      sub_description += "\n"
+      sub_description += "Note: if you are providing a BidsSubject as the main input in the other field '#{ds_input.name}', then you can leave this field blank. It will be populated automatically."
+      sub_input.description = sub_description.strip
+    end
 
     # Add several new File inputs for a bunch of files related to the BIDS dataset
     descriptor = descriptor_with_extra_files_for_dataset(descriptor)
