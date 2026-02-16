@@ -3,7 +3,7 @@
 #
 # CBRAIN Project
 #
-# Copyright (C) 2008-2012
+# Copyright (C) 2008-2026
 # The Royal Institution for the Advancement of Learning
 # McGill University
 #
@@ -22,12 +22,10 @@
 #
 -%>
 
-<%= stylesheet_link_tag CivetOutput.public_path("stylesheets/surface_viewer.css").to_s, :media => "all" %>
+<%= stylesheet_link_tag SurfaceFile.public_path("stylesheets/surface_viewer.css").to_s, :media => "all" %>
 
-<%= render :file => SurfaceFile.view_path('surface_viewer/surface_choice_div'), :locals => { :userfile => @userfile } %>
 <%= render :file => SurfaceFile.view_path('surface_viewer/display_div') %>
-<%= render :file => SurfaceFile.view_path('surface_viewer/data_range_box_div') %>
-<%= render :file => SurfaceFile.view_path('surface_viewer/view_div') %>
+<%= render :file => SurfaceFile.view_path('surface_viewer/view_div'),          :locals => { :with_colormap => false }  %>
 <%= render :file => SurfaceFile.view_path('surface_viewer/shapes_div') %>
-<%= render :file => SurfaceFile.view_path('javascripts/brainbrowser_surface'), :locals => { :userfile => @userfile, :file_format => "mniobj" } %>
+<%= render :file => SurfaceFile.view_path('javascripts/brainbrowser_surface'), :locals => { :userfile => @userfile, :file_format => @userfile.brainbrowser_file_format } %>
 
