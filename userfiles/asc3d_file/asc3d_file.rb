@@ -21,7 +21,7 @@
 #
 
 # Model for a FreeSurfer ASCII 3D object file.
-class AscFile < SurfaceFile
+class Asc3dFile < SurfaceFile
 
   Revision_info=CbrainFileRevision[__FILE__] #:nodoc:
 
