@@ -2,7 +2,7 @@
 #
 # CBRAIN Project
 #
-# Copyright (C) 2008-2025
+# Copyright (C) 2008-2026
 # The Royal Institution for the Advancement of Learning
 # McGill University
 #
@@ -26,13 +26,12 @@ class ObjFile < SurfaceFile
   Revision_info=CbrainFileRevision[__FILE__] #:nodoc:
 
   def self.file_name_pattern #:nodoc:
-    /\.obj?$/i
+    /\.obj(\.gz|\.Z|\.bz2)?$/i
   end
 
   def self.pretty_type #:nodoc:
     "3D Obj"
   end
-
 
   # Return file format used by BrainBrowser
   def brainbrowser_file_format

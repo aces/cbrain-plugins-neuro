@@ -1,4 +1,4 @@
-
+<%-
 #
 # CBRAIN Project
 #
@@ -19,25 +19,23 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
+-%>
 
-# Model for a FreeSurfer ASCII 3D object file.
-class Asc3dFile < SurfaceFile
+<div id="surface_choice" class="controls">
+<h4>Files: </h4>
 
-  Revision_info=CbrainFileRevision[__FILE__] #:nodoc:
+  <form id="datafile-form" method="POST"  action="/upload/minc" enctype="multipart/form-data">
 
-  def self.file_name_pattern #:nodoc:
-    /\.asc(\.gz|\.Z|\.bz2)?$/i
-  end
-
-  def self.pretty_type #:nodoc:
-    "FreeSurfer ASCII"
-  end
-
-
-  # Return file format used by BrainBrowser
-  def brainbrowser_file_format
-    return "freesurferasc"
-  end
-
-end
-
+    Surface File:
+    <select id="objfile" name="surface_obj" class="surface_obj">
+      <%= options_for_select userfile.surfaces_objs %>
+    </select>
+    <br>
+    Surface Overlay:
+    <select id="datafile" name="overlay" class="overlay">
+      <%= options_for_select userfile.overlays %>
+    </select>
+    <br>
+    Color Map: <input type="file" name="color-map" id="color-map"><br />
+  </form>
+</div>

@@ -26,7 +26,7 @@ class SurfFile < SurfaceFile
   Revision_info=CbrainFileRevision[__FILE__] #:nodoc:
 
   def self.file_name_pattern #:nodoc:
-    /\.surf$/i
+    /\.surf(\.gz|\.Z|\.bz2)?$/i
   end
 
   def self.pretty_type #:nodoc:

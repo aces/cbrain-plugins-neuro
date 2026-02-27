@@ -28,7 +28,6 @@
   $("#surface-viewer").load("https://brainbrowser.cbrain.mcgill.ca/surface-viewer-widget?version=2.4.0&height=600&width=600&viewer_callback=init");
 
   function init(viewer) {
-    console.log("In surf-viewer of surface_file")
     "use strict";
 
     var controls    = $("#controls");
@@ -50,6 +49,14 @@
 
     function loadEnd() {
       loading_div.hide();
+    }
+
+    function escapeTransversalePath(filename) {
+      if (filename.indexOf('..') !== -1) {
+        console.error("Invalide filename detected")
+        loadEnd();
+        return;
+      }
     }
 
     if (!BrainBrowser.WEBGL_ENABLED) {
@@ -384,10 +391,21 @@
       $("#objfile").change(function(event) {
         viewer.clearScreen();
         loadStart();
+        var filename = $("#datafile").val();
+        escapeTransversalePath(filename);
+        var basename = filename.replace(/\\/g,'/').replace( /.*\//, '' );
         viewer.loadModelFromURL(
-          "<%= content_userfile_path(userfile) %>?content_loader=collection_file&arguments=<%= userfile.name + "/" + userfile.surfaces_dir %>/" + $(event.target).val(),
+          "<%= content_userfile_path(userfile) %>?content_loader=raw_content&file_name=<%= userfile.name + "/" + userfile.surfaces_dir %>/" + $(event.target).val(),
           {
-            complete: loadEnd
+            complete: function() {
+              viewer.loadColorMapFromURL(color_maps[0].url);
+              viewer.loadIntensityDataFromURL(
+                "<%= content_userfile_path(userfile) %>?content_loader=raw_content&file_name=" + filename,
+              {
+                name: basename,
+                complete: loadEnd
+              });
+            }
           }
         );
       });
@@ -395,10 +413,11 @@
 
     $("#datafile").change(function(event) {
       loadStart();
-      var filename = $(event.target).val()
-      var basename = filename.replace(/\\/g,'/').replace( /.*\//, '' )
+      var filename = $("#datafile").val();
+      escapeTransversalePath(filename);
+      var basename = filename.replace(/\\/g,'/').replace( /.*\//, '' );
       viewer.loadIntensityDataFromURL(
-        "<%= content_userfile_path(userfile) %>?content_loader=collection_file&arguments=" + filename,
+        "<%= content_userfile_path(userfile) %>?content_loader=raw_content&file_name=" + filename,
         {
           name: basename,
           complete: loadEnd
@@ -422,13 +441,14 @@
     $("#color-map-box").append(color_map_select);
 
   <% if defined?(userfile) && userfile.respond_to?(:overlays) && !userfile.overlays.empty? %>
+    var raw_surface_content = "<%= content_userfile_path(userfile) %>?content_loader=raw_content&file_name=<%= userfile.name + "/" + userfile.surfaces_dir %>/" + "<%= userfile.surfaces_objs[0]%>";
     viewer.loadModelFromURL(
-      "<%= content_userfile_path(userfile) %>?content_loader=collection_file&arguments=<%= userfile.name + "/" + userfile.surfaces_dir %>/" + "<%= userfile.surfaces_objs[0]%>",
+      raw_surface_content,
       {
         complete: function() {
           viewer.loadColorMapFromURL(color_maps[0].url);
           viewer.loadIntensityDataFromURL(
-            "<%= content_userfile_path(userfile) %>?content_loader=collection_file&arguments=<%= userfile.overlays[0][1] %>",
+            "<%= content_userfile_path(userfile) %>?content_loader=raw_content&file_name=<%= userfile.overlays[0][1] %>",
             {
               name: "<%= userfile.overlays[0][0] %>",
               complete: loadEnd
@@ -438,8 +458,9 @@
       }
     );
   <% else %>
+    var raw_surface_url = "<%= content_userfile_path(userfile, :content_loader => :raw_content,  :viewer_userfile_class => :SurfaceFile) %>"
     viewer.loadModelFromURL(
-      "<%= url_for(:action  => :content, :content_loader => :collection_file, :arguments => userfile.name) %>",
+      raw_surface_url,
       {
           format: "<%= file_format %>",
           complete: loadEnd
