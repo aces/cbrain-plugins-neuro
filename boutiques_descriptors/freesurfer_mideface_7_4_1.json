@@ -1,0 +1,130 @@
+{
+    "name": "MiDeFace",
+    "description": "Performs FreeSurfer defacing and refacing for MPN data",
+    "tool-version": "7.4.1",
+    "url": "https://surfer.nmr.mgh.harvard.edu/fswiki/recon-all",
+    "descriptor-url": "https://github.com/aces/cbrain-plugins-neuro/blob/master/boutiques_descriptors/mpn_freesurfer8_MiDeFace.json",
+    "author": "Laboratory for Computational Neuroimaging ",
+    "schema-version": "0.5",
+    "command-line": "export FS_LICENSE=`pwd`/<LICENSE_FILE FILE>; mideface <--i INPUT_FILE FILE> <--o OUTPUT_FILE STRING> [--odir QA_DIR STRING] [--no-ears FLAG] [--back-of-head FLAG] [--forehead FLAG] [--pics FLAG] [--code FLAG] [--no-post FLAG]",
+    "container-image": {
+        "index": "docker://",
+        "image": "freesurfer/freesurfer:7.4.1",
+        "type": "singularity"
+    },
+    "inputs": [
+        {
+            "name": "License file",
+            "type": "File",
+            "value-key": "<LICENSE_FILE FILE>",
+            "id": "license",
+            "description": "Valid license file needed to run FreeSurfer",
+            "optional": false
+        },
+        {
+            "name": "Input file",
+            "value-key": "<--i INPUT_FILE FILE>",
+            "command-line-flag": "--i",
+            "type": "File",
+            "id": "input_file",
+            "description": "The input file to process.",
+            "optional": false
+        },
+        {
+            "name": "No ears",
+            "value-key": "[--no-ears FLAG]",
+            "command-line-flag": "--no-ears",
+            "type": "Flag",
+            "id": "no_ears",
+            "description": "Do not deface ears.",
+            "optional": true
+        },
+        {
+            "name": "Back of head",
+            "value-key": "[--back-of-head FLAG]",
+            "command-line-flag": "--back-of-head",
+            "type": "Flag",
+            "id": "back_of_head",
+            "description": "Do not deface back of head.",
+            "optional": true
+        },
+        {
+            "name": "Forehead",
+            "value-key": "[--forehead FLAG]",
+            "command-line-flag": "--forehead",
+            "type": "Flag",
+            "id": "forehead",
+            "description": "Do not deface forehead.",
+            "optional": true
+        },
+        {
+            "name": "Pics",
+            "value-key": "[--pics FLAG]",
+            "command-line-flag": "--pics",
+            "type": "Flag",
+            "id": "pics",
+            "description": "Generate pictures.",
+            "optional": true
+        },
+        {
+            "name": "Code",
+            "value-key": "[--code FLAG]",
+            "command-line-flag": "--code",
+            "type": "Flag",
+            "id": "code",
+            "description": "Generate code.",
+            "optional": true
+        },
+        {
+            "name": "No post",
+            "value-key": "[--no-post FLAG]",
+            "command-line-flag": "--no-post",
+            "type": "Flag",
+            "id": "no_post",
+            "description": "Do not perform post-processing.",
+            "optional": true
+        }
+    ],
+    "output-files": [
+        {
+            "name": "Output file",
+            "value-key": "<--o OUTPUT_FILE STRING>",
+            "command-line-flag": "--o",
+            "id": "output_file",
+            "description": "The output directory to write.",
+            "path-template-stripped-extensions": [".nii.gz", ".nii", ".mgz", ".mgh"],
+            "path-template": "<--i INPUT_FILE FILE>_defaced.nii.gz"
+        },
+        {
+            "name": "QA output directory",
+            "id": "mideface_output",
+            "command-line-flag": "--odir",
+            "value-key": "[--odir QA_DIR STRING]",
+            "description": "Directory output",
+            "path-template": "QA"
+       }
+    ],
+    "tags": {
+        "domain": ["neuroimaging"]
+    },
+    "suggested-resources": {
+        "ram": 20,
+        "walltime-estimate": 82800,
+        "cpu-cores": 1
+    },
+    "custom": {
+        "cbrain:author": "Natacha Beck <nbeck@mcin.ca>",
+        "cbrain:readonly-input-files": true,
+        "cbrain:integrator_modules": {
+            "BoutiquesFileTypeVerifier": {
+                "license":  ["FreesurferLicense", "TextFile", "SingleFile"],
+                "input_file": ["NiftiFile", "MghFile"]
+            },
+            "BoutiquesFreesurferLicenseFinder": "license",
+            "BoutiquesOutputFileTypeSetter": {
+                "mideface_output": "FileCollection",
+                "output_file": "NiftiFile"
+            }
+        }
+    }
+}
