@@ -51,14 +51,6 @@
       loading_div.hide();
     }
 
-    function escapeTransversalePath(filename) {
-      if (filename.indexOf('..') !== -1) {
-        console.error("Invalide filename detected")
-        loadEnd();
-        return;
-      }
-    }
-
     if (!BrainBrowser.WEBGL_ENABLED) {
       $("#brainbrowser").html(BrainBrowser.utils.webGLErrorMessage());
       return;
@@ -105,9 +97,10 @@
 
       if(children.length - current_count > 0 ) {
         children.slice(current_count).forEach(function(shape, i) {
-          slider_div = $("<div id=\"shape_" + i + "\" class=\"shape\">" +
+        var userfile_name = shape.name.split('%2F').pop();
+        slider_div = $("<div id=\"shape_" + i + "\" class=\"shape\">" +
             "<h4>Shape "+ (i + 1 + current_count) + "</h4>" +
-            "Name: " + "<%= userfile.name %>" + "<br />" +
+            "Name: " + userfile_name + "<br />" +
             "Opacity: " +
             "</div>");
           slider = $("<div class=\"opacity-slider slider\" data-shape-name=\"" + shape.name + "\"></div>");
@@ -391,18 +384,25 @@
       $("#objfile").change(function(event) {
         viewer.clearScreen();
         loadStart();
-        var filename = $("#datafile").val();
-        escapeTransversalePath(filename);
-        var basename = filename.replace(/\\/g,'/').replace( /.*\//, '' );
+        var filename     = $("#datafile").val().replace(/\.\./g, '');
+        var basename     = filename.replace(/\\/g,'/').replace( /.*\//, '' );
+        var selected_obj = $(event.target).val().replace(/\.\./g, '').replace(/[\/\\]/g, '').replace(/[^a-zA-Z0-9_.\-]/g, '');
+
+        if (!selected_obj) {
+          loadEnd();
+          return;
+        }
+
+        <% surface_dir_path = userfile.name + "/" + userfile.surfaces_dir %>
         viewer.loadModelFromURL(
-          "<%= content_userfile_path(userfile) %>?content_loader=raw_content&file_name=<%= userfile.name + "/" + userfile.surfaces_dir %>/" + $(event.target).val(),
+          "<%= content_userfile_path(userfile, :content_loader => :raw_content, :file_name => surface_dir_path) %>/" + encodeURIComponent(selected_obj),
           {
             complete: function() {
               viewer.loadColorMapFromURL(color_maps[0].url);
               viewer.loadIntensityDataFromURL(
-                "<%= content_userfile_path(userfile) %>?content_loader=raw_content&file_name=" + filename,
+                "<%= content_userfile_path(userfile, :content_loader => :raw_content) %>&file_name=" + encodeURIComponent(filename),
               {
-                name: basename,
+                name: selected_obj,
                 complete: loadEnd
               });
             }
@@ -414,12 +414,11 @@
     $("#datafile").change(function(event) {
       loadStart();
       var filename = $("#datafile").val();
-      escapeTransversalePath(filename);
       var basename = filename.replace(/\\/g,'/').replace( /.*\//, '' );
       viewer.loadIntensityDataFromURL(
-        "<%= content_userfile_path(userfile) %>?content_loader=raw_content&file_name=" + filename,
+        "<%= content_userfile_path(userfile, :content_loader => :raw_content) %>&file_name=" + encodeURIComponent(filename),
         {
-          name: basename,
+          name: selected_obj,
           complete: loadEnd
         }
       );
@@ -441,14 +440,16 @@
     $("#color-map-box").append(color_map_select);
 
   <% if defined?(userfile) && userfile.respond_to?(:overlays) && !userfile.overlays.empty? %>
-    var raw_surface_content = "<%= content_userfile_path(userfile) %>?content_loader=raw_content&file_name=<%= userfile.name + "/" + userfile.surfaces_dir %>/" + "<%= userfile.surfaces_objs[0]%>";
+    <% raw_filename = (userfile.name + "/" + userfile.surfaces_dir + "/" + userfile.surfaces_objs[0].to_s)%>
+    var raw_surface_url   = "<%= content_userfile_path(userfile, :content_loader => :raw_content, :file_name => raw_filename)%>"
+    var raw_intensity_url = "<%= content_userfile_path(userfile, :content_loader => :raw_content, :file_name =>  userfile.overlays[0][1]) %>"
     viewer.loadModelFromURL(
-      raw_surface_content,
+      raw_surface_url,
       {
         complete: function() {
           viewer.loadColorMapFromURL(color_maps[0].url);
           viewer.loadIntensityDataFromURL(
-            "<%= content_userfile_path(userfile) %>?content_loader=raw_content&file_name=<%= userfile.overlays[0][1] %>",
+            raw_intensity_url,
             {
               name: "<%= userfile.overlays[0][0] %>",
               complete: loadEnd
