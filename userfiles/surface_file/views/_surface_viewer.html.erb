@@ -27,5 +27,5 @@
 <%= render :file => SurfaceFile.view_path('surface_viewer/display_div') %>
 <%= render :file => SurfaceFile.view_path('surface_viewer/view_div'),          :locals => { :with_colormap => false }  %>
 <%= render :file => SurfaceFile.view_path('surface_viewer/shapes_div') %>
-<%= render :file => SurfaceFile.view_path('javascripts/brainbrowser_surface'), :locals => { :userfile => @userfile, :file_format => @userfile.brainbrowser_file_format } %>
+<%= render :file => SurfaceFile.view_path('javascripts/brainbrowser_surface.js.erb'), :locals => { :userfile => @userfile, :file_format => @userfile.brainbrowser_file_format } %>
 
