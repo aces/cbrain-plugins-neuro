@@ -25,20 +25,6 @@ class MpnFreesurferMidefaceOutput < FileCollection
 
   Revision_info=CbrainFileRevision[__FILE__] #:nodoc:
 
-  has_viewer :name => "Surface Viewer", :partial => :surface_viewer, :if => Proc.new { |u| u.is_locally_synced? && u.surfaces_objs.size >= 1 }
-
-  def surfaces_objs #:nodoc:
-    return @surfaces_objs unless @surfaces_objs.nil?
-
-    @surface_objs = self.list_files
-                    .map(&:name)
-                    .select { |n| n =~ /\.surf\z/ }
-                    .map { |path| Pathname.new(path).relative_path_from(self.name) }
-                    .map(&:to_s)
-
-    return @surface_objs
-  end
-
   def self.pretty_type #:nodoc:
     "MPN FreeSurfer MiDeface Output"
   end
