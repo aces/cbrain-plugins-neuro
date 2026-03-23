@@ -68,20 +68,25 @@
         "cbrain:integrator_modules": {
             "BoutiquesFileTypeVerifier": {
                 "input": [
-                    "FileCollection"
+                    "FileCollection",
+                    "BidsSubject"
                 ]
+            },
+            "BoutiquesFileNameMatcher": {
+                "input": "^sub-[a-zA-Z0-9_]+$"
             },
             "BoutiquesOutputFileTypeSetter": {
                 "output_dir": "MEGqcOutput"
             },
-            "BoutiquesFileNameMatcher": {
-                "subject_dir": "^sub-[a-zA-Z0-9_]+$"
+            "BoutiquesBidsSingleSubjectMaker": {
+                "dataset_input_id":  "input"
             },
+
             "BoutiquesInputCacheCleaner": [
                 "input"
             ],
             "BoutiquesPostProcessingCleaner": [
-                "[PROCESSING]"
+                "*.tmp"
             ]
         }
     }
