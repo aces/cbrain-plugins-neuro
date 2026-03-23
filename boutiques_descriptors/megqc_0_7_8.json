@@ -1,0 +1,88 @@
+{
+    "name": "MEGqc",
+    "description": "MEGqc is a MEG quality assessment (QA) toolbox ",
+    "tool-version": "v0.7.8",
+    "schema-version": "0.5",
+    "url": "https://github.com/ANCPLabOldenburg/MEGqc",
+    "descriptor-url": "https://github.com/aces/cbrain-plugins-neuro/blob/master/boutiques_descriptors/megqc_0_7_8.json",
+    "command-line": "run-megqc --inputdata <BIDS_IN> --run-all --all --config <CFG_IN> <OUTPUT>",
+    "inputs": [
+        {
+            "name": "Input subject BIDS directory",
+            "id": "input",
+            "type": "File",
+            "list": false,
+            "optional": false,
+            "value-key": "--inputdata <BIDS_IN>",
+            "command-line-flag": "--inputdata"
+        },
+        {
+            "name": "Config file",
+            "id": "cfg",
+            "type": "File",
+            "optional": false,
+            "command-line-flag": "--config",
+            "value-key": "--config <CFG_IN>"
+        },
+        {
+            "name": "Save results to",
+            "id": "output",
+            "type": "String",
+            "list": false,
+            "optional": false,
+            "value-key": "<OUTPUT>",
+            "command-line-flag": "--derivatives_output"
+        }
+    ],
+    "output-files": [
+        {
+            "name": "Output MEGQC files",
+            "id": "out_dir",
+            "description": "directory output derivatives",
+            "optional": false,
+            "list": false,
+            "path-template": "<OUTPUT>"
+        }
+    ],
+    "tags": {
+        "domain": [
+            "MEG",
+            "neuroimaging",
+            "quality control"
+            ]
+    },
+    "suggested-resources": {
+        "cpu-cores": 6,
+        "ram": 32,
+        "walltime-estimate": 360
+    },
+    "error-codes": [
+        {
+            "code": 1,
+            "description": "Crashed"
+        }
+    ],
+    "custom": {
+        "cbrain:author": "Alexandre Pastor-Bernier <alexandre.pastor@mcgill.ca>",
+        "cbrain:readonly-input-files": true,
+        "cbrain:integrator_modules": {
+            "BoutiquesFileTypeVerifier": {
+                "input": [
+                    "FileCollection"
+                ]
+            },
+            "BoutiquesOutputFileTypeSetter": {
+                "output_dir": "MEGqcOutput"
+            },
+            "BoutiquesFileNameMatcher": {
+                "subject_dir": "^sub-[a-zA-Z0-9_]+$"
+            },
+            "BoutiquesInputCacheCleaner": [
+                "input"
+            ],
+            "BoutiquesPostProcessingCleaner": [
+                "[PROCESSING]"
+            ]
+        }
+    }
+}
