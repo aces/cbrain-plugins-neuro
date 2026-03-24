@@ -215,8 +215,8 @@ class OpenNeuro
     num_files     = dp_files.sum(:num_files)
     tot_size      = dp_files.sum(:size)
     raw_files     = self.raw_file_count || "unknown"
-    pretty_bytes  = tot_size.to_s.reverse.gsub(/(\d\d\d)/,'\1,').reverse # turns 1234567 into 1,234,567
-    pretty_files  = num_files.to_s.reverse.gsub(/(\d\d\d)/,'\1,').reverse
+    pretty_bytes  = tot_size.to_s.reverse.gsub(/(\d\d\d)/,'\1,').reverse.sub(/\A,/,'') # turns 1234567 into 1,234,567
+    pretty_files  = num_files.to_s.reverse.gsub(/(\d\d\d)/,'\1,').reverse.sub(/\A,/,'')
     Message.send_message(DATA_PROVIDER_OWNER,
       {
         :type          => :system,
