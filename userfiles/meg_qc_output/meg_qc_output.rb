@@ -21,7 +21,7 @@
 #
 
 # A FileCollection to MEGqc output.
-class ReconAllBaseOutput < ReconAllOutput
+class MegQcOutput < FileCollection
 
   Revision_info=CbrainFileRevision[__FILE__] #:nodoc:
   

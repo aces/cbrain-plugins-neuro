@@ -133,7 +133,7 @@
                 "input": "^sub-[a-zA-Z0-9_]+$"
             },
             "BoutiquesOutputFileTypeSetter": {
-                "output_dir": "MEGqcOutput"
+                "output_dir": "MegQcOutput"
             },
             "BoutiquesBidsSingleSubjectMaker": {
                 "dataset_input_id": "input",
