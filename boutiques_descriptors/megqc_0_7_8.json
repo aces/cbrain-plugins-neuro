@@ -5,7 +5,7 @@
     "schema-version": "0.5",
     "url": "https://github.com/ANCPLabOldenburg/MEGqc",
     "descriptor-url": "https://github.com/aces/cbrain-plugins-neuro/blob/master/boutiques_descriptors/megqc_0_7_8.json",
-    "command-line": "run-megqc --inputdata <BIDS_IN> --run-all [--analysis_mode <MODE>] [--n_jobs <NJOBS>] [--qa-subject] [--qa-group] [--all] --derivatives_output ${PWD}/<OUTPUT>",
+    "command-line": "run-megqc --inputdata <BIDS_IN>  --run-all --derivatives_output ${PWD}/<OUTPUT> [--subs <SUB>] [--analysis_mode <MODE>] [--n_jobs <NJOBS>] [--qa-subject] [--qa-group] [--all]",
     "inputs": [
         {
             "name": "Input subject BIDS directory",
@@ -15,6 +15,16 @@
             "optional": false,
             "value-key": "--inputdata <BIDS_IN>",
             "command-line-flag": "--inputdata"
+        },
+        {
+            "name": "Subjects",
+            "id": "subs",
+            "type": "String",
+            "list": true,
+            "optional": true,
+            "command-line-flag": "--subs",
+            "value-key": "[--subs <SUB>]",
+            "description": "A list of subjects to process. If not specified, all subjects will be processed."
         },
         {
             "name": "Analysis mode",
@@ -64,8 +74,8 @@
             "integer": true,
             "optional": true,
             "default-value": 6,
-            "command-line-flag": "--n-jobs",
-            "value-key": "[--n-jobs <NJOBS>]",
+            "command-line-flag": "--n_jobs",
+            "value-key": "[--n_jobs <NJOBS>]",
             "description": "The number of parallel jobs to use. 6 is recommended for best performance.",
             "minimum": 1,
             "exclusive-minimum": false,
@@ -126,7 +136,9 @@
                 "output_dir": "MEGqcOutput"
             },
             "BoutiquesBidsSingleSubjectMaker": {
-                "dataset_input_id": "input"
+                "dataset_input_id": "input",
+                "subjects_input_id": "subs",
+                "keep_sub_prefix": false
             },
             "BoutiquesInputCacheCleaner": [
                 "input"
