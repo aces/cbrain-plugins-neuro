@@ -31,7 +31,8 @@
             "value-key": "[--analysis_mode <MODE>]"
         },
         {
-            "name": "All plotting scopes",
+            "name": "All scopes",
+            "description": "All plotting scopes",
             "id": "all",
             "type": "Flag",
             "optional": true,
@@ -39,7 +40,8 @@
             "value-key": "[--all]"
         },
         {
-            "name": "Subject plotting scope",
+            "name": "Subject QA",
+            "description": "Subject QA plotting scope",
             "id": "qa_subject",
             "type": "Flag",
             "optional": true,
@@ -47,9 +49,10 @@
             "value-key": "[--qa-subject]"
         },
         {
-            "name": "Group plotting scopes",
+            "name": "Group QA",
             "id": "group_qa",
             "type": "Flag",
+            "description": "Group QA plotting scope",
             "optional": true,
             "command-line-flag": "--qa-group",
             "value-key": "[--qa-group]"
