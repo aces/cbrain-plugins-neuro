@@ -5,7 +5,7 @@
     "schema-version": "0.5",
     "url": "https://github.com/ANCPLabOldenburg/MEGqc",
     "descriptor-url": "https://github.com/aces/cbrain-plugins-neuro/blob/master/boutiques_descriptors/megqc_0_7_8.json",
-    "command-line": "run-megqc --inputdata <BIDS_IN> --run-all [--qa-subject] [--qa-group] [--all] --config <CFG_IN> --derivative-output ${PWD}/<OUTPUT>",
+    "command-line": "run-megqc --inputdata <BIDS_IN> --run-all [--analysis_mode <MODE>] [--qa-subject] [--qa-group] [--all] --config <CFG_IN> --derivative-output ${PWD}/<OUTPUT>",
     "inputs": [
         {
             "name": "Input subject BIDS directory",
@@ -23,6 +23,44 @@
             "optional": false,
             "command-line-flag": "--config",
             "value-key": "--config <CFG_IN>"
+        },
+        {
+            "name": "Analysis mode",
+            "id": "mode",
+            "type": "String",
+            "value-choices": [
+                "new",
+                "legacy",
+                "latest"
+            ],
+            "default-value": "new",
+            "optional": true,
+            "command-line-flag": "--analysis_mode",
+            "value-key": "[--analysis_mode <MODE>]"
+        },
+        {
+            "name": "All plotting scopes",
+            "id": "all",
+            "type": "Flag",
+            "optional": true,
+            "command-line-flag": "--all",
+            "value-key": "[--all]"
+        },
+        {
+            "name": "Subject plotting scope",
+            "id": "qa_subject",
+            "type": "Flag",
+            "optional": true,
+            "command-line-flag": "--qa-subject",
+            "value-key": "[--qa-subject]"
+        },
+        {
+            "name": "Group plotting scopes",
+            "id": "group_qa",
+            "type": "Flag",
+            "optional": true,
+            "command-line-flag": "--qa-group",
+            "value-key": "[--qa-group]"
         },
         {
             "name": "Save results to",
