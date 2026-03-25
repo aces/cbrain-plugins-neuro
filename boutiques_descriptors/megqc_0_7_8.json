@@ -55,6 +55,7 @@
             "id": "qa_subject",
             "type": "Flag",
             "optional": true,
+            "default-value": true,
             "command-line-flag": "--qa-subject",
             "value-key": "[--qa-subject]"
         },
