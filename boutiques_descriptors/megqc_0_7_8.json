@@ -1,0 +1,152 @@
+{
+    "name": "MEGqc",
+    "description": "MEGqc is a MEG quality assessment (QA) toolbox ",
+    "tool-version": "v0.7.8",
+    "schema-version": "0.5",
+    "url": "https://github.com/ANCPLabOldenburg/MEGqc",
+    "descriptor-url": "https://github.com/aces/cbrain-plugins-neuro/blob/master/boutiques_descriptors/megqc_0_7_8.json",
+    "command-line": "run-megqc --inputdata <BIDS_IN>  --run-all --derivatives_output ${PWD}/<OUTPUT> [--subs <SUB>] [--analysis_mode <MODE>] [--n_jobs <NJOBS>] [--qa-subject] [--qa-group] [--all]",
+    "inputs": [
+        {
+            "name": "Input subject BIDS directory",
+            "id": "input",
+            "type": "File",
+            "list": false,
+            "optional": false,
+            "value-key": "--inputdata <BIDS_IN>",
+            "command-line-flag": "--inputdata"
+        },
+        {
+            "name": "Subjects",
+            "id": "subs",
+            "type": "String",
+            "list": true,
+            "optional": true,
+            "command-line-flag": "--subs",
+            "value-key": "[--subs <SUB>]",
+            "description": "A list of subjects to process. If not specified, all subjects will be processed."
+        },
+        {
+            "name": "Analysis mode",
+            "id": "mode",
+            "type": "String",
+            "value-choices": [
+                "new",
+                "legacy",
+                "latest"
+            ],
+            "default-value": "new",
+            "optional": true,
+            "command-line-flag": "--analysis_mode",
+            "value-key": "[--analysis_mode <MODE>]"
+        },
+        {
+            "name": "All scopes",
+            "description": "All plotting scopes",
+            "id": "all",
+            "type": "Flag",
+            "optional": true,
+            "command-line-flag": "--all",
+            "value-key": "[--all]"
+        },
+        {
+            "name": "Subject QA",
+            "description": "Subject QA plotting scope",
+            "id": "qa_subject",
+            "type": "Flag",
+            "optional": true,
+            "default-value": true,
+            "command-line-flag": "--qa-subject",
+            "value-key": "[--qa-subject]"
+        },
+        {
+            "name": "Group QA",
+            "id": "group_qa",
+            "type": "Flag",
+            "description": "Group QA plotting scope",
+            "optional": true,
+            "command-line-flag": "--qa-group",
+            "value-key": "[--qa-group]"
+        },
+        {
+            "name": "Number of parallel jobs",
+            "id": "n_jobs",
+            "type": "Number",
+            "integer": true,
+            "optional": true,
+            "default-value": 6,
+            "command-line-flag": "--n_jobs",
+            "value-key": "[--n_jobs <NJOBS>]",
+            "description": "The number of parallel jobs to use. 6 is recommended for best performance.",
+            "minimum": 1,
+            "exclusive-minimum": false,
+            "maximum": 12,
+            "exclusive-minimum": false
+        },
+        {
+            "name": "Save results to",
+            "id": "output",
+            "type": "String",
+            "list": false,
+            "optional": false,
+            "value-key": "<OUTPUT>"
+        }
+    ],
+    "output-files": [
+        {
+            "name": "Output MEGQC files",
+            "id": "out_dir",
+            "description": "directory output derivatives",
+            "optional": false,
+            "list": false,
+            "path-template": "<OUTPUT>"
+        }
+    ],
+    "tags": {
+        "domain": [
+            "MEG",
+            "neuroimaging",
+            "quality control"
+        ]
+    },
+    "suggested-resources": {
+        "cpu-cores": 6,
+        "ram": 32,
+        "walltime-estimate": 1800
+    },
+    "error-codes": [
+        {
+            "code": 1,
+            "description": "Crashed"
+        }
+    ],
+    "custom": {
+        "cbrain:author": "Alexandre Pastor-Bernier <alexandre.pastor@mcgill.ca>",
+        "cbrain:readonly-input-files": true,
+        "cbrain:integrator_modules": {
+            "BoutiquesFileTypeVerifier": {
+                "input": [
+                    "FileCollection",
+                    "BidsSubject"
+                ]
+            },
+            "BoutiquesFileNameMatcher": {
+                "input": "^sub-[a-zA-Z0-9_]+$"
+            },
+            "BoutiquesOutputFileTypeSetter": {
+                "output_dir": "MegQcOutput"
+            },
+            "BoutiquesBidsSingleSubjectMaker": {
+                "dataset_input_id": "input",
+                "subjects_input_id": "subs",
+                "keep_sub_prefix": false
+            },
+            "BoutiquesInputCacheCleaner": [
+                "input"
+            ],
+            "BoutiquesPostProcessingCleaner": [
+                "*.tmp"
+            ]
+        }
+    }
+}
