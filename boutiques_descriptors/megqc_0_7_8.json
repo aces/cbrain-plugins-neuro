@@ -5,7 +5,7 @@
     "schema-version": "0.5",
     "url": "https://github.com/ANCPLabOldenburg/MEGqc",
     "descriptor-url": "https://github.com/aces/cbrain-plugins-neuro/blob/master/boutiques_descriptors/megqc_0_7_8.json",
-    "command-line": "run-megqc --inputdata <BIDS_IN> --run-all --all --config <CFG_IN> <OUTPUT>",
+    "command-line": "run-megqc --inputdata <BIDS_IN> --run-all [--qa-subject] [--qa-group] [--all] --config <CFG_IN> --derivative-output ${PWD}/<OUTPUT>",
     "inputs": [
         {
             "name": "Input subject BIDS directory",
@@ -30,8 +30,7 @@
             "type": "String",
             "list": false,
             "optional": false,
-            "value-key": "<OUTPUT>",
-            "command-line-flag": "--derivatives_output"
+            "value-key": "<OUTPUT>"
         }
     ],
     "output-files": [
