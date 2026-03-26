@@ -95,7 +95,7 @@
     "output-files": [
         {
             "name": "Output MEGqc files",
-            "id": "out_dir",
+            "id": "output_dir",
             "description": "Directory containing output derivatives",
             "optional": false,
             "list": false,
