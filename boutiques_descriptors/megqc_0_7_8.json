@@ -77,7 +77,7 @@
             "default-value": 6,
             "command-line-flag": "--n_jobs",
             "value-key": "[--n_jobs <NJOBS>]",
-            "description": "The number of parallel jobs to use. 6 is recommended for best performance.",
+            "description": "The number of parallel jobs to use.",
             "minimum": 1,
             "exclusive-minimum": false,
             "maximum": 12,
@@ -94,9 +94,9 @@
     ],
     "output-files": [
         {
-            "name": "Output MEGQC files",
+            "name": "Output MEGqc files",
             "id": "out_dir",
-            "description": "directory output derivatives",
+            "description": "Directory containing output derivatives",
             "optional": false,
             "list": false,
             "path-template": "<OUTPUT>"
