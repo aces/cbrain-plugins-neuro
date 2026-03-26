@@ -112,7 +112,7 @@
     "suggested-resources": {
         "cpu-cores": 6,
         "ram": 32,
-        "walltime-estimate": 1800
+        "walltime-estimate": 12000
     },
     "error-codes": [
         {
