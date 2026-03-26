@@ -74,13 +74,15 @@
             "type": "Number",
             "integer": true,
             "optional": true,
-            "default-value": 6,
             "command-line-flag": "--n_jobs",
             "value-key": "[--n_jobs <NJOBS>]",
-            "description": "The number of parallel jobs to use. 6 is recommended for best performance.",
-            "minimum": 1,
+            "description": "The number of parallel jobs to use. Experimental - might affect performance.",
+            "default-value": 1,
+            "value-choices":
+                    [-1, 1, 2, 3, 4, 6],
+            "minimum": -1,
             "exclusive-minimum": false,
-            "maximum": 12,
+            "maximum": 10,
             "exclusive-minimum": false
         },
         {
@@ -94,9 +96,9 @@
     ],
     "output-files": [
         {
-            "name": "Output MEGQC files",
-            "id": "out_dir",
-            "description": "directory output derivatives",
+            "name": "Output MEGqc files",
+            "id": "output_dir",
+            "description": "Directory containing output derivatives",
             "optional": false,
             "list": false,
             "path-template": "<OUTPUT>"
@@ -110,9 +112,9 @@
         ]
     },
     "suggested-resources": {
-        "cpu-cores": 6,
-        "ram": 32,
-        "walltime-estimate": 1800
+        "cpu-cores": 1,
+        "ram": 20,
+        "walltime-estimate": 18000
     },
     "error-codes": [
         {
@@ -143,9 +145,6 @@
             },
             "BoutiquesInputCacheCleaner": [
                 "input"
-            ],
-            "BoutiquesPostProcessingCleaner": [
-                "*.tmp"
             ]
         }
     }
