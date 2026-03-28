@@ -1,9 +1,8 @@
 
-<%-
 #
 # CBRAIN Project
 #
-# Copyright (C) 2008-2012
+# Copyright (C) 2008-2026
 # The Royal Institution for the Advancement of Learning
 # McGill University
 #
@@ -20,14 +19,24 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
--%>
 
-<%= stylesheet_link_tag CivetOutput.public_path("stylesheets/surface_viewer.css").to_s, :media => "all" %>
+# Model for a 3D object file.
+class ObjFile < SurfaceFile
 
-<%= render :file => SurfaceFile.view_path('surface_viewer/surface_choice_div'), :locals => { :userfile => @userfile } %>
-<%= render :file => SurfaceFile.view_path('surface_viewer/display_div') %>
-<%= render :file => SurfaceFile.view_path('surface_viewer/data_range_box_div') %>
-<%= render :file => SurfaceFile.view_path('surface_viewer/view_div') %>
-<%= render :file => SurfaceFile.view_path('surface_viewer/shapes_div') %>
-<%= render :file => SurfaceFile.view_path('javascripts/brainbrowser_surface'), :locals => { :userfile => @userfile, :file_format => "mniobj" } %>
+  Revision_info=CbrainFileRevision[__FILE__] #:nodoc:
+
+  def self.file_name_pattern #:nodoc:
+    /\.obj(\.gz|\.Z|\.bz2)?$/i
+  end
+
+  def self.pretty_type #:nodoc:
+    "3D Obj"
+  end
+
+  # Return file format used by BrainBrowser
+  def brainbrowser_file_format
+    return "mniobj"
+  end
+
+end
 

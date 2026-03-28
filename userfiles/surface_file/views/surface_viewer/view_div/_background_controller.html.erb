@@ -1,9 +1,8 @@
-
 <%-
 #
 # CBRAIN Project
 #
-# Copyright (C) 2008-2012
+# Copyright (C) 2008-2026
 # The Royal Institution for the Advancement of Learning
 # McGill University
 #
@@ -22,12 +21,20 @@
 #
 -%>
 
-<%= stylesheet_link_tag CivetOutput.public_path("stylesheets/surface_viewer.css").to_s, :media => "all" %>
-
-<%= render :file => SurfaceFile.view_path('surface_viewer/surface_choice_div'), :locals => { :userfile => @userfile } %>
-<%= render :file => SurfaceFile.view_path('surface_viewer/display_div') %>
-<%= render :file => SurfaceFile.view_path('surface_viewer/data_range_box_div') %>
-<%= render :file => SurfaceFile.view_path('surface_viewer/view_div') %>
-<%= render :file => SurfaceFile.view_path('surface_viewer/shapes_div') %>
-<%= render :file => SurfaceFile.view_path('javascripts/brainbrowser_surface'), :locals => { :userfile => @userfile, :file_format => "mniobj" } %>
-
+<div class="control-element">
+  Background Color:
+  <select id="clear_color">
+    <option value="0x000000">Black</option>
+    <option value="0x333333">Dark Gray</option>
+    <option value="0x666666">Gray</option>
+    <option value="0x999999">Light Gray</option>
+    <option value="0xcccccc">Pale Gray</option>
+    <option value="0xffffff">White</option>
+    <option value="0xff0000">Red</option>
+    <option value="0x00ff00">Green</option>
+    <option value="0x0000ff">Blue</option>
+    <option value="0x00ffff">Cyan</option>
+    <option value="0xff00ff">Magenta</option>
+    <option value="0xffff00">Yellow</option>
+  </select>
+</div>
