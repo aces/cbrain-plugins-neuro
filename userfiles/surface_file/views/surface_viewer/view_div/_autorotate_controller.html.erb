@@ -1,9 +1,8 @@
-
 <%-
 #
 # CBRAIN Project
 #
-# Copyright (C) 2008-2012
+# Copyright (C) 2008-2026
 # The Royal Institution for the Advancement of Learning
 # McGill University
 #
@@ -22,12 +21,11 @@
 #
 -%>
 
-<%= stylesheet_link_tag CivetOutput.public_path("stylesheets/surface_viewer.css").to_s, :media => "all" %>
-
-<%= render :file => SurfaceFile.view_path('surface_viewer/surface_choice_div'), :locals => { :userfile => @userfile } %>
-<%= render :file => SurfaceFile.view_path('surface_viewer/display_div') %>
-<%= render :file => SurfaceFile.view_path('surface_viewer/data_range_box_div') %>
-<%= render :file => SurfaceFile.view_path('surface_viewer/view_div') %>
-<%= render :file => SurfaceFile.view_path('surface_viewer/shapes_div') %>
-<%= render :file => SurfaceFile.view_path('javascripts/brainbrowser_surface'), :locals => { :userfile => @userfile, :file_format => "mniobj" } %>
-
+<div class="control-element">
+Autorotate:
+<span id="autorotate-controls" class="controlgroup">
+    <input type="checkbox"  id="autorotateX"><label for="autorotateX">X</label>
+    <input type="checkbox"  id="autorotateY"><label for="autorotateY">Y</label>
+    <input type="checkbox"  id="autorotateZ"><label for="autorotateZ">Z</label>
+</span>
+</div>
