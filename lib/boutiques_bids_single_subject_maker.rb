@@ -283,15 +283,11 @@ module BoutiquesBidsSingleSubjectMaker
     ds_file_id = self.invoke_params[ds_input.id]
     userfile   = Userfile.find(ds_file_id)
 
-    basename = Revision_info.basename
-    commit   = Revision_info.short_commit
-    self.addlog("#{basename} rev. #{commit}")
-
     if userfile.is_a?(BidsDataset)
-      self.addlog "BoutiquesBidsSingleSubject: preparing task for a BidsDataset"
+      self.addlog "Preparing task for a BidsDataset"
       setup_for_bids_dataset()
     elsif userfile.is_a?(BidsSubject)
-      self.addlog "BoutiquesBidsSingleSubject: preparing task for a BidsSubject"
+      self.addlog "Preparing task for a BidsSubject"
       setup_for_bids_subject()
     else
       cb_error "This task was given a CBRAIN file of unknown type: #{userfile.class} ##{userfile.id}"
@@ -315,14 +311,14 @@ module BoutiquesBidsSingleSubjectMaker
     subject_name = userfile.name # 'sub-1234'
 
     if ! File.directory?(FakeBidsDirName)
-      self.addlog("BoutiquesBidsSingleSubject: Creating fake BIDS dataset '#{FakeBidsDirName}'")
+      self.addlog("Creating fake BIDS dataset '#{FakeBidsDirName}'")
       Dir.mkdir(FakeBidsDirName)
     end
 
     # Make a copy of the subject data
     copy_loc = Pathname.new(FakeBidsDirName) + subject_name
     verb     = File.exists?(copy_loc.to_s) ? "Updating" : "Copying" # helps identifying what happens when restarting
-    self.addlog("BoutiquesBidsSingleSubject: #{verb} subject data '#{subject_name}'")
+    self.addlog("#{verb} subject data '#{subject_name}'")
     rsyncout = ssm_bash_this("rsync -a -l --no-g --chmod=u=rwX,g=rX,Dg+s,o=r --delete #{subject_name.bash_escape}/ #{copy_loc.to_s.bash_escape}")
     cb_error "Failed to rsync '#{subject_name}';\nrsync reported: #{rsyncout}" unless rsyncout.blank?
 
@@ -333,14 +329,14 @@ module BoutiquesBidsSingleSubjectMaker
 
     # Create dataset_description.json
     if ! File.exists?(desc_json_path)
-      self.addlog("BoutiquesBidsSingleSubject: installing dataset_description.json")
+      self.addlog("Installing dataset_description.json")
       File.open(desc_json_path,"w") { |fh| fh.write read_or_make_dataset_description(FakeBidsDirName) }
     end
 
     # Create participants.tsv
     tsv_header, tsv_record = read_or_make_tsv_for_subject(subject_name)
     if ! File.exists?(participants_tsv_path)
-      self.addlog "BoutiquesBidsSingleSubject: Creating new participants.tsv file for subject #{subject_name}"
+      self.addlog "Creating new participants.tsv file for subject #{subject_name}"
       File.open(participants_tsv_path,"w") { |fh| fh.write "#{tsv_header}\n#{tsv_record}\n" }
     else
       # Append to existing participants.tsv.
@@ -349,7 +345,7 @@ module BoutiquesBidsSingleSubjectMaker
       tsv_content = File.read(participants_tsv_path).split("\n")
       # This code will break if several processes are all trying to do this at the exact same time.
       if ! tsv_content.any? { |line| line.sub(/[\s,].*/,"") == subject_name }
-        self.addlog "BoutiquesBidsSingleSubject: Appending record for #{subject_name} to participants.tsv"
+        self.addlog "Appending record for #{subject_name} to participants.tsv"
         File.open(participants_tsv_path,"a") { |fh| fh.write "#{tsv_record}\n" }
       end
     end
@@ -357,7 +353,7 @@ module BoutiquesBidsSingleSubjectMaker
     # Create optional .bidsignore file if any
     bidsignore_content = read_bidsignore_file()
     if ! File.exists?(ign_path) && bidsignore_content.present?
-      self.addlog("BoutiquesBidsSingleSubject: installing .bidsignore file")
+      self.addlog("Installing .bidsignore file")
       File.open(ign_path,"w") { |fh| fh.write bidsignore_content }
     end
 
@@ -376,7 +372,7 @@ module BoutiquesBidsSingleSubjectMaker
     # In the case there is no specific participants.tsv file provided
     # in input, we return the info to create a simple one.
     if tsv_input_file_id.blank?
-      self.addlog "BoutiquesBidsSingleSubject: participants.tsv file will contain only the subject name"
+      self.addlog "participants.tsv file will contain only the subject name"
       return [ "participant_id", subject_name ] # TSV contains only participant ID
     end
 
@@ -388,9 +384,9 @@ module BoutiquesBidsSingleSubjectMaker
     tsv_header   = tsv_content[0].presence || "participant_id"
     tsv_record   = tsv_content.detect { |line| line.sub(/[\s,].*/,"") == subject_name }
     if tsv_record.present?
-      self.addlog "BoutiquesBidsSingleSubject: participants.tsv record for #{subject_name} extracted from supplied file"
+      self.addlog "participants.tsv record for #{subject_name} extracted from supplied file"
     else
-      self.addlog "BoutiquesBidsSingleSubject: Warning: no record for #{subject_name} found in participants.tsv file"
+      self.addlog "Warning: no record for #{subject_name} found in participants.tsv file"
       tsv_record = subject_name
     end
     [ tsv_header, tsv_record ]

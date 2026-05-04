@@ -133,11 +133,7 @@ module BoutiquesBidsSubjectFileSelector
   # If cleaning need to be done the subject will be copied,
   # then the extra files will be removed.
   def setup #:nodoc:
-    basename    = Revision_info.basename
-    commit      = Revision_info.short_commit
-
     self.addlog("Cleaning BIDS Subjects")
-    self.addlog("#{basename} rev. #{commit}")
 
     descriptor       = self.descriptor_for_setup
     map_ids_for_bbss = descriptor.custom_module_info('BoutiquesBidsSubjectFileSelector') || {}

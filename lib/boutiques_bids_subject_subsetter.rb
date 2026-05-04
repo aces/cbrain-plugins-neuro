@@ -138,11 +138,7 @@ module BoutiquesBidsSubjectSubsetter
   # If cleaning need to be done the subject will be copied,
   # then the extra files will be removed.
   def setup #:nodoc:
-    basename    = Revision_info.basename
-    commit      = Revision_info.short_commit
-
     self.addlog("Cleaning BIDS dataset")
-    self.addlog("#{basename} rev. #{commit}")
 
     descriptor       = self.descriptor_for_setup
     map_ids_for_bbss = descriptor.custom_module_info('BoutiquesBidsSubjectSubsetter') || {}
@@ -295,7 +291,7 @@ module BoutiquesBidsSubjectSubsetter
     if removed_files.blank?
       self.addlog("Warning: no files removed based on filter specifications")
     else
-      self.addlog("Remove files from #{subject_name}:\n#{removed_files}")
+      self.addlog("Removed files from #{subject_name}:\n#{removed_files}")
     end
   end
 
