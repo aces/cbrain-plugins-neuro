@@ -315,13 +315,6 @@ module BoutiquesBidsSingleSubjectMaker
       Dir.mkdir(FakeBidsDirName)
     end
 
-    # Make a copy of the subject data
-    copy_loc = Pathname.new(FakeBidsDirName) + subject_name
-    verb     = File.exists?(copy_loc.to_s) ? "Updating" : "Copying" # helps identifying what happens when restarting
-    self.addlog("#{verb} subject data '#{subject_name}'")
-    rsyncout = ssm_bash_this("rsync -a -l --no-g --chmod=u=rwX,g=rX,Dg+s,o=r --delete #{subject_name.bash_escape}/ #{copy_loc.to_s.bash_escape}")
-    cb_error "Failed to rsync '#{subject_name}';\nrsync reported: #{rsyncout}" unless rsyncout.blank?
-
     # Three other needed files in a BIDS dataset:
     desc_json_path        = Pathname.new(FakeBidsDirName) + "dataset_description.json"
     participants_tsv_path = Pathname.new(FakeBidsDirName) + "participants.tsv"
@@ -356,6 +349,19 @@ module BoutiquesBidsSingleSubjectMaker
       self.addlog("Installing .bidsignore file")
       File.open(ign_path,"w") { |fh| fh.write bidsignore_content }
     end
+
+    # Determine if we apply the .bidsignore file
+    rsync_exclude = ""
+    if File.exists?(ign_path) && self.invoke_params[:cbrain_apply_bids_ignore].to_s =~ /true|1/i
+      rsync_exclude = "--exclude-from=#{ign_path.to_s}"
+    end
+
+    # Make a copy of the subject data
+    copy_loc = Pathname.new(FakeBidsDirName) + subject_name
+    verb     = File.exists?(copy_loc.to_s) ? "Updating" : "Copying" # helps identifying what happens when restarting
+    self.addlog("#{verb} subject data '#{subject_name}'")
+    rsyncout = ssm_bash_this("rsync -a -l --no-g --chmod=u=rwX,g=rX,Dg+s,o=r #{rsync_exclude} --delete --delete-excluded #{subject_name.bash_escape}/ #{copy_loc.to_s.bash_escape}")
+    cb_error "Failed to rsync '#{subject_name}';\nrsync reported: #{rsyncout}" unless rsyncout.blank?
 
     true
   end
@@ -430,7 +436,8 @@ module BoutiquesBidsSingleSubjectMaker
       .reject do |k,v|
          k.to_s == "cbrain_participants_tsv"  or
          k.to_s == "dataset_description_json" or
-         k.to_s == "cbrain_bids_ignore"
+         k.to_s == "cbrain_bids_ignore"       or
+         k.to_s == "cbrain_apply_bids_ignore"
       end # returns a dup()
   end
 
@@ -592,6 +599,17 @@ module BoutiquesBidsSingleSubjectMaker
     )
     descriptor.inputs <<= new_input_ign
 
+    # Add new flag input for applying the .bidsignore
+    new_input_apply_ign = BoutiquesSupport::Input.new(
+      "name"          => "Apply '.bidsignore' file",
+      "id"            => "cbrain_apply_bids_ignore",
+      "description"   => "If a .bidsignore file has been provided, setting this option to true will tell CBRAIN to apply the rules in the .bidsignore when locally copying the content of the BIDS Subject, when setting this up. Note that because we use the rsync feature '--exclude-from', we do not support bidsignore rules with '!' in them.",
+      "type"          => "Flag",
+      "optional"      => true,
+      "default-value" => false,
+    )
+    descriptor.inputs <<= new_input_apply_ign
+
     # Add new group with that input
     groups       = descriptor.groups.dup || []
     cb_mod_group = groups.detect { |group| group.id == 'cbrain_bids_extensions' }
@@ -607,6 +625,7 @@ module BoutiquesBidsSingleSubjectMaker
     cb_mod_group.members <<= new_input_dd.id
     cb_mod_group.members <<= new_input_part.id
     cb_mod_group.members <<= new_input_ign.id
+    cb_mod_group.members <<= new_input_apply_ign.id
 
     descriptor.groups = groups
     descriptor
