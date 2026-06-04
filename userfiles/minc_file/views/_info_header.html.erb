@@ -30,7 +30,7 @@ minc_info = IO.popen([ "mincinfo", cache_path ], "r") do |fh|
 end
 minc_info = minc_info.text_file_content_to_utf8 # provided by BrainPortal/lib/cbrain_extensions/string_extensions/utilities.rb
 
-minc_head = IO.popen("mincheader", cache_path ],  "r") do |fh|
+minc_head = IO.popen(["mincheader", cache_path ],  "r") do |fh|
   fh.read rescue "Cannot run mincheader ?!?"
 end
 minc_head = minc_head.text_file_content_to_utf8 # provided by BrainPortal/lib/cbrain_extensions/string_extensions/utilities.rb
@@ -44,4 +44,3 @@ minc_head = minc_head.text_file_content_to_utf8 # provided by BrainPortal/lib/cb
     <pre><%= minc_head -%></pre>
   <% end %>
 <% end %>
-
