@@ -5,8 +5,8 @@
     "descriptor-url": "https://github.com/aces/cbrain-plugins-neuro/blob/master/cbrain_task_descriptors/fsl_first.json",
     "command-line": "mkdir -p [OUTPUT_DIR]; run_first_all [METHOD] [BRAIN_EXTRACTED] [SPECIFIED_STRUCTURE] [AFFINE] [THREE_STAGE] [VERBOSE] [INPUT_FILE] -o [OUTPUT_DIR]/[PREFIX]",
     "container-image": {
-        "image": "mcin/docker-fsl:5.0.9", 
-        "index": "docker://", 
+        "image": "mcin/docker-fsl:5.0.9",
+        "index": "docker://",
         "type": "docker"
     },
     "inputs": [
@@ -130,9 +130,17 @@
     ],
     "tags": {
         "domain": [
-            "neuroinformatics", 
+            "neuroinformatics",
             "mri"
         ]
-    }, 
+    },
+    "custom": {
+      "cbrain:integrator_modules": {
+        "BoutiquesZenodoPusher": {
+          "outputs":         true,
+          "std_sub_outputs": true
+        }
+      }
+    },
     "description": "FIRST is a model-based segmentation and registration tool, based on a Bayesian model of shape and appearance for subcortical structures."
 }
