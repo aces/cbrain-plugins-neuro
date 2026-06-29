@@ -30,20 +30,20 @@ class SurfFile < SurfaceFile
     # does not assign the .surf extension to produced surface files.
     # All the relevant surface files are located in the 'surf/' directory.
     # Not all files in that directory are mesh surface files —
-    # some are dat, txt, statistics, overlays, etc. —
+    # some are data, text, statistics, overlays, etc. —
     # so we whitelist mesh surface files here.
 
     %r{
       \.surf(\.gz|\.Z|\.bz2)?$    # FreeSurfer Surface .surf-extension file, optionally compressed
 
-                      |          # OR: a Recon-All surface file
+       |                          # OR:  a Recon-All surface file
 
       surf\/                             # the directory where Recon-All surface files are located
       (lh|rh)\.                          # hemisphere prefix
 
       (                                  # whitelisted surface types group
 
-        white\.preaparc                    # pre-parcellation white surface
+            white\.preaparc                # pre-parcellation white surface
           | white                          # white matter surface (core cortical mesh)
           | pial\.preaparc                 # pre-parcellation pial surface
           | pial(\.T1)?                    # pial surface
@@ -59,9 +59,9 @@ class SurfFile < SurfaceFile
           | sphere\.reg                    # registered spherical surface
           | sphere                         # spherical surface (registration base)
           | qsphere\.nofix                 # quasi-spherical no-fix surface
-      )                                 # end whitelisted surface types group
+      )                                  # end whitelisted surface types group
 
-     $                                  # end of file name
+      $                                  # end of Recon All surface file name
     }x
   end
 
