@@ -29,6 +29,7 @@ class SurfaceFile < SingleFile
   has_viewer :name => "Surface Viewer",  :partial => :surface_viewer, :if =>
              Proc.new { |u| u.size.present? &&
                             u.size < 5000.megabytes &&
+                            u.respond_to?(:brainbrowser_file_format) && # defined in subclasses
                             u.is_locally_synced?
                       }
 

@@ -48,7 +48,7 @@
 #
 # In the example above, any BidsSubject file "sub-1234"
 # selected by the user for the Boutiques File input "my_input1" will
-# be put into a fake BIDS dataset, as a symbolic link.
+# be put into a fake BIDS dataset, as full folder copy.
 #
 # If the boutiques ID of String input is provided with
 # subjects_input_id, the value of that input will be populated
@@ -360,6 +360,7 @@ module BoutiquesBidsSingleSubjectMaker
     copy_loc = Pathname.new(FakeBidsDirName) + subject_name
     verb     = File.exists?(copy_loc.to_s) ? "Updating" : "Copying" # helps identifying what happens when restarting
     self.addlog("#{verb} subject data '#{subject_name}'")
+    self.addlog("Note: files will be filtered by the .bidsignore rules") if rsync_exclude.present?
     rsyncout = ssm_bash_this("rsync -a -l --no-g --chmod=u=rwX,g=rX,Dg+s,o=r #{rsync_exclude} --delete --delete-excluded #{subject_name.bash_escape}/ #{copy_loc.to_s.bash_escape}")
     cb_error "Failed to rsync '#{subject_name}';\nrsync reported: #{rsyncout}" unless rsyncout.blank?
 
