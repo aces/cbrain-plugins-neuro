@@ -26,27 +26,29 @@ class SurfFile < SurfaceFile
   Revision_info=CbrainFileRevision[__FILE__] #:nodoc:
 
   def self.file_name_pattern #:nodoc:
-    # the standard extension is .surf. Yet a popular Recon-All tool
-    # does not assign the .surf extension to produced surface files.
+    # the standard extension is .surf. Yet a popular recon-all tool
+    # does not assign the .surf extension to the produced surface files.
     # All the relevant surface files are located in the 'surf/' directory.
-    # Not all files in that directory are mesh surface files —
-    # some are data, text, statistics, overlays, etc. —
-    # so we whitelist mesh surface files here.
+    # However, not all files in that directory are mesh surface files —
+    # some are data, text, statistics, overlays, etc.
+    # Therefore, we whitelist recon-all mesh surface file names below.
 
     %r{
-      \.surf(\.gz|\.Z|\.bz2)?$    # FreeSurfer Surface .surf-extension file, optionally compressed
+      \.surf(?:                     # FreeSurfer Surface files with '.surf' extension,
+        \.gz|\.Z|\.bz2              # optionally compressed
+      )?$
 
-       |                          # OR:  a Recon-All surface file
+        |                           # OR:  a surface file in recon-all output
 
-      surf\/                             # the directory where Recon-All surface files are located
-      (lh|rh)\.                          # hemisphere prefix
+      surf/                              # the directory where recon-all surface files are located
 
-      (                                  # whitelisted surface types group
+      (?: lh|rh)\.                       # hemisphere prefix
 
+      (?:                                # whitelisted surface types group
             white\.preaparc                # pre-parcellation white surface
           | white                          # white matter surface (core cortical mesh)
           | pial\.preaparc                 # pre-parcellation pial surface
-          | pial(\.T1)?                    # pial surface
+          | pial(?: \.T1)?                 # pial surface
           | woT2\.pial                     # backup of pre-refinement pial surface, created by -T2pial
           | woFLAIR\.pial                  # backup of pre-refinement pial surface, created by -FLAIRpial
           | inflated\.nofix                # inflated surface (no-fix variant)
@@ -59,10 +61,10 @@ class SurfFile < SurfaceFile
           | sphere\.reg                    # registered spherical surface
           | sphere                         # spherical surface (registration base)
           | qsphere\.nofix                 # quasi-spherical no-fix surface
-      )                                  # end whitelisted surface types group
+      )                               # end whitelisted surface types group
 
-      $                                  # end of Recon All surface file name
-    }x
+      $                               # end of recon-all surface file name
+    }xi
   end
 
   def self.pretty_type #:nodoc:
