@@ -26,7 +26,45 @@ class SurfFile < SurfaceFile
   Revision_info=CbrainFileRevision[__FILE__] #:nodoc:
 
   def self.file_name_pattern #:nodoc:
-    /\.surf(\.gz|\.Z|\.bz2)?$/i
+    # the standard extension is .surf. Yet a popular recon-all tool
+    # does not assign the .surf extension to the produced surface files.
+    # All the relevant surface files are located in the 'surf/' directory.
+    # However, not all files in that directory are mesh surface files —
+    # some are data, text, statistics, overlays, etc.
+    # Therefore, we whitelist recon-all mesh surface file names below.
+
+    %r{
+      \.surf(?:                     # FreeSurfer Surface files with '.surf' extension,
+        \.gz|\.Z|\.bz2              # optionally compressed
+      )?$
+
+        |                           # OR:  a surface file in recon-all output
+
+      surf/                              # the directory where recon-all surface files are located
+
+      (?: lh|rh)\.                       # hemisphere prefix
+
+      (?:                                # whitelisted surface types group
+            white\.preaparc                # pre-parcellation white surface
+          | white                          # white matter surface (core cortical mesh)
+          | pial\.preaparc                 # pre-parcellation pial surface
+          | pial(?: \.T1)?                 # pial surface
+          | woT2\.pial                     # backup of pre-refinement pial surface, created by -T2pial
+          | woFLAIR\.pial                  # backup of pre-refinement pial surface, created by -FLAIRpial
+          | inflated\.nofix                # inflated surface (no-fix variant)
+          | inflated                       # inflated cortical surface
+          | smoothwm\.nofix                # smoothed white (no-fix variant)
+          | smoothwm                       # smoothed white matter surface
+          | orig\.nofix                    # original surface (no-fix variant)
+          | orig\.premesh                  # premesh intermediate surface
+          | orig                           # original surface before inflation/smoothing
+          | sphere\.reg                    # registered spherical surface
+          | sphere                         # spherical surface (registration base)
+          | qsphere\.nofix                 # quasi-spherical no-fix surface
+      )                               # end whitelisted surface types group
+
+      $                               # end of recon-all surface file name
+    }xi
   end
 
   def self.pretty_type #:nodoc:
@@ -40,4 +78,3 @@ class SurfFile < SurfaceFile
   end
 
 end
-
