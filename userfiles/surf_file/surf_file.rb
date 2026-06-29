@@ -26,7 +26,6 @@ class SurfFile < SurfaceFile
   Revision_info=CbrainFileRevision[__FILE__] #:nodoc:
 
   def self.file_name_pattern #:nodoc:
-
     # the standard extension is .surf. Yet a popular Recon-All tool
     # does not assign the .surf extension to produced surface files.
     # All the relevant surface files are located in the 'surf/' directory.
@@ -35,35 +34,35 @@ class SurfFile < SurfaceFile
     # so we whitelist mesh surface files here.
 
     %r{
-      .surf(\.gz|\.Z|\.bz2)?$    # FreeSurfer Surface .surf-extension file, optionally compressed
+      \.surf(\.gz|\.Z|\.bz2)?$    # FreeSurfer Surface .surf-extension file, optionally compressed
 
-                      |          # OR: a Recon-Alle surface file
+                      |          # OR: a Recon-All surface file
 
       surf\/                             # the directory where Recon-All surface files are located
       (lh|rh)\.                          # hemisphere prefix
 
       (                                  # whitelisted surface types group
 
-            white                          # white matter surface (core cortical mesh)
-          | white\.preaparc                # pre-parcellation white surface
-          | pial(\.T1)?                    # pial surface
+        white\.preaparc                    # pre-parcellation white surface
+          | white                          # white matter surface (core cortical mesh)
           | pial\.preaparc                 # pre-parcellation pial surface
+          | pial(\.T1)?                    # pial surface
           | woT2\.pial                     # backup of pre-refinement pial surface, created by -T2pial
           | woFLAIR\.pial                  # backup of pre-refinement pial surface, created by -FLAIRpial
-          | inflated                       # inflated cortical surface
           | inflated\.nofix                # inflated surface (no-fix variant)
-          | smoothwm                       # smoothed white matter surface
+          | inflated                       # inflated cortical surface
           | smoothwm\.nofix                # smoothed white (no-fix variant)
-          | orig                           # original surface before inflation/smoothing
+          | smoothwm                       # smoothed white matter surface
           | orig\.nofix                    # original surface (no-fix variant)
           | orig\.premesh                  # premesh intermediate surface
-          | sphere                         # spherical surface (registration base)
+          | orig                           # original surface before inflation/smoothing
           | sphere\.reg                    # registered spherical surface
+          | sphere                         # spherical surface (registration base)
           | qsphere\.nofix                 # quasi-spherical no-fix surface
-     )                                  # end whitelisted surface types group
+      )                                 # end whitelisted surface types group
 
      $                                  # end of file name
-  }x
+    }x
   end
 
   def self.pretty_type #:nodoc:
