@@ -10,15 +10,23 @@
   "author":         "Khan Computational Imaging Lab ",
   "url":            "https://github.com/khanlab/hippunfold",
   "description":    "BIDS App for Hippunfold. Please cite: Automated hippocampal unfolding for morphometry and subfield segmentation with HippUnfold.  Jordan DeKraker, Roy AM Haast, Mohamed D Yousif, Bradley Karat, Jonathan C Lau, Stefan Köhler, Ali R Khan. eLife (2022).  https://doi.org/10.7554/eLife.77945",
-  "command-line": "hippunfold [SUBJECT_DIR] [OUTPUT_DIR] participant [MODALITY] [DERIVATIVES] [SKIP_PREPROC] [SKIP_COREG] [SKIP_INJECT_TEMPLATE_LABELS] [INJECT_TEMPLATE_SMOOTHING_FACTOR] [RIGID_REG_TEMPLATE] [NO_REG_TEMPLATE] [TEMPLATE] [ATLAS] [T1_REG_TEMPLATE] [GENERATE_MYELIN_MAP] [NNUNET_ENABLE_TTA] [OUTPUT_SPACES] [OUTPUT_DENSITY] [HEMI] [LAMINAR_COORDS_METHOD] [KEEP_WORK] [FORCE_NNUNET_MODEL] -c all --nolock",
+  "command-line": "hippunfold [SUBJECT_DIR] [OUTPUT_DIR] participant [PARTICIPANT] [MODALITY] [DERIVATIVES] [SKIP_PREPROC] [SKIP_COREG] [SKIP_INJECT_TEMPLATE_LABELS] [INJECT_TEMPLATE_SMOOTHING_FACTOR] [RIGID_REG_TEMPLATE] [NO_REG_TEMPLATE] [TEMPLATE] [ATLAS] [T1_REG_TEMPLATE] [GENERATE_MYELIN_MAP] [NNUNET_ENABLE_TTA] [OUTPUT_SPACES] [OUTPUT_DENSITY] [HEMI] [LAMINAR_COORDS_METHOD] [KEEP_WORK] [FORCE_NNUNET_MODEL] -c all --nolock",
   "inputs": [
       {
-        "description": "subject folder for BIDS (folders name should be sub-XXXXX).",
+        "description": "BIDS Dataset, or single BIDS Subject folder",
         "id": "subject_dir",
         "name": "subject_dir",
         "optional": false,
         "type": "File",
         "value-key": "[SUBJECT_DIR]"
+      },
+      {
+        "description": "Participant label",
+        "id": "participant_label",
+        "name": "participant_label",
+        "optional": true,
+        "type": "String",
+        "value-key": "[PARTICIPANT]"
       },
       {
         "description": "Type of image to run hippunfold on, prefixed\nwith seg will import an existing hippocampal tissue\nsegmentation from that space, instead of running\nneural network (default: ['T2w'])",
@@ -317,7 +325,10 @@
         "BoutiquesPostProcessingCleaner": [
             "[SUBJECT_DIR]_res"
         ],
-        "BoutiquesBidsSingleSubjectMaker": "subject_dir"
+        "BoutiquesBidsSingleSubjectMaker": {
+          "dataset_input_id": "subject_dir",
+          "subjects_input_id": "participant_label"
+        }
     }
   }
 }
