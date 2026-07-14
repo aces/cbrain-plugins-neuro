@@ -312,12 +312,6 @@
       "cbrain:readonly-input-files": true,
       "cbrain:author": "Natacha Beck <nbeck@mcin.ca>, Pierre Rioux <pierre.rioux@mcgill.ca>",
       "cbrain:integrator_modules": {
-        "BoutiquesFileTypeVerifier": {
-            "subject_dir": [ "BidsSubject" ]
-        },
-        "BoutiquesFileNameMatcher": {
-            "subject_dir": "^sub-[a-zA-Z0-9_]+$"
-        },
         "BoutiquesOutputFileTypeSetter": {
             "output_dir": "HippunfoldOutput"
         },
