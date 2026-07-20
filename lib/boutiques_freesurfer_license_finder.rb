@@ -64,7 +64,6 @@ module BoutiquesFreesurferLicenseFinder
     if lic.blank? && params[:interface_userfile_ids].size > 1
       txt_lic = TextFile
         .where(
-          user_id: self.user_id,
           id:      params[:interface_userfile_ids],
           name:    "license.txt"
         )
