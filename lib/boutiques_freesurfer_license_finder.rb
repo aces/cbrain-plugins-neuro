@@ -60,8 +60,8 @@ module BoutiquesFreesurferLicenseFinder
       .order("updated_at desc")
       .first
 
-    # by default CBRAIN assign license.txt file Text File type, lets tell user set type properly
-    if lic.blank? && params[:interface_userfile_ids].size > 1
+    # by default CBRAIN assign license.txt file Text File type, lets tell user reassign type properly
+    if lic.blank?
       txt_lic = TextFile
         .where(
           id:      params[:interface_userfile_ids],
@@ -77,6 +77,7 @@ module BoutiquesFreesurferLicenseFinder
             "and try again. (Or provide another valid license file with its type properly set.)"
         )   # the phrase in brackets addresses a hypothetical case of a tool with two licenses
       end
+      # a user may accidentally supply license of another user, we do not prohibit users from sharing any files, or check license content
     end
 
     # Find a license among all files owned by the user
