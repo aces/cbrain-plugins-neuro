@@ -26,6 +26,7 @@
         "name": "participant_label",
         "optional": true,
         "type": "String",
+        "command-line-flag": "--participant-label",
         "value-key": "[PARTICIPANT]"
       },
       {
