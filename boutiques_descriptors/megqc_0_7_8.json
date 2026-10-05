@@ -126,15 +126,6 @@
         "cbrain:author": "Alexandre Pastor-Bernier <alexandre.pastor@mcgill.ca>",
         "cbrain:readonly-input-files": true,
         "cbrain:integrator_modules": {
-            "BoutiquesFileTypeVerifier": {
-                "input": [
-                    "FileCollection",
-                    "BidsSubject"
-                ]
-            },
-            "BoutiquesFileNameMatcher": {
-                "input": "^sub-[a-zA-Z0-9_]+$"
-            },
             "BoutiquesOutputFileTypeSetter": {
                 "output_dir": "MegQcOutput"
             },
@@ -142,6 +133,9 @@
                 "dataset_input_id": "input",
                 "subjects_input_id": "subs",
                 "keep_sub_prefix": false
+            },
+            "BoutiquesOutputFilenameRenamer": {
+                "output_dir": [ "input", "output" ]
             },
             "BoutiquesInputCacheCleaner": [
                 "input"
