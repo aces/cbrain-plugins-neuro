@@ -331,6 +331,9 @@
             "BoutiquesOutputFileTypeSetter": {
                 "designer_output": "DmtOutput"
             },
+            "BoutiquesOutputFilenameRenamer": {
+                "designer_output_dir": [ "designer_bids_input", "designer_output" ]
+            },
             "BoutiquesInputValueFixer": {
               "designer_scratch": "cbrain_designer_scratch"
             },
