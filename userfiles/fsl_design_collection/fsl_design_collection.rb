@@ -23,7 +23,7 @@ class FslDesignCollection < FileCollection
   Revision_info=CbrainFileRevision[__FILE__] #:nodoc:
 
   def self.pretty_type #:nodoc:
-    "Fsl design collection"
+    "FSL design collection"
   end
 
   # *.mat

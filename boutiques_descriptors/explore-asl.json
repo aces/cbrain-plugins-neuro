@@ -852,7 +852,7 @@
                 "input_folder": "^sub-[a-zA-Z0-9_]+$"
             },
             "BoutiquesOutputFileTypeSetter": {
-                "output_folder": "ExploreASLOutput"
+                "output_folder": "ExploreAslOutput"
             },
             "BoutiquesBidsSingleSubjectMaker": "input_folder"
         }

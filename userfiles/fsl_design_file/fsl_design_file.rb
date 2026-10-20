@@ -21,7 +21,7 @@
 #
 
 # Model for FSL design file (to use in Feat of Melodic)x
-class FSLDesignFile < SingleFile
+class FslDesignFile < SingleFile
 
   Revision_info=CbrainFileRevision[__FILE__] #:nodoc:
   

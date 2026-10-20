@@ -37,7 +37,7 @@ class CbrainTask::FslMelodic < PortalTask
 
   def usage
     "You MUST select:
-     * an FSL design file, with extension .fsf or CBRAIN type FSLDesignFile.
+     * an FSL design file, with extension .fsf or CBRAIN type FslDesignFile.
      * a CSV file containing pairs of Nifti or MINC file names, separated by commas.
      --- The corresponding files must be registered in CBRAIN and you must have access to them.
      --- The file type (MINC or Nifti) is determined based on the file extension (.mnc, .nii or .nii.gz).
@@ -104,12 +104,12 @@ class CbrainTask::FslMelodic < PortalTask
       u = Userfile.find(id) rescue nil
       cb_error "Error: input file #{id} doesn't exist." unless u
       cb_error "Error: '#{u.name}' does not seem to be a single file." unless u.is_a?(SingleFile)
-      cb_error "Error: found a #{u.type}. \n #{usage}" unless ( u.is_a?(CSVFile) || u.is_a?(FSLDesignFile) || u.name.end_with?(".csv") || u.name.end_with?(".fsf"))
-      if u.is_a?(FSLDesignFile) || u.name.end_with?(".fsf")
+      cb_error "Error: found a #{u.type}. \n #{usage}" unless ( u.is_a?(CsvFile) || u.is_a?(FslDesignFile) || u.name.end_with?(".csv") || u.name.end_with?(".fsf"))
+      if u.is_a?(FslDesignFile) || u.name.end_with?(".fsf")
         cb_error "Error: you may select only 1 design file. \n #{usage}" unless params[:design_file_id].nil?
         params[:design_file_id] = id
       end
-      if u.is_a?(CSVFile) || u.name.end_with?(".csv")
+      if u.is_a?(CsvFile) || u.name.end_with?(".csv")
         cb_error "Error: you may select only 1 CSV file. \n #{usage}" unless params[:csv_file_id].nil?
         params[:csv_file_id] = id
       end
@@ -127,7 +127,7 @@ class CbrainTask::FslMelodic < PortalTask
     
     lines = ""
     begin
-      lines    = csv_file.becomes(CSVFile).create_csv_array("\"",",")
+      lines    = csv_file.becomes(CsvFile).create_csv_array("\"",",")
     rescue => ex
       cb_error "Cannot create array from CSV file (#{ex.message}). Maybe the format of your CSV file is wrong."
     end

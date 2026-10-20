@@ -21,7 +21,7 @@
 #
 
 # A FileCollection to model the output of an exploreASL task
-class ExploreASLOutput < FileCollection
+class ExploreAslOutput < FileCollection
 
   Revision_info=CbrainFileRevision[__FILE__] #:nodoc:
 
