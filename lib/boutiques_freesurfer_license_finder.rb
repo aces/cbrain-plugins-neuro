@@ -60,6 +60,17 @@ module BoutiquesFreesurferLicenseFinder
       .order("updated_at desc")
       .first
 
+    # a user may accidentally supply his own or another user's Text file license
+    # We neither prohibit users from sharing any files
+    # nor check license content for licensee email, and this is
+    # a convenience rather than validation module
+    return super if lic.blank? && Userfile
+        .where(
+          id:      params[:interface_userfile_ids],
+          type:    "TextFile")  # other classes, such as Single File are extremely rare for FS license
+        .where("name LIKE ?", "%license%")
+        .exists?
+
     # Find a license among all files owned by the user
     lic ||= FreesurferLicense
       .where(:user_id => self.user_id)
