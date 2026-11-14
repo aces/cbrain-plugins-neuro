@@ -31,11 +31,12 @@
             "id": "mode",
             "type": "String",
             "value-choices": [
-                "new",
-                "legacy",
-                "latest"
+                "new-profile",
+                "non-profile",
+                "reuse-profile",
+                "latest-profile"
             ],
-            "default-value": "new",
+            "default-value": "new-profile",
             "optional": true,
             "command-line-flag": "--analysis_mode",
             "value-key": "[--analysis_mode <MODE>]"
