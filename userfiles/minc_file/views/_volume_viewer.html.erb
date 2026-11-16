@@ -46,8 +46,10 @@ volume_ui_template_id = "volume-ui-template-#{@userfile.id}"
       url = content_userfile_path(file, :content_loader => :minc_content, :file_name => file.name, :viewer_userfile_class => :MincFile)
     elsif file.is_a?(NiftiFile)
       url = content_userfile_path(file, :content_loader => :raw_content, :file_name => file.name, :viewer_userfile_class => :NiftiFile)
-    elsif
+    elsif file.is_a?(MghFile)
       url = content_userfile_path(file, :content_loader => :raw_content, :file_name => file.name, :viewer_userfile_class => :MghFile)
+    elsif file.is_a?(PngFile)
+      url = content_userfile_path(file, :content_loader => :raw_content, :file_name => file.name, :viewer_userfile_class => :PngFile)
     end
 
     volume = file.to_BrainBrowser_volume(url) if url
@@ -60,6 +62,7 @@ volume_ui_template_id = "volume-ui-template-#{@userfile.id}"
   end
 
   viewable_by_volume_viewer = volumes_info_for_viewer.keys.reject{ |name| name == @userfile.name}
+  viewable_by_volume_viewer = [] unless volumes_info_for_viewer.has_key?(@userfile.name)
 %>
 
 <div id="brainbrowser-volume-<%= bb_identifier %>"></div>
@@ -163,6 +166,18 @@ volume_ui_template_id = "volume-ui-template-#{@userfile.id}"
             <input id="max-threshold-<%= bb_identifier %>-{{VOLID}}" class="control-inputs thresh-input-right" value="255"/>
           </div>
           <div class="slider volume-viewer-threshold" id="threshold-slider-<%= bb_identifier %>-{{VOLID}}"></div>
+        </div>
+
+        <div id="contrast-div-<%= bb_identifier %>-{{VOLID}}" class="contrast-div" data-volume-id="<%= bb_identifier %>-{{VOLID}}">
+          <div class="control-heading">
+            Contrast:
+          </div>
+          <br>
+          <div class="thresh-inputs">
+            <input id="min-contrast-<%= bb_identifier %>-{{VOLID}}" class="control-inputs thresh-input-left"  value="0"/>
+            <input id="max-contrast-<%= bb_identifier %>-{{VOLID}}" class="control-inputs thresh-input-right" value="2"/>
+          </div>
+          <div class="slider volume-viewer-contrast" id="contrast-slider-<%= bb_identifier %>-{{VOLID}}"></div>
         </div>
 
         <div id="time-<%= bb_identifier %>-{{VOLID}}" class="time-div" data-volume-id="<%= bb_identifier %>-{{VOLID}}" style="display:none">
@@ -339,7 +354,7 @@ volume_ui_template_id = "volume-ui-template-#{@userfile.id}"
           $(panel).prop('checked', true);
         }
       }
-        
+
       function togglePanel(cb, volId, idx) {
         var selector = '#volume-viewer-<%= bb_identifier %>-' + volId + ' .volume-viewer-display canvas';
         var canvases = document.querySelectorAll(selector);
