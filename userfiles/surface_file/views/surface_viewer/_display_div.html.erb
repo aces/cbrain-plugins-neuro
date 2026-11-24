@@ -22,6 +22,6 @@
 -%>
 
 <div id="display">
-  <div id="loading" style="display: none"><%= image_tag MincFile.public_path('images/brainbrowser-loader.gif') %></div>
+  <div id="loading" style="display: none"><%= image_tag MincFile.public_path('images/brainbrowser-loader.gif').to_s %></div>
   <div id="surface-viewer"></div>
 </div>
