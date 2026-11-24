@@ -24,7 +24,7 @@
 
 
 <script type="text/javascript">
-
+  if (window.BrainBrowser && !window.BrainBrowser.SurfaceViewer) { delete window.BrainBrowser; }
   $("#surface-viewer").load("https://brainbrowser.cbrain.mcgill.ca/surface-viewer-widget?version=2.4.0&height=600&width=600&viewer_callback=init");
 
   function init(viewer) {
@@ -395,12 +395,12 @@
 
         <% surface_dir_path = userfile.name + "/" + userfile.surfaces_dir %>
         viewer.loadModelFromURL(
-          "<%= content_userfile_path(userfile, :content_loader => :raw_content, :file_name => surface_dir_path) %>/" + encodeURIComponent(selected_obj),
+          "<%== j content_userfile_path(userfile, :content_loader => :raw_content, :file_name => surface_dir_path) %>/" + encodeURIComponent(selected_obj),
           {
             complete: function() {
               viewer.loadColorMapFromURL(color_maps[0].url);
               viewer.loadIntensityDataFromURL(
-                "<%= content_userfile_path(userfile, :content_loader => :raw_content) %>&file_name=" + encodeURIComponent(filename),
+                "<%== j content_userfile_path(userfile, :content_loader => :raw_content) %>&file_name=" + encodeURIComponent(filename),
               {
                 name: selected_obj,
                 complete: loadEnd
@@ -416,7 +416,7 @@
       var filename = $(event.target).val()
       var basename = filename.replace(/\\/g,'/').replace( /.*\//, '' )
       viewer.loadIntensityDataFromURL(
-        "<%= content_userfile_path(@userfile) %>?content_loader=collection_file&arguments=" + filename,
+        "<%== j content_userfile_path(@userfile) %>?content_loader=collection_file&arguments=" + filename,
         {
           name: basename,
           complete: loadEnd
@@ -441,8 +441,8 @@
 
   <% if defined?(userfile) && userfile.respond_to?(:overlays) && !userfile.overlays.empty? %>
     <% raw_filename = (userfile.name + "/" + userfile.surfaces_dir + "/" + userfile.surfaces_objs[0].to_s)%>
-    var raw_surface_url   = "<%= content_userfile_path(userfile, :content_loader => :raw_content, :file_name => raw_filename)%>"
-    var raw_intensity_url = "<%= content_userfile_path(userfile, :content_loader => :raw_content, :file_name =>  userfile.overlays[0][1]) %>"
+    var raw_surface_url   = "<%== j content_userfile_path(userfile, :content_loader => :raw_content, :file_name => raw_filename)%>"
+    var raw_intensity_url = "<%== j content_userfile_path(userfile, :content_loader => :raw_content, :file_name =>  userfile.overlays[0][1]) %>"
     viewer.loadModelFromURL(
       raw_surface_url,
       {
@@ -459,7 +459,7 @@
       }
     );
   <% else %>
-    var raw_surface_url = "<%= content_userfile_path(userfile, :content_loader => :raw_content,  :viewer_userfile_class => :SurfaceFile) %>"
+    var raw_surface_url = "<%== j content_userfile_path(userfile, :content_loader => :raw_content,  :viewer_userfile_class => :SurfaceFile) %>"
     viewer.loadModelFromURL(
       raw_surface_url,
       {
