@@ -66,7 +66,7 @@ volume_ui_template_id = "volume-ui-template-#{@userfile.id}"
 
 <div id="global-controls-<%= bb_identifier %>" class="volume-viewer-controls">
   <div id="loading-<%= bb_identifier %>" style="display: none">
-  <%= image_tag MincFile.public_path('images/brainbrowser-loader.gif') %>
+  <%= image_tag MincFile.public_path('images/brainbrowser-loader.gif').to_s %>
   <br>
   <button id="brainbrowser_volume_screenshot-<%= bb_identifier %>">Screenshot</button>
 </div>
@@ -952,6 +952,6 @@ volume_ui_template_id = "volume-ui-template-#{@userfile.id}"
     // For a NiftiFile, the partial inserted here comes from:
     //   cbrain-plugins-neuro/userfiles/nifti_file/views/_volume_viewer_loader.html.erb
 
-    <%= render :file => @userfile.view_path("volume_viewer_loader") %>
+    <%= render partial: @userfile.view_path("volume_viewer_loader") %>
   });
 </script>

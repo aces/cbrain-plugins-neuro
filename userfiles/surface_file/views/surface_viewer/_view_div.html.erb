@@ -23,7 +23,7 @@
 
 <div class="controls">
     <h4>View:</h4>
-    <%= render :file => SurfaceFile.view_path('surface_viewer/view_div/background_controller') %>
-    <%= render :file => SurfaceFile.view_path('surface_viewer/view_div/autorotate_controller') %>
-    <%= render :file => SurfaceFile.view_path('surface_viewer/view_div/view_controller') %>
+    <%= render :partial => SurfaceFile.view_path('surface_viewer/view_div/background_controller') %>
+    <%= render :partial => SurfaceFile.view_path('surface_viewer/view_div/autorotate_controller') %>
+    <%= render :partial => SurfaceFile.view_path('surface_viewer/view_div/view_controller') %>
 </div>
