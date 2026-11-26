@@ -50,6 +50,8 @@ volume_ui_template_id = "volume-ui-template-#{@userfile.id}"
       url = content_userfile_path(file, :content_loader => :raw_content, :file_name => file.name, :viewer_userfile_class => :MghFile)
     elsif file.is_a?(PngFile)
       url = content_userfile_path(file, :content_loader => :raw_content, :file_name => file.name, :viewer_userfile_class => :PngFile)
+    elsif file.is_a?(DicomFile)
+      url = content_userfile_path(file, :content_loader => :raw_content, :file_name => file.name, :viewer_userfile_class => :DicomFile)
     end
 
     volume = file.to_BrainBrowser_volume(url) if url

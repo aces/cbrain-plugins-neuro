@@ -17,17 +17,35 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.  
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
 # Model for DICOM files.
 class DicomFile < SingleFile
 
   Revision_info=CbrainFileRevision[__FILE__] #:nodoc:
-  
+
+  # We are using the MincFile's volume viewer code almost
+  # exactly as-is. The only difference will be in a tiny
+  # snippet of javascript code that we provide in
+  # our model's "views" subdirectory, "_volume_viewer_loader.html.erb"
+  # which will be substituted inside Minc's volume viewer javascript code.
+  has_viewer MincFile.find_viewer(:volume_viewer)
+
+  def self.pretty_type #:nodoc:
+    "DICOM file"
+  end
+
   def self.file_name_pattern #:nodoc:
     /\.(dcm|dicom)$/i
   end
-  
-end
 
+  def raw_content #:nodoc:
+    File.open(self.cache_full_path, "r", :binmode => true).read
+  end
+
+  def to_BrainBrowser_volume(url)
+    { type: "dicom", url: url }
+  end
+
+end
