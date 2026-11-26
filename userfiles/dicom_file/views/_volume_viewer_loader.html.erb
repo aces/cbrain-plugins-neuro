@@ -1,0 +1,42 @@
+
+/////////////////////
+// Load the volumes.
+/////////////////////
+
+// This code is a en excerpt of javascript which is inserted within
+// the initializing function of the brainbrowser viewer. Typically
+// this main brainbrowser function is in a view partial located in the plugin
+// where the MincFile rails model is stored:
+//   cbrain-plugins-neuro/userfiles/minc_file/views/_volume_viewer.html.erb
+//
+// This code will load the content of the volume to be displayed
+// from a Dicomfile. Other volume userfiles supply a piece of code of
+// similar function that differ only in how the javascript code
+// loads the volume data.
+
+document.addEventListener('failedToLoad', (event) => {
+  window.alert(event.detail.message);
+  loading_div.hide();
+  loading_div.parent()[0].innerText = event.detail.message;
+});
+
+var dicom_url = "<%= content_userfile_path(@userfile) %>" +
+                "?content_loader=raw_content&viewer_userfile_class=DicomFile" +
+                "&file_name=<%= url_encode(@userfile.name) %>";
+
+viewer.loadVolumes({
+  volumes: [
+    {
+      type: "dicom",
+      dicom_url: dicom_url,
+      template: {
+        element_id: "volume-ui-template-<%= @userfile.id %>",
+        viewer_insert_class: "volume-viewer-display"
+      }
+    },
+  ],
+  complete: function() {
+    loading_div.hide();
+    $("#brainbrowser-wrapper").slideDown({duration: 600});
+  }
+});

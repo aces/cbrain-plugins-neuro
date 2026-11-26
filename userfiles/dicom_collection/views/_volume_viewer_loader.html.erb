@@ -1,0 +1,92 @@
+
+/////////////////////
+// Load the volumes.
+/////////////////////
+
+document.addEventListener('failedToLoad', (event) => {
+    window.alert(event.detail.message);
+    loading_div.hide();
+    loading_div.parent()[0].innerText = event.detail.message;
+});
+
+function dicomCollectionFailedToLoad(message) {
+  document.dispatchEvent(new CustomEvent('failedToLoad', { detail: { message: message } }));
+}
+
+var dicom_file_names = [
+<% @userfile.dicom_file_names.each do |file_name| %>
+  "<%= url_encode(file_name) %>",
+<% end %>
+];
+
+var dicom_urls = dicom_file_names.map(function(encoded_name) {
+  return "<%= content_userfile_path(@userfile) %>" +
+         "?content_loader=raw_content&viewer_userfile_class=DicomFile" +
+         "&file_name=" + encoded_name;
+});
+
+var collection_name = decodeURIComponent("<%= url_encode(@userfile.name) %>");
+
+// Fetch and parse all the files; the ones that fail to load
+// or are not DICOM images with pixel data are dropped.
+var dicom_loads = dicom_urls.map(function(url) {
+  return fetch(url)
+    .then(function(response) {
+      if (!response.ok) {
+        throw new Error("status " + response.status);
+      }
+      return response.arrayBuffer();
+    })
+    .then(function(arrayBuffer) {
+      var image = daikon.Series.parseImage(new DataView(arrayBuffer));
+      return (image && image.hasPixelData()) ? image : null;
+    })
+    .catch(function(error) {
+      console.error("Error processing DICOM file:", url, error);
+      return null;
+    });
+});
+
+Promise.all(dicom_loads).then(function(images) {
+  // Images are in URL order here, so the reference series
+  // (the first valid image's) is the same on every load.
+  images = images.filter(function(image) { return image !== null; });
+
+  if (images.length === 0) {
+    dicomCollectionFailedToLoad("No valid DICOM images found in " + collection_name);
+    return;
+  }
+
+  // Keep only the images of the same series as the first one.
+  var series_id    = images[0].getSeriesId();
+  var dicom_series = new daikon.Series();
+  images.forEach(function(image) {
+    if (image.getSeriesId() === series_id) {
+      dicom_series.addImage(image);
+    }
+  });
+
+  // Use daikon to build the series (sorts the slices) and set images
+  dicom_series.buildSeries();
+  var seriesList = dicom_series.series || [];
+  if (seriesList.length > 0 && seriesList[0].images) {
+    dicom_series.images = seriesList[0].images;
+  }
+
+  viewer.loadVolumes({
+    volumes: [
+      {
+        type: "dicom",
+        dicom_source: dicom_series,
+        template: {
+          element_id: "volume-ui-template-<%= @userfile.id %>",
+          viewer_insert_class: "volume-viewer-display"
+        }
+      },
+    ],
+    complete: function() {
+      loading_div.hide();
+      $("#brainbrowser-wrapper").slideDown({duration: 600});
+    }
+  });
+});
